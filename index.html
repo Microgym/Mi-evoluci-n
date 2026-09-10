@@ -541,6 +541,7 @@ html,body{
 
 <div class="card">
   <h2>Estado corporal actual</h2>
+  <p class="muted">Tus mediciones históricas de la hoja <b>peso casa</b> se han incorporado a estos indicadores.</p>
   <p class="muted">Colores orientativos para ayudarte a interpretar la última medición. En las métricas de báscula BIA, la tendencia es más útil que un valor aislado.</p>
   <div id="bodyStatusGrid" class="body-status-grid"></div>
 </div>
@@ -799,7 +800,7 @@ html,body{
 </main>
 <nav><button data-sec="inicio" class="active">Inicio</button><button data-sec="peso">Peso</button><button data-sec="comidas">Comidas</button><button data-sec="entreno">Fuerza</button><button data-sec="evolucion">Evolución</button><button data-sec="datos">Datos</button></nav>
 <script>
-const SEED=[{"fecha": "2026-06-26", "peso": 98.3, "grasa": 26.5, "cintura": null, "visceral": 12, "imc": 29.0, "grasaKg": 26.0, "masaMagra": 72.3}, {"fecha": "2026-06-27", "peso": 97.8, "grasa": 26.2, "cintura": null, "visceral": 12, "imc": 28.9, "grasaKg": 25.6, "masaMagra": 72.2}, {"fecha": "2026-08-26", "peso": 98.2, "grasa": 26.4, "cintura": null, "visceral": 12, "imc": 29.0, "grasaKg": 25.9, "masaMagra": 72.3}, {"fecha": "2026-08-28", "peso": 97.8, "grasa": 26.2, "cintura": null, "visceral": 12, "imc": 28.9, "grasaKg": 25.6, "masaMagra": 72.2}, {"fecha": "2026-08-29", "peso": 96.0, "grasa": 25.5, "cintura": null, "visceral": 11, "imc": 28.4, "grasaKg": 24.5, "masaMagra": 71.5}, {"fecha": "2026-08-30", "peso": 95.8, "grasa": 25.5, "cintura": null, "visceral": 11, "imc": 28.3, "grasaKg": 24.4, "masaMagra": 71.4}, {"fecha": "2026-09-02", "peso": 95.3, "grasa": 25.2, "cintura": null, "visceral": 11, "imc": 28.2, "grasaKg": 24.0, "masaMagra": 71.3}, {"fecha": "2026-09-04", "peso": 94.9, "grasa": 25.0, "cintura": null, "visceral": 11, "imc": 28.0, "grasaKg": 23.7, "masaMagra": 71.2}, {"fecha": "2026-09-05", "peso": 94.3, "grasa": 24.8, "cintura": null, "visceral": 11, "imc": 27.9, "grasaKg": 23.4, "masaMagra": 70.9}, {"fecha": "2026-09-08", "peso": 94.1, "grasa": 24.6, "cintura": null, "visceral": 11, "imc": 27.8, "grasaKg": 23.1, "masaMagra": 71.0}, {"fecha": "2026-09-10", "peso": 93.7, "grasa": 24.4, "cintura": null, "visceral": 11, "imc": 27.7, "grasaKg": 22.9, "masaMagra": 70.8}];
+const SEED=[{"fecha":"2026-06-26","peso":98.3,"imc":29,"grasa":26.5,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1864,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":26,"masaMagra":72.3,"pesoMuscular":64.7,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-06-27","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1862,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.4,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-26","peso":98.2,"imc":29,"grasa":26.4,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1863,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":25.9,"masaMagra":72.3,"pesoMuscular":64.6,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-08-28","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.7,"humedad":53,"masaOsea":3.5,"bmr":1861,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.3,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-29","peso":96.0,"imc":28.4,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1854,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.5,"masaMagra":71.5,"pesoMuscular":62.8,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-08-30","peso":95.8,"imc":28.3,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1853,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.4,"masaMagra":71.4,"pesoMuscular":62.7,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-02","peso":95.3,"imc":28.2,"grasa":25.2,"musculoPct":65.3,"humedad":54,"masaOsea":3.5,"bmr":1852,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.6,"grasaKg":24,"masaMagra":71.3,"pesoMuscular":62.2,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-04","peso":94.9,"imc":28,"grasa":25.0,"musculoPct":65.2,"humedad":54,"masaOsea":3.4,"bmr":1850,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.4,"grasaKg":23.7,"masaMagra":71.2,"pesoMuscular":61.9,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-05","peso":94.3,"imc":27.9,"grasa":24.8,"musculoPct":65.0,"humedad":54,"masaOsea":3.4,"bmr":1846,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.2,"grasaKg":23.4,"masaMagra":70.9,"pesoMuscular":61.3,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-08","peso":94.1,"imc":27.8,"grasa":24.6,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.0,"grasaKg":23.1,"masaMagra":71.0,"pesoMuscular":61.2,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-10","peso":93.7,"imc":27.7,"grasa":24.4,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.7,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":21.9,"grasaKg":22.9,"masaMagra":70.8,"pesoMuscular":60.9,"proteinaKg":16.6,"cintura":null}];
 const KEY='miguel-evolucion-v4';
 function fresh(){return {peso:[],comidas:[],entreno:[],meals:{},profile:null,rutinaSesiones:[]}}
 let db;
@@ -808,6 +809,23 @@ if(!db.peso) db.peso=[];
 if(!db.comidas) db.comidas=[];
 if(!db.meals) db.meals={};
 if(!db.rutinaSesiones) db.rutinaSesiones=[];
+
+// Completa únicamente campos históricos vacíos usando la hoja "peso casa" del Excel.
+// No sobrescribe valores que el usuario ya haya guardado manualmente.
+const HISTORICO_PESO_EXCEL=SEED;
+HISTORICO_PESO_EXCEL.forEach(src=>{
+  const dst=(db.peso||[]).find(x=>x.fecha===src.fecha);
+  if(!dst)return;
+  Object.entries(src).forEach(([k,v])=>{
+    if(k==='fecha' || v==null)return;
+    if(dst[k]==null || dst[k]==='')dst[k]=v;
+  });
+});
+
+if(db.profile && db.profile.nombre==='Miguel' && (!db.profile.alturaCm || Number(db.profile.alturaCm)<=0)){
+  db.profile.alturaCm=184;
+}
+
 if(!db.profile){
   const looksLikeLegacyMiguel=(db.peso||[]).some(x=>x.fecha==='2026-09-10' && Number(x.peso)===93.7);
   db.profile=looksLikeLegacyMiguel ? {
