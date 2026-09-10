@@ -460,7 +460,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.36 — corrección arranque IA texto */
+/* v22.1.37 — comidas habituales/favoritas */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -886,6 +886,46 @@ nav .nav-label{
 .food-text-ai-status.ok{background:#eef8f3;border-color:#cde9db;color:#176b4b}
 .food-text-ai-status.warn{background:#fff8e8;border-color:#ecd9a6;color:#806116}
 
+
+/* v22.1.37 — comidas favoritas / habituales */
+.meal-fav-card{
+  margin-bottom:14px;
+}
+.meal-fav-toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:8px;
+}
+.meal-fav-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+.meal-fav-item{
+  border:1px solid #e5e7eb;
+  border-radius:13px;
+  padding:10px;
+  background:#fff;
+}
+.meal-fav-item b{display:block;font-size:13px}
+.meal-fav-item small{display:block;color:#6b7280;margin-top:4px}
+.meal-fav-actions{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+  flex-wrap:wrap;
+}
+.meal-fav-actions button{padding:7px 9px;font-size:11px}
+.favorite-save-btn{
+  margin-top:8px;
+}
+@media(max-width:430px){
+  .meal-fav-list{grid-template-columns:1fr}
+}
+
 </style>
 
 </head>
@@ -1086,6 +1126,16 @@ nav .nav-label{
   <label>Fecha</label>
   <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals();loadDailyWater()">
   <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, borrar el cálculo si quieres empezar de nuevo, o usar <b>Foto del plato</b> / <b>Foto de etiqueta</b> dentro de cada comida.</p>
+</div>
+
+
+<div class="card meal-fav-card">
+  <h2>⭐ Comidas habituales</h2>
+  <p class="muted">Guarda platos que repites y reutilízalos sin volver a analizarlos.</p>
+  <div class="meal-fav-toolbar">
+    <input id="mealFavoriteSearch" placeholder="Buscar favorito..." oninput="renderMealFavorites()">
+  </div>
+  <div id="mealFavoritesList" class="meal-fav-list"></div>
 </div>
 
 <div id="mealCards"></div>
@@ -1497,6 +1547,7 @@ try{db=JSON.parse(localStorage.getItem(KEY)||'null')||fresh()}catch(e){db=fresh(
 if(!db.peso) db.peso=[];
 if(!db.comidas) db.comidas=[];
 if(!db.meals) db.meals={};
+if(!Array.isArray(db.mealFavorites)) db.mealFavorites=[];
 if(!db.rutinaSesiones) db.rutinaSesiones=[];
 if(db.nextRoutineId===undefined) db.nextRoutineId=null;
 if(!db.waterDaily || typeof db.waterDaily!=='object' || Array.isArray(db.waterDaily)) db.waterDaily={};
@@ -1854,6 +1905,141 @@ function clearMealCalculation(meal){
  if(typeof clearFoodPhoto==='function') {
    try { clearFoodPhoto(meal); } catch(e) {}
  }
+}
+
+
+function cloneMealBreakdown(arr){
+  return JSON.parse(JSON.stringify(Array.isArray(arr)?arr:[]));
+}
+
+function favoriteMealLabel(fav){
+  return fav.nombre||fav.desc||'Comida habitual';
+}
+
+function saveCurrentMealAsFavorite(tipo){
+  const fecha=isoFromES(document.getElementById('cFecha').value)||today();
+  const key=mealKey(fecha,tipo);
+  const cur=getMeal(fecha,tipo);
+
+  const desc=(document.getElementById('desc_'+tipo)?.value||cur.desc||'').trim();
+  const kcal=Number(document.getElementById('kcal_'+tipo)?.value||cur.kcal||0);
+  const prot=Number(document.getElementById('prot_'+tipo)?.value||cur.prot||0);
+  const breakdown=cloneMealBreakdown((db.meals[key]&&db.meals[key].breakdown)||cur.breakdown||[]);
+
+  if(!desc && !kcal && !prot){
+    alert('Primero calcula o rellena una comida.');
+    return;
+  }
+
+  const suggested=desc||'Comida habitual';
+  const nombre=(prompt('Nombre para esta comida habitual:',suggested)||'').trim();
+  if(!nombre)return;
+
+  const existing=(db.mealFavorites||[]).findIndex(f=>normText(f.nombre||'')===normText(nombre));
+  const fav={
+    id:existing>=0 ? db.mealFavorites[existing].id : 'mf_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    nombre,
+    desc,
+    kcal,
+    prot,
+    breakdown,
+    sourceTipo:tipo,
+    createdAt:existing>=0 ? db.mealFavorites[existing].createdAt : Date.now(),
+    updatedAt:Date.now()
+  };
+
+  if(existing>=0){
+    if(!confirm(`Ya existe “${nombre}”. ¿Actualizarla con estos valores?`))return;
+    db.mealFavorites[existing]=fav;
+  }else{
+    db.mealFavorites.unshift(fav);
+  }
+
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderMealFavorites();
+  alert(`“${nombre}” guardada como comida habitual.`);
+}
+
+function useMealFavorite(id,tipoOverride=''){
+  const fav=(db.mealFavorites||[]).find(f=>String(f.id)===String(id));
+  if(!fav)return;
+
+  const tipo=tipoOverride || fav.sourceTipo || 'comida';
+  const descEl=document.getElementById('desc_'+tipo);
+  const kcalEl=document.getElementById('kcal_'+tipo);
+  const protEl=document.getElementById('prot_'+tipo);
+  const horaEl=document.getElementById('hora_'+tipo);
+
+  if(!descEl){
+    alert('Abre el apartado Comidas para usar este favorito.');
+    return;
+  }
+
+  descEl.value=fav.desc||fav.nombre||'';
+  if(kcalEl)kcalEl.value=Math.round(Number(fav.kcal)||0);
+  if(protEl)protEl.value=Math.round(Number(fav.prot)||0);
+
+  const fecha=isoFromES(document.getElementById('cFecha').value)||today();
+  const key=mealKey(fecha,tipo);
+  const cur=getMeal(fecha,tipo);
+
+  db.meals[key]={
+    ...cur,
+    fecha,
+    tipo,
+    hora:horaEl?.value||cur.hora||'',
+    desc:descEl.value,
+    kcal:Number(kcalEl?.value)||0,
+    prot:Number(protEl?.value)||0,
+    breakdown:cloneMealBreakdown(fav.breakdown)
+  };
+
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderEditableBreakdown(tipo,cloneMealBreakdown(fav.breakdown));
+  renderMeals();
+
+  setTimeout(()=>{
+    const el=document.getElementById('desc_'+tipo);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  },50);
+}
+
+function deleteMealFavorite(id){
+  const fav=(db.mealFavorites||[]).find(f=>String(f.id)===String(id));
+  if(!fav)return;
+  if(!confirm(`¿Eliminar “${favoriteMealLabel(fav)}” de tus comidas habituales?`))return;
+  db.mealFavorites=(db.mealFavorites||[]).filter(f=>String(f.id)!==String(id));
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderMealFavorites();
+}
+
+function renderMealFavorites(){
+  const box=document.getElementById('mealFavoritesList');
+  if(!box)return;
+
+  const q=normText(document.getElementById('mealFavoriteSearch')?.value||'');
+  let items=[...(db.mealFavorites||[])];
+
+  if(q){
+    items=items.filter(f=>normText(`${f.nombre||''} ${f.desc||''}`).includes(q));
+  }
+
+  if(!items.length){
+    box.innerHTML='<div class="empty">Aún no tienes comidas habituales guardadas.</div>';
+    return;
+  }
+
+  box.innerHTML=items.map(f=>{
+    const typeLabel=(MEALS.find(m=>m.key===f.sourceTipo)||{}).label||'Comida';
+    return `<div class="meal-fav-item">
+      <b>${favoriteMealLabel(f)}</b>
+      <small>${Math.round(Number(f.kcal)||0)} kcal · ${Math.round(Number(f.prot)||0)} g proteína · ${typeLabel}</small>
+      <div class="meal-fav-actions">
+        <button type="button" class="primary-small" onclick="useMealFavorite('${f.id}','${f.sourceTipo||'comida'}')">Usar</button>
+        <button type="button" class="set-add" onclick="deleteMealFavorite('${f.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function saveMeal(tipo){
@@ -2333,7 +2519,10 @@ function renderMeals(){
           <div><label>Kcal</label><input id="kcal_${m.key}" type="number" value="${x.kcal||''}" placeholder="0"></div>
           <div><label>Proteína (g)</label><input id="prot_${m.key}" type="number" value="${x.prot||''}" placeholder="0"></div>
         </div>
-        <div class="meal-actions"><button class="primary" onclick="saveMeal('${m.key}')">Guardar ${m.label.toLowerCase()}</button></div>
+        <div class="meal-actions">
+          <button class="primary" onclick="saveMeal('${m.key}')">Guardar ${m.label.toLowerCase()}</button>
+          <button type="button" class="secondary favorite-save-btn" onclick="saveCurrentMealAsFavorite('${m.key}')">⭐ Guardar como habitual</button>
+        </div>
       </div>
     </div>`;
   });
@@ -5402,7 +5591,7 @@ function render(){
  <div class="kpiLine"><span>IMC</span><b>${a.imc??'—'} → ${b.imc??'—'}</b></div>
  <div class="kpiLine"><span>Músculo</span><b>${a.musculoPct??'—'} → ${b.musculoPct??'—'}%</b></div>`;
 }
- renderMeals();loadDailyWater();renderActivity();renderStrength();renderExerciseMap();renderPersonalRecords();renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison();renderActivityCalendar()
+ renderMeals();renderMealFavorites();loadDailyWater();renderActivity();renderStrength();renderExerciseMap();renderPersonalRecords();renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison();renderActivityCalendar()
 }
 function table(rows,cols){if(!rows.length)return '<div class="empty">Sin datos todavía.</div>';return '<table><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='fecha'?fechaES(r[c]):(c==='modalidad'?modalidadES(r[c]):(r[c]??''))}</td>`).join('')+'</tr>').join('')+'</table>'}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mi-evolucion-backup.json';a.click()}
