@@ -377,6 +377,36 @@ tr:last-child td{border-bottom:0}
  .food-photo-preview img{width:90px;height:90px}
 }
 
+
+/* v22.1.7 — navegación inferior fija en iPhone */
+nav{
+  position:fixed !important;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9999;
+  transform:none !important;
+  translate:none !important;
+  margin:0 !important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom));
+  touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  overscroll-behavior:none;
+  will-change:auto;
+}
+nav button{
+  -webkit-user-drag:none;
+  touch-action:manipulation;
+}
+main{
+  padding-bottom:calc(110px + env(safe-area-inset-bottom)) !important;
+}
+html,body{
+  overscroll-behavior-y:auto;
+}
+
 </style>
 
 </head>
