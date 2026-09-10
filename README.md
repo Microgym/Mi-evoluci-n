@@ -1,10 +1,8 @@
-# Mi Evolución v22.1.4 — Últimos entrenamientos agrupados
+# Mi Evolución v22.1.6 — Datos y copia de seguridad visibles
 
-También en **Últimos entrenamientos** las rutinas aparecen agrupadas:
+Corrección importante:
+- la sección `Datos` existía, pero faltaba su botón en la navegación inferior;
+- ahora aparece una pestaña visible `Datos`;
+- además, `Copia de seguridad` también aparece al final de `Evolución`, para que sea fácil exportar aunque no se use la pestaña Datos.
 
-- una sola línea con la fecha y el nombre de la rutina;
-- al desplegarla se ven los ejercicios realizados;
-- si hubo ejercicios omitidos, aparecen como `No realizados`;
-- los entrenamientos manuales siguen apareciendo individualmente.
-
-No se modifica ni borra ningún dato existente.
+No se modifica ni se borra ningún dato almacenado.

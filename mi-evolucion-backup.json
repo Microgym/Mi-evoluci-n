@@ -1,0 +1,1820 @@
+{
+  "peso": [
+    {
+      "fecha": "2026-06-26",
+      "peso": 98.3,
+      "grasa": 26.5,
+      "cintura": null,
+      "visceral": 12,
+      "imc": 29,
+      "grasaKg": 26,
+      "masaMagra": 72.3
+    },
+    {
+      "fecha": "2026-06-27",
+      "peso": 97.8,
+      "grasa": 26.2,
+      "cintura": null,
+      "visceral": 12,
+      "imc": 28.9,
+      "grasaKg": 25.6,
+      "masaMagra": 72.2
+    },
+    {
+      "fecha": "2026-08-26",
+      "peso": 98.2,
+      "grasa": 26.4,
+      "cintura": null,
+      "visceral": 12,
+      "imc": 29,
+      "grasaKg": 25.9,
+      "masaMagra": 72.3
+    },
+    {
+      "fecha": "2026-08-28",
+      "peso": 97.8,
+      "grasa": 26.2,
+      "cintura": null,
+      "visceral": 12,
+      "imc": 28.9,
+      "grasaKg": 25.6,
+      "masaMagra": 72.2
+    },
+    {
+      "fecha": "2026-08-29",
+      "peso": 96,
+      "grasa": 25.5,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 28.4,
+      "grasaKg": 24.5,
+      "masaMagra": 71.5
+    },
+    {
+      "fecha": "2026-08-30",
+      "peso": 95.8,
+      "grasa": 25.5,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 28.3,
+      "grasaKg": 24.4,
+      "masaMagra": 71.4
+    },
+    {
+      "fecha": "2026-09-02",
+      "peso": 95.3,
+      "grasa": 25.2,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 28.2,
+      "grasaKg": 24,
+      "masaMagra": 71.3
+    },
+    {
+      "fecha": "2026-09-04",
+      "peso": 94.9,
+      "grasa": 25,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 28,
+      "grasaKg": 23.7,
+      "masaMagra": 71.2
+    },
+    {
+      "fecha": "2026-09-05",
+      "peso": 94.3,
+      "grasa": 24.8,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 27.9,
+      "grasaKg": 23.4,
+      "masaMagra": 70.9
+    },
+    {
+      "fecha": "2026-09-08",
+      "peso": 94.1,
+      "grasa": 24.6,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 27.8,
+      "grasaKg": 23.1,
+      "masaMagra": 71
+    },
+    {
+      "fecha": "2026-09-10",
+      "peso": 93.7,
+      "grasa": 24.4,
+      "cintura": null,
+      "visceral": 11,
+      "imc": 27.7,
+      "grasaKg": 22.9,
+      "masaMagra": 70.8
+    }
+  ],
+  "comidas": [],
+  "entreno": [
+    {
+      "fecha": "2026-07-21",
+      "tipo": "cardio",
+      "duracion": 10,
+      "ej": "Elíptica",
+      "intensidad": "moderada",
+      "kcal": 90,
+      "modalidad": "",
+      "equipo": "LifeFitness",
+      "kg": null,
+      "reps": null,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 10,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 10 min"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Cat Camel",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 20 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Estiramiento aductores tumbado",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 20 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Estiramiento pectoral/hombro",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Pared / apoyo",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 20 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Patada de glúteo",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina Nº 5",
+      "kg": 27.5,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 20,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 25,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 27.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 20 kg · 15 reps | S2: 25 kg · 15 reps | S3: 27.5 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Jalón agarre ancho",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina Nº 13",
+      "kg": 37.5,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 37.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 37.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 37.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 37.5 kg · 15 reps | S2: 37.5 kg · 15 reps | S3: 37.5 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Leg Extension",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina Nº 20",
+      "kg": 32.5,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 27.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 32.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 32.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 27.5 kg · 15 reps | S2: 32.5 kg · 15 reps | S3: 32.5 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Press militar con mancuernas",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_libre",
+      "equipo": "Mancuernas",
+      "kg": 8,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 8,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 8,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 8,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 8 kg · 15 reps | S2: 8 kg · 15 reps | S3: 8 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Femoral sentado",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina Nº 9",
+      "kg": 35,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 27.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 27.5 kg · 15 reps | S2: 35 kg · 15 reps | S3: 35 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Face Pull",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "polea",
+      "equipo": "Polea",
+      "kg": 15,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 15 kg · 15 reps | S2: 15 kg · 15 reps | S3: 15 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Tríceps polea alta",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "polea",
+      "equipo": "Polea alta",
+      "kg": 15,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 10,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 15 kg · 15 reps | S2: 15 kg · 15 reps | S3: 10 kg · 15 reps"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": 3,
+      "ej": "Plancha de codos",
+      "intensidad": "moderada",
+      "kcal": 22,
+      "modalidad": "peso_corporal",
+      "equipo": "",
+      "kg": null,
+      "reps": null,
+      "series": 3,
+      "sets": [
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 1,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 1,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 1,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Segundo día · S1: 1 min | S2: 1 min | S3: 1 min"
+    },
+    {
+      "fecha": "2026-07-21",
+      "tipo": "fuerza",
+      "duracion": 45,
+      "ej": "Bloque de fuerza · Segundo día",
+      "intensidad": "suave",
+      "kcal": 221,
+      "modalidad": "",
+      "equipo": "",
+      "kg": null,
+      "reps": null,
+      "series": null,
+      "notas": "Resumen de rutina. Duración total: 55 min. Tiempo no-fuerza registrado: 10 min.",
+      "esResumenRutina": true,
+      "rutinaId": "r1789039620891"
+    },
+    {
+      "fecha": "2026-07-12",
+      "tipo": "cardio",
+      "duracion": 55,
+      "ej": "Spinning / ciclo indoor",
+      "intensidad": "intensa",
+      "kcal": 947,
+      "cardioActividad": "spinning",
+      "velocidad": null,
+      "inclinacion": null,
+      "distancia": null,
+      "resistencia": "",
+      "modalidad": "",
+      "equipo": "",
+      "kg": null,
+      "reps": null,
+      "series": null,
+      "notas": ""
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "cardio",
+      "duracion": 10,
+      "ej": "Elíptica",
+      "intensidad": "moderada",
+      "kcal": 90,
+      "modalidad": "",
+      "equipo": "LifeFitness",
+      "kg": null,
+      "reps": null,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 10,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 10 min",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 0
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Cat Camel",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 1
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Hombro con pica",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Pica / palo",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 3
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Prensa de piernas",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Prensa",
+      "kg": 63,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 63 kg · 15 reps | S2: 63 kg · 15 reps | S3: 63 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 4
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Press de pecho en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina press pecho",
+      "kg": 18,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 18 kg · 15 reps | S2: 18 kg · 15 reps | S3: 18 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 5
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Aductores en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina aductores",
+      "kg": 29,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 29 kg · 15 reps | S2: 29 kg · 15 reps | S3: 29 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 6
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Remo sentado en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina remo",
+      "kg": 29,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 29 kg · 15 reps | S2: 29 kg · 15 reps | S3: 29 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 7
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Abductores en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina abductores",
+      "kg": 29,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 29,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 29 kg · 15 reps | S2: 29 kg · 15 reps | S3: 29 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 8
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Pájaros / deltoide posterior en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina deltoide posterior",
+      "kg": null,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 0,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 0,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 0,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 0 kg · 15 reps | S2: 0 kg · 15 reps | S3: 0 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 9
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Curl de bíceps en polea",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "polea",
+      "equipo": "Polea baja",
+      "kg": 18,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 18,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 18 kg · 15 reps | S2: 18 kg · 15 reps | S3: 18 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 10
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Abdominales en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina abdominal",
+      "kg": 35,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 35 kg · 15 reps | S2: 35 kg · 15 reps | S3: 35 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 11
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Estiramiento aductores tumbado",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4",
+      "ordenRutina": 2
+    },
+    {
+      "fecha": "2026-07-13",
+      "tipo": "fuerza",
+      "duracion": 40,
+      "ej": "Bloque de fuerza · Primer día",
+      "intensidad": "suave",
+      "kcal": 197,
+      "modalidad": "",
+      "equipo": "",
+      "kg": null,
+      "reps": null,
+      "series": null,
+      "notas": "Resumen de rutina. Duración total: 50 min. Tiempo no-fuerza registrado: 10 min.",
+      "esResumenRutina": true,
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789040778725_qmum4"
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "cardio",
+      "duracion": 10,
+      "ej": "Elíptica",
+      "intensidad": "moderada",
+      "kcal": 90,
+      "modalidad": "",
+      "equipo": "LifeFitness",
+      "kg": null,
+      "reps": null,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": null,
+          "tiempo": 10,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 10 min",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 0
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Cat Camel",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 1
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Estiramiento aductores tumbado",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Colchoneta",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 2
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "movilidad",
+      "duracion": null,
+      "ej": "Hombro con pica",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "peso_corporal",
+      "equipo": "Pica / palo",
+      "kg": null,
+      "reps": 20,
+      "series": 1,
+      "sets": [
+        {
+          "kg": null,
+          "reps": 20,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 3
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Prensa de piernas",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 4",
+      "kg": 63,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 63,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 63 kg · 15 reps | S2: 63 kg · 15 reps | S3: 63 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 4
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Aductores en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 1 (piernas dentro)",
+      "kg": 60,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 50,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 57.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 60,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 50 kg · 15 reps | S2: 57.5 kg · 15 reps | S3: 60 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 6
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Press de pecho en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 8",
+      "kg": 25,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 20,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 22.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 25,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 kg · 15 reps | S2: 22.5 kg · 15 reps | S3: 25 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 5
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Remo sentado en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina remo 12",
+      "kg": 37.5,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 35,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 37.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 37.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 35 kg · 15 reps | S2: 37.5 kg · 15 reps | S3: 37.5 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 7
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Abductores en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 2 (piernas fuera)",
+      "kg": 65,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 57.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 65,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 65,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 57.5 kg · 15 reps | S2: 65 kg · 15 reps | S3: 65 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 8
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Pájaros / deltoide posterior en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 3",
+      "kg": 25,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 20,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 25,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 25,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 20 kg · 15 reps | S2: 25 kg · 15 reps | S3: 25 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 9
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Curl de bíceps en polea",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "polea",
+      "equipo": "Polea baja",
+      "kg": 17.5,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 15,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 17.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 17.5,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 15 kg · 15 reps | S2: 17.5 kg · 15 reps | S3: 17.5 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 10
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": null,
+      "ej": "Abdominales en máquina",
+      "intensidad": "moderada",
+      "kcal": null,
+      "modalidad": "maquina",
+      "equipo": "Máquina 11",
+      "kg": 40,
+      "reps": 15,
+      "series": 3,
+      "sets": [
+        {
+          "kg": 40,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 40,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        },
+        {
+          "kg": 40,
+          "reps": 15,
+          "tiempo": null,
+          "unidadTiempo": "min"
+        }
+      ],
+      "notas": "Rutina: Primer día · S1: 40 kg · 15 reps | S2: 40 kg · 15 reps | S3: 40 kg · 15 reps",
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9",
+      "ordenRutina": 11
+    },
+    {
+      "fecha": "2026-07-30",
+      "tipo": "fuerza",
+      "duracion": 40,
+      "ej": "Bloque de fuerza · Primer día",
+      "intensidad": "moderada",
+      "kcal": 295,
+      "modalidad": "",
+      "equipo": "",
+      "kg": null,
+      "reps": null,
+      "series": null,
+      "notas": "Resumen de rutina. Duración total: 50 min. Tiempo no-fuerza registrado: 10 min.",
+      "esResumenRutina": true,
+      "rutinaId": "r1789040443230",
+      "rutinaNombre": "Primer día",
+      "rutinaSessionId": "rs_1789041442846_u31p9"
+    }
+  ],
+  "meals": {
+    "2026-09-10__desayuno": {
+      "fecha": "2026-09-10",
+      "tipo": "desayuno",
+      "hora": "08:00",
+      "desc": "Tortilla de dos huevos y media tostada de pan blanco y un cafe",
+      "kcal": 222,
+      "prot": 15,
+      "breakdown": [
+        {
+          "label": "Huevo (2 ud)",
+          "kcal": 156,
+          "prot": 12.6
+        },
+        {
+          "label": "Pan integral (25 g)",
+          "kcal": 62.5,
+          "prot": 2.25
+        },
+        {
+          "label": "Café solo (1 ración)",
+          "kcal": 3,
+          "prot": 0.3
+        }
+      ]
+    },
+    "2026-09-10__almuerzo": {
+      "fecha": "2026-09-10",
+      "tipo": "almuerzo",
+      "hora": "11:00",
+      "desc": "",
+      "kcal": 0,
+      "prot": 0,
+      "breakdown": [
+        {
+          "label": "Huevo (5 ud)",
+          "kcal": 390,
+          "prot": 31.5
+        }
+      ]
+    }
+  },
+  "rutinas": [
+    {
+      "id": "r1789039620891",
+      "nombre": "Segundo día",
+      "ejercicios": [
+        {
+          "tipo": "cardio",
+          "ej": "Elíptica",
+          "series": 1,
+          "reps": null,
+          "kg": null,
+          "tiempo": 10,
+          "unidadTiempo": "min",
+          "duracion": 10,
+          "intensidad": "moderada",
+          "modalidad": "",
+          "equipo": "LifeFitness",
+          "cardioActividad": "eliptica"
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Cat Camel",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Colchoneta",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Estiramiento aductores tumbado",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Colchoneta",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Estiramiento pectoral/hombro",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Pared / apoyo",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Patada de glúteo",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina Nº 5",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Jalón agarre ancho",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina Nº 13",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Leg Extension",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina Nº 20",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Press militar con mancuernas",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_libre",
+          "equipo": "Mancuernas",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Femoral sentado",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina Nº 9",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Face Pull",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "polea",
+          "equipo": "Polea",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Tríceps polea alta",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "polea",
+          "equipo": "Polea alta",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Plancha de codos",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "",
+          "cardioActividad": null
+        }
+      ]
+    },
+    {
+      "id": "r1789040443230",
+      "nombre": "Primer día",
+      "ejercicios": [
+        {
+          "tipo": "cardio",
+          "ej": "Elíptica",
+          "series": 1,
+          "reps": null,
+          "kg": null,
+          "tiempo": 10,
+          "unidadTiempo": "min",
+          "duracion": 10,
+          "intensidad": "moderada",
+          "modalidad": "",
+          "equipo": "LifeFitness",
+          "cardioActividad": "eliptica"
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Cat Camel",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Colchoneta",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Estiramiento aductores tumbado",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Colchoneta",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "movilidad",
+          "ej": "Hombro con pica",
+          "series": 1,
+          "reps": 20,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "peso_corporal",
+          "equipo": "Pica / palo",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Prensa de piernas",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 4",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Press de pecho en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 8",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Aductores en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 1 (piernas dentro)",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Remo sentado en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina remo 12",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Abductores en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 2 (piernas fuera)",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Pájaros / deltoide posterior en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 3",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Curl de bíceps en polea",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "polea",
+          "equipo": "Polea baja",
+          "cardioActividad": null
+        },
+        {
+          "tipo": "fuerza",
+          "ej": "Abdominales en máquina",
+          "series": 3,
+          "reps": 15,
+          "kg": null,
+          "tiempo": null,
+          "unidadTiempo": "min",
+          "duracion": 6,
+          "intensidad": "moderada",
+          "modalidad": "maquina",
+          "equipo": "Máquina 11",
+          "cardioActividad": null
+        }
+      ]
+    }
+  ],
+  "rutinaActiva": null,
+  "profile": {
+    "nombre": "Miguel",
+    "edad": 50,
+    "sexo": "Hombre",
+    "alturaCm": 184,
+    "kcalObjetivo": 1800,
+    "proteinaObjetivo": 150,
+    "fuerzaDias": 4,
+    "pasosDia": 5000,
+    "primerControl": "90–91 kg / ~22%",
+    "segundoControl": "88–89 kg / ~20%",
+    "configurado": true
+  },
+  "rutinaSesiones": [
+    {
+      "sessionId": "rs_1789040778725_qmum4",
+      "rutinaId": "r1789040443230",
+      "nombre": "Primer día",
+      "fecha": "2026-07-13",
+      "intensidad": "suave",
+      "duracionTotal": 50,
+      "completados": [
+        "Elíptica",
+        "Cat Camel",
+        "Estiramiento aductores tumbado",
+        "Hombro con pica",
+        "Prensa de piernas",
+        "Press de pecho en máquina",
+        "Aductores en máquina",
+        "Remo sentado en máquina",
+        "Abductores en máquina",
+        "Pájaros / deltoide posterior en máquina",
+        "Curl de bíceps en polea",
+        "Abdominales en máquina"
+      ],
+      "omitidos": [],
+      "finalizada": true
+    },
+    {
+      "sessionId": "rs_1789041442846_u31p9",
+      "rutinaId": "r1789040443230",
+      "nombre": "Primer día",
+      "fecha": "2026-07-30",
+      "intensidad": "moderada",
+      "duracionTotal": 50,
+      "completados": [
+        "Elíptica",
+        "Cat Camel",
+        "Estiramiento aductores tumbado",
+        "Hombro con pica",
+        "Prensa de piernas",
+        "Press de pecho en máquina",
+        "Aductores en máquina",
+        "Remo sentado en máquina",
+        "Abductores en máquina",
+        "Pájaros / deltoide posterior en máquina",
+        "Curl de bíceps en polea",
+        "Abdominales en máquina"
+      ],
+      "omitidos": [],
+      "finalizada": true
+    }
+  ]
+}
