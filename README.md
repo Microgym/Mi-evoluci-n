@@ -1,8 +1,11 @@
-# Mi Evolución v22.1.6 — Datos y copia de seguridad visibles
+# Mi Evolución v22.1.7 — Barra inferior fija en iPhone
 
-Corrección importante:
-- la sección `Datos` existía, pero faltaba su botón en la navegación inferior;
-- ahora aparece una pestaña visible `Datos`;
-- además, `Copia de seguridad` también aparece al final de `Evolución`, para que sea fácil exportar aunque no se use la pestaña Datos.
+Corrección visual para iPhone/PWA:
 
-No se modifica ni se borra ningún dato almacenado.
+- la barra inferior `Inicio · Peso · Comidas · Fuerza · Evolución · Datos` queda fijada al borde inferior de la pantalla;
+- al deslizar la página hacia arriba o abajo, la barra ya no debe desplazarse con el contenido;
+- se bloquea el arrastre/selección accidental de la barra;
+- se respeta el área segura inferior del iPhone;
+- se añade espacio al contenido para que ningún bloque quede oculto detrás del menú.
+
+No se modifica ningún dato ni lógica de la app.
