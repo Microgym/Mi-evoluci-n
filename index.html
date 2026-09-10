@@ -441,6 +441,19 @@ html,body{
 .threshold-note{font-size:12px;color:#6e6e73;line-height:1.4}
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
+
+/* v22.1.17 — umbrales exactos de la báscula del usuario */
+.status-blue{background:#eef8ff;border-color:#9edcff}
+.status-green{background:#effaf1;border-color:#9fdfa8}
+.status-orange{background:#fff6e8;border-color:#f3c46f}
+.status-red{background:#fff0ef;border-color:#efaaa4}
+.status-teal{background:#eefaf7;border-color:#9edfcf}
+.status-blue .status-badge{background:#d8f0ff}
+.status-green .status-badge{background:#d9f2de}
+.status-orange .status-badge{background:#fbe5b7}
+.status-red .status-badge{background:#f8d1ce}
+.status-teal .status-badge{background:#d9f3ec}
+
 </style>
 
 </head>
@@ -547,16 +560,24 @@ html,body{
 </div>
 
 <div class="card">
-  <h2>Umbrales orientativos</h2>
+  <h2>Umbrales de tu báscula</h2>
   <table class="threshold-table">
-    <tr><th>Métrica</th><th>Referencia usada</th></tr>
-    <tr><td>IMC</td><td>&lt;18,5 bajo · 18,5–24,9 saludable · 25–29,9 sobrepeso · ≥30 obesidad</td></tr>
-    <tr><td>Grasa corporal (%)</td><td>Se interpreta según el sexo indicado en el perfil. Se usa una clasificación orientativa, no diagnóstica.</td></tr>
-    <tr><td>Agua corporal (%)</td><td>Orientativo: hombre 50–65% · mujer 45–60%</td></tr>
-    <tr><td>Grasa visceral</td><td>Escala orientativa frecuente en básculas: 1–9 normal · 10–14 elevada · ≥15 alta. Puede variar según fabricante.</td></tr>
-    <tr><td>Resto de campos BIA</td><td>Músculo %, masa ósea, BMR, proteína %, edad corporal, grasa subcutánea, masa magra, músculo kg y proteína kg: no tienen umbrales universales fiables. Se muestran como tendencia.</td></tr>
+    <tr><th>Métrica</th><th>Umbrales</th></tr>
+    <tr><td>Peso</td><td>62,6 · 84,6 · 101,6 kg</td></tr>
+    <tr><td>IMC</td><td>18,5 · 25 · 30</td></tr>
+    <tr><td>Grasa corporal (%)</td><td>11 · 22 · 27%</td></tr>
+    <tr><td>Músculo (%)</td><td>40 · 60%</td></tr>
+    <tr><td>Humedad (%)</td><td>55 · 65%</td></tr>
+    <tr><td>Masa ósea</td><td>3,1 · 3,3 kg</td></tr>
+    <tr><td>BMR</td><td>1965,9 kcal</td></tr>
+    <tr><td>Tasa proteína</td><td>16 · 18%</td></tr>
+    <tr><td>Grasa visceral</td><td>9 · 14</td></tr>
+    <tr><td>Grasa subcutánea</td><td>7 · 15%</td></tr>
+    <tr><td>Grasa corporal</td><td>10,3 · 20,6 · 25,3 kg</td></tr>
+    <tr><td>Peso muscular</td><td>37,5 · 56,2 kg</td></tr>
+    <tr><td>Cantidad de proteína</td><td>15,0 · 16,9 kg</td></tr>
   </table>
-  <p class="threshold-note">Los colores no sustituyen una valoración clínica. La hidratación, la hora del día y el entrenamiento pueden mover bastante las medidas de una báscula de bioimpedancia.</p>
+  <p class="threshold-note">Estos son los umbrales mostrados por tu báscula en las capturas. Los parámetros que no muestran escala en la báscula se dejan sin umbral y aparecen en gris.</p>
 </div>
 
 <div class="card"><h2>Peso y media móvil</h2><div id="chartPeso" class="chart"></div><div class="legend">Línea continua: peso · línea suavizada: media de hasta 7 últimas mediciones.</div></div>
@@ -566,9 +587,25 @@ html,body{
 
 <section id="comidas">
 <div class="card">
+  <h2>Agua del día</h2>
+  <p class="muted">Registra el total aproximado de agua bebida en la fecha seleccionada.</p>
+  <div class="row">
+    <div>
+      <label>Agua bebida (ml)</label>
+      <input id="waterMl" type="number" min="0" step="50" placeholder="Ej. 2000" oninput="updateWaterDisplay()">
+    </div>
+    <div>
+      <label>Equivale a</label>
+      <input id="waterLiters" type="text" readonly placeholder="0,00 L">
+    </div>
+  </div>
+  <p><button class="primary" type="button" onclick="saveDailyWater()">Guardar agua</button></p>
+  <div id="waterDailyInfo" class="muted"></div>
+</div>
+<div class="card">
   <h2>Alimentación del día</h2>
   <label>Fecha</label>
-  <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals()">
+  <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals();loadDailyWater()">
   <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, borrar el cálculo si quieres empezar de nuevo, o usar <b>Foto del plato</b> / <b>Foto de etiqueta</b> dentro de cada comida.</p>
 </div>
 
@@ -750,8 +787,54 @@ html,body{
 
 <section id="evolucion">
 <div class="card"><h2>Resumen de evolución</h2><div id="resumenEvol"></div></div>
+
+<div class="card">
+  <h2>Evolución por parámetro</h2>
+  <p class="muted">Elige cualquier dato corporal y el periodo que quieras comparar.</p>
+
+  <label>Parámetro</label>
+  <select id="evoParametro" onchange="renderCustomEvolution()">
+    <option value="peso">Peso (kg)</option>
+    <option value="imc">IMC</option>
+    <option value="grasa">Grasa corporal (%)</option>
+    <option value="musculoPct">Músculo (%)</option>
+    <option value="humedad">Humedad / agua (%)</option>
+    <option value="masaOsea">Masa ósea (kg)</option>
+    <option value="bmr">BMR (kcal)</option>
+    <option value="proteinaPct">Tasa proteína (%)</option>
+    <option value="edadCuerpo">Edad del cuerpo</option>
+    <option value="visceral">Grasa visceral</option>
+    <option value="grasaSubcutanea">Grasa subcutánea (%)</option>
+    <option value="grasaKg">Grasa corporal (kg)</option>
+    <option value="masaMagra">Peso sin grasa (kg)</option>
+    <option value="pesoMuscular">Peso muscular (kg)</option>
+    <option value="proteinaKg">Cantidad de proteína (kg)</option>
+    <option value="cintura">Cintura (cm)</option>
+  </select>
+
+  <div class="row">
+    <div>
+      <label>Desde</label>
+      <input id="evoDesde" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderCustomEvolution()">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input id="evoHasta" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderCustomEvolution()">
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <button type="button" class="secondary" onclick="setEvolutionFullRange()">Todo el periodo</button>
+    <button type="button" class="secondary" onclick="setEvolutionLastDays(30)">Últimos 30 días</button>
+  </div>
+
+  <div id="evoParamSummary" style="margin-top:12px"></div>
+  <div id="chartParametro" class="chart"></div>
+  <div id="evoParamInfo" class="legend"></div>
+</div>
+
 <div class="card"><h2>Proyección realista</h2><p class="muted">Escenario central configurable: 0,6 kg/semana, sin extrapolar la pérdida inicial de agua.</p>
-<label>Ritmo objetivo (kg/sem)</label><input id="rate" type="number" value="0.6" min="0.2" max="1" step=".1" onchange="renderTargets()">
+<label>Ritmo objetivo (kg/sem)</label><input id="rate" type="number" value="0.6" min="0.2" max="1" step=".1" onchange="renderTargets();renderMilestones(db.peso.at(-1))">
 <div id="proyeccion"></div></div>
 <div class="card"><h2>Cintura</h2><div id="chartCintura" class="chart"></div><p class="muted">Añádela semanalmente. Referencia sencilla: mitad de tu altura ≈ <span id="waistReference">—</span> cm.</p></div>
 <div class="card"><h2>Copia de seguridad</h2>
@@ -809,6 +892,7 @@ if(!db.peso) db.peso=[];
 if(!db.comidas) db.comidas=[];
 if(!db.meals) db.meals={};
 if(!db.rutinaSesiones) db.rutinaSesiones=[];
+if(!db.waterDaily || typeof db.waterDaily!=='object' || Array.isArray(db.waterDaily)) db.waterDaily={};
 
 // Completa únicamente campos históricos vacíos usando la hoja "peso casa" del Excel.
 // No sobrescribe valores que el usuario ya haya guardado manualmente.
@@ -997,6 +1081,70 @@ function addPeso(){
   'pPesoMuscular','pProteinaKg','pCintura'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.value='';
   });
+}
+
+
+function waterDate(){
+  const el=document.getElementById('cFecha');
+  return isoFromES(el?.value)||today();
+}
+
+function updateWaterDisplay(){
+  const mlEl=document.getElementById('waterMl');
+  const litersEl=document.getElementById('waterLiters');
+  if(!mlEl || !litersEl)return;
+  const ml=Number(mlEl.value||0);
+  litersEl.value=Number.isFinite(ml)
+    ? (ml/1000).toFixed(2).replace('.',',')+' L'
+    : '';
+}
+
+function loadDailyWater(){
+  const mlEl=document.getElementById('waterMl');
+  const info=document.getElementById('waterDailyInfo');
+  if(!mlEl)return;
+
+  const fecha=waterDate();
+  const saved=db.waterDaily?.[fecha];
+
+  mlEl.value=saved!=null ? Number(saved) : '';
+  updateWaterDisplay();
+
+  if(info){
+    info.textContent=saved!=null
+      ? `Guardado para ${fechaES(fecha)}: ${(Number(saved)/1000).toFixed(2).replace('.',',')} L`
+      : `Sin agua registrada para ${fechaES(fecha)}.`;
+  }
+}
+
+function saveDailyWater(){
+  const mlEl=document.getElementById('waterMl');
+  const info=document.getElementById('waterDailyInfo');
+  if(!mlEl)return;
+
+  const fecha=waterDate();
+
+  if(mlEl.value===''){
+    delete db.waterDaily[fecha];
+    localStorage.setItem(KEY,JSON.stringify(db));
+    updateWaterDisplay();
+    if(info)info.textContent=`Registro de agua eliminado para ${fechaES(fecha)}.`;
+    return;
+  }
+
+  const ml=Number(mlEl.value);
+  if(!Number.isFinite(ml) || ml<0){
+    alert('Introduce una cantidad válida de agua en ml.');
+    return;
+  }
+
+  db.waterDaily[fecha]=Math.round(ml);
+  localStorage.setItem(KEY,JSON.stringify(db));
+  updateWaterDisplay();
+
+  if(info){
+    info.textContent=`Guardado para ${fechaES(fecha)}: ${(ml/1000).toFixed(2).replace('.',',')} L`;
+  }
 }
 
 function mealKey(fecha,tipo){return fecha+'__'+tipo}
@@ -2661,6 +2809,127 @@ function renderActivity(){
    ? Object.entries(sums).map(([k,v])=>`<div class="kpiLine"><span>${labels[k]||k}</span><b>${v.n} act. · ${Math.round(v.min)} min · ~${Math.round(v.kcal)} kcal</b></div>`).join('')
    : '<div class="empty">Aún no hay entrenamientos registrados.</div>';
 }
+
+const BODY_EVOLUTION_METRICS={
+  peso:{label:'Peso',unit:'kg',dec:1},
+  imc:{label:'IMC',unit:'',dec:1},
+  grasa:{label:'Grasa corporal',unit:'%',dec:1},
+  musculoPct:{label:'Músculo',unit:'%',dec:1},
+  humedad:{label:'Humedad / agua',unit:'%',dec:1},
+  masaOsea:{label:'Masa ósea',unit:'kg',dec:1},
+  bmr:{label:'BMR',unit:'kcal',dec:0},
+  proteinaPct:{label:'Tasa proteína',unit:'%',dec:1},
+  edadCuerpo:{label:'Edad del cuerpo',unit:'años',dec:0},
+  visceral:{label:'Grasa visceral',unit:'',dec:1},
+  grasaSubcutanea:{label:'Grasa subcutánea',unit:'%',dec:1},
+  grasaKg:{label:'Grasa corporal',unit:'kg',dec:1},
+  masaMagra:{label:'Peso sin grasa',unit:'kg',dec:1},
+  pesoMuscular:{label:'Peso muscular',unit:'kg',dec:1},
+  proteinaKg:{label:'Cantidad de proteína',unit:'kg',dec:1},
+  cintura:{label:'Cintura',unit:'cm',dec:1}
+};
+
+function formatEvolutionValue(v,meta){
+  if(v==null || !Number.isFinite(Number(v)))return '—';
+  const n=Number(v);
+  const txt=meta.dec===0?String(Math.round(n)):n.toFixed(meta.dec).replace('.',',');
+  return `${txt}${meta.unit?' '+meta.unit:''}`;
+}
+
+function setEvolutionFullRange(){
+  const rows=db.peso||[];
+  if(!rows.length)return;
+  const desde=document.getElementById('evoDesde');
+  const hasta=document.getElementById('evoHasta');
+  if(desde)desde.value=fechaES(rows[0].fecha);
+  if(hasta)hasta.value=fechaES(rows[rows.length-1].fecha);
+  renderCustomEvolution();
+}
+
+function setEvolutionLastDays(n){
+  const rows=db.peso||[];
+  if(!rows.length)return;
+  const last=rows[rows.length-1].fecha;
+  const d=new Date(last+'T12:00:00');
+  d.setDate(d.getDate()-Number(n));
+  const iso=d.toISOString().slice(0,10);
+  const desde=document.getElementById('evoDesde');
+  const hasta=document.getElementById('evoHasta');
+  if(desde)desde.value=fechaES(iso);
+  if(hasta)hasta.value=fechaES(last);
+  renderCustomEvolution();
+}
+
+function renderCustomEvolution(){
+  const sel=document.getElementById('evoParametro');
+  const desdeEl=document.getElementById('evoDesde');
+  const hastaEl=document.getElementById('evoHasta');
+  const summary=document.getElementById('evoParamSummary');
+  const info=document.getElementById('evoParamInfo');
+  if(!sel || !desdeEl || !hastaEl || !summary || !info)return;
+
+  const all=db.peso||[];
+  if(!all.length){
+    summary.innerHTML='<div class="empty">No hay mediciones todavía.</div>';
+    chart('chartParametro',[{data:[]}]);
+    info.textContent='';
+    return;
+  }
+
+  if(!desdeEl.value)desdeEl.value=fechaES(all[0].fecha);
+  if(!hastaEl.value)hastaEl.value=fechaES(all[all.length-1].fecha);
+
+  const field=sel.value;
+  const meta=BODY_EVOLUTION_METRICS[field]||BODY_EVOLUTION_METRICS.peso;
+  const desde=isoFromES(desdeEl.value)||all[0].fecha;
+  const hasta=isoFromES(hastaEl.value)||all[all.length-1].fecha;
+
+  if(desde>hasta){
+    summary.innerHTML='<div class="empty">La fecha “Desde” no puede ser posterior a “Hasta”.</div>';
+    chart('chartParametro',[{data:[]}],{dec:meta.dec});
+    info.textContent='';
+    return;
+  }
+
+  const rows=all.filter(r=>
+    r.fecha>=desde &&
+    r.fecha<=hasta &&
+    r[field]!=null &&
+    Number.isFinite(Number(r[field]))
+  );
+
+  const points=rows.map(r=>({fecha:r.fecha,v:Number(r[field])}));
+  chart('chartParametro',[{data:points}],{dec:meta.dec});
+
+  if(!rows.length){
+    summary.innerHTML=`<div class="empty">No hay datos de ${meta.label.toLowerCase()} en este periodo.</div>`;
+    info.textContent=`Periodo: ${fechaES(desde)} – ${fechaES(hasta)}`;
+    return;
+  }
+
+  const first=Number(rows[0][field]);
+  const last=Number(rows[rows.length-1][field]);
+  const delta=last-first;
+  const pct=first!==0?(delta/first)*100:null;
+  const vals=rows.map(r=>Number(r[field]));
+  const min=Math.min(...vals),max=Math.max(...vals);
+
+  const sign=delta>0?'+':'';
+  const deltaText=`${sign}${meta.dec===0?Math.round(delta):delta.toFixed(meta.dec).replace('.',',')}${meta.unit?' '+meta.unit:''}`;
+  const pctText=pct==null?'':` · ${pct>=0?'+':''}${pct.toFixed(1).replace('.',',')}%`;
+
+  summary.innerHTML=`
+    <div class="kpiLine"><span>Primera medición</span><b>${fechaES(rows[0].fecha)} · ${formatEvolutionValue(first,meta)}</b></div>
+    <div class="kpiLine"><span>Última medición</span><b>${fechaES(rows[rows.length-1].fecha)} · ${formatEvolutionValue(last,meta)}</b></div>
+    <div class="kpiLine"><span>Cambio</span><b>${deltaText}${pctText}</b></div>
+    <div class="kpiLine"><span>Mínimo</span><b>${formatEvolutionValue(min,meta)}</b></div>
+    <div class="kpiLine"><span>Máximo</span><b>${formatEvolutionValue(max,meta)}</b></div>
+  `;
+
+  info.textContent=`${rows.length} medición${rows.length===1?'':'es'} · ${fechaES(desde)} – ${fechaES(hasta)}. El cambio compara la primera y la última medición disponibles dentro del intervalo.`;
+}
+
+
 function renderTargets(){
  let last=db.peso.at(-1);if(!last)return;let rate=Math.max(.2,Math.min(1,Number(document.getElementById('rate').value)||.6));
  let lean= last.masaMagra || (last.grasa!=null ? last.peso*(1-last.grasa/100) : 70.8);
@@ -2805,56 +3074,86 @@ function trendMeta(field,latest,prev,dec=1){
  return `${d>0?'↑':'↓'} ${Math.abs(d).toFixed(dec).replace('.',',')}`;
 }
 
-function bmiStatus(v){
- if(v==null)return {cls:'status-neutral',label:'Sin dato'};
- v=Number(v);
- if(v<18.5)return {cls:'status-low',label:'Bajo'};
- if(v<25)return {cls:'status-good',label:'Saludable'};
- if(v<30)return {cls:'status-warn',label:'Sobrepeso'};
- return {cls:'status-high',label:'Obesidad'};
-}
 
-function bodyFatStatus(v){
- if(v==null)return {cls:'status-neutral',label:'Sin dato'};
- const sex=(profile().sexo||'').toLowerCase();
+function scaleStatus(v,metric){
+ if(v==null || !Number.isFinite(Number(v)))return {cls:'status-neutral',label:'Sin dato'};
  v=Number(v);
- if(sex==='hombre'){
-   if(v<6)return {cls:'status-low',label:'Muy bajo'};
-   if(v<18)return {cls:'status-good',label:'Atlético/fitness'};
-   if(v<25)return {cls:'status-good',label:'Rango aceptable'};
-   return {cls:'status-high',label:'Elevado'};
+
+ switch(metric){
+   case 'peso':
+     if(v<62.6)return {cls:'status-blue',label:'Delgado'};
+     if(v<84.6)return {cls:'status-green',label:'En forma'};
+     if(v<101.6)return {cls:'status-orange',label:'Sobrepeso'};
+     return {cls:'status-red',label:'Gordo'};
+
+   case 'imc':
+     if(v<18.5)return {cls:'status-blue',label:'Delgado'};
+     if(v<25)return {cls:'status-green',label:'En forma'};
+     if(v<30)return {cls:'status-orange',label:'Sobrepeso'};
+     return {cls:'status-red',label:'Gordo'};
+
+   case 'grasa':
+     if(v<11)return {cls:'status-blue',label:'Bajo'};
+     if(v<22)return {cls:'status-green',label:'En forma'};
+     if(v<27)return {cls:'status-orange',label:'Alta'};
+     return {cls:'status-red',label:'Muy alta'};
+
+   case 'musculoPct':
+     if(v<40)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<60)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'humedad':
+     if(v<55)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<65)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'masaOsea':
+     if(v<3.1)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<3.3)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'bmr':
+     if(v<1965.9)return {cls:'status-blue',label:'Bajo'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'proteinaPct':
+     if(v<16)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<18)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'visceral':
+     if(v<=9)return {cls:'status-green',label:'En forma'};
+     if(v<=14)return {cls:'status-orange',label:'Alerta'};
+     return {cls:'status-red',label:'Peligro'};
+
+   case 'grasaSubcutanea':
+     if(v<7)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<15)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-orange',label:'Alta'};
+
+   case 'grasaKg':
+     if(v<10.3)return {cls:'status-blue',label:'Bajo'};
+     if(v<20.6)return {cls:'status-green',label:'En forma'};
+     if(v<25.3)return {cls:'status-orange',label:'Alta'};
+     return {cls:'status-red',label:'Muy alta'};
+
+   case 'pesoMuscular':
+     if(v<37.5)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<56.2)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   case 'proteinaKg':
+     if(v<15.0)return {cls:'status-blue',label:'Insuficiente'};
+     if(v<16.9)return {cls:'status-green',label:'En forma'};
+     return {cls:'status-teal',label:'Excelente'};
+
+   default:
+     return {cls:'status-neutral',label:'Sin umbral'};
  }
- if(sex==='mujer'){
-   if(v<14)return {cls:'status-low',label:'Muy bajo'};
-   if(v<25)return {cls:'status-good',label:'Atlético/fitness'};
-   if(v<32)return {cls:'status-good',label:'Rango aceptable'};
-   return {cls:'status-high',label:'Elevado'};
- }
- return {cls:'status-neutral',label:'Configura sexo'};
 }
 
-function waterStatus(v){
- if(v==null)return {cls:'status-neutral',label:'Sin dato'};
- const sex=(profile().sexo||'').toLowerCase();
- v=Number(v);
- let low=null,high=null;
- if(sex==='hombre'){low=50;high=65}
- if(sex==='mujer'){low=45;high=60}
- if(low==null)return {cls:'status-neutral',label:'Configura sexo'};
- if(v<low)return {cls:'status-low',label:'Baja'};
- if(v>high)return {cls:'status-warn',label:'Alta'};
- return {cls:'status-good',label:'Orientativamente normal'};
-}
-
-function visceralStatus(v){
- if(v==null)return {cls:'status-neutral',label:'Sin dato'};
- v=Number(v);
- if(v<=9)return {cls:'status-good',label:'Normal'};
- if(v<=14)return {cls:'status-warn',label:'Elevada'};
- return {cls:'status-high',label:'Alta'};
-}
-
-function neutralStatus(){return {cls:'status-neutral',label:'Tendencia'}}
+function neutralStatus(){return {cls:'status-neutral',label:'Sin umbral'}}
 
 function bodyMetricCard(title,value,status,trend='',subtitle=''){
  return `<div class="body-status-card ${status.cls}">
@@ -2876,21 +3175,21 @@ function renderBodyStatus(){
  const prev=rows.length>1?rows[rows.length-2]:null;
 
  const cards=[
-   bodyMetricCard('Peso',valOrDash(latest.peso,1,' kg'),neutralStatus(),trendMeta('peso',latest,prev,1),'Interpretar junto con IMC y evolución'),
-   bodyMetricCard('IMC',valOrDash(latest.imc,1),bmiStatus(latest.imc),trendMeta('imc',latest,prev,1)),
-   bodyMetricCard('Grasa corporal',valOrDash(latest.grasa,1,'%'),bodyFatStatus(latest.grasa),trendMeta('grasa',latest,prev,1)),
-   bodyMetricCard('Músculo',valOrDash(latest.musculoPct,1,'%'),neutralStatus(),trendMeta('musculoPct',latest,prev,1),'BIA: mejor mirar tendencia'),
-   bodyMetricCard('Agua corporal',valOrDash(latest.humedad,1,'%'),waterStatus(latest.humedad),trendMeta('humedad',latest,prev,1)),
-   bodyMetricCard('Grasa visceral',latest.visceral??'—',visceralStatus(latest.visceral),trendMeta('visceral',latest,prev,1),'Escala dependiente del fabricante'),
-   bodyMetricCard('Grasa subcutánea',valOrDash(latest.grasaSubcutanea,1,'%'),neutralStatus(),trendMeta('grasaSubcutanea',latest,prev,1)),
-   bodyMetricCard('Grasa corporal',valOrDash(latest.grasaKg,1,' kg'),neutralStatus(),trendMeta('grasaKg',latest,prev,1)),
+   bodyMetricCard('Peso',valOrDash(latest.peso,1,' kg'),scaleStatus(latest.peso,'peso'),trendMeta('peso',latest,prev,1)),
+   bodyMetricCard('IMC',valOrDash(latest.imc,1),scaleStatus(latest.imc,'imc'),trendMeta('imc',latest,prev,1)),
+   bodyMetricCard('Grasa corporal',valOrDash(latest.grasa,1,'%'),scaleStatus(latest.grasa,'grasa'),trendMeta('grasa',latest,prev,1)),
+   bodyMetricCard('Músculo',valOrDash(latest.musculoPct,1,'%'),scaleStatus(latest.musculoPct,'musculoPct'),trendMeta('musculoPct',latest,prev,1)),
+   bodyMetricCard('Humedad / agua',valOrDash(latest.humedad,1,'%'),scaleStatus(latest.humedad,'humedad'),trendMeta('humedad',latest,prev,1)),
+   bodyMetricCard('Masa ósea',valOrDash(latest.masaOsea,1,' kg'),scaleStatus(latest.masaOsea,'masaOsea'),trendMeta('masaOsea',latest,prev,1)),
+   bodyMetricCard('BMR',latest.bmr!=null?Math.round(Number(latest.bmr))+' kcal':'—',scaleStatus(latest.bmr,'bmr'),trendMeta('bmr',latest,prev,0)),
+   bodyMetricCard('Tasa proteína',valOrDash(latest.proteinaPct,1,'%'),scaleStatus(latest.proteinaPct,'proteinaPct'),trendMeta('proteinaPct',latest,prev,1)),
+   bodyMetricCard('Edad corporal',latest.edadCuerpo!=null?Math.round(Number(latest.edadCuerpo))+' años':'—',neutralStatus(),trendMeta('edadCuerpo',latest,prev,0)),
+   bodyMetricCard('Grasa visceral',latest.visceral??'—',scaleStatus(latest.visceral,'visceral'),trendMeta('visceral',latest,prev,1)),
+   bodyMetricCard('Grasa subcutánea',valOrDash(latest.grasaSubcutanea,1,'%'),scaleStatus(latest.grasaSubcutanea,'grasaSubcutanea'),trendMeta('grasaSubcutanea',latest,prev,1)),
+   bodyMetricCard('Grasa corporal',valOrDash(latest.grasaKg,1,' kg'),scaleStatus(latest.grasaKg,'grasaKg'),trendMeta('grasaKg',latest,prev,1)),
    bodyMetricCard('Peso sin grasa',valOrDash(latest.masaMagra,1,' kg'),neutralStatus(),trendMeta('masaMagra',latest,prev,1)),
-   bodyMetricCard('Peso muscular',valOrDash(latest.pesoMuscular,1,' kg'),neutralStatus(),trendMeta('pesoMuscular',latest,prev,1)),
-   bodyMetricCard('Masa ósea',valOrDash(latest.masaOsea,1,' kg'),neutralStatus(),trendMeta('masaOsea',latest,prev,1)),
-   bodyMetricCard('BMR',latest.bmr!=null?Math.round(Number(latest.bmr))+' kcal':'—',neutralStatus(),trendMeta('bmr',latest,prev,0)),
-   bodyMetricCard('Tasa proteína',valOrDash(latest.proteinaPct,1,'%'),neutralStatus(),trendMeta('proteinaPct',latest,prev,1)),
-   bodyMetricCard('Proteína corporal',valOrDash(latest.proteinaKg,1,' kg'),neutralStatus(),trendMeta('proteinaKg',latest,prev,1)),
-   bodyMetricCard('Edad corporal',latest.edadCuerpo!=null?Math.round(Number(latest.edadCuerpo))+' años':'—',neutralStatus(),trendMeta('edadCuerpo',latest,prev,0),'Estimación de la báscula')
+   bodyMetricCard('Peso muscular',valOrDash(latest.pesoMuscular,1,' kg'),scaleStatus(latest.pesoMuscular,'pesoMuscular'),trendMeta('pesoMuscular',latest,prev,1)),
+   bodyMetricCard('Proteína corporal',valOrDash(latest.proteinaKg,1,' kg'),scaleStatus(latest.proteinaKg,'proteinaKg'),trendMeta('proteinaKg',latest,prev,1))
  ];
  el.innerHTML=cards.join('');
 }
@@ -2943,6 +3242,68 @@ function renderWeightHistory(){
  }).join('');
 }
 
+
+function milestoneProjection(last, fatTarget){
+  if(!last || !Number.isFinite(Number(last.peso)))return null;
+
+  const rateEl=document.getElementById('rate');
+  const rate=Math.max(0.2,Math.min(1,Number(rateEl?.value)||0.6));
+
+  const lean=Number(last.masaMagra) ||
+    (last.grasa!=null
+      ? Number(last.peso)*(1-Number(last.grasa)/100)
+      : null);
+
+  if(!lean || !Number.isFinite(lean))return null;
+
+  const targetWeight=lean/(1-fatTarget/100);
+  const kgLeft=Math.max(0,Number(last.peso)-targetWeight);
+  const weeks=kgLeft/rate;
+
+  const d=new Date(last.fecha+'T12:00:00');
+  d.setDate(d.getDate()+Math.round(weeks*7));
+
+  return {
+    fatTarget,
+    targetWeight,
+    kgLeft,
+    weeks,
+    date:d.toLocaleDateString('es-ES',{
+      day:'2-digit',month:'2-digit',year:'numeric'
+    }),
+    rate
+  };
+}
+
+function renderMilestones(last){
+  const el=document.getElementById('hitos');
+  if(!el)return;
+  if(!last){
+    el.innerHTML='';
+    return;
+  }
+
+  const targets=[22,20,18]
+    .map(g=>milestoneProjection(last,g))
+    .filter(Boolean);
+
+  el.innerHTML=targets.map(x=>{
+    const reached=x.kgLeft<=0.05;
+    const horizon=reached
+      ? 'alcanzado'
+      : `~${Math.max(1,Math.round(x.weeks))} sem · ${x.date}`;
+
+    return `<div class="kpiLine">
+      <span>${x.fatTarget}% grasa</span>
+      <b>~${x.targetWeight.toFixed(1)} kg · ${horizon}</b>
+    </div>`;
+  }).join('')+
+  `<p class="muted" style="margin-top:10px">
+    Horizonte calculado con un ritmo aproximado de ${targets[0]?.rate?.toFixed(1).replace('.',',')||'0,6'} kg/semana
+    y manteniendo aproximadamente la masa libre de grasa actual. Es una estimación, no una fecha garantizada.
+  </p>`;
+}
+
 function render(){
  renderProfile();
  const hpt=document.getElementById('homeProteinTarget'); if(hpt)hpt.textContent='objetivo '+proteinTarget()+' g';
@@ -2974,7 +3335,7 @@ function render(){
    balMsg.textContent='Las kcal del ejercicio se muestran aparte y no se suman automáticamente al presupuesto de comida.';
  }
  if(firstAug&&last&&firstAug!==last){let wk=(last.peso-firstAug.peso)/(days(firstAug.fecha,last.fecha)/7);ritmo.innerHTML=`<b>${wk.toFixed(2)} kg/semana matemáticos</b><p class="muted">Desde ${firstAug.fecha}: ${firstAug.peso.toFixed(1)} → ${last.peso.toFixed(1)} kg. Este ritmo inicial es demasiado rápido para extrapolar; usa ~0,5–0,8 kg/semana como referencia práctica.</p>`}
- hitos.innerHTML=last?`<div class="kpiLine"><span>22% grasa</span><b>~90,8 kg</b></div><div class="kpiLine"><span>20% grasa</span><b>~88,5 kg</b></div><div class="kpiLine"><span>18% grasa</span><b>~86,3 kg</b></div>`:'';
+ renderMilestones(last);
  chart('chartPeso',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.peso}))},{data:movAvg(db.peso)}]);chart('chartGrasa',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.grasa}))}],{dec:1});chart('chartCintura',[{data:db.peso.filter(x=>x.cintura!=null).map(x=>({fecha:x.fecha,v:x.cintura}))}],{dec:1});
  renderWeightHistory();renderBodyStatus();renderRecentWorkouts();
  if(db.peso.length>1){
@@ -2986,7 +3347,7 @@ function render(){
  <div class="kpiLine"><span>IMC</span><b>${a.imc??'—'} → ${b.imc??'—'}</b></div>
  <div class="kpiLine"><span>Músculo</span><b>${a.musculoPct??'—'} → ${b.musculoPct??'—'}%</b></div>`;
 }
- renderMeals();renderActivity();renderStrength();renderTargets()
+ renderMeals();loadDailyWater();renderActivity();renderStrength();renderTargets();renderCustomEvolution()
 }
 function table(rows,cols){if(!rows.length)return '<div class="empty">Sin datos todavía.</div>';return '<table><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='fecha'?fechaES(r[c]):(c==='modalidad'?modalidadES(r[c]):(r[c]??''))}</td>`).join('')+'</tr>').join('')+'</table>'}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mi-evolucion-backup.json';a.click()}
