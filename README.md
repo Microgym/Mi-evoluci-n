@@ -1,14 +1,10 @@
-# Mi Evolución v21 — Fotos en Alimentación
+# Mi Evolución v22.1.4 — Últimos entrenamientos agrupados
 
-La sección Alimentación incorpora ya la interfaz para:
+También en **Últimos entrenamientos** las rutinas aparecen agrupadas:
 
-- 📷 Foto del plato
-- 🏷️ Foto de etiqueta nutricional
-- Vista previa de la imagen
-- Botón Analizar foto
-- Botón Quitar foto
-- Captura directa con la cámara del iPhone
+- una sola línea con la fecha y el nombre de la rutina;
+- al desplegarla se ven los ejercicios realizados;
+- si hubo ejercicios omitidos, aparecen como `No realizados`;
+- los entrenamientos manuales siguen apareciendo individualmente.
 
-En esta primera etapa no se inventan resultados. El botón de análisis deja claro que para obtener calorías y proteína reales a partir de una imagen hace falta conectar un backend seguro con un servicio de IA.
-
-La foto permanece solo en el navegador durante la vista previa y no se envía a ningún servidor en esta versión.
+No se modifica ni borra ningún dato existente.
