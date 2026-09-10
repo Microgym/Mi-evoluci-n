@@ -1,0 +1,9 @@
+{
+  "name": "Mi Evolución",
+  "short_name": "Evolución",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#f6f7f9",
+  "description": "Seguimiento privado de peso, composición corporal, comidas y fuerza."
+}
