@@ -1,11 +1,18 @@
-# Mi Evolución v22.1.7 — Barra inferior fija en iPhone
+# Mi Evolución v22.2 — Análisis IA de fotos
 
-Corrección visual para iPhone/PWA:
+La app ya puede analizar fotos de comida cuando se conecta al backend privado incluido.
 
-- la barra inferior `Inicio · Peso · Comidas · Fuerza · Evolución · Datos` queda fijada al borde inferior de la pantalla;
-- al deslizar la página hacia arriba o abajo, la barra ya no debe desplazarse con el contenido;
-- se bloquea el arrastre/selección accidental de la barra;
-- se respeta el área segura inferior del iPhone;
-- se añade espacio al contenido para que ningún bloque quede oculto detrás del menú.
+## Cambios
+- `Datos → IA para fotos de comida`
+- campo para guardar la URL del backend
+- botón `Probar conexión`
+- `Analizar foto` ahora:
+  1. reduce la foto del iPhone;
+  2. la envía al backend;
+  3. recibe descripción, kcal, proteína y desglose;
+  4. rellena los campos;
+  5. obliga a revisar y pulsar `Guardar`.
 
-No se modifica ningún dato ni lógica de la app.
+La clave de OpenAI no se guarda en la app.
+
+No se modifica la clave de localStorage de tus datos existentes.

@@ -472,7 +472,7 @@ html,body{
   <h2>Alimentación del día</h2>
   <label>Fecha</label>
   <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals()">
-  <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, borrar el cálculo si quieres empezar de nuevo, o usar <b>Foto del plato</b> / <b>Foto de etiqueta</b> dentro de cada comida.</p>
+  <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, o usar <b>Foto del plato</b> / <b>Foto de etiqueta</b>. Si configuras el backend IA en Datos, la foto propondrá alimentos, kcal y proteína.</p>
 </div>
 
 <div id="mealCards"></div>
@@ -664,6 +664,17 @@ html,body{
 </section>
 
 <section id="datos">
+<div class="card">
+<h2>IA para fotos de comida</h2>
+<p class="muted">La clave de OpenAI no se guarda en el iPhone. La app envía la foto a tu backend privado y recibe una estimación de alimentos, kcal y proteína.</p>
+<label>URL del backend IA</label>
+<input id="aiBackendUrl" type="url" placeholder="https://mi-evolucion-food-ai.tu-subdominio.workers.dev">
+<div class="routine-actions" style="margin-top:10px">
+  <button class="primary-small" onclick="saveAiBackendUrl()">Guardar URL</button>
+  <button class="set-add" onclick="testAiBackend()">Probar conexión</button>
+</div>
+<p id="aiBackendStatus" class="muted"></p>
+</div>
 <div class="card"><h2>Copia de seguridad</h2><p class="muted">Todo se guarda en Safari/localStorage. Exporta una copia periódicamente.</p>
 <div class="row"><button class="secondary" onclick="exportData()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar</button></div>
 <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"></div>
@@ -2473,6 +2484,7 @@ function renderRecentWorkouts(){
 }
 
 function render(){
+ renderAiBackendSettings();
  renderProfile();
  const hpt=document.getElementById('homeProteinTarget'); if(hpt)hpt.textContent='objetivo '+proteinTarget()+' g';
  ensureCatalogImages();
@@ -2521,6 +2533,74 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
+
+const AI_BACKEND_KEY='mi-evolucion-ai-backend-v1';
+
+function getAiBackendUrl(){
+ return (localStorage.getItem(AI_BACKEND_KEY)||'').trim().replace(/\/+$/,'');
+}
+function renderAiBackendSettings(){
+ const el=document.getElementById('aiBackendUrl');
+ if(el)el.value=getAiBackendUrl();
+}
+function saveAiBackendUrl(){
+ const el=document.getElementById('aiBackendUrl');
+ const status=document.getElementById('aiBackendStatus');
+ const url=(el?.value||'').trim().replace(/\/+$/,'');
+ if(!url){
+   localStorage.removeItem(AI_BACKEND_KEY);
+   if(status)status.textContent='URL eliminada.';
+   return;
+ }
+ if(!/^https:\/\/.+/i.test(url)){
+   if(status)status.textContent='La URL debe empezar por https://';
+   return;
+ }
+ localStorage.setItem(AI_BACKEND_KEY,url);
+ if(status)status.textContent='URL guardada.';
+}
+async function testAiBackend(){
+ const status=document.getElementById('aiBackendStatus');
+ const base=getAiBackendUrl();
+ if(!base){
+   if(status)status.textContent='Primero guarda la URL del backend.';
+   return;
+ }
+ if(status)status.textContent='Probando conexión…';
+ try{
+   const r=await fetch(base+'/health',{method:'GET'});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok)throw new Error(data.error||('HTTP '+r.status));
+   if(status)status.textContent='Conexión correcta ✓';
+ }catch(err){
+   if(status)status.textContent='No se pudo conectar: '+err.message;
+ }
+}
+
+async function foodPhotoToDataUrl(file){
+ // Reduce fotos grandes del iPhone para acelerar la subida y bajar coste.
+ const objectUrl=URL.createObjectURL(file);
+ try{
+   const img=await new Promise((resolve,reject)=>{
+     const im=new Image();
+     im.onload=()=>resolve(im);
+     im.onerror=()=>reject(new Error('No se pudo leer la imagen.'));
+     im.src=objectUrl;
+   });
+   const maxSide=1280;
+   let w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+   const scale=Math.min(1,maxSide/Math.max(w,h));
+   w=Math.max(1,Math.round(w*scale)); h=Math.max(1,Math.round(h*scale));
+   const canvas=document.createElement('canvas');
+   canvas.width=w; canvas.height=h;
+   const ctx=canvas.getContext('2d');
+   ctx.drawImage(img,0,0,w,h);
+   return canvas.toDataURL('image/jpeg',0.82);
+ }finally{
+   URL.revokeObjectURL(objectUrl);
+ }
+}
+
 const pendingFoodPhotos={};
 
 function previewFoodPhoto(meal,mode){
@@ -2549,15 +2629,70 @@ function clearFoodPhoto(meal){
  if(box) box.style.display='none';
 }
 
-function analyzeFoodPhoto(meal){
+async function analyzeFoodPhoto(meal){
  const status=document.getElementById('foodPhotoStatus_'+meal);
  const pending=pendingFoodPhotos[meal];
  if(!pending){
-   if(status) status.textContent='Selecciona primero una foto.';
+   if(status)status.textContent='Selecciona primero una foto.';
    return;
  }
- if(status){
-   status.innerHTML='La foto está lista. En el siguiente paso conectaremos el análisis de IA para proponer kcal y proteína sin inventar valores.';
+ const base=getAiBackendUrl();
+ if(!base){
+   if(status)status.innerHTML='Falta configurar el backend IA. Ve a <b>Datos → IA para fotos de comida</b>.';
+   return;
+ }
+
+ const descEl=document.getElementById('desc_'+meal);
+ const kcalEl=document.getElementById('kcal_'+meal);
+ const protEl=document.getElementById('prot_'+meal);
+ const breakEl=document.getElementById('break_'+meal);
+
+ if(status)status.textContent='Analizando foto con IA…';
+
+ try{
+   const imageDataUrl=await foodPhotoToDataUrl(pending.file);
+   const response=await fetch(base+'/analyze-food',{
+     method:'POST',
+     headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({
+       imageDataUrl,
+       mode:pending.mode,
+       hint:(descEl?.value||'').trim()
+     })
+   });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||('HTTP '+response.status));
+
+   const result=data.result||{};
+   if(descEl && result.description)descEl.value=result.description;
+   if(kcalEl && Number.isFinite(Number(result.kcal)))kcalEl.value=Math.round(Number(result.kcal));
+   if(protEl && Number.isFinite(Number(result.protein_g)))protEl.value=Math.round(Number(result.protein_g));
+
+   const items=Array.isArray(result.items)?result.items:[];
+   if(breakEl){
+     if(items.length){
+       breakEl.style.display='block';
+       breakEl.innerHTML=items.map(it=>{
+         const left=[it.name,it.amount].filter(Boolean).join(' · ');
+         const right=[
+           Number.isFinite(Number(it.kcal))?Math.round(Number(it.kcal))+' kcal':'',
+           Number.isFinite(Number(it.protein_g))?Math.round(Number(it.protein_g))+' g':''
+         ].filter(Boolean).join(' · ');
+         return `<div><span>${left||'Alimento'}</span><b>${right}</b></div>`;
+       }).join('');
+     }else{
+       breakEl.style.display='none';
+       breakEl.innerHTML='';
+     }
+   }
+
+   const conf=result.confidence?` · Confianza: ${result.confidence}`:'';
+   const note=result.note?` ${result.note}`:'';
+   if(status)status.innerHTML=`Estimación IA lista${conf}.${note} <b>Revísala y pulsa Guardar.</b>`;
+
+ }catch(err){
+   console.error(err);
+   if(status)status.textContent='No se pudo analizar la foto: '+err.message;
  }
 }
 </script>
