@@ -445,7 +445,7 @@ html,body{
 <div class="card">
   <h2>Balance energético de hoy</h2>
   <div class="kpiLine"><span>Comida registrada</span><b id="balFood">0 kcal</b></div>
-  <div class="kpiLine"><span>Objetivo diario</span><b>1.800 kcal</b></div>
+  <div class="kpiLine"><span>Objetivo diario</span><b id="balTarget">—</b></div>
   <div class="kpiLine"><span>Actividad registrada</span><b id="balActivity">0 kcal</b></div>
   <div class="kpiLine"><span>Margen hasta objetivo</span><b id="balRemaining">—</b></div>
   <p class="muted" id="balMsg">Las kcal del ejercicio se muestran aparte y no se suman automáticamente al presupuesto de comida.</p>
@@ -671,9 +671,9 @@ html,body{
 <input id="aiBackendUrl" type="url" placeholder="https://mi-evolucion-food-ai.tu-subdominio.workers.dev">
 <div class="routine-actions" style="margin-top:10px">
   <button class="primary-small" onclick="saveAiBackendUrl()">Guardar URL</button>
-  <button class="set-add" onclick="testAiBackend()">Probar conexión</button>
+  <button class="set-add" type="button" onclick="testAiBackend()">Probar conexión</button>
 </div>
-<p id="aiBackendStatus" class="muted"></p>
+<p id="aiBackendStatus" class="muted" style="min-height:24px;margin-top:10px"></p>
 </div>
 <div class="card"><h2>Copia de seguridad</h2><p class="muted">Todo se guarda en Safari/localStorage. Exporta una copia periódicamente.</p>
 <div class="row"><button class="secondary" onclick="exportData()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar</button></div>
@@ -1073,7 +1073,7 @@ function renderMeals(){
   const vals=MEALS.map(m=>getMeal(fecha,m.key));
   const kcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
   const prot=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
-  mealTotalKcal.textContent=`${Math.round(kcal)} / 1.800`;
+  mealTotalKcal.textContent=`${Math.round(kcal)} / ${kcalTarget().toLocaleString('es-ES')}`;
   mealTotalProt.textContent=`${Math.round(prot)} / ${proteinTarget()} g`;
   mealProtBar.style.width=Math.min(100,prot/proteinTarget()*100)+'%';
   mealSummaryMsg.textContent=prot>=proteinTarget()*0.93?'Buen nivel de proteína para hoy.':`Faltan aprox. ${Math.max(0,proteinTarget()-Math.round(prot))} g de proteína para llegar a ${proteinTarget()} g.`;
@@ -2484,7 +2484,7 @@ function renderRecentWorkouts(){
 }
 
 function render(){
- renderAiBackendSettings();
+ if(typeof renderAiBackendSettings==='function') renderAiBackendSettings();
  renderProfile();
  const hpt=document.getElementById('homeProteinTarget'); if(hpt)hpt.textContent='objetivo '+proteinTarget()+' g';
  ensureCatalogImages();
@@ -2506,6 +2506,7 @@ function render(){
  const actKcal=todayActs.reduce((s,x)=>s+(Number(x.kcal)||0),0);
  const remaining=kcalTarget()-kcal;
  balFood.textContent=Math.round(kcal)+' kcal';
+ if(typeof balTarget!=='undefined')balTarget.textContent=kcalTarget().toLocaleString('es-ES')+' kcal';
  balActivity.textContent='~'+Math.round(actKcal)+' kcal';
  balRemaining.textContent=(remaining>=0?'':'−')+Math.abs(Math.round(remaining))+' kcal';
  balRemaining.className=remaining>=0?'good':'warn';
@@ -2523,7 +2524,32 @@ function render(){
 }
 function table(rows,cols){if(!rows.length)return '<div class="empty">Sin datos todavía.</div>';return '<table><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='fecha'?fechaES(r[c]):(c==='modalidad'?modalidadES(r[c]):(r[c]??''))}</td>`).join('')+'</tr>').join('')+'</table>'}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mi-evolucion-backup.json';a.click()}
-function importData(ev){let f=ev.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{try{db=JSON.parse(rd.result);save()}catch(e){alert('Archivo no válido')}};rd.readAsText(f)}
+function importData(ev){
+ const f=ev.target.files&&ev.target.files[0];
+ if(!f)return;
+ const rd=new FileReader();
+ rd.onload=()=>{
+   try{
+     const parsed=JSON.parse(rd.result);
+     if(!parsed || typeof parsed!=='object')throw new Error('Formato no válido');
+     db=parsed;
+     if(!db.peso)db.peso=[];
+     if(!db.comidas)db.comidas=[];
+     if(!db.entreno)db.entreno=[];
+     if(!db.meals)db.meals={};
+     if(!db.rutinaSesiones)db.rutinaSesiones=[];
+     localStorage.setItem(KEY,JSON.stringify(db));
+     alert('Copia importada correctamente.');
+     location.reload();
+   }catch(e){
+     alert('No se pudo importar el archivo JSON: '+(e.message||e));
+   }finally{
+     ev.target.value='';
+   }
+ };
+ rd.onerror=()=>alert('No se pudo leer el archivo seleccionado.');
+ rd.readAsText(f);
+}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');render();toggleTrainingFields();previewCalories();
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2537,7 +2563,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 const AI_BACKEND_KEY='mi-evolucion-ai-backend-v1';
 
 function getAiBackendUrl(){
- return (localStorage.getItem(AI_BACKEND_KEY)||'').trim().replace(/\/+$/,'');
+ return (localStorage.getItem(AI_BACKEND_KEY)||'https://mi-evolucion-foof-ai.miguel-ferrer.workers.dev').trim().replace(/\/+$/,'');
 }
 function renderAiBackendSettings(){
  const el=document.getElementById('aiBackendUrl');
@@ -2562,18 +2588,60 @@ function saveAiBackendUrl(){
 async function testAiBackend(){
  const status=document.getElementById('aiBackendStatus');
  const base=getAiBackendUrl();
+
+ const show=(msg,ok=false)=>{
+   if(status){
+     status.textContent=msg;
+     status.style.fontWeight='700';
+     status.style.marginTop='10px';
+   }
+   // En iPhone dejamos además un aviso visible para que no parezca que el botón no responde.
+   setTimeout(()=>alert(msg),50);
+ };
+
  if(!base){
-   if(status)status.textContent='Primero guarda la URL del backend.';
+   show('Primero guarda la URL del backend.');
    return;
  }
- if(status)status.textContent='Probando conexión…';
+
+ if(status){
+   status.textContent='Probando conexión…';
+   status.style.fontWeight='700';
+   status.style.marginTop='10px';
+ }
+
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),10000);
+
  try{
-   const r=await fetch(base+'/health',{method:'GET'});
-   const data=await r.json().catch(()=>({}));
-   if(!r.ok)throw new Error(data.error||('HTTP '+r.status));
-   if(status)status.textContent='Conexión correcta ✓';
+   const url=base+'/health?t='+Date.now();
+   const r=await fetch(url,{
+     method:'GET',
+     mode:'cors',
+     cache:'no-store',
+     headers:{'Accept':'application/json'},
+     signal:controller.signal
+   });
+
+   const text=await r.text();
+   let data={};
+   try{data=JSON.parse(text)}catch{}
+
+   if(!r.ok){
+     throw new Error(data.error||text||('HTTP '+r.status));
+   }
+   if(!data.ok){
+     throw new Error('El backend respondió, pero no devolvió ok=true.');
+   }
+
+   show('Conexión correcta ✓');
  }catch(err){
-   if(status)status.textContent='No se pudo conectar: '+err.message;
+   const msg=err?.name==='AbortError'
+     ? 'No se pudo conectar: tiempo de espera agotado.'
+     : 'No se pudo conectar: '+(err?.message||String(err));
+   show(msg);
+ }finally{
+   clearTimeout(timeout);
  }
 }
 
@@ -2695,6 +2763,9 @@ async function analyzeFoodPhoto(meal){
    if(status)status.textContent='No se pudo analizar la foto: '+err.message;
  }
 }
+
+// La UI principal ya puede estar renderizada cuando carga este bloque.
+try{ renderAiBackendSettings(); }catch(e){}
 </script>
 <div id="exerciseDetailModal" class="exercise-modal" onclick="closeExerciseDetail(event)">
   <div class="exercise-modal-sheet" onclick="event.stopPropagation()">

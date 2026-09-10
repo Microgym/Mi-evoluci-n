@@ -1,4 +1,4 @@
-const CACHE='mi-evolucion-v22-2';
+const CACHE='mi-evolucion-v22-2-3';
 const ASSETS=['./','./index.html','./manifest.webmanifest'];
 self.addEventListener('install',e=>{
   self.skipWaiting();
