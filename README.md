@@ -1,12 +1,14 @@
-# Mi Evolución v19 — Catálogo visual
+# Mi Evolución v21 — Fotos en Alimentación
 
-El creador de rutinas incorpora ilustraciones offline para facilitar el reconocimiento de ejercicios y tipos de máquina.
+La sección Alimentación incorpora ya la interfaz para:
 
-- Buscar por zona muscular o nombre.
-- Tarjetas con pictogramas de persona + máquina/polea/cardio.
-- Hombro, pecho, espalda, bíceps, tríceps, pierna, glúteo, abdomen y cardio.
-- Mantiene las máquinas conocidas de la Sesión 18.
-- Crear, editar, duplicar y eliminar rutinas.
-- Series individuales editables durante la ejecución.
+- 📷 Foto del plato
+- 🏷️ Foto de etiqueta nutricional
+- Vista previa de la imagen
+- Botón Analizar foto
+- Botón Quitar foto
+- Captura directa con la cámara del iPhone
 
-Las ilustraciones son orientativas y están integradas en el propio HTML: no envían datos ni requieren Internet.
+En esta primera etapa no se inventan resultados. El botón de análisis deja claro que para obtener calorías y proteína reales a partir de una imagen hace falta conectar un backend seguro con un servicio de IA.
+
+La foto permanece solo en el navegador durante la vista previa y no se envía a ningún servidor en esta versión.
