@@ -332,7 +332,7 @@ tr:last-child td{border-bottom:0}
 .muscle-chip{border:1px solid #ddd;border-radius:999px;background:#fff;padding:7px 10px;white-space:nowrap;cursor:pointer}
 .exercise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:8px}
 .exercise-card{border:1px solid #e2e2e7;border-radius:13px;padding:10px;background:#fff;cursor:pointer;text-align:left}
-.exercise-card .pic{height:70px;border-radius:10px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;font-size:35px;margin-bottom:7px}
+.exercise-card .pic{height:92px;border-radius:10px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;margin-bottom:7px}.exercise-card .pic svg{width:100%;height:86px}
 .exercise-card b{font-size:13px;display:block}
 .exercise-card small{font-size:11px;color:#666}
 .draft-row{padding:10px 0;border-bottom:1px solid #eee}
@@ -493,7 +493,7 @@ tr:last-child td{border-bottom:0}
     <label>Buscar ejercicio o zona muscular</label>
     <input id="exerciseSearch" placeholder="Ej. hombro, espalda, pierna..." oninput="renderExerciseCatalog()">
     <div class="muscle-chips" id="muscleChips"></div>
-    <div id="exerciseCatalog" class="exercise-grid"></div>
+    <div class="routine-meta">Ilustraciones orientativas para reconocer el tipo de ejercicio o máquina.</div><div id="exerciseCatalog" class="exercise-grid"></div>
     <h3>Ejercicios de la rutina</h3>
     <div id="draftExercises"></div>
     <div class="routine-actions"><button class="primary-small" onclick="saveRoutineDraft()">Guardar rutina</button></div>
@@ -890,13 +890,39 @@ function newRoutineDraft(){
  renderExerciseCatalog();renderDraftExercises();
 }
 function selectZone(z){selectedZone=z;renderExerciseCatalog();}
+
+function exerciseIllustration(x){
+ const machine=x.modalidad==='maquina';
+ const cable=x.modalidad==='polea';
+ const cardio=x.tipo==='cardio';
+ const zone=x.zone;
+ const body=`<circle cx="55" cy="20" r="7"/><path d="M55 28 L55 52 M55 35 L38 47 M55 35 L72 47 M55 52 L43 72 M55 52 L68 72"/>`;
+ let gear='';
+ if(machine) gear=`<rect x="15" y="12" width="12" height="65" rx="3"/><rect x="82" y="12" width="12" height="65" rx="3"/><path d="M27 18 H82 M27 66 H82"/><rect x="43" y="50" width="28" height="7" rx="3"/>`;
+ if(cable) gear=`<rect x="14" y="10" width="9" height="68" rx="2"/><circle cx="18" cy="18" r="3"/><path d="M21 18 C45 18 70 28 76 43"/>`;
+ if(cardio) gear=`<ellipse cx="55" cy="67" rx="30" ry="8"/><path d="M30 65 L48 42 L75 62 M48 42 L73 35"/>`;
+ const highlight={
+  'Hombro':`<circle cx="39" cy="45" r="5"/><circle cx="71" cy="45" r="5"/>`,
+  'Pecho':`<path d="M45 34 Q55 29 65 34 L62 45 Q55 48 48 45Z"/>`,
+  'Espalda':`<path d="M44 34 Q55 28 66 34 L62 50 H48Z"/>`,
+  'Bíceps':`<circle cx="40" cy="47" r="4"/><circle cx="70" cy="47" r="4"/>`,
+  'Tríceps':`<circle cx="39" cy="48" r="4"/><circle cx="71" cy="48" r="4"/>`,
+  'Pierna':`<path d="M51 52 L42 72 M59 52 L68 72"/>`,
+  'Glúteo':`<ellipse cx="50" cy="53" rx="6" ry="5"/><ellipse cx="60" cy="53" rx="6" ry="5"/>`,
+  'Abdomen':`<rect x="49" y="38" width="12" height="16" rx="4"/>`,
+  'Cardio':`<path d="M48 40 L63 52 L45 67"/>`
+ }[zone]||'';
+ return `<svg viewBox="0 0 110 85" aria-label="${x.name}" role="img">
+ <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${gear}${body}</g>
+ <g fill="currentColor" opacity=".72">${highlight}</g></svg>`;
+}
 function renderExerciseCatalog(){
  if(!routineDraft)return;
  const zones=['Todos','Hombro','Pecho','Espalda','Bíceps','Tríceps','Pierna','Glúteo','Abdomen','Cardio'];
  muscleChips.innerHTML=zones.map(z=>`<button class="muscle-chip" onclick="selectZone('${z}')">${z}</button>`).join('');
  const q=normText(exerciseSearch.value||'');
  const items=EXERCISE_CATALOG.filter(x=>(selectedZone==='Todos'||x.zone===selectedZone)&&(!q||normText(x.name+' '+x.zone+' '+x.equipment).includes(q)));
- exerciseCatalog.innerHTML=items.length?items.map(x=>`<button class="exercise-card" onclick="addCatalogExercise('${x.id}')"><div class="pic">${x.icon}</div><b>${x.name}</b><small>${x.zone} · ${x.equipment||modalidadES(x.modalidad)}</small></button>`).join(''):'<div class="empty">No encuentro ejercicios con ese filtro.</div>';
+ exerciseCatalog.innerHTML=items.length?items.map(x=>`<button class="exercise-card" onclick="addCatalogExercise('${x.id}')"><div class="pic">${exerciseIllustration(x)}</div><b>${x.name}</b><small>${x.zone} · ${x.equipment||modalidadES(x.modalidad)}</small></button>`).join(''):'<div class="empty">No encuentro ejercicios con ese filtro.</div>';
 }
 function addCatalogExercise(id){
  const x=EXERCISE_CATALOG.find(e=>e.id===id);if(!x||!routineDraft)return;
