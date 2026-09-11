@@ -461,7 +461,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.42 — Evolución salud + Evolución entrenamiento */
+/* v22.1.43 — fuerza por grupo muscular + calendario retirado */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -936,6 +936,47 @@ nav .nav-label{
   .nav-ico svg{width:16px;height:16px}
 }
 
+
+.strength-zone-card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:13px 14px;
+  margin-top:9px;
+  background:#fff;
+}
+.strength-zone-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.strength-zone-head b{font-size:15px}
+.strength-zone-head small{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:3px;
+}
+.strength-zone-head>span{
+  color:var(--muted);
+  font-size:11px;
+  white-space:nowrap;
+}
+.strength-zone-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+.strength-zone-list span{
+  background:#f4f5f7;
+  border:1px solid #eaecf0;
+  border-radius:999px;
+  padding:6px 9px;
+  font-size:11px;
+  font-weight:650;
+}
+
 </style>
 
 </head>
@@ -1350,7 +1391,8 @@ nav .nav-label{
 
 <section id="evolucionEntreno">
 <div class="card">
-  <h2>Actividad por tipo</h2>
+  <h2>Fuerza por grupo muscular</h2>
+  <p class="muted">Solo ejercicios de fuerza, agrupados por la parte del cuerpo que entrenan.</p>
   <div id="activitySummary"></div>
 </div>
 
@@ -1414,22 +1456,7 @@ nav .nav-label{
   <div id="dateComparison" class="compare-result" style="margin-top:12px"></div>
 </div>
 
-<div class="card">
-  <h2>Calendario de actividad</h2>
-  <p class="muted">Vista mensual de mediciones, entrenamientos, agua y días con proteína registrada.</p>
-  <div class="calendar-head">
-    <button class="secondary" type="button" onclick="changeCalendarMonth(-1)">‹</button>
-    <div id="calendarTitle" class="calendar-title">—</div>
-    <button class="secondary" type="button" onclick="changeCalendarMonth(1)">›</button>
-  </div>
-  <div class="calendar-grid" id="activityCalendar"></div>
-  <div class="calendar-legend">
-    <span><i class="cal-dot dot-weight"></i>Medición</span>
-    <span><i class="cal-dot dot-workout"></i>Entreno</span>
-    <span><i class="cal-dot dot-water"></i>Agua</span>
-    <span><i class="cal-dot dot-protein"></i>Proteína</span>
-  </div>
-</div>
+
 
 </div>
 
@@ -2886,7 +2913,7 @@ function inferBodyZoneFromName(name,tipo='otro'){
     ['Hombro',['hombro','press militar','deltoid','elevacion lateral']],
     ['Bíceps',['biceps','curl']],
     ['Tríceps',['triceps','extension triceps']],
-    ['Pierna',['pierna','cuadriceps','extension','leg extension','femoral','curl femoral','prensa']],
+    ['Pierna',['pierna','cuadriceps','extension','leg extension','femoral','curl femoral','prensa','aductor','abductor','gemelo','pantorrilla']],
     ['Glúteo',['gluteo','hip thrust','patada gluteo']],
     ['Abdomen',['abdomen','abdominal','plancha','core']],
     ['Cardio',['cinta','elipt','bicic','spinning','remo ergometro','correr','caminar','natacion','escaladora']],
@@ -4797,16 +4824,52 @@ function renderActivity(){
       <div class="kpiLine"><span>Gasto estimado</span><b>~${Math.round(dayKcal)} kcal</b></div>`
    : '<div class="empty">No hay actividades registradas para esta fecha.</div>';
 
- const labels={fuerza:'Fuerza',cardio:'Cardio',funcional:'Funcional',movilidad:'Movilidad',deporte:'Deporte',otro:'Otro'};
- let sums={};
- db.entreno.forEach(x=>{
-   let t=x.tipo||'fuerza';
-   if(!sums[t])sums[t]={n:0,min:0,kcal:0};
-   sums[t].n++;sums[t].min+=Number(x.duracion)||0;sums[t].kcal+=Number(x.kcal)||0;
- });
- activitySummary.innerHTML=Object.keys(sums).length
-   ? Object.entries(sums).map(([k,v])=>`<div class="kpiLine"><span>${labels[k]||k}</span><b>${v.n} act. · ${Math.round(v.min)} min · ~${Math.round(v.kcal)} kcal</b></div>`).join('')
-   : '<div class="empty">Aún no hay entrenamientos registrados.</div>';
+ const summaryEl=document.getElementById('activitySummary');
+ if(summaryEl){
+   const strength=(db.entreno||[]).filter(r=>
+     r &&
+     !r.esResumenRutina &&
+     r.ej &&
+     (String(r.tipo||'fuerza').toLowerCase()==='fuerza' || bestLoadFromRecord(r)!=null)
+   );
+
+   const groups=new Map();
+   strength.forEach(r=>{
+     const zone=inferBodyZoneFromName(r.ej,'fuerza')||'Sin clasificar';
+     if(!groups.has(zone))groups.set(zone,{records:0,names:new Map(),lastDate:''});
+     const g=groups.get(zone);
+     g.records++;
+     const display=String(r.ej||'').trim();
+     const key=normText(display);
+     if(key && !g.names.has(key))g.names.set(key,display);
+     if((r.fecha||'')>(g.lastDate||''))g.lastDate=r.fecha||'';
+   });
+
+   const order=['Pecho','Espalda','Hombro','Bíceps','Tríceps','Pierna','Glúteo','Abdomen','Sin clasificar'];
+   const zones=[...groups.keys()].sort((a,b)=>{
+     const ia=order.indexOf(a), ib=order.indexOf(b);
+     if(ia!==-1 || ib!==-1){
+       if(ia===-1)return 1;
+       if(ib===-1)return -1;
+       return ia-ib;
+     }
+     return a.localeCompare(b,'es');
+   });
+
+   summaryEl.innerHTML=zones.length
+     ? zones.map(zone=>{
+         const g=groups.get(zone);
+         const names=[...g.names.values()].sort((a,b)=>a.localeCompare(b,'es'));
+         return `<div class="strength-zone-card">
+           <div class="strength-zone-head">
+             <div><b>${zone}</b><small>${names.length} ejercicio${names.length===1?'':'s'} · ${g.records} registro${g.records===1?'':'s'}</small></div>
+             <span>${g.lastDate?fechaES(g.lastDate):''}</span>
+           </div>
+           <div class="strength-zone-list">${names.map(n=>`<span>${n}</span>`).join('')}</div>
+         </div>`;
+       }).join('')
+     : '<div class="empty">Aún no hay ejercicios de fuerza registrados.</div>';
+ }
 }
 
 
@@ -5675,7 +5738,7 @@ function render(){
  try{renderStrength();}catch(e){console.error('Error renderStrength',e);}
  try{renderExerciseMap();}catch(e){console.error('Error renderExerciseMap',e);}
  try{renderPersonalRecords();}catch(e){console.error('Error renderPersonalRecords',e);}
- renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison();renderActivityCalendar()
+ renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison()
 }
 function table(rows,cols){if(!rows.length)return '<div class="empty">Sin datos todavía.</div>';return '<table><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='fecha'?fechaES(r[c]):(c==='modalidad'?modalidadES(r[c]):(r[c]??''))}</td>`).join('')+'</tr>').join('')+'</table>'}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mi-evolucion-backup.json';a.click()}
