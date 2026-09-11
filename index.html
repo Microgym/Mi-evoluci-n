@@ -460,7 +460,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.39 — importación JSON robusta en iPhone */
+/* v22.1.41 — récords directos y refresco forzado */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -1364,7 +1364,10 @@ nav .nav-label{
 </div>
 
 <div class="card">
-  <h2>Récords personales</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <h2 style="margin:0">Récords personales</h2>
+    <button type="button" class="set-add" onclick="renderPersonalRecords()">Actualizar</button>
+  </div>
   <p class="muted">Mejor carga registrada por ejercicio. Incluye ejercicios manuales y realizados dentro de rutinas.</p>
   <div id="personalRecords" class="pr-grid"></div>
 </div>
@@ -3002,31 +3005,49 @@ function personalRecordFor(name){
 function renderPersonalRecords(){
  const el=document.getElementById('personalRecords');
  if(!el)return;
- const grouped=new Map();
- allStrengthRecords().forEach(r=>{
-   const display=String(r.ej||'').trim();
-   const key=normText(display);
-   if(!key)return;
-   if(!grouped.has(key))grouped.set(key,{display,rows:[]});
-   grouped.get(key).rows.push(r);
- });
- const prs=[...grouped.values()].map(g=>{
-   let best=null;
-   g.rows.forEach(r=>{
+
+ try{
+   const rows=(db.entreno||[]).filter(r=>
+     r &&
+     !r.esResumenRutina &&
+     r.ej &&
+     String(r.tipo||'fuerza').toLowerCase()==='fuerza' &&
+     bestLoadFromRecord(r)!=null
+   );
+
+   const byName={};
+
+   rows.forEach(r=>{
+     const name=String(r.ej||'').trim();
+     if(!name)return;
+     const key=name.toLocaleLowerCase('es-ES');
      const kg=bestLoadFromRecord(r);
      if(kg==null)return;
-     if(!best || kg>best.kg || (kg===best.kg && (r.fecha||'')>(best.fecha||''))){
-       best={name:g.display,kg,fecha:r.fecha||'',record:r};
+
+     const current=byName[key];
+     if(!current || kg>current.kg || (kg===current.kg && String(r.fecha||'')>String(current.fecha||''))){
+       byName[key]={name,kg,fecha:r.fecha||''};
      }
    });
-   return best;
- }).filter(Boolean).sort((a,b)=>b.kg-a.kg);
- if(!prs.length){el.innerHTML='<div class="empty">Aún no hay cargas registradas.</div>';return;}
- el.innerHTML=prs.slice(0,12).map(x=>`<div class="pr-card">
-   <div class="pr-name">${x.name}</div>
-   <div class="pr-value">${x.kg} kg</div>
-   <div class="pr-date">${x.fecha?fechaES(x.fecha):''}</div>
- </div>`).join('');
+
+   const prs=Object.values(byName).sort((a,b)=>b.kg-a.kg || a.name.localeCompare(b.name,'es'));
+
+   if(!prs.length){
+     el.innerHTML='<div class="empty">Aún no hay cargas registradas.</div>';
+     return;
+   }
+
+   el.innerHTML=
+     `<div class="muted" style="grid-column:1/-1;margin-bottom:2px">${prs.length} récord${prs.length===1?'':'s'} detectado${prs.length===1?'':'s'}</div>`+
+     prs.map(x=>`<div class="pr-card">
+       <div class="pr-name">${x.name}</div>
+       <div class="pr-value">${x.kg} kg</div>
+       <div class="pr-date">${x.fecha?fechaES(x.fecha):''}</div>
+     </div>`).join('');
+ }catch(err){
+   console.error('Error al dibujar récords personales:',err);
+   el.innerHTML='<div class="empty">No se pudieron mostrar los récords. Recarga la app.</div>';
+ }
 }
 
 function isNewPersonalRecord(exerciseName,currentKg,sessionId){
@@ -3065,23 +3086,29 @@ function openExerciseInfo(id){
 }
 
 function renderStrength(){
- const previous=typeof ejSelect!=='undefined' ? ejSelect.value : '';
+ const ejSelectEl=document.getElementById('ejSelect');
+ const info=document.getElementById('strengthInfo');
+ if(!ejSelectEl){
+   if(info)info.textContent='No se pudo cargar el selector de ejercicios.';
+   return;
+ }
+ const previous=ejSelectEl.value||'';
 
  // Excluir el registro resumen "Bloque de fuerza", pero incluir todos
  // los ejercicios de fuerza guardados desde una rutina.
  const strengthRecords=allStrengthRecords();
 
- const names=[...new Set(strengthRecords.map(r=>r.ej))].sort((a,b)=>a.localeCompare(b,'es'));
+ const names=[...new Set(strengthRecords.map(r=>String(r.ej||'').trim()).filter(Boolean))]
+   .sort((a,b)=>a.localeCompare(b,'es'));
 
- ejSelect.innerHTML=names.length
+ ejSelectEl.innerHTML=names.length
    ? names.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}">${x}</option>`).join('')
    : '<option value="">Sin ejercicios de fuerza</option>';
 
- if(previous && names.includes(previous))ejSelect.value=previous;
- else if(names.length)ejSelect.value=names[0];
+ if(previous && names.includes(previous))ejSelectEl.value=previous;
+ else if(names.length)ejSelectEl.value=names[0];
 
- const name=ejSelect.value||names[0];
- const info=document.getElementById('strengthInfo');
+ const name=ejSelectEl.value||names[0];
 
  if(!name){
    chart('chartFuerza',[{data:[]}],{dec:1});
@@ -5622,7 +5649,11 @@ function render(){
  <div class="kpiLine"><span>IMC</span><b>${a.imc??'—'} → ${b.imc??'—'}</b></div>
  <div class="kpiLine"><span>Músculo</span><b>${a.musculoPct??'—'} → ${b.musculoPct??'—'}%</b></div>`;
 }
- renderMeals();renderMealFavorites();loadDailyWater();renderActivity();renderStrength();renderExerciseMap();renderPersonalRecords();renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison();renderActivityCalendar()
+ renderMeals();renderMealFavorites();loadDailyWater();renderActivity();
+ try{renderStrength();}catch(e){console.error('Error renderStrength',e);}
+ try{renderExerciseMap();}catch(e){console.error('Error renderExerciseMap',e);}
+ try{renderPersonalRecords();}catch(e){console.error('Error renderPersonalRecords',e);}
+ renderGlobalExerciseFinder();renderManualExercisePicker();renderTargets();renderCustomEvolution();renderSmoothedTrends();populateComparisonDates();renderDateComparison();renderActivityCalendar()
 }
 function table(rows,cols){if(!rows.length)return '<div class="empty">Sin datos todavía.</div>';return '<table><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c==='fecha'?fechaES(r[c]):(c==='modalidad'?modalidadES(r[c]):(r[c]??''))}</td>`).join('')+'</tr>').join('')+'</table>'}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mi-evolucion-backup.json';a.click()}
@@ -5729,6 +5760,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  const sel=document.getElementById('eTipo');
  if(sel) handleTrainingTypeChange();
  populateManualRoutineSelect();
+ setTimeout(()=>{
+   try{renderPersonalRecords();}catch(e){console.error(e);}
+ },0);
 });
 
 
