@@ -1085,7 +1085,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.55 — catálogo visual por grupo muscular */
+/* v22.1.56 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{margin:16px 0 20px}
@@ -1109,7 +1109,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.55 — varias fotos dentro de una misma comida */
+/* v22.1.56 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1123,7 +1123,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.55 — varios platos escritos dentro de una misma comida */
+/* v22.1.56 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -6941,5 +6941,44 @@ setTimeout(()=>{
     <button class="primary" onclick="completeOnboarding()">Empezar</button>
   </div>
 </div>
+
+
+<script>
+/* v22.1.56 — actualización robusta de la PWA instalada */
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+
+  let refreshing=false;
+
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(refreshing)return;
+    refreshing=true;
+    location.reload();
+  });
+
+  window.addEventListener('load', async ()=>{
+    try{
+      const reg=await navigator.serviceWorker.getRegistration();
+      if(reg){
+        await reg.update();
+        if(reg.waiting){
+          reg.waiting.postMessage({type:'SKIP_WAITING'});
+        }
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('visibilitychange', async ()=>{
+    if(document.visibilityState!=='visible')return;
+    try{
+      const reg=await navigator.serviceWorker.getRegistration();
+      if(reg){
+        await reg.update();
+        if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
+      }
+    }catch(e){}
+  });
+})();
+</script>
 
 </body></html>
