@@ -1085,7 +1085,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.62 — catálogo visual por grupo muscular */
+/* v22.1.63 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1109,7 +1109,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.62 — varias fotos dentro de una misma comida */
+/* v22.1.63 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1123,7 +1123,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.62 — varios platos escritos dentro de una misma comida */
+/* v22.1.63 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1132,7 +1132,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.62 — auditoría de imágenes del catálogo */
+/* v22.1.63 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1527,6 +1527,7 @@ nav .nav-label{
   <div class="visual-catalog-toolbar">
     <input id="visualCatalogSearch" placeholder="Buscar ejercicio..." oninput="renderVisualExerciseCatalog()">
     <select id="visualCatalogMuscle" onchange="renderVisualExerciseCatalog()">
+      <option value="">Selecciona un grupo muscular…</option>
       <option value="Todos">Todos los músculos</option>
       <option value="Pecho">Pecho</option>
       <option value="Espalda">Espalda</option>
@@ -3630,7 +3631,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.62 — catálogo limpio.
+/* v22.1.63 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -4237,10 +4238,23 @@ function renderVisualExerciseCatalog(){
     ensureCatalogImages();
 
     const q=normText((search&&search.value)||'');
-    const muscle=(filter&&filter.value)||'Todos';
+    const muscle=(filter&&filter.value)||'';
     const source=visibleExerciseCatalog();
+
+    // Por defecto no mostramos nada para no llenar la pantalla.
+    // La galería aparece al escribir en el buscador o seleccionar un grupo.
+    if(!q && !muscle){
+      if(stats)stats.textContent='Escribe un ejercicio o selecciona un grupo muscular para ver el catálogo.';
+      while(host.firstChild)host.removeChild(host.firstChild);
+      const hint=document.createElement('div');
+      hint.className='visual-catalog-empty';
+      hint.textContent='El catálogo está oculto por defecto para mantener esta pantalla compacta.';
+      host.appendChild(hint);
+      return;
+    }
+
     const items=source.filter(function(x){
-      if(muscle!=='Todos' && x.zone!==muscle)return false;
+      if(muscle && muscle!=='Todos' && x.zone!==muscle)return false;
       if(!q)return true;
       const secondary=visualCatalogSecondaryMuscles(x).join(' ');
       return normText((x.name||'')+' '+(x.zone||'')+' '+secondary+' '+(x.equipment||'')+' '+(x.tipo||'')).includes(q);
@@ -7155,7 +7169,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.62 — actualización robusta de la PWA instalada */
+/* v22.1.63 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
