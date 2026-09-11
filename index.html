@@ -3479,6 +3479,27 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
 ];
 let routineDraft=null;
 let selectedZone='Todos';
+
+const EXERCISE_REAL_IMAGE_OVERRIDES={
+  lat_pulldown:'./assets/exercises_v22150/lat_pulldown_real.png',
+  seated_row_machine:'./assets/exercises_v22150/seated_row_machine_real.png',
+  preacher_curl_machine:'./assets/exercises_v22150/preacher_curl_machine_real.png',
+  biceps_machine:'./assets/exercises_v22150/biceps_machine_real.png',
+  hammer_curl_dumbbell:'./assets/exercises_v22150/hammer_curl_dumbbell_real.png',
+  triceps_pushdown:'./assets/exercises_v22150/triceps_pushdown_real.png',
+  overhead_triceps_cable:'./assets/exercises_v22150/overhead_triceps_cable_real.png',
+  assisted_dips_triceps:'./assets/exercises_v22150/assisted_dips_triceps_real.png',
+  reverse_pec_deck:'./assets/exercises_v22150/reverse_pec_deck_real.png',
+  rear_delt_machine:'./assets/exercises_v22150/rear_delt_machine_real.png',
+  leg_press_45:'./assets/exercises_v22150/leg_press_45_real.png',
+  leg_press:'./assets/exercises_v22150/leg_press_real.png',
+  goblet_squat:'./assets/exercises_v22150/goblet_squat_real.png',
+  glute_kickback_cable:'./assets/exercises_v22150/glute_kickback_cable_real.png'
+};
+EXERCISE_CATALOG.forEach(x=>{
+  const override=EXERCISE_REAL_IMAGE_OVERRIDES[x.id];
+  if(override)x.image=override;
+});
 function newRoutineDraft(){
  const name=(newRoutineName.value||'Nueva rutina').trim();
  routineDraft={id:'r'+Date.now(),nombre:name,ejercicios:[]};

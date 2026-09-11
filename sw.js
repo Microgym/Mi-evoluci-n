@@ -1,5 +1,33 @@
-const CACHE='mi-evolucion-v22-1-49';
-const ASSETS=["./", "./index.html", "./manifest.webmanifest", "./assets/exercises_v22146/chest_press_machine.png", "./assets/exercises_v22146/incline_chest_press_machine.png", "./assets/exercises_v22146/bench_press_barbell.png", "./assets/exercises_v22146/incline_bench_press_dumbbell.png", "./assets/exercises_v22146/cable_crossover_high.png", "./assets/exercises_v22146/assisted_dips_chest.png", "./assets/exercises_v22146/crunch_machine.png", "./assets/exercises_v22146/cable_crunch.png", "./assets/exercises_v22146/hanging_knee_raise.png", "./assets/exercises_v22146/ab_wheel.png"];
+const CACHE='mi-evolucion-v22-1-50';
+const ASSETS=[
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './assets/exercises_v22146/chest_press_machine.png',
+  './assets/exercises_v22146/incline_chest_press_machine.png',
+  './assets/exercises_v22146/bench_press_barbell.png',
+  './assets/exercises_v22146/incline_bench_press_dumbbell.png',
+  './assets/exercises_v22146/cable_crossover_high.png',
+  './assets/exercises_v22146/assisted_dips_chest.png',
+  './assets/exercises_v22146/crunch_machine.png',
+  './assets/exercises_v22146/cable_crunch.png',
+  './assets/exercises_v22146/hanging_knee_raise.png',
+  './assets/exercises_v22146/ab_wheel.png',
+  './assets/exercises_v22150/lat_pulldown_real.png',
+  './assets/exercises_v22150/seated_row_machine_real.png',
+  './assets/exercises_v22150/preacher_curl_machine_real.png',
+  './assets/exercises_v22150/biceps_machine_real.png',
+  './assets/exercises_v22150/hammer_curl_dumbbell_real.png',
+  './assets/exercises_v22150/triceps_pushdown_real.png',
+  './assets/exercises_v22150/overhead_triceps_cable_real.png',
+  './assets/exercises_v22150/assisted_dips_triceps_real.png',
+  './assets/exercises_v22150/reverse_pec_deck_real.png',
+  './assets/exercises_v22150/rear_delt_machine_real.png',
+  './assets/exercises_v22150/leg_press_45_real.png',
+  './assets/exercises_v22150/leg_press_real.png',
+  './assets/exercises_v22150/goblet_squat_real.png',
+  './assets/exercises_v22150/glute_kickback_cable_real.png'
+];
 self.addEventListener('install',e=>{
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
