@@ -461,7 +461,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.48 — catálogo de ejercicios ampliado */
+/* v22.1.49 — catálogo de ejercicios ampliado */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -1025,7 +1025,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.48 — imagen del ejercicio dentro de la rutina activa */
+/* v22.1.49 — imagen del ejercicio dentro de la rutina activa */
 .active-routine-exercise-head{
   display:flex;
   gap:12px;
@@ -1066,6 +1066,22 @@ nav .nav-label{
     margin-top:9px;
   }
   .routine-exercise-photo img{height:160px;object-fit:contain}
+}
+
+
+/* v22.1.49 — hora de entrenamiento + pauta diaria */
+.day-timeline{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+.day-timeline-item{display:grid;grid-template-columns:62px 36px 1fr;gap:10px;align-items:center;padding:10px 12px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}
+.day-timeline-time{font-weight:800;font-size:.92rem;color:#111827}
+.day-timeline-icon{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px}
+.day-timeline-main{min-width:0}
+.day-timeline-title{font-weight:750;color:#111827}
+.day-timeline-sub{font-size:.82rem;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-timeline-item.workout{border-color:#dbeafe;background:#f8fbff}
+.day-timeline-item.meal{border-color:#fef3c7;background:#fffdf7}
+@media(max-width:480px){
+  .day-timeline-item{grid-template-columns:52px 34px 1fr;gap:8px;padding:9px 10px}
+  .day-timeline-time{font-size:.86rem}
 }
 
 </style>
@@ -1119,6 +1135,12 @@ nav .nav-label{
   <div class="smart-card"><div class="smart-title">Entrenamiento</div><div class="smart-value" id="homeWorkout">—</div><div class="smart-sub" id="homeWorkoutSub"></div></div>
   <div class="smart-card"><div class="smart-title">Próximo hito</div><div class="smart-value" id="homeNextMilestone">—</div><div class="smart-sub" id="homeNextMilestoneSub"></div></div>
   <div class="smart-card"><div class="smart-title">Última medición</div><div class="smart-value" id="homeLastMeasure">—</div><div class="smart-sub" id="homeLastMeasureSub"></div></div>
+</div>
+
+<div class="card">
+  <h2>🕒 Pauta del día</h2>
+  <p class="muted">Comidas y entrenamiento ordenados por hora para ver el ritmo real de tu día.</p>
+  <div id="dayTimeline" class="day-timeline"></div>
 </div>
 
 <div class="card">
@@ -1299,8 +1321,16 @@ nav .nav-label{
 <div class="card" id="workoutTopCard">
   <h2>Registrar entrenamiento</h2>
 
-  <label>Fecha</label>
-  <input id="eFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderActivity()">
+  <div class="row">
+    <div>
+      <label>Fecha</label>
+      <input id="eFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderActivity()">
+    </div>
+    <div>
+      <label>Hora</label>
+      <input id="eHora" type="time">
+    </div>
+  </div>
 
   <label>Tipo</label>
   <select id="eTipo" onchange="toggleTrainingFields();previewCalories();handleTrainingTypeChange()">
@@ -2860,6 +2890,7 @@ function cancelTrainingEdit(){
 
   if(typeof resetManualExerciseSelection==='function')resetManualExerciseSelection();
   if(document.getElementById('eDuracion'))eDuracion.value='';
+  if(document.getElementById('eHora'))eHora.value=currentHHMM();
   if(document.getElementById('eEquipo'))eEquipo.value='';
   if(document.getElementById('eKg'))eKg.value='';
   if(document.getElementById('eReps'))eReps.value='';
@@ -2887,7 +2918,8 @@ function addEntreno(){
    actividad=(CARDIO_ACTIVITIES[cardioActividad]||CARDIO_ACTIVITIES.otro_cardio).label;
  }
 
- let r={fecha,tipo,duracion,ej:actividad,intensidad,
+ const hora=(document.getElementById('eHora')?.value||'').trim();
+ let r={fecha,hora,tipo,duracion,ej:actividad,intensidad,
         kcal:duracion?calcActivityCalories(tipo,intensidad,duracion,cardioActividad):null,
         cardioActividad,
         velocidad:tipo==='cardio'?num('eVelocidad'):null,
@@ -2921,7 +2953,7 @@ function addEntreno(){
    db.entreno.push(r);
  }
 
- eEj.value='';eEquipo.value='';eKg.value='';eReps.value='';eSeries.value='';eDuracion.value='';eNotas.value='';eKcal.value=''; if(typeof eVelocidad!=='undefined')eVelocidad.value=''; if(typeof eInclinacion!=='undefined')eInclinacion.value=''; if(typeof eDistancia!=='undefined')eDistancia.value=''; if(typeof eResistencia!=='undefined')eResistencia.value='';
+ eEj.value='';eEquipo.value='';eKg.value='';eReps.value='';eSeries.value='';eDuracion.value='';eNotas.value='';eKcal.value=''; if(document.getElementById('eHora'))eHora.value=currentHHMM(); if(typeof eVelocidad!=='undefined')eVelocidad.value=''; if(typeof eInclinacion!=='undefined')eInclinacion.value=''; if(typeof eDistancia!=='undefined')eDistancia.value=''; if(typeof eResistencia!=='undefined')eResistencia.value='';
  const lbl=document.getElementById('manualSelectedExerciseLabel');if(lbl)lbl.textContent='Ninguno';
  const ms=document.getElementById('manualExerciseSearch');if(ms)ms.value='';
  const banner=document.getElementById('trainingEditBanner');if(banner)banner.classList.remove('active');
@@ -4502,6 +4534,7 @@ function startRoutine(id){
    id:r.id,
    nombre:r.nombre,
    fecha:d,
+   hora:currentHHMM(),
    sessionId:'rs_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
    items
  };
@@ -4613,7 +4646,7 @@ function saveRoutineItemRecord(i,doRender=true){
  const repLoad=loads.length?Math.max(...loads):null;
  const duration=routineTotalMinutes(ex);
  const rec={
-   fecha:a.fecha,tipo:ex.tipo,duracion:duration||null,ej:ex.ej,intensidad:ex.intensidad||'moderada',
+   fecha:a.fecha,hora:a.hora||'',tipo:ex.tipo,duracion:duration||null,ej:ex.ej,intensidad:ex.intensidad||'moderada',
    kcal:duration?calcActivityCalories(ex.tipo,ex.intensidad||'moderada',duration,ex.tipo==='cardio'?(ex.cardioActividad||cardioActivityForExercise(ex)):null):null,
    modalidad:ex.modalidad||'',equipo:ex.equipo||'',kg:repLoad,reps:ex.reps||null,series:ex.series||null,
    sets:ex.sets.map(s=>({
@@ -4756,7 +4789,7 @@ function finalizeRoutineConfirmed(skippedPending){
    if(fuerzaMin>0){
      const kcal=calcActivityCalories('fuerza',intensidad,fuerzaMin);
      const summary={
-       fecha:a.fecha,tipo:'fuerza',duracion:fuerzaMin,ej:'Bloque de fuerza · '+a.nombre,
+       fecha:a.fecha,hora:a.hora||'',tipo:'fuerza',duracion:fuerzaMin,ej:'Bloque de fuerza · '+a.nombre,
        intensidad,kcal,modalidad:'',equipo:'',kg:null,reps:null,series:null,
        notas:'Resumen de rutina. Duración total: '+total+' min. Tiempo no-fuerza registrado: '+Math.round(nonStrengthMinutes)+' min.'+(notasSesion?' · Notas: '+notasSesion:''),
        esResumenRutina:true,rutinaId:a.id,rutinaNombre:a.nombre,rutinaSessionId:a.sessionId
@@ -4772,6 +4805,7 @@ function finalizeRoutineConfirmed(skippedPending){
    rutinaId:a.id,
    nombre:a.nombre,
    fecha:a.fecha,
+   hora:a.hora||'',
    intensidad,
    duracionTotal:total,
    notasSesion,
@@ -4846,6 +4880,10 @@ function renderRoutines(){
  if(!a){card.style.display='none';return;}
  card.style.display='block';
  activeRoutineTitle.textContent=`${a.nombre} · ${fechaES(a.fecha)}`;
+ const activeTimeHtml=`<div class="row" style="margin:8px 0 12px">
+   <div><label>Hora del entrenamiento</label><input id="activeRoutineHour" type="time" value="${a.hora||''}" onchange="setActiveRoutineHour(this.value)"></div>
+   <div><label>Estado</label><input value="Rutina en curso" readonly></div>
+ </div>`;
  const prefillInfo=document.getElementById('activePrefillInfo');
  if(prefillInfo){
    const n=countPrefilledExercises(a);
@@ -4853,7 +4891,7 @@ function renderRoutines(){
      ? `Últimos valores cargados en ${n} ejercicio${n===1?'':'s'}. Amarillo = dato de la sesión anterior; al editarlo vuelve a normal.`
      : 'No se han cargado valores anteriores. Puedes pulsar “Cargar últimos valores” para intentarlo manualmente.';
  }
- list.innerHTML=a.items.map((ex,i)=>{
+ list.innerHTML=activeTimeHtml+a.items.map((ex,i)=>{
    const strength=ex.tipo==='fuerza';
    const meta=[ex.tipo,ex.tipo==='cardio'?(CARDIO_ACTIVITIES[ex.cardioActividad||cardioActivityForExercise(ex)]?.label||'Cardio'):'',ex.equipo,ex.series?ex.series+' × '+(ex.reps||''):'',ex.duracion?ex.duracion+' min':''].filter(Boolean).join(' · ');
    return `<div class="routine-ex">
@@ -4923,6 +4961,7 @@ function editTrainingIndex(i){
  editingTrainingIndex=i;
 
  eFecha.value=fechaES(r.fecha);
+ if(document.getElementById('eHora'))eHora.value=r.hora||'';
  eTipo.value=r.tipo||'fuerza';
  toggleTrainingFields();
 
@@ -5051,7 +5090,7 @@ function renderTrainingHistoryActions(){
      const detail=[Math.round(Number(r.duracion)||0)+' min',r.intensidad||'',r.kcal!=null?'~'+Math.round(Number(r.kcal))+' kcal':'',strength,cardio].filter(Boolean).join(' · ');
      return `<div class="history-item">
        <div class="history-top">
-         <div><b>${fechaES(r.fecha)} · ${r.ej||'Actividad'}</b><div class="history-detail">${detail}</div></div>
+         <div><b>${fechaES(r.fecha)}${r.hora?' · '+r.hora:''} · ${r.ej||'Actividad'}</b><div class="history-detail">${detail}</div></div>
          <div class="history-actions"><button class="edit-btn" onclick="editTrainingIndex(${i})">Modificar</button><button class="delete-btn" onclick="deleteTrainingIndex(${i})">Eliminar</button></div>
        </div>
      </div>`;
@@ -5091,7 +5130,7 @@ function renderTrainingHistoryActions(){
    return `<details class="history-item" data-routine-key="${safeKey}">
      <summary style="cursor:pointer">
        <div class="history-top" style="display:inline-flex;width:calc(100% - 20px);vertical-align:middle">
-         <div><b>${fechaES(entry.date)} · ${entry.name}</b><div class="history-detail">${summaryBits}</div></div>
+         <div><b>${fechaES(entry.date)}${(entry.sess?.hora||entry.rows?.[0]?.hora)?' · '+(entry.sess?.hora||entry.rows?.[0]?.hora):''} · ${entry.name}</b><div class="history-detail">${summaryBits}</div></div>
        </div>
      </summary>
 
@@ -5512,7 +5551,7 @@ function renderRecentWorkouts(){
        r.kcal!=null?'~'+Math.round(Number(r.kcal))+' kcal':''
      ].filter(Boolean).join(' · ');
      return `<div class="history-item">
-       <b>${fechaES(r.fecha)} · ${r.ej||'Actividad'}</b>
+       <b>${fechaES(r.fecha)}${r.hora?' · '+r.hora:''} · ${r.ej||'Actividad'}</b>
        <div class="history-detail">${detail}</div>
      </div>`;
    }
@@ -5555,7 +5594,7 @@ function renderRecentWorkouts(){
 
    return `<details class="history-item">
      <summary style="cursor:pointer">
-       <b>${fechaES(entry.date)} · ${entry.name}</b>
+       <b>${fechaES(entry.date)}${(entry.sess?.hora||entry.rows?.[0]?.hora)?' · '+(entry.sess?.hora||entry.rows?.[0]?.hora):''} · ${entry.name}</b>
        <div class="history-detail">${meta}</div>
      </summary>
      <div style="margin-top:8px">${exercises}${omittedHtml}${notesHtml}</div>
@@ -5842,6 +5881,90 @@ function goToWorkoutTop(){
   },80);
 }
 
+
+function currentHHMM(){
+ const d=new Date();
+ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function normalizedHHMM(v,fallback='23:59'){
+ const s=String(v||'').trim();
+ return /^\d{2}:\d{2}$/.test(s)?s:fallback;
+}
+function routineSessionHour(sessionId, fallback=''){
+ if(!sessionId)return fallback;
+ const s=(db.rutinaSesiones||[]).find(x=>String(x.sessionId||'')===String(sessionId));
+ return s?.hora||fallback;
+}
+function setActiveRoutineHour(v){
+ if(!db.rutinaActiva)return;
+ db.rutinaActiva.hora=v||'';
+ localStorage.setItem(KEY,JSON.stringify(db));
+ renderDayTimeline();
+}
+function renderDayTimeline(){
+ const el=document.getElementById('dayTimeline');
+ if(!el)return;
+ const d=today();
+ const items=[];
+
+ // Comidas estructuradas actuales.
+ Object.values(db.meals||{}).forEach(m=>{
+   if(!m || m.fecha!==d)return;
+   const mealDef=MEALS.find(x=>x.key===m.tipo);
+   const label=mealDef?.label || m.tipo || 'Comida';
+   const hora=normalizedHHMM(m.hora, mealDef?.time||'23:59');
+   items.push({
+     kind:'meal',hora,icon:'🍽️',title:label,
+     sub:[m.desc||'',m.kcal!=null?Math.round(Number(m.kcal)||0)+' kcal':''].filter(Boolean).join(' · ')
+   });
+ });
+
+ // Entrenamientos guardados: una sola entrada por sesión de rutina.
+ const seenRoutine=new Set();
+ (db.entreno||[]).forEach(r=>{
+   if(!r || r.fecha!==d || r.esResumenRutina)return;
+   if(r.rutinaSessionId){
+     const sid=String(r.rutinaSessionId);
+     if(seenRoutine.has(sid))return;
+     seenRoutine.add(sid);
+     const sess=(db.rutinaSesiones||[]).find(s=>String(s.sessionId||'')===sid);
+     const rows=(db.entreno||[]).filter(x=>x.fecha===d && String(x.rutinaSessionId||'')===sid && !x.esResumenRutina);
+     const hora=normalizedHHMM(sess?.hora || r.hora);
+     const dur=sess?.duracionTotal;
+     items.push({
+       kind:'workout',hora,icon:'🏋️',title:sess?.nombre||r.rutinaNombre||'Rutina',
+       sub:[rows.length+' ejercicio'+(rows.length===1?'':'s'),dur?Math.round(Number(dur))+' min':''].filter(Boolean).join(' · ')
+     });
+   }else{
+     const hora=normalizedHHMM(r.hora);
+     items.push({
+       kind:'workout',hora,icon:r.tipo==='cardio'?'❤️':'🏋️',title:r.ej||'Entrenamiento',
+       sub:[r.tipo||'',r.duracion?Math.round(Number(r.duracion))+' min':''].filter(Boolean).join(' · ')
+     });
+   }
+ });
+
+ // Rutina activa aún no finalizada.
+ const a=db.rutinaActiva;
+ if(a && a.fecha===d && !seenRoutine.has(String(a.sessionId||''))){
+   items.push({
+     kind:'workout',hora:normalizedHHMM(a.hora),icon:'🏋️',title:a.nombre+' · en curso',
+     sub:(a.items||[]).filter(x=>x.hecho).length+' de '+(a.items||[]).length+' ejercicios guardados'
+   });
+ }
+
+ items.sort((a,b)=>a.hora.localeCompare(b.hora) || (a.kind==='meal'?-1:1));
+ if(!items.length){
+   el.innerHTML='<div class="empty">Aún no hay comidas ni entrenamientos con hora para hoy.</div>';
+   return;
+ }
+ el.innerHTML=items.map(x=>`<div class="day-timeline-item ${x.kind}">
+   <div class="day-timeline-time">${x.hora==='23:59'?'—':x.hora}</div>
+   <div class="day-timeline-icon">${x.icon}</div>
+   <div class="day-timeline-main"><div class="day-timeline-title">${x.title}</div>${x.sub?`<div class="day-timeline-sub">${x.sub}</div>`:''}</div>
+ </div>`).join('');
+}
+
 function smartHomeStatus(){
   const todayIso=today();
   const water=Number(db.waterDaily?.[todayIso]||0);
@@ -6027,7 +6150,7 @@ function render(){
  if(firstAug&&last&&firstAug!==last){let wk=(last.peso-firstAug.peso)/(days(firstAug.fecha,last.fecha)/7);ritmo.innerHTML=`<b>${wk.toFixed(2)} kg/semana matemáticos</b><p class="muted">Desde ${firstAug.fecha}: ${firstAug.peso.toFixed(1)} → ${last.peso.toFixed(1)} kg. Este ritmo inicial es demasiado rápido para extrapolar; usa ~0,5–0,8 kg/semana como referencia práctica.</p>`}
  renderMilestones(last);
  chart('chartPeso',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.peso}))},{data:movAvg(db.peso)}]);chart('chartGrasa',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.grasa}))}],{dec:1});chart('chartCintura',[{data:db.peso.filter(x=>x.cintura!=null).map(x=>({fecha:x.fecha,v:x.cintura}))}],{dec:1});
- renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderHealthAlerts();
+ renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderDayTimeline();renderHealthAlerts();
  if(db.peso.length>1){
  let a=db.peso[0],b=last;
  const fmt=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
@@ -6434,6 +6557,12 @@ async function analyzeFoodPhoto(meal){
    alert(msg);
  }
 }
+
+setTimeout(()=>{
+ const eh=document.getElementById('eHora');
+ if(eh && !eh.value)eh.value=currentHHMM();
+},0);
+
 </script>
 <div id="exerciseDetailModal" class="exercise-modal" onclick="closeExerciseDetail(event)">
   <div class="exercise-modal-sheet" onclick="event.stopPropagation()">
