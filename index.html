@@ -145,7 +145,7 @@ nav{
   -webkit-backdrop-filter:blur(22px);
   border-top:1px solid rgba(233,235,239,.9);
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(7,1fr);
   gap:4px;
 }
 nav button{
@@ -179,6 +179,7 @@ nav button .nav-label{font-size:10px;line-height:1.05;letter-spacing:.01em}
 .nav-food{background:#fff6e8;color:#d97706}
 .nav-workout{background:#eff6ff;color:#2563eb}
 .nav-progress{background:#f5f3ff;color:#7c3aed}
+.nav-training-progress{background:#eefbf4;color:#15803d}
 .nav-data{background:#fff1f2;color:#e11d48}
 nav button.active{
   background:#f8fafc;
@@ -460,7 +461,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.41 — récords directos y refresco forzado */
+/* v22.1.42 — Evolución salud + Evolución entrenamiento */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -926,6 +927,15 @@ nav .nav-label{
   .meal-fav-list{grid-template-columns:1fr}
 }
 
+
+@media(max-width:520px){
+  nav{padding-left:4px;padding-right:4px;gap:2px}
+  nav button{padding-left:1px;padding-right:1px;gap:4px}
+  nav button .nav-label{font-size:8.5px;line-height:1.05}
+  .nav-ico{width:29px;height:29px;border-radius:10px}
+  .nav-ico svg{width:16px;height:16px}
+}
+
 </style>
 
 </head>
@@ -1336,6 +1346,9 @@ nav .nav-label{
   <p class="muted">Puedes registrar tantas actividades como quieras el mismo día: varios ejercicios de fuerza, cardio, funcional, etc.</p>
 </div>
 
+</section>
+
+<section id="evolucionEntreno">
 <div class="card">
   <h2>Actividad por tipo</h2>
   <div id="activitySummary"></div>
@@ -1538,7 +1551,8 @@ nav .nav-label{
 <button data-sec="peso"><span class="nav-ico nav-weight" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></span><span class="nav-label">Peso</span></button>
 <button data-sec="comidas"><span class="nav-ico nav-food" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3v7"></path><path d="M9 3v7"></path><path d="M6 7h3"></path><path d="M7.5 10v11"></path><path d="M16 3c1.8 2.2 1.8 5.8 0 8"></path><path d="M16 11v10"></path></svg></span><span class="nav-label">Comidas</span></button>
 <button data-sec="entreno"><span class="nav-ico nav-workout" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span class="nav-label">Fuerza</span></button>
-<button data-sec="evolucion"><span class="nav-ico nav-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path><path d="M18 8h0"></path></svg></span><span class="nav-label">Evolución</span></button>
+<button data-sec="evolucion"><span class="nav-ico nav-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path><path d="M18 8h0"></path></svg></span><span class="nav-label">Evolución<br>salud</span></button>
+<button data-sec="evolucionEntreno"><span class="nav-ico nav-training-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-3 3 2 4-6"></path><path d="M15 8h3v3"></path></svg></span><span class="nav-label">Evolución<br>entreno</span></button>
 <button data-sec="datos"><span class="nav-ico nav-data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="nav-label">Datos</span></button>
 </nav>
 <script>
@@ -1693,6 +1707,14 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   b.classList.add('active');
 
   if(b.dataset.sec==='evolucion')renderProgressPhotos();
+
+  if(b.dataset.sec==='evolucionEntreno'){
+    try{renderActivity();}catch(e){console.error(e);}
+    try{renderExerciseMap();}catch(e){console.error(e);}
+    try{renderPersonalRecords();}catch(e){console.error(e);}
+    try{renderStrength();}catch(e){console.error(e);}
+    try{renderRecentWorkouts();}catch(e){console.error(e);}
+  }
 
   if(b.dataset.sec==='comidas'){
     const d=document.getElementById('cFecha');
