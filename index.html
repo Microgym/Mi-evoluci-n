@@ -1085,7 +1085,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.63 — catálogo visual por grupo muscular */
+/* v22.1.65 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1109,7 +1109,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.63 — varias fotos dentro de una misma comida */
+/* v22.1.65 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1123,7 +1123,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.63 — varios platos escritos dentro de una misma comida */
+/* v22.1.65 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1132,7 +1132,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.63 — auditoría de imágenes del catálogo */
+/* v22.1.65 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1148,6 +1148,20 @@ nav .nav-label{
 @media(max-width:480px){
   .image-audit-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* v22.1.65 — sincronización manual segura */
+.sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sync-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sync-status{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;min-height:42px}
+.sync-status.ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.sync-status.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.sync-status.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.sync-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.sync-meta div{padding:8px;border-radius:10px;background:#f8fafc;border:1px solid #e5e7eb}
+.sync-meta small{display:block;color:#6b7280}
+.sync-meta b{display:block;margin-top:2px}
+@media(max-width:480px){.sync-grid,.sync-meta{grid-template-columns:1fr}}
 
 </style>
 
@@ -1230,7 +1244,7 @@ nav .nav-label{
 <section id="peso">
 <div class="card"><h2>Añadir medición</h2>
 <p class="muted">Puedes rellenar solo los campos que te dé la báscula. Peso es el único obligatorio.</p>
-<label>Fecha</label><input id="pFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa">
+<label>Fecha</label><input id="pFecha" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa">
 
 <div class="row">
   <div><label>Peso (kg)</label><input id="pPeso" type="number" step=".1" oninput="autoPesoDerived()"></div>
@@ -1353,7 +1367,7 @@ nav .nav-label{
 <div class="card">
   <h2>Alimentación del día</h2>
   <label>Fecha</label>
-  <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals();loadDailyWater()">
+  <input id="cFecha" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa" onchange="renderMeals();loadDailyWater()">
   <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, o añadir <b>varias fotos</b> de platos/etiquetas dentro de la misma comida. La app suma sus análisis.</p>
 </div>
 
@@ -1389,7 +1403,7 @@ nav .nav-label{
   <div class="row">
     <div>
       <label>Fecha</label>
-      <input id="eFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderActivity()">
+      <input id="eFecha" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" onchange="renderActivity()">
     </div>
     <div>
       <label>Hora</label>
@@ -1767,6 +1781,46 @@ nav .nav-label{
 </div>
 <p id="aiBackendStatus" class="muted" style="min-height:24px;margin-top:10px"></p>
 </div>
+
+<div class="card" id="syncCard">
+  <h2>☁️ Sincronización PC ↔ iPhone</h2>
+  <p class="muted">Fase 1: copia manual y segura. Tú decides cuándo subir tus datos a la nube y cuándo descargarlos en otro dispositivo.</p>
+
+  <label>URL del Worker de sincronización</label>
+  <input id="syncBackendUrl" type="url" placeholder="https://mi-evolucion-sync....workers.dev">
+
+  <div class="sync-grid" style="margin-top:10px">
+    <div>
+      <label>Código de sincronización</label>
+      <input id="syncCode" autocomplete="off" placeholder="Ej. MIGUEL-1234">
+    </div>
+    <div>
+      <label>PIN</label>
+      <input id="syncPin" type="password" inputmode="numeric" autocomplete="off" placeholder="4–12 caracteres">
+    </div>
+  </div>
+
+  <div class="sync-actions">
+    <button type="button" class="primary-small" onclick="saveSyncConnection()">Guardar conexión</button>
+    <button type="button" class="set-add" onclick="generateSyncCode()">Generar código</button>
+    <button type="button" class="set-add" onclick="testSyncBackend()">Probar conexión</button>
+  </div>
+
+  <div class="sync-actions">
+    <button type="button" class="secondary" onclick="uploadSyncCopy()">⬆️ Subir copia</button>
+    <button type="button" class="secondary" onclick="downloadSyncCopy()">⬇️ Descargar copia</button>
+    <button id="restoreSyncBackupBtn" type="button" class="set-add" onclick="restorePreSyncBackup()" style="display:none">↩️ Restaurar copia anterior</button>
+  </div>
+
+  <div class="sync-meta">
+    <div><small>Última subida</small><b id="syncLastUpload">—</b></div>
+    <div><small>Última descarga</small><b id="syncLastDownload">—</b></div>
+  </div>
+
+  <div id="syncStatus" class="sync-status">Configura la URL del Worker, un código y un PIN.</div>
+  <p class="muted" style="margin-top:8px">Antes de reemplazar datos locales, la app guarda automáticamente una copia de seguridad en este dispositivo.</p>
+</div>
+
 <div class="card"><h2>Copia de seguridad</h2><p class="muted">Todo se guarda en Safari/localStorage. Exporta una copia periódicamente.</p>
 <div class="row"><button class="secondary" onclick="exportData()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar</button></div>
 <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"></div>
@@ -1851,15 +1905,58 @@ if(Array.isArray(db.comidas) && db.comidas.length && Object.keys(db.meals).lengt
   });
 }
 const today=()=>new Date().toISOString().slice(0,10);
-function isoFromES(s){
- const m=String(s||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
- if(!m)return s;
- return `${m[3]}-${m[2]}-${m[1]}`;
+
+function formatDateTyping(value){
+  const digits=String(value||'').replace(/\D/g,'').slice(0,8);
+  if(digits.length<=2)return digits;
+  if(digits.length<=4)return digits.slice(0,2)+'/'+digits.slice(2);
+  return digits.slice(0,2)+'/'+digits.slice(2,4)+'/'+digits.slice(4);
 }
+
+function validISODate(y,m,d){
+  const yy=Number(y),mm=Number(m),dd=Number(d);
+  if(!yy||mm<1||mm>12||dd<1||dd>31)return false;
+  const dt=new Date(Date.UTC(yy,mm-1,dd));
+  return dt.getUTCFullYear()===yy && dt.getUTCMonth()===mm-1 && dt.getUTCDate()===dd;
+}
+
+function isoFromES(s){
+  const raw=String(s||'').trim();
+
+  // Compatibilidad: si ya viene en ISO válido, se conserva.
+  let m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m)return validISODate(m[1],m[2],m[3]) ? raw : '';
+
+  m=raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m)return '';
+  return validISODate(m[3],m[2],m[1]) ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+
 function fechaES(s){
  if(!s)return '';
  const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);
  return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
+}
+
+function attachDateMask(id,onChangeFn){
+  const el=document.getElementById(id);
+  if(!el || el.dataset.dateMask==='1')return;
+  el.dataset.dateMask='1';
+  el.maxLength=10;
+  el.addEventListener('input',function(){
+    const before=this.value;
+    const formatted=formatDateTyping(before);
+    if(this.value!==formatted)this.value=formatted;
+  });
+  el.addEventListener('blur',function(){
+    if(this.value && !isoFromES(this.value)){
+      this.setCustomValidity('Introduce una fecha válida en formato dd/mm/aaaa');
+    }else{
+      this.setCustomValidity('');
+    }
+  });
+  el.addEventListener('input',function(){this.setCustomValidity('');});
+  if(typeof onChangeFn==='function')el.addEventListener('change',onChangeFn);
 }
 const MEALS=[
   {key:'desayuno',label:'Desayuno',time:'08:00'},
@@ -1869,6 +1966,7 @@ const MEALS=[
   {key:'cena',label:'Cena',time:'21:00'}
 ];
 ['pFecha','cFecha','eFecha'].forEach(id=>document.getElementById(id).value=fechaES(today()));
+['pFecha','cFecha','eFecha'].forEach(id=>attachDateMask(id));
 
 function profile(){
   return db.profile || {
@@ -3631,7 +3729,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.63 — catálogo limpio.
+/* v22.1.65 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -6634,7 +6732,7 @@ function render(){
  <div class="kpiLine"><span>IMC</span><b>${a.imc??'—'} → ${b.imc??'—'}</b></div>
  <div class="kpiLine"><span>Músculo</span><b>${a.musculoPct??'—'} → ${b.musculoPct??'—'}%</b></div>`;
 }
- renderMeals();renderMealFavorites();loadDailyWater();renderActivity();
+ renderMeals();renderMealFavorites();loadDailyWater();renderActivity();renderSyncSettings();
  try{renderStrength();}catch(e){console.error('Error renderStrength',e);}
  try{renderExerciseMap();}catch(e){console.error('Error renderExerciseMap',e);}
  try{renderPersonalRecords();}catch(e){console.error('Error renderPersonalRecords',e);}
@@ -6736,12 +6834,222 @@ function importData(ev){
   rd.readAsText(f,'UTF-8');
 }
 
+
+const SYNC_URL_KEY='mi-evolucion-sync-url-v1';
+const SYNC_CODE_KEY='mi-evolucion-sync-code-v1';
+const SYNC_TOKEN_KEY='mi-evolucion-sync-token-v1';
+const SYNC_LAST_UPLOAD_KEY='mi-evolucion-sync-last-upload-v1';
+const SYNC_LAST_DOWNLOAD_KEY='mi-evolucion-sync-last-download-v1';
+const SYNC_PREV_BACKUP_KEY='mi-evolucion-sync-prev-local-backup-v1';
+
+function syncSetStatus(msg,kind=''){
+  const el=document.getElementById('syncStatus');
+  if(!el)return;
+  el.className='sync-status'+(kind?' '+kind:'');
+  el.textContent=msg;
+}
+
+function normalizeSyncUrl(v){
+  return String(v||'').trim().replace(/\/+$/,'');
+}
+
+function normalizeSyncCode(v){
+  return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'');
+}
+
+async function sha256Hex(text){
+  const data=new TextEncoder().encode(String(text));
+  const hash=await crypto.subtle.digest('SHA-256',data);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function deriveSyncToken(code,pin){
+  return await sha256Hex('mi-evolucion-sync-v1|'+normalizeSyncCode(code)+'|'+String(pin||''));
+}
+
+function generateSyncCode(){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='ME-';
+  const bytes=new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  for(let i=0;i<8;i++)s+=alphabet[bytes[i]%alphabet.length];
+  const el=document.getElementById('syncCode');
+  if(el)el.value=s;
+  syncSetStatus('Código generado. Elige un PIN y pulsa “Guardar conexión”.','ok');
+}
+
+async function saveSyncConnection(){
+  const url=normalizeSyncUrl(document.getElementById('syncBackendUrl')?.value);
+  const code=normalizeSyncCode(document.getElementById('syncCode')?.value);
+  const pin=String(document.getElementById('syncPin')?.value||'').trim();
+
+  if(!/^https:\/\//i.test(url)){
+    syncSetStatus('La URL del Worker debe empezar por https://','err');return;
+  }
+  if(code.length<6){
+    syncSetStatus('El código de sincronización debe tener al menos 6 caracteres.','err');return;
+  }
+  if(pin.length<4){
+    syncSetStatus('El PIN debe tener al menos 4 caracteres.','err');return;
+  }
+
+  const token=await deriveSyncToken(code,pin);
+  localStorage.setItem(SYNC_URL_KEY,url);
+  localStorage.setItem(SYNC_CODE_KEY,code);
+  localStorage.setItem(SYNC_TOKEN_KEY,token);
+  document.getElementById('syncPin').value='';
+  syncSetStatus('Conexión guardada en este dispositivo. Ya puedes probarla o subir una copia.','ok');
+  renderSyncSettings();
+}
+
+function getSyncConfig(){
+  return {
+    url:normalizeSyncUrl(localStorage.getItem(SYNC_URL_KEY)||''),
+    code:normalizeSyncCode(localStorage.getItem(SYNC_CODE_KEY)||''),
+    token:String(localStorage.getItem(SYNC_TOKEN_KEY)||'')
+  };
+}
+
+function requireSyncConfig(){
+  const c=getSyncConfig();
+  if(!c.url||!c.code||!c.token){
+    syncSetStatus('Primero guarda la URL, el código y el PIN de sincronización.','warn');
+    return null;
+  }
+  return c;
+}
+
+async function syncFetch(path,options={}){
+  const c=requireSyncConfig();
+  if(!c)throw new Error('Sincronización no configurada');
+  const headers={
+    'Accept':'application/json',
+    'Content-Type':'application/json',
+    'X-Sync-Code':c.code,
+    'Authorization':'Bearer '+c.token,
+    ...(options.headers||{})
+  };
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),25000);
+  try{
+    const r=await fetch(c.url+path,{...options,headers,signal:controller.signal,cache:'no-store'});
+    const text=await r.text();
+    let data={};try{data=JSON.parse(text)}catch{}
+    if(!r.ok)throw new Error(data.error||text||('HTTP '+r.status));
+    return data;
+  }finally{clearTimeout(timer);}
+}
+
+async function testSyncBackend(){
+  const c=requireSyncConfig();
+  if(!c)return;
+  syncSetStatus('Probando conexión…');
+  try{
+    const r=await fetch(c.url+'/health',{cache:'no-store'});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok||data.ok!==true)throw new Error(data.error||'Respuesta no válida');
+    syncSetStatus('Worker de sincronización conectado correctamente ✓','ok');
+  }catch(e){
+    syncSetStatus('No se pudo conectar con el Worker: '+(e?.message||e),'err');
+  }
+}
+
+function syncTimestampLabel(iso){
+  if(!iso)return '—';
+  try{return new Date(iso).toLocaleString('es-ES');}catch(e){return iso;}
+}
+
+function renderSyncSettings(){
+  const url=document.getElementById('syncBackendUrl');
+  const code=document.getElementById('syncCode');
+  if(url)url.value=localStorage.getItem(SYNC_URL_KEY)||'';
+  if(code)code.value=localStorage.getItem(SYNC_CODE_KEY)||'';
+
+  const up=document.getElementById('syncLastUpload');
+  const down=document.getElementById('syncLastDownload');
+  if(up)up.textContent=syncTimestampLabel(localStorage.getItem(SYNC_LAST_UPLOAD_KEY)||'');
+  if(down)down.textContent=syncTimestampLabel(localStorage.getItem(SYNC_LAST_DOWNLOAD_KEY)||'');
+
+  const restore=document.getElementById('restoreSyncBackupBtn');
+  if(restore)restore.style.display=localStorage.getItem(SYNC_PREV_BACKUP_KEY)?'inline-block':'none';
+}
+
+async function uploadSyncCopy(){
+  if(!requireSyncConfig())return;
+  if(!confirm('¿Subir esta copia a la nube?\n\nLa copia que haya actualmente en la nube será sustituida.'))return;
+
+  syncSetStatus('Subiendo copia…');
+  try{
+    const payload={
+      appVersion:'22.1.64',
+      savedAt:new Date().toISOString(),
+      data:db
+    };
+    const data=await syncFetch('/sync/save',{method:'POST',body:JSON.stringify(payload)});
+    const ts=data.updatedAt||new Date().toISOString();
+    localStorage.setItem(SYNC_LAST_UPLOAD_KEY,ts);
+    renderSyncSettings();
+    syncSetStatus('Copia subida correctamente ✓  '+syncTimestampLabel(ts),'ok');
+  }catch(e){
+    syncSetStatus('No se pudo subir la copia: '+(e?.name==='AbortError'?'tiempo de espera agotado':(e?.message||e)),'err');
+  }
+}
+
+async function downloadSyncCopy(){
+  if(!requireSyncConfig())return;
+  if(!confirm('¿Descargar la copia de la nube?\n\nLos datos actuales de este dispositivo serán sustituidos. Antes se guardará una copia local de seguridad.'))return;
+
+  syncSetStatus('Descargando copia…');
+  try{
+    const remote=await syncFetch('/sync/load',{method:'GET'});
+    if(!remote||!remote.data)throw new Error('La nube no contiene una copia válida.');
+
+    const imported=normalizeImportedDb(remote.data);
+
+    // Guardamos automáticamente el estado actual antes de reemplazarlo.
+    localStorage.setItem(SYNC_PREV_BACKUP_KEY,JSON.stringify({
+      savedAt:new Date().toISOString(),
+      data:db
+    }));
+
+    db=imported;
+    localStorage.setItem(KEY,JSON.stringify(db));
+
+    const ts=remote.updatedAt||new Date().toISOString();
+    localStorage.setItem(SYNC_LAST_DOWNLOAD_KEY,ts);
+    render();
+    renderSyncSettings();
+    syncSetStatus('Copia descargada correctamente ✓  '+syncTimestampLabel(ts),'ok');
+  }catch(e){
+    syncSetStatus('No se pudo descargar la copia: '+(e?.name==='AbortError'?'tiempo de espera agotado':(e?.message||e)),'err');
+  }
+}
+
+function restorePreSyncBackup(){
+  const raw=localStorage.getItem(SYNC_PREV_BACKUP_KEY);
+  if(!raw){syncSetStatus('No hay una copia anterior guardada.','warn');return;}
+  if(!confirm('¿Restaurar la copia local anterior a la última descarga?'))return;
+  try{
+    const pack=JSON.parse(raw);
+    db=normalizeImportedDb(pack.data);
+    localStorage.setItem(KEY,JSON.stringify(db));
+    localStorage.removeItem(SYNC_PREV_BACKUP_KEY);
+    render();
+    renderSyncSettings();
+    syncSetStatus('Copia local anterior restaurada correctamente.','ok');
+  }catch(e){
+    syncSetStatus('No se pudo restaurar la copia anterior.','err');
+  }
+}
+
+
 const AI_BACKEND_KEY='mi-evolucion-ai-backend-v2';
 const AI_BACKEND_DEFAULT='https://mi-evolucion-foof-ai.miguel-ferrer.workers.dev';
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');render();toggleTrainingFields();previewCalories();
 
 document.addEventListener('DOMContentLoaded',()=>{
+ renderSyncSettings();
  const sel=document.getElementById('eTipo');
  if(sel) handleTrainingTypeChange();
  populateManualRoutineSelect();
@@ -7169,7 +7477,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.63 — actualización robusta de la PWA instalada */
+/* v22.1.65 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
