@@ -461,7 +461,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.43 — fuerza por grupo muscular + calendario retirado */
+/* v22.1.44 — varias imágenes por ejercicio */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -977,6 +977,53 @@ nav .nav-label{
   font-weight:650;
 }
 
+
+/* v22.1.44 — galería visual por ejercicio */
+.exercise-image-gallery{
+  margin:4px 0 12px;
+}
+.exercise-image-main{
+  width:100%;
+  border-radius:18px;
+  overflow:hidden;
+  background:#f6f7f9;
+  border:1px solid var(--line);
+}
+.exercise-image-main img{
+  width:100%;
+  max-height:360px;
+  object-fit:contain;
+  display:block;
+}
+.exercise-image-thumbs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:9px;
+}
+.exercise-image-thumb{
+  padding:5px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+.exercise-image-thumb.active{
+  box-shadow:0 0 0 2px #111827 inset;
+}
+.exercise-image-thumb img{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  border-radius:8px;
+  display:block;
+}
+.exercise-image-thumb small{
+  display:block;
+  font-size:9px;
+  margin-top:4px;
+  color:var(--muted);
+}
+
 </style>
 
 </head>
@@ -1347,7 +1394,7 @@ nav .nav-label{
     <label>Buscar ejercicio o zona muscular</label>
     <input id="exerciseSearch" placeholder="Ej. hombro, espalda, pierna..." oninput="renderExerciseCatalog()">
     <div class="muscle-chips" id="muscleChips"></div>
-    <div class="routine-meta">Hombro, pecho, espalda, pierna, glúteo, bíceps, tríceps, abdomen y cardio ya tienen imágenes más realistas y reconocibles. Además se añade el bloque de movilidad con imágenes específicas.</div><div id="exerciseCatalog" class="exercise-grid"></div>
+    <div class="routine-meta">Cada ejercicio dispone ahora de varias vistas: principal, esquema y zona muscular. Abre un ejercicio para elegir la imagen que prefieras; la app recordará tu elección.</div><div id="exerciseCatalog" class="exercise-grid"></div>
     <h3>Ejercicios de la rutina</h3>
     <div id="draftExercises"></div>
     <div class="routine-actions"><button class="primary-small" onclick="saveRoutineDraft()">Guardar rutina</button></div>
@@ -1592,6 +1639,7 @@ if(!db.peso) db.peso=[];
 if(!db.comidas) db.comidas=[];
 if(!db.meals) db.meals={};
 if(!Array.isArray(db.mealFavorites)) db.mealFavorites=[];
+if(!db.exerciseImageChoices || typeof db.exerciseImageChoices!=='object' || Array.isArray(db.exerciseImageChoices)) db.exerciseImageChoices={};
 if(!db.rutinaSesiones) db.rutinaSesiones=[];
 if(db.nextRoutineId===undefined) db.nextRoutineId=null;
 if(!db.waterDaily || typeof db.waterDaily!=='object' || Array.isArray(db.waterDaily)) db.waterDaily={};
@@ -2691,8 +2739,8 @@ function renderManualExercisePicker(){
 
   box.innerHTML=items.slice(0,40).map(x=>{
     const selected=current===x.name?' selected':'';
-    const image=manualPickerMode==='imagen' && x.image
-      ? `<img src="${x.image}" alt="${x.name}" loading="lazy">`
+    const image=manualPickerMode==='imagen' && exerciseSelectedImage(x)
+      ? `<img src="${exerciseSelectedImage(x)}" alt="${x.name}" loading="lazy">`
       : '';
     return `<button type="button" class="manual-picker-card${selected}" onclick="selectManualExercise('${x.id}')">
       ${image}
@@ -3115,16 +3163,17 @@ function renderGlobalExerciseFinder(){
  if(!q){box.innerHTML='<div class="muted">Escribe para buscar en el catálogo.</div>';return;}
  const items=EXERCISE_CATALOG.filter(x=>normText(`${x.name} ${x.zone} ${x.equipment||''}`).includes(q)).slice(0,12);
  box.innerHTML=items.length?items.map(x=>`<button type="button" class="exercise-finder-item" onclick="openExerciseInfo('${x.id}')">
-   ${x.image?`<img src="${x.image}" alt="${x.name}" loading="lazy">`:''}
+   ${exerciseSelectedImage(x)?`<img src="${exerciseSelectedImage(x)}" alt="${x.name}" loading="lazy">`:''}
    <b>${x.name}</b><small>${x.zone} · ${x.equipment||modalidadES(x.modalidad)}</small>
  </button>`).join(''):'<div class="empty">No encuentro ejercicios con ese texto.</div>';
 }
 
 function openExerciseInfo(id){
  const x=EXERCISE_CATALOG.find(e=>e.id===id); if(!x)return;
- const media=x.image?`<img class="exercise-detail-image" src="${x.image}" alt="${x.name}">`:`<div class="exercise-detail-fallback">${exerciseIllustration(x)}</div>`;
+ selectedCatalogExerciseId=id;
+ ensureExerciseImages(x);
  exerciseDetailContent.innerHTML=`
-   ${media}
+   ${exerciseImageGalleryHtml(x)}
    <div class="exercise-detail-title">${x.name}</div>
    <div class="exercise-detail-meta">${x.zone} · ${x.equipment||modalidadES(x.modalidad)||x.tipo}</div>
    <div class="exercise-detail-actions">
@@ -3559,9 +3608,130 @@ function generateExerciseCardDataUri(x){
   </svg>`;
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
 }
+
+function generateExerciseMuscleDataUri(x){
+  const [bg1,bg2,accent]=exerciseZonePalette(x.zone);
+  const zone=(x.zone||'Zona principal').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const name=(x.name||'Ejercicio').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const highlight={
+    'Hombro':'<circle cx="160" cy="125" r="18"/><circle cx="280" cy="125" r="18"/>',
+    'Pecho':'<path d="M175 120 Q220 92 265 120 L254 165 Q220 178 186 165Z"/>',
+    'Espalda':'<path d="M174 115 Q220 88 266 115 L255 182 H185Z"/>',
+    'Bíceps':'<ellipse cx="157" cy="151" rx="14" ry="22"/><ellipse cx="283" cy="151" rx="14" ry="22"/>',
+    'Tríceps':'<ellipse cx="153" cy="158" rx="12" ry="23"/><ellipse cx="287" cy="158" rx="12" ry="23"/>',
+    'Pierna':'<path d="M198 198 L173 300 L198 300 L218 214Z"/><path d="M242 198 L267 300 L242 300 L222 214Z"/>',
+    'Glúteo':'<ellipse cx="202" cy="205" rx="30" ry="23"/><ellipse cx="238" cy="205" rx="30" ry="23"/>',
+    'Abdomen':'<rect x="194" y="132" width="52" height="82" rx="18"/>',
+    'Cardio':'<path d="M198 160 L245 205 L185 282" stroke="'+accent+'" stroke-width="14" fill="none"/>',
+    'Movilidad':'<circle cx="220" cy="160" r="48" opacity=".28"/>'
+  }[x.zone]||'<circle cx="220" cy="170" r="45" opacity=".2"/>';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+    <defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/></linearGradient></defs>
+    <rect width="640" height="420" rx="32" fill="url(#gm)"/>
+    <text x="34" y="52" font-size="20" font-weight="700" fill="${accent}">ZONA MUSCULAR · ${zone}</text>
+    <g transform="translate(100,10)">
+      <circle cx="220" cy="70" r="31" fill="none" stroke="#475569" stroke-width="7"/>
+      <path d="M220 101 L220 205 M220 125 L155 166 M220 125 L285 166 M220 205 L180 315 M220 205 L260 315" fill="none" stroke="#475569" stroke-width="13" stroke-linecap="round"/>
+      <g fill="${accent}" opacity=".82">${highlight}</g>
+    </g>
+    <text x="34" y="365" font-size="24" font-weight="750" fill="#111827">${name}</text>
+    <text x="34" y="393" font-size="16" fill="#6B7280">Vista orientativa de la zona principal trabajada</text>
+  </svg>`;
+  return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
+
+function generateExerciseTechnicalDataUri(x){
+  const [bg1,bg2,accent]=exerciseZonePalette(x.zone);
+  const name=(x.name||'Ejercicio').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const equip=(x.equipment||modalidadES(x.modalidad)||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+    <defs><linearGradient id="gt" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/></linearGradient></defs>
+    <rect width="640" height="420" rx="32" fill="url(#gt)"/>
+    <rect x="22" y="22" width="596" height="376" rx="24" fill="rgba(255,255,255,.55)"/>
+    <text x="34" y="54" font-size="19" font-weight="700" fill="${accent}">ESQUEMA DEL EJERCICIO</text>
+    <g fill="none" stroke="${accent}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" transform="translate(118,58) scale(.88)">
+      ${exerciseArtSvg(x)}
+    </g>
+    <path d="M390 120 C470 100 520 120 552 155" fill="none" stroke="${accent}" stroke-width="5" stroke-dasharray="10 8"/>
+    <path d="M540 143 L554 156 L535 162" fill="none" stroke="${accent}" stroke-width="5"/>
+    <text x="34" y="330" font-size="25" font-weight="750" fill="#111827">${name}</text>
+    <text x="34" y="361" font-size="18" fill="#374151">${equip}</text>
+    <text x="34" y="390" font-size="15" fill="#6B7280">Guía visual complementaria · revisa técnica y ajuste de máquina</text>
+  </svg>`;
+  return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
+
+function ensureExerciseImages(x){
+  if(!x)return [];
+  if(Array.isArray(x.images) && x.images.length>=3)return x.images;
+  const primary=x.image||generateExerciseCardDataUri(x);
+  x.images=[
+    {src:primary,label:'Principal'},
+    {src:generateExerciseTechnicalDataUri(x),label:'Esquema'},
+    {src:generateExerciseMuscleDataUri(x),label:'Zona muscular'}
+  ];
+  return x.images;
+}
+
+function exerciseImageIndex(x){
+  const n=Number(db.exerciseImageChoices?.[x.id]??0);
+  const images=ensureExerciseImages(x);
+  return Number.isInteger(n)&&n>=0&&n<images.length?n:0;
+}
+
+function exerciseSelectedImage(x){
+  const images=ensureExerciseImages(x);
+  return images[exerciseImageIndex(x)]?.src || x.image || '';
+}
+
+function setExerciseImageChoice(id,index,rerenderDetail=true){
+  const x=EXERCISE_CATALOG.find(e=>e.id===id);
+  if(!x)return;
+  const images=ensureExerciseImages(x);
+  const n=Math.max(0,Math.min(images.length-1,Number(index)||0));
+  db.exerciseImageChoices=db.exerciseImageChoices||{};
+  db.exerciseImageChoices[id]=n;
+  localStorage.setItem(KEY,JSON.stringify(db));
+  if(rerenderDetail && selectedCatalogExerciseId===id)renderExerciseImageGallery(x);
+  if(typeof renderExerciseCatalog==='function')try{renderExerciseCatalog()}catch(e){}
+  if(typeof renderManualExercisePicker==='function')try{renderManualExercisePicker()}catch(e){}
+}
+
+function exerciseImageGalleryHtml(x){
+  const images=ensureExerciseImages(x);
+  const active=exerciseImageIndex(x);
+  return `<div class="exercise-image-gallery" id="exerciseImageGallery_${x.id}">
+    <div class="exercise-image-main"><img src="${images[active].src}" alt="${x.name}"></div>
+    <div class="exercise-image-thumbs">
+      ${images.map((im,i)=>`<button type="button" class="exercise-image-thumb ${i===active?'active':''}" onclick="setExerciseImageChoice('${x.id}',${i})">
+        <img src="${im.src}" alt="${x.name} · ${im.label}">
+        <small>${im.label}</small>
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderExerciseImageGallery(x){
+  const host=document.getElementById('exerciseImageGallery_'+x.id);
+  if(!host)return;
+  const images=ensureExerciseImages(x);
+  const active=exerciseImageIndex(x);
+  host.innerHTML=`
+    <div class="exercise-image-main"><img src="${images[active].src}" alt="${x.name}"></div>
+    <div class="exercise-image-thumbs">
+      ${images.map((im,i)=>`<button type="button" class="exercise-image-thumb ${i===active?'active':''}" onclick="setExerciseImageChoice('${x.id}',${i})">
+        <img src="${im.src}" alt="${x.name} · ${im.label}">
+        <small>${im.label}</small>
+      </button>`).join('')}
+    </div>`;
+}
+
 function ensureCatalogImages(){
   if(window.__catalogImagesReady) return;
-  EXERCISE_CATALOG.forEach(x=>{ if(!x.image) x.image=generateExerciseCardDataUri(x); });
+  EXERCISE_CATALOG.forEach(x=>{
+    if(!x.image)x.image=generateExerciseCardDataUri(x);
+    ensureExerciseImages(x);
+  });
   window.__catalogImagesReady=true;
 }
 
@@ -3572,7 +3742,7 @@ function renderExerciseCatalog(){
  muscleChips.innerHTML=zones.map(z=>`<button class="muscle-chip" onclick="selectZone('${z}')">${z}</button>`).join('');
  const q=normText(exerciseSearch.value||'');
  const items=EXERCISE_CATALOG.filter(x=>(selectedZone==='Todos'||x.zone===selectedZone)&&(!q||normText(x.name+' '+x.zone+' '+x.equipment).includes(q)));
- exerciseCatalog.innerHTML=items.length?items.map(x=>`<button class="exercise-card" onclick="openExerciseDetail('${x.id}')"><div class="pic">${x.image?`<img src="${x.image}" alt="${x.name}" loading="lazy">`:exerciseIllustration(x)}</div><b>${x.name}</b><small>${x.zone} · ${x.equipment||modalidadES(x.modalidad)}</small></button>`).join(''):'<div class="empty">No encuentro ejercicios con ese filtro.</div>';
+ exerciseCatalog.innerHTML=items.length?items.map(x=>`<button class="exercise-card" onclick="openExerciseDetail('${x.id}')"><div class="pic">${exerciseSelectedImage(x)?`<img src="${exerciseSelectedImage(x)}" alt="${x.name}" loading="lazy">`:exerciseIllustration(x)}</div><b>${x.name}</b><small>${x.zone} · ${x.equipment||modalidadES(x.modalidad)}</small></button>`).join(''):'<div class="empty">No encuentro ejercicios con ese filtro.</div>';
 }
 
 let selectedCatalogExerciseId=null;
@@ -3580,12 +3750,10 @@ let selectedCatalogExerciseId=null;
 function openExerciseDetail(id){
  const x=EXERCISE_CATALOG.find(e=>e.id===id); if(!x)return;
  selectedCatalogExerciseId=id;
- const media=x.image
-   ? `<img class="exercise-detail-image" src="${x.image}" alt="${x.name}">`
-   : `<div class="exercise-detail-fallback">${exerciseIllustration(x)}</div>`;
+ ensureExerciseImages(x);
  const typeLabel=x.tipo==='fuerza'?(modalidadES(x.modalidad)||'Fuerza'):(x.tipo==='cardio'?'Cardio':x.tipo);
  exerciseDetailContent.innerHTML=`
-   ${media}
+   ${exerciseImageGalleryHtml(x)}
    <div class="exercise-detail-title">${x.name}</div>
    <div class="exercise-detail-meta">${x.zone} · ${x.equipment||typeLabel}</div>
    <p class="muted">Revisa la imagen antes de añadir el ejercicio. No se incorpora a la rutina hasta que pulses “Añadir a la rutina”.</p>
