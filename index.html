@@ -460,7 +460,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.37 — comidas habituales/favoritas */
+/* v22.1.38 — récords compatibles con historial antiguo */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -2798,12 +2798,30 @@ function chart(el, series, opts={}){
  node.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}${paths}</svg>`
 }
 function bestLoadFromRecord(r){
+ if(!r)return null;
  if(Array.isArray(r.sets) && r.sets.length){
-   const loads=r.sets.map(s=>Number(s.kg)).filter(v=>Number.isFinite(v)&&v>0);
+   const loads=r.sets
+     .flatMap(s=>[s?.kg,s?.peso,s?.carga,s?.weight])
+     .map(v=>Number(String(v??'').replace(',','.')))
+     .filter(v=>Number.isFinite(v)&&v>0);
    if(loads.length)return Math.max(...loads);
  }
- const kg=Number(r.kg);
- return Number.isFinite(kg)&&kg>0?kg:null;
+ const candidates=[r.kg,r.peso,r.carga,r.weight,r.pesoKg];
+ for(const raw of candidates){
+   const v=Number(String(raw??'').replace(',','.'));
+   if(Number.isFinite(v)&&v>0)return v;
+ }
+ return null;
+}
+
+function isStrengthRecord(r){
+ if(!r || r.esResumenRutina || !r.ej)return false;
+ const tipo=normText(r.tipo||'');
+ if(tipo==='cardio' || tipo==='movilidad' || tipo==='deporte')return false;
+ if(tipo==='fuerza')return true;
+ // Compatibilidad con registros antiguos de rutinas, que podían llevar
+ // tipo vacío/"rutina" pero sí contienen una carga válida.
+ return bestLoadFromRecord(r)!=null;
 }
 
 function strengthSessionKey(r,index){
@@ -2965,7 +2983,7 @@ function renderExerciseMap(){
 }
 
 function allStrengthRecords(){
- return (db.entreno||[]).filter(r=>(r.tipo||'fuerza')==='fuerza' && !r.esResumenRutina && r.ej);
+ return (db.entreno||[]).filter(isStrengthRecord);
 }
 
 function personalRecordFor(name){
@@ -2984,8 +3002,25 @@ function personalRecordFor(name){
 function renderPersonalRecords(){
  const el=document.getElementById('personalRecords');
  if(!el)return;
- const names=[...new Set(allStrengthRecords().map(r=>r.ej))];
- const prs=names.map(name=>({name,...(personalRecordFor(name)||{})})).filter(x=>x.kg!=null).sort((a,b)=>b.kg-a.kg);
+ const grouped=new Map();
+ allStrengthRecords().forEach(r=>{
+   const display=String(r.ej||'').trim();
+   const key=normText(display);
+   if(!key)return;
+   if(!grouped.has(key))grouped.set(key,{display,rows:[]});
+   grouped.get(key).rows.push(r);
+ });
+ const prs=[...grouped.values()].map(g=>{
+   let best=null;
+   g.rows.forEach(r=>{
+     const kg=bestLoadFromRecord(r);
+     if(kg==null)return;
+     if(!best || kg>best.kg || (kg===best.kg && (r.fecha||'')>(best.fecha||''))){
+       best={name:g.display,kg,fecha:r.fecha||'',record:r};
+     }
+   });
+   return best;
+ }).filter(Boolean).sort((a,b)=>b.kg-a.kg);
  if(!prs.length){el.innerHTML='<div class="empty">Aún no hay cargas registradas.</div>';return;}
  el.innerHTML=prs.slice(0,12).map(x=>`<div class="pr-card">
    <div class="pr-name">${x.name}</div>
@@ -3034,11 +3069,7 @@ function renderStrength(){
 
  // Excluir el registro resumen "Bloque de fuerza", pero incluir todos
  // los ejercicios de fuerza guardados desde una rutina.
- const strengthRecords=(db.entreno||[]).filter(r=>
-   (r.tipo||'fuerza')==='fuerza' &&
-   !r.esResumenRutina &&
-   r.ej
- );
+ const strengthRecords=allStrengthRecords();
 
  const names=[...new Set(strengthRecords.map(r=>r.ej))].sort((a,b)=>a.localeCompare(b,'es'));
 
