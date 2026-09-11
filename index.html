@@ -1085,7 +1085,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.52 — catálogo visual por grupo muscular */
+/* v22.1.54 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{margin:16px 0 20px}
@@ -1107,6 +1107,29 @@ nav .nav-label{
   .visual-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .visual-exercise-card .visual-info{padding:8px}
 }
+
+
+/* v22.1.54 — varias fotos dentro de una misma comida */
+.food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
+.food-photo-queue.show{display:block}
+.food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.food-photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.food-photo-item{position:relative;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white}
+.food-photo-item img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#eee}
+.food-photo-item-meta{padding:6px 7px;font-size:.68rem;color:#6b7280;line-height:1.2}
+.food-photo-item-remove{position:absolute;top:5px;right:5px;width:25px;height:25px;border:0;border-radius:50%;background:rgba(17,24,39,.78);color:white;font-size:16px;line-height:25px;padding:0}
+.food-photo-item.done{outline:2px solid #86efac}
+.food-photo-item.error{outline:2px solid #fca5a5}
+.food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+
+/* v22.1.54 — varios platos escritos dentro de una misma comida */
+.written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
+.written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
+.written-part{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 9px;background:white;border:1px solid #ececf0;border-radius:11px}
+.written-part b{display:block;font-size:.84rem}.written-part small{display:block;color:#6b7280;margin-top:2px}.written-part button{padding:6px 9px}
+@media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 </style>
 
@@ -1313,7 +1336,7 @@ nav .nav-label{
   <h2>Alimentación del día</h2>
   <label>Fecha</label>
   <input id="cFecha" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" onchange="renderMeals();loadDailyWater()">
-  <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, borrar el cálculo si quieres empezar de nuevo, o usar <b>Foto del plato</b> / <b>Foto de etiqueta</b> dentro de cada comida.</p>
+  <p class="muted">Puedes escribir lo que comes y pulsar <b>Calcular</b>, o añadir <b>varias fotos</b> de platos/etiquetas dentro de la misma comida. La app suma sus análisis.</p>
 </div>
 
 
@@ -2270,7 +2293,7 @@ function saveMeal(tipo){
   const desc=document.getElementById('desc_'+tipo).value.trim();
   const kcal=Number(document.getElementById('kcal_'+tipo).value||0);
   const prot=Number(document.getElementById('prot_'+tipo).value||0);
-  db.meals[key]={fecha,tipo,hora,desc,kcal,prot,breakdown:(db.meals[key]&&db.meals[key].breakdown)||[]};
+  db.meals[key]={fecha,tipo,hora,desc,kcal,prot,breakdown:(db.meals[key]&&db.meals[key].breakdown)||[],writtenParts:(db.meals[key]&&db.meals[key].writtenParts)||[]};
   localStorage.setItem(KEY,JSON.stringify(db));
   renderMeals();
   render();
@@ -2568,6 +2591,45 @@ function normalizeAiMealItems(items){
   });
 }
 
+
+function writtenPartId(){return 'wp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
+function renderWrittenMealParts(tipo){
+ const host=document.getElementById('writtenParts_'+tipo);if(!host)return;
+ const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+ const cur=getMeal(fecha,tipo);const parts=Array.isArray(cur.writtenParts)?cur.writtenParts:[];
+ if(!parts.length){host.innerHTML='<div class="muted">Aún no has añadido platos escritos por separado.</div>';return;}
+ host.innerHTML=parts.map(p=>`<div class="written-part"><div><b>${String(p.text||'Plato').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</b><small>${Math.round(Number(p.kcal)||0)} kcal · ${Math.round(Number(p.prot)||0)} g proteína${p.source==='local'?' · cálculo local':' · IA'}</small></div><button type="button" class="set-add" onclick="removeWrittenMealPart('${tipo}','${p.id}')">Eliminar</button></div>`).join('');
+}
+function appendMealDescription(current,text){const a=String(current||'').trim(),b=String(text||'').trim();if(!b)return a;if(!a)return b;return a+' + '+b;}
+function localEstimateFromText(text){
+ const normalized=normText(text);let found=[],matches=[];
+ FOOD_DB.forEach(food=>{let best=null,bestKey='';food.keys.forEach(k=>{const nk=normText(k),idx=normalized.indexOf(nk);if(idx>=0&&(best===null||nk.length>bestKey.length)){best=idx;bestKey=nk;}});if(best!==null)matches.push({food,pos:best,key:bestKey,end:best+bestKey.length});});
+ matches.sort((a,b)=>a.pos-b.pos||b.key.length-a.key.length);const accepted=[];matches.forEach(m=>{if(!accepted.some(a=>m.pos<a.end&&m.end>a.pos))accepted.push(m);});
+ accepted.forEach(({food,pos})=>{let amt=findQtyAround(normalized,pos,food)||defaultAmount(food);if(food.label.includes('Pan')&&/0\.5\s*(?:tostada|rebanada)/.test(normalized))amt={q:25,kind:'g'};const val=calcFood(food,amt);found.push({name:food.label,label:`${food.label} (${amt.q}${amt.kind==='unit'?' ud':amt.kind==='serving'?' ración':' '+amt.kind})`,qty:Number(amt.q),kind:amt.kind,kcal:val.kcal,prot:val.prot,kcalPerQty:Number(amt.q)>0?val.kcal/Number(amt.q):0,protPerQty:Number(amt.q)>0?val.prot/Number(amt.q):0,source:'local'});});
+ if(!found.length)return null;return {description:text,kcal:found.reduce((s,x)=>s+Number(x.kcal||0),0),protein_g:found.reduce((s,x)=>s+Number(x.prot||0),0),items:found};
+}
+async function addWrittenMealPart(tipo,mode='ai'){
+ const input=document.getElementById('foodTextNew_'+tipo),text=String(input?.value||'').trim();if(!text){alert('Escribe el plato o alimento que quieres añadir.');return;}
+ const fecha=isoFromES(document.getElementById('cFecha').value)||today(),key=mealKey(fecha,tipo),cur=getMeal(fecha,tipo),status=document.getElementById('foodTextAiStatus_'+tipo);
+ const setStatus=(msg,kind='')=>{if(status){status.className='food-text-ai-status show'+(kind?' '+kind:'');status.innerHTML=msg;}};setStatus(mode==='local'?'Calculando el nuevo plato…':'Analizando el nuevo plato con IA…');
+ try{
+  let result;
+  if(mode==='local'){result=localEstimateFromText(text);if(!result)throw new Error('No he reconocido suficientes alimentos con el cálculo local.');}
+  else{const base=getAiBackendUrl(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);try{const response=await fetch(base+'/analyze-food',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({mode:'text',text}),signal:controller.signal});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{};if(!response.ok)throw new Error(data.error||raw||('HTTP '+response.status));result=data.result||{};}finally{clearTimeout(timer);}}
+  const partId=writtenPartId();const items=(mode==='local'?(Array.isArray(result.items)?result.items:[]):normalizeAiMealItems(result.items)).map(x=>({...x,partId}));
+  const part={id:partId,text:result.description||text,originalText:text,kcal:Math.round(Number(result.kcal)||0),prot:Math.round(Number(result.protein_g)||0),source:mode};
+  const parts=Array.isArray(cur.writtenParts)?[...cur.writtenParts]:[];parts.push(part);
+  const currentKcal=Number(document.getElementById('kcal_'+tipo)?.value||cur.kcal||0),currentProt=Number(document.getElementById('prot_'+tipo)?.value||cur.prot||0),existingBreakdown=cloneMealBreakdown(cur.breakdown||[]),newDesc=appendMealDescription(document.getElementById('desc_'+tipo)?.value||cur.desc||'',part.text);
+  db.meals[key]={...cur,fecha,tipo,hora:document.getElementById('hora_'+tipo).value,desc:newDesc,kcal:Math.round(currentKcal+part.kcal),prot:Math.round(currentProt+part.prot),breakdown:existingBreakdown.concat(items),writtenParts:parts};localStorage.setItem(KEY,JSON.stringify(db));
+  const de=document.getElementById('desc_'+tipo),ke=document.getElementById('kcal_'+tipo),pe=document.getElementById('prot_'+tipo);if(de)de.value=newDesc;if(ke)ke.value=db.meals[key].kcal;if(pe)pe.value=db.meals[key].prot;if(items.length)renderEditableBreakdown(tipo,db.meals[key].breakdown);if(input)input.value='';renderWrittenMealParts(tipo);setStatus(`Añadido: <b>${part.text}</b> · ${part.kcal} kcal · ${part.prot} g proteína.`,'ok');
+ }catch(err){setStatus((err?.name==='AbortError'?'La IA ha tardado demasiado.':(err?.message||String(err))),'warn');}
+}
+function removeWrittenMealPart(tipo,id){
+ const fecha=isoFromES(document.getElementById('cFecha').value)||today(),key=mealKey(fecha,tipo),cur=getMeal(fecha,tipo),parts=Array.isArray(cur.writtenParts)?cur.writtenParts:[],part=parts.find(p=>String(p.id)===String(id));if(!part)return;if(!confirm(`¿Eliminar “${part.text||'este plato'}” de esta comida?`))return;
+ const newParts=parts.filter(p=>String(p.id)!==String(id)),newBreak=(cur.breakdown||[]).filter(b=>String(b.partId||'')!==String(id));let kcal=Math.max(0,(Number(cur.kcal)||0)-(Number(part.kcal)||0)),prot=Math.max(0,(Number(cur.prot)||0)-(Number(part.prot)||0));let desc=String(cur.desc||''),target=String(part.text||'').trim();if(target){const chunks=desc.split(' + ').filter(Boolean),idx=chunks.findIndex(x=>normText(x)===normText(target));if(idx>=0){chunks.splice(idx,1);desc=chunks.join(' + ');}}
+ db.meals[key]={...cur,desc,kcal:Math.round(kcal),prot:Math.round(prot),breakdown:newBreak,writtenParts:newParts};localStorage.setItem(KEY,JSON.stringify(db));const de=document.getElementById('desc_'+tipo),ke=document.getElementById('kcal_'+tipo),pe=document.getElementById('prot_'+tipo);if(de)de.value=desc;if(ke)ke.value=Math.round(kcal);if(pe)pe.value=Math.round(prot);renderEditableBreakdown(tipo,newBreak);renderWrittenMealParts(tipo);
+}
+
 async function estimateMealWithAI(tipo){
   const descEl=document.getElementById('desc_'+tipo);
   const status=document.getElementById('foodTextAiStatus_'+tipo);
@@ -2687,6 +2749,18 @@ function renderMeals(){
       <div class="meal-body">
         <label>Qué has comido</label>
         <input id="desc_${m.key}" value="${(x.desc||'').replace(/"/g,'&quot;')}" placeholder="Ej. tortilla de 2 huevos + 50 g de pan integral + café con leche">
+        <div class="written-parts-box">
+          <label>Añadir otro plato o alimento escrito</label>
+          <div class="written-parts-add">
+            <input id="foodTextNew_${m.key}" placeholder="Ej. 200 g de pechuga con arroz / un yogur / una tostada...">
+            <button type="button" class="primary-small" onclick="addWrittenMealPart('${m.key}','ai')">＋ Añadir con IA</button>
+          </div>
+          <div class="routine-actions" style="margin-top:7px">
+            <button type="button" class="set-add" onclick="addWrittenMealPart('${m.key}','local')">Añadir con cálculo local</button>
+          </div>
+          <div id="writtenParts_${m.key}" class="written-parts-list"></div>
+        </div>
+
         <div class="food-photo-tools">
           <div class="food-photo-actions">
             <label class="photo-action">
@@ -2698,15 +2772,16 @@ function renderMeals(){
               <input id="foodLabelPhoto_${m.key}" type="file" accept="image/*" capture="environment" onchange="previewFoodPhoto('${m.key}','label')">
             </label>
           </div>
-          <div id="foodPhotoPreviewBox_${m.key}" class="food-photo-preview" style="display:none">
-            <img id="foodPhotoPreview_${m.key}" alt="Vista previa">
-            <div>
-              <b id="foodPhotoModeLabel_${m.key}"></b>
-              <p class="muted" id="foodPhotoStatus_${m.key}">Foto preparada para analizar.</p>
-              <div class="routine-actions">
-                <button type="button" class="primary-small" onclick="analyzeFoodPhoto('${m.key}')">Analizar foto</button>
-                <button type="button" class="set-add" onclick="clearFoodPhoto('${m.key}')">Quitar foto</button>
-              </div>
+          <div id="foodPhotoPreviewBox_${m.key}" class="food-photo-queue">
+            <div class="food-photo-queue-head">
+              <b>Fotos de esta comida</b>
+              <span class="muted" id="foodPhotoCount_${m.key}"></span>
+            </div>
+            <div id="foodPhotoGrid_${m.key}" class="food-photo-grid"></div>
+            <p class="muted" id="foodPhotoStatus_${m.key}">Puedes añadir varios platos o etiquetas antes de analizar.</p>
+            <div class="food-photo-batch-actions">
+              <button type="button" class="primary-small" onclick="analyzeFoodPhoto('${m.key}')">✨ Analizar fotos pendientes</button>
+              <button type="button" class="set-add" onclick="clearFoodPhoto('${m.key}')">Quitar todas</button>
             </div>
           </div>
         </div>
@@ -2748,6 +2823,7 @@ function renderMeals(){
     </div>`;
   });
   mealCards.innerHTML=cards;
+  MEALS.forEach(m=>renderWrittenMealParts(m.key));
   const vals=MEALS.map(m=>getMeal(fecha,m.key));
   const kcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
   const prot=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
@@ -6607,38 +6683,128 @@ async function foodPhotoToDataUrl(file){
 syncAiBackendField();
 
 
+function foodPhotoEntryId(){
+ return 'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+}
+
 function previewFoodPhoto(meal,mode){
  const input=document.getElementById((mode==='plate'?'foodPlatePhoto_':'foodLabelPhoto_')+meal);
- if(!input || !input.files || !input.files[0]) return;
- const file=input.files[0];
- pendingFoodPhotos[meal]={file,mode};
+ if(!input || !input.files || !input.files[0])return;
 
- const img=document.getElementById('foodPhotoPreview_'+meal);
+ pendingFoodPhotos[meal]=Array.isArray(pendingFoodPhotos[meal])?pendingFoodPhotos[meal]:[];
+
+ Array.from(input.files).forEach(file=>{
+   pendingFoodPhotos[meal].push({
+     id:foodPhotoEntryId(),
+     file,
+     mode,
+     objectUrl:URL.createObjectURL(file),
+     status:'pending'
+   });
+ });
+
+ input.value='';
+ renderFoodPhotoQueue(meal);
+}
+
+function renderFoodPhotoQueue(meal){
+ const list=Array.isArray(pendingFoodPhotos[meal])?pendingFoodPhotos[meal]:[];
  const box=document.getElementById('foodPhotoPreviewBox_'+meal);
- const label=document.getElementById('foodPhotoModeLabel_'+meal);
+ const grid=document.getElementById('foodPhotoGrid_'+meal);
+ const count=document.getElementById('foodPhotoCount_'+meal);
  const status=document.getElementById('foodPhotoStatus_'+meal);
+ if(!box||!grid)return;
 
- img.src=URL.createObjectURL(file);
- label.textContent=mode==='plate'?'Foto del plato':'Foto de etiqueta nutricional';
- status.textContent='Foto preparada para analizar.';
- box.style.display='grid';
+ if(!list.length){
+   box.classList.remove('show');
+   grid.innerHTML='';
+   if(count)count.textContent='';
+   return;
+ }
+
+ box.classList.add('show');
+ const pending=list.filter(x=>x.status!=='done').length;
+ if(count)count.textContent=`${list.length} foto${list.length===1?'':'s'}${pending?` · ${pending} pendiente${pending===1?'':'s'}`:''}`;
+
+ grid.innerHTML=list.map((x,i)=>{
+   const label=x.mode==='plate'?'Plato':'Etiqueta';
+   const state=x.status==='done'?'✓ Analizada':x.status==='error'?'⚠ Error':'Pendiente';
+   return `<div class="food-photo-item ${x.status==='done'?'done':x.status==='error'?'error':''}">
+     <img src="${x.objectUrl}" alt="${label} ${i+1}">
+     <button type="button" class="food-photo-item-remove" onclick="removeFoodPhoto('${meal}','${x.id}')" aria-label="Quitar foto">×</button>
+     <div class="food-photo-item-meta">${label} ${i+1}<br>${state}</div>
+   </div>`;
+ }).join('');
+
+ if(status && list.every(x=>x.status==='done')){
+   status.innerHTML='Todas las fotos están analizadas. <b>Puedes añadir otra y sumarla después.</b>';
+ }
+}
+
+function removeFoodPhoto(meal,id){
+ const list=Array.isArray(pendingFoodPhotos[meal])?pendingFoodPhotos[meal]:[];
+ const item=list.find(x=>String(x.id)===String(id));
+ if(item?.objectUrl)try{URL.revokeObjectURL(item.objectUrl)}catch(e){}
+ pendingFoodPhotos[meal]=list.filter(x=>String(x.id)!==String(id));
+ if(!pendingFoodPhotos[meal].length)delete pendingFoodPhotos[meal];
+ renderFoodPhotoQueue(meal);
 }
 
 function clearFoodPhoto(meal){
+ const list=Array.isArray(pendingFoodPhotos[meal])?pendingFoodPhotos[meal]:[];
+ list.forEach(x=>{if(x.objectUrl)try{URL.revokeObjectURL(x.objectUrl)}catch(e){}});
  delete pendingFoodPhotos[meal];
  ['foodPlatePhoto_'+meal,'foodLabelPhoto_'+meal].forEach(id=>{
-   const el=document.getElementById(id); if(el) el.value='';
+   const el=document.getElementById(id); if(el)el.value='';
  });
  const box=document.getElementById('foodPhotoPreviewBox_'+meal);
- if(box) box.style.display='none';
+ const grid=document.getElementById('foodPhotoGrid_'+meal);
+ if(box)box.classList.remove('show');
+ if(grid)grid.innerHTML='';
+}
+
+function mergePhotoDescription(existing,incoming){
+ const a=String(existing||'').trim(), b=String(incoming||'').trim();
+ if(!b)return a;
+ if(!a)return b;
+ if(normText(a).includes(normText(b))||normText(b).includes(normText(a)))return a;
+ return a+' + '+b;
+}
+
+async function analyzeOneFoodPhoto(base,entry,hint){
+ const imageDataUrl=await foodPhotoToDataUrl(entry.file);
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),45000);
+ try{
+   const response=await fetch(base+'/analyze-food',{
+     method:'POST',
+     mode:'cors',
+     cache:'no-store',
+     headers:{'Content-Type':'application/json','Accept':'application/json'},
+     body:JSON.stringify({imageDataUrl,mode:entry.mode,hint:(hint||'').trim()}),
+     signal:controller.signal
+   });
+   const text=await response.text();
+   let data={};
+   try{data=JSON.parse(text)}catch{}
+   if(!response.ok)throw new Error(data.error||text||('HTTP '+response.status));
+   return data.result||{};
+ }finally{
+   clearTimeout(timer);
+ }
 }
 
 async function analyzeFoodPhoto(meal){
  const status=document.getElementById('foodPhotoStatus_'+meal);
- const pending=pendingFoodPhotos[meal];
+ const list=Array.isArray(pendingFoodPhotos[meal])?pendingFoodPhotos[meal]:[];
+ const todo=list.filter(x=>x.status!=='done');
 
- if(!pending){
-   if(status)status.textContent='Selecciona primero una foto.';
+ if(!list.length){
+   if(status)status.textContent='Añade primero una o varias fotos.';
+   return;
+ }
+ if(!todo.length){
+   if(status)status.innerHTML='No hay fotos nuevas pendientes. <b>Añade otra foto para sumarla a esta comida.</b>';
    return;
  }
 
@@ -6646,72 +6812,67 @@ async function analyzeFoodPhoto(meal){
  const descEl=document.getElementById('desc_'+meal);
  const kcalEl=document.getElementById('kcal_'+meal);
  const protEl=document.getElementById('prot_'+meal);
- const breakEl=document.getElementById('break_'+meal);
 
- if(status)status.textContent='Analizando foto con IA…';
+ let totalKcal=Number(kcalEl?.value)||0;
+ let totalProt=Number(protEl?.value)||0;
+ let description=descEl?.value||'';
 
- try{
-   const imageDataUrl=await foodPhotoToDataUrl(pending.file);
+ const fecha=isoFromES(document.getElementById('cFecha').value)||today();
+ const key=mealKey(fecha,meal);
+ const cur=getMeal(fecha,meal);
+ let combinedItems=cloneMealBreakdown(cur.breakdown||[]).map(normalizeEditableBreakdownItem);
 
-   const controller=new AbortController();
-   const timer=setTimeout(()=>controller.abort(),45000);
+ let ok=0,failed=0;
+ for(let i=0;i<todo.length;i++){
+   const entry=todo[i];
+   if(status)status.textContent=`Analizando foto ${i+1} de ${todo.length}…`;
+   entry.status='working';
+   renderFoodPhotoQueue(meal);
 
-   let response;
    try{
-     response=await fetch(base+'/analyze-food',{
-       method:'POST',
-       mode:'cors',
-       cache:'no-store',
-       headers:{'Content-Type':'application/json','Accept':'application/json'},
-       body:JSON.stringify({
-         imageDataUrl,
-         mode:pending.mode,
-         hint:(descEl?.value||'').trim()
-       }),
-       signal:controller.signal
-     });
-   }finally{
-     clearTimeout(timer);
+     const result=await analyzeOneFoodPhoto(base,entry,description);
+     entry.status='done';
+     ok++;
+
+     if(result.description)description=mergePhotoDescription(description,result.description);
+     if(Number.isFinite(Number(result.kcal)))totalKcal+=Math.round(Number(result.kcal));
+     if(Number.isFinite(Number(result.protein_g)))totalProt+=Math.round(Number(result.protein_g));
+
+     const items=Array.isArray(result.items)?normalizeAiMealItems(result.items):[];
+     if(items.length)combinedItems=combinedItems.concat(items);
+   }catch(err){
+     entry.status='error';
+     failed++;
    }
-
-   const text=await response.text();
-   let data={};
-   try{data=JSON.parse(text)}catch{}
-
-   if(!response.ok){
-     throw new Error(data.error||text||('HTTP '+response.status));
-   }
-
-   const result=data.result||{};
-   if(descEl && result.description)descEl.value=result.description;
-   if(kcalEl && Number.isFinite(Number(result.kcal)))kcalEl.value=Math.round(Number(result.kcal));
-   if(protEl && Number.isFinite(Number(result.protein_g)))protEl.value=Math.round(Number(result.protein_g));
-
-   const items=Array.isArray(result.items)?result.items:[];
-   if(items.length){
-     const editableItems=normalizeAiMealItems(items);
-     const fecha=isoFromES(document.getElementById('cFecha').value)||today();
-     const key=mealKey(fecha,meal);
-     const cur=getMeal(fecha,meal);
-     db.meals[key]={...cur,fecha,tipo:meal,hora:document.getElementById('hora_'+meal).value,desc:descEl?.value||'',kcal:Number(kcalEl?.value)||0,prot:Number(protEl?.value)||0,breakdown:editableItems};
-     renderEditableBreakdown(meal,editableItems);
-   }else if(breakEl){
-     breakEl.style.display='none';
-     breakEl.innerHTML='';
-   }
-
-   const conf=result.confidence?` Confianza: ${result.confidence}.`:'';
-   const note=result.note?` ${result.note}`:'';
-   if(status)status.innerHTML=`Estimación preparada.${conf}${note} <b>Revísala antes de guardar.</b>`;
-
- }catch(err){
-   const msg=err?.name==='AbortError'
-     ? 'El análisis ha tardado demasiado. Prueba otra vez.'
-     : 'No se pudo analizar la foto: '+(err?.message||String(err));
-   if(status)status.textContent=msg;
-   alert(msg);
+   renderFoodPhotoQueue(meal);
  }
+
+ if(descEl)descEl.value=description;
+ if(kcalEl)kcalEl.value=Math.round(totalKcal);
+ if(protEl)protEl.value=Math.round(totalProt);
+
+ db.meals[key]={
+   ...cur,
+   fecha,
+   tipo:meal,
+   hora:document.getElementById('hora_'+meal).value,
+   desc:description,
+   kcal:Math.round(totalKcal),
+   prot:Math.round(totalProt),
+   breakdown:combinedItems
+ };
+ save();
+
+ if(combinedItems.length)renderEditableBreakdown(meal,combinedItems);
+
+ if(status){
+   status.innerHTML=failed
+     ? `${ok} foto${ok===1?'':'s'} analizada${ok===1?'':'s'} y ${failed} con error. <b>Las correctas ya se han sumado.</b>`
+     : `${ok} foto${ok===1?'':'s'} analizada${ok===1?'':'s'} y sumada${ok===1?'':'s'} a esta comida. <b>Revísalo antes de guardar.</b>`;
+ }
+ renderFoodPhotoQueue(meal);
 }
+
 
 setTimeout(()=>{
  const eh=document.getElementById('eHora');
