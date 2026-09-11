@@ -461,7 +461,7 @@ html,body{
 @media(max-width:430px){.body-status-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.46 — catálogo de ejercicios ampliado */
+/* v22.1.47 — catálogo de ejercicios ampliado */
 .status-blue{background:#eef8ff;border-color:#9edcff}
 .status-green{background:#effaf1;border-color:#9fdfa8}
 .status-orange{background:#fff6e8;border-color:#f3c46f}
@@ -1022,6 +1022,50 @@ nav .nav-label{
   font-size:9px;
   margin-top:4px;
   color:var(--muted);
+}
+
+
+/* v22.1.47 — imagen del ejercicio dentro de la rutina activa */
+.active-routine-exercise-head{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+.active-routine-title-wrap{min-width:0;flex:1}
+.routine-exercise-photo{
+  width:150px;
+  flex:0 0 150px;
+  padding:0;
+  border:1px solid var(--line);
+  background:#f7f8fa;
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  text-align:left;
+}
+.routine-exercise-photo img{
+  display:block;
+  width:100%;
+  height:100px;
+  object-fit:cover;
+  background:#f3f4f6;
+}
+.routine-exercise-photo span{
+  display:block;
+  padding:6px 8px;
+  font-size:10px;
+  font-weight:700;
+  color:var(--muted);
+}
+.routine-exercise-photo:hover{box-shadow:0 5px 18px rgba(17,24,39,.08)}
+@media(max-width:520px){
+  .active-routine-exercise-head{display:block}
+  .routine-exercise-photo{
+    width:100%;
+    margin-top:9px;
+  }
+  .routine-exercise-photo img{height:160px;object-fit:contain}
 }
 
 </style>
@@ -2948,6 +2992,58 @@ function catalogExerciseByName(name){
   return (EXERCISE_CATALOG||[]).find(x=>normText(String(x.name||'')).trim()===wanted)||null;
 }
 
+function catalogExerciseForRoutine(ex){
+  const name=String(ex?.ej||ex?.name||'').trim();
+  if(!name)return null;
+  const exact=catalogExerciseByName(name);
+  if(exact)return exact;
+
+  const s=normText(name);
+  const aliases=[
+    [['press militar sentado con mancuernas','press militar mancuernas'],'military_dumbbell'],
+    [['triceps barra polea alta','triceps polea alta','extension triceps polea'],'triceps_pushdown'],
+    [['plancha codos','plancha de codos'],'plank'],
+    [['patada gluteo maquina','patada gluteo'],'glute_kick'],
+    [['jalon agarre ancho','jalon ancho'],'lat_pulldown'],
+    [['femoral sentado'],'leg_curl'],
+    [['leg extension','extension de piernas'],'leg_extension'],
+    [['face pull'],'face_pull'],
+    [['eliptica'],'elliptical'],
+    [['cat camel'],'cat_camel'],
+    [['estiramiento aductores tumbado'],'supine_adductor_stretch'],
+    [['estiramiento pectoral hombro','estiramiento pectoral'],'chest_shoulder_stretch']
+  ];
+  for(const [names,id] of aliases){
+    if(names.some(a=>s.includes(normText(a)))){
+      const x=(EXERCISE_CATALOG||[]).find(e=>e.id===id);
+      if(x)return x;
+    }
+  }
+
+  // Último intento: coincidencia flexible por palabras significativas.
+  const stop=new Set(['de','del','con','en','la','el','los','las','y','para','maquina','sentado','sentada','barra']);
+  const words=s.split(/\s+/).filter(w=>w.length>2&&!stop.has(w));
+  if(!words.length)return null;
+  let best=null,bestScore=0;
+  for(const x of (EXERCISE_CATALOG||[])){
+    const xn=normText(String(x.name||''));
+    const score=words.filter(w=>xn.includes(w)).length/words.length;
+    if(score>bestScore){best=x;bestScore=score;}
+  }
+  return bestScore>=0.6?best:null;
+}
+
+function routineExerciseImageHtml(ex){
+  const x=catalogExerciseForRoutine(ex);
+  if(!x)return '';
+  const src=(typeof exerciseSelectedImage==='function'?exerciseSelectedImage(x):x.image)||'';
+  if(!src)return '';
+  return `<button type="button" class="routine-exercise-photo" onclick="openExerciseInfo('${x.id}')" aria-label="Ver imagen de ${x.name}">
+    <img src="${src}" alt="${x.name}" loading="lazy">
+    <span>🖼️ Toca para ampliar</span>
+  </button>`;
+}
+
 function inferBodyZoneFromName(name,tipo='otro'){
   const catalog=catalogExerciseByName(name);
   if(catalog?.zone)return catalog.zone;
@@ -4761,8 +4857,13 @@ function renderRoutines(){
    const strength=ex.tipo==='fuerza';
    const meta=[ex.tipo,ex.tipo==='cardio'?(CARDIO_ACTIVITIES[ex.cardioActividad||cardioActivityForExercise(ex)]?.label||'Cardio'):'',ex.equipo,ex.series?ex.series+' × '+(ex.reps||''):'',ex.duracion?ex.duracion+' min':''].filter(Boolean).join(' · ');
    return `<div class="routine-ex">
-    <div><b>${i+1}. ${ex.ej}</b> ${ex.hecho?'<span class="done-badge">✓ Guardado</span>':''}${ex.hecho && isNewPersonalRecord(ex.ej,recordBestKg(ex),a.sessionId)?'<span class="pr-badge">🏆 Récord</span>':''}</div>
-    <div class="routine-meta">${meta}</div>
+    <div class="active-routine-exercise-head">
+      <div class="active-routine-title-wrap">
+        <div><b>${i+1}. ${ex.ej}</b> ${ex.hecho?'<span class="done-badge">✓ Guardado</span>':''}${ex.hecho && isNewPersonalRecord(ex.ej,recordBestKg(ex),a.sessionId)?'<span class="pr-badge">🏆 Récord</span>':''}</div>
+        <div class="routine-meta">${meta}</div>
+      </div>
+      ${routineExerciseImageHtml(ex)}
+    </div>
     ${(()=>{
       ensureSetData(ex);
       const prev=previousRoutineRecord(a,ex.ej);

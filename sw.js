@@ -1,4 +1,4 @@
-const CACHE='mi-evolucion-v22-1-46';
+const CACHE='mi-evolucion-v22-1-47';
 const ASSETS=["./", "./index.html", "./manifest.webmanifest", "./assets/exercises_v22146/chest_press_machine.png", "./assets/exercises_v22146/incline_chest_press_machine.png", "./assets/exercises_v22146/bench_press_barbell.png", "./assets/exercises_v22146/incline_bench_press_dumbbell.png", "./assets/exercises_v22146/cable_crossover_high.png", "./assets/exercises_v22146/assisted_dips_chest.png", "./assets/exercises_v22146/crunch_machine.png", "./assets/exercises_v22146/cable_crunch.png", "./assets/exercises_v22146/hanging_knee_raise.png", "./assets/exercises_v22146/ab_wheel.png"];
 self.addEventListener('install',e=>{
   self.skipWaiting();
