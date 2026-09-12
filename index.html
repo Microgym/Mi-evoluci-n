@@ -1096,7 +1096,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.69 — catálogo visual por grupo muscular */
+/* v22.1.70 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1120,7 +1120,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.69 — varias fotos dentro de una misma comida */
+/* v22.1.70 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1134,7 +1134,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.69 — varios platos escritos dentro de una misma comida */
+/* v22.1.70 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1143,7 +1143,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.69 — auditoría de imágenes del catálogo */
+/* v22.1.70 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1161,7 +1161,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.69 — sincronización manual segura */
+/* v22.1.70 — sincronización manual segura */
 .sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sync-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .sync-status{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;min-height:42px}
@@ -1175,7 +1175,7 @@ nav .nav-label{
 @media(max-width:480px){.sync-grid,.sync-meta{grid-template-columns:1fr}}
 
 
-/* v22.1.69 — objetivo semanal + pasos cotidianos */
+/* v22.1.70 — objetivo semanal + pasos cotidianos */
 .week-goal-head{display:flex;justify-content:space-between;align-items:end;gap:12px}
 .week-goal-pct{font-size:30px;font-weight:900;line-height:1}
 .week-goal-progress{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:10px 0 8px}
@@ -1186,7 +1186,7 @@ nav .nav-label{
 @media(max-width:480px){.steps-today-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.69 — favoritos por plato */
+/* v22.1.70 — favoritos por plato */
 .dish-part{
   display:flex;justify-content:space-between;gap:10px;align-items:center;
   padding:9px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff
@@ -1200,7 +1200,7 @@ nav .nav-label{
 .photo-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:7px}
 
 
-/* v22.1.69 — asistente entrenamiento + nutrición */
+/* v22.1.70 — asistente entrenamiento + nutrición */
 .coach-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#eff6ff,#fff)}
 .coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .coach-actions button{flex:1;min-width:150px}
@@ -1217,6 +1217,33 @@ nav .nav-label{
 .coach-section h3{margin:0 0 6px;font-size:15px}
 .coach-note{font-size:12px;color:#6b7280;margin-top:10px}
 @media(max-width:520px){.coach-grid{grid-template-columns:1fr}.coach-actions button{min-width:100%}}
+
+
+/* v22.1.70 — platos secuenciales + invalidar ejercicio */
+.meal-dishes{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.meal-dish-card{border:1px solid #e5e7eb;border-radius:16px;padding:12px;background:#fff}
+.meal-dish-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.meal-dish-title{font-size:16px;font-weight:900}
+.meal-dish-source{font-size:12px;color:#6b7280}
+.meal-dish-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.meal-dish-tools button,.meal-dish-tools label{flex:0 0 auto}
+.meal-dish-photo-label{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;
+  border:1px solid #d1d5db;background:#f8fafc;font-weight:700;cursor:pointer
+}
+.meal-dish-photo-label input{display:none}
+.meal-dish-preview{display:none;margin-top:8px}
+.meal-dish-preview.show{display:flex;gap:10px;align-items:center}
+.meal-dish-preview img{width:78px;height:78px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb}
+.meal-dish-macros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.meal-dish-status{margin-top:7px;font-size:12px;color:#6b7280}
+.meal-dish-status.ok{color:#166534}
+.meal-dish-status.err{color:#991b1b}
+.meal-summary-box{margin-top:12px;padding:11px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e5e7eb}
+.meal-summary-box b{display:block;margin-bottom:4px}
+.meal-add-dish{margin-top:10px}
+.invalidated-btn{background:#16a34a!important;color:white!important;border-color:#16a34a!important}
+@media(max-width:520px){.meal-dish-macros{grid-template-columns:1fr}.meal-dish-tools>*{flex:1}}
 
 </style>
 
@@ -1985,7 +2012,7 @@ try{db=JSON.parse(localStorage.getItem(KEY)||'null')||fresh()}catch(e){db=fresh(
 if(!db.peso) db.peso=[];
 if(!db.comidas) db.comidas=[];
 if(!db.meals) db.meals={};
-Object.values(db.meals).forEach(m=>{if(!Array.isArray(m.writtenParts))m.writtenParts=[];if(!Array.isArray(m.photoParts))m.photoParts=[];});
+Object.values(db.meals).forEach(m=>{if(!Array.isArray(m.writtenParts))m.writtenParts=[];if(!Array.isArray(m.photoParts))m.photoParts=[];if(m.dishes!=null&&!Array.isArray(m.dishes))m.dishes=[];});
 if(!Array.isArray(db.mealFavorites)) db.mealFavorites=[];
 if(!db.exerciseImageChoices || typeof db.exerciseImageChoices!=='object' || Array.isArray(db.exerciseImageChoices)) db.exerciseImageChoices={};
 if(!db.rutinaSesiones) db.rutinaSesiones=[];
@@ -2857,6 +2884,7 @@ function favoriteMealLabel(fav){
 }
 
 function saveCurrentMealAsFavorite(tipo){
+  mealFromDishInputs(tipo,true);
   const fecha=isoFromES(document.getElementById('cFecha').value)||today();
   const key=mealKey(fecha,tipo);
   const cur=getMeal(fecha,tipo);
@@ -2906,77 +2934,38 @@ function useMealFavorite(id,tipoOverride=''){
   if(!fav)return;
 
   const tipo=tipoOverride || fav.sourceTipo || 'comida';
-  const descEl=document.getElementById('desc_'+tipo);
-  const kcalEl=document.getElementById('kcal_'+tipo);
-  const protEl=document.getElementById('prot_'+tipo);
-  const horaEl=document.getElementById('hora_'+tipo);
-
-  if(!descEl){
-    alert('Abre el apartado Comidas para usar este favorito.');
-    return;
-  }
-
-  const fecha=isoFromES(document.getElementById('cFecha').value)||today();
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
   const key=mealKey(fecha,tipo);
   const cur=getMeal(fecha,tipo);
+  let dishes=ensureMealDishes(fecha,tipo);
 
-  // Los favoritos de plato se AÑADEN a la comida actual, no la sustituyen.
+  // Si solo existe el plato vacío inicial, lo sustituimos.
+  if(dishes.length===1 && !dishes[0].text.trim() && !dishes[0].kcal && !dishes[0].prot)dishes=[];
+
   if((fav.kind||'dish')==='dish'){
-    const partId=writtenPartId();
-    const part={
-      id:partId,
+    dishes.push(normalizeDish({
       text:fav.desc||fav.nombre||'Plato favorito',
-      originalText:fav.desc||fav.nombre||'',
-      kcal:Math.round(Number(fav.kcal)||0),
-      prot:Math.round(Number(fav.prot)||0),
-      source:'favorite'
-    };
-    const parts=Array.isArray(cur.writtenParts)?[...cur.writtenParts]:[];
-    parts.push(part);
-
-    const favBreak=cloneMealBreakdown(fav.breakdown||[]).map(x=>({...x,partId}));
-    const currentKcal=Number(kcalEl?.value||cur.kcal||0);
-    const currentProt=Number(protEl?.value||cur.prot||0);
-    const newDesc=appendMealDescription(descEl.value||cur.desc||'',part.text);
-
-    db.meals[key]={
-      ...cur,
-      fecha,tipo,
-      hora:horaEl?.value||cur.hora||'',
-      desc:newDesc,
-      kcal:Math.round(currentKcal+part.kcal),
-      prot:Math.round(currentProt+part.prot),
-      breakdown:cloneMealBreakdown(cur.breakdown||[]).concat(favBreak),
-      writtenParts:parts,
-      photoParts:Array.isArray(cur.photoParts)?cur.photoParts:[]
-    };
-    localStorage.setItem(KEY,JSON.stringify(db));
-    renderMeals();
-    setTimeout(()=>{
-      const el=document.getElementById('desc_'+tipo);
-      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
-    },50);
-    return;
+      kcal:fav.kcal,prot:fav.prot,source:'favorite',
+      breakdown:fav.breakdown||[]
+    }));
+  }else{
+    // Un favorito antiguo de comida completa se añade como un plato único.
+    dishes.push(normalizeDish({
+      text:fav.desc||fav.nombre||'Comida habitual',
+      kcal:fav.kcal,prot:fav.prot,source:'favorite',
+      breakdown:fav.breakdown||[]
+    }));
   }
 
-  // Compatibilidad: favoritos antiguos guardados como comida completa.
-  descEl.value=fav.desc||fav.nombre||'';
-  if(kcalEl)kcalEl.value=Math.round(Number(fav.kcal)||0);
-  if(protEl)protEl.value=Math.round(Number(fav.prot)||0);
-
+  const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
   db.meals[key]={
-    ...cur,
-    fecha,
-    tipo,
-    hora:horaEl?.value||cur.hora||'',
-    desc:descEl.value,
-    kcal:Number(kcalEl?.value)||0,
-    prot:Number(protEl?.value)||0,
-    breakdown:cloneMealBreakdown(fav.breakdown)
+    ...cur,fecha,tipo,dishes,
+    desc:active.map(d=>d.text.trim()).filter(Boolean).join(' + '),
+    kcal:active.reduce((s,d)=>s+(Number(d.kcal)||0),0),
+    prot:active.reduce((s,d)=>s+(Number(d.prot)||0),0),
+    breakdown:active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})))
   };
-
   localStorage.setItem(KEY,JSON.stringify(db));
-  renderEditableBreakdown(tipo,cloneMealBreakdown(fav.breakdown));
   renderMeals();
 }
 
@@ -3019,13 +3008,12 @@ function renderMealFavorites(){
 }
 
 function saveMeal(tipo){
-  const fecha=isoFromES(document.getElementById('cFecha').value)||today();
-  const key=mealKey(fecha,tipo);
-  const hora=document.getElementById('hora_'+tipo).value;
-  const desc=document.getElementById('desc_'+tipo).value.trim();
-  const kcal=Number(document.getElementById('kcal_'+tipo).value||0);
-  const prot=Number(document.getElementById('prot_'+tipo).value||0);
-  db.meals[key]={fecha,tipo,hora,desc,kcal,prot,breakdown:(db.meals[key]&&db.meals[key].breakdown)||[],writtenParts:(db.meals[key]&&db.meals[key].writtenParts)||[],photoParts:(db.meals[key]&&db.meals[key].photoParts)||[]};
+  const meal=mealFromDishInputs(tipo,true);
+  const active=(meal.dishes||[]).filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+  if(!active.length){
+    alert('Añade al menos un plato antes de guardar esta comida.');
+    return;
+  }
   localStorage.setItem(KEY,JSON.stringify(db));
   renderMeals();
   render();
@@ -3464,93 +3452,344 @@ async function estimateMealWithAI(tipo){
   }
 }
 
+
+const pendingDishPhotos={};
+
+function dishOrdinal(n){
+  const names=['Primer','Segundo','Tercer','Cuarto','Quinto','Sexto','Séptimo','Octavo','Noveno','Décimo'];
+  return names[n-1] || (n+'º');
+}
+function newDishId(){
+  return 'dish_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+}
+function normalizeDish(d){
+  return {
+    id:String(d?.id||newDishId()),
+    text:String(d?.text||d?.desc||''),
+    kcal:Math.round(Number(d?.kcal)||0),
+    prot:Math.round(Number(d?.prot)||0),
+    source:String(d?.source||''),
+    breakdown:cloneMealBreakdown(d?.breakdown||[]),
+    createdAt:Number(d?.createdAt)||Date.now()
+  };
+}
+function legacyMealToDishes(cur){
+  const out=[];
+  const written=Array.isArray(cur?.writtenParts)?cur.writtenParts:[];
+  const photos=Array.isArray(cur?.photoParts)?cur.photoParts:[];
+  written.forEach(x=>out.push(normalizeDish({
+    id:x.id,text:x.text,kcal:x.kcal,prot:x.prot,source:x.source||'written',
+    breakdown:mealPartBreakdown(cur,x.id),createdAt:x.createdAt
+  })));
+  photos.forEach(x=>out.push(normalizeDish({
+    id:x.id,text:x.text,kcal:x.kcal,prot:x.prot,source:'photo',
+    breakdown:mealPartBreakdown(cur,x.id),createdAt:x.createdAt
+  })));
+  if(!out.length && (String(cur?.desc||'').trim() || Number(cur?.kcal)>0 || Number(cur?.prot)>0)){
+    out.push(normalizeDish({
+      text:cur.desc||'Plato guardado',kcal:cur.kcal,prot:cur.prot,source:'legacy',
+      breakdown:cur.breakdown||[]
+    }));
+  }
+  return out;
+}
+function ensureMealDishes(fecha,tipo){
+  const key=mealKey(fecha,tipo);
+  const cur=getMeal(fecha,tipo);
+  let dishes=Array.isArray(cur.dishes)?cur.dishes.map(normalizeDish):legacyMealToDishes(cur);
+  if(!dishes.length)dishes=[normalizeDish({text:'',source:''})];
+
+  // Persistimos la migración solo si ya existía contenido real.
+  const hadContent=String(cur.desc||'').trim() || Number(cur.kcal)>0 || Number(cur.prot)>0 ||
+    (cur.writtenParts||[]).length || (cur.photoParts||[]).length || (cur.dishes||[]).length;
+  if(hadContent && !Array.isArray(cur.dishes)){
+    db.meals[key]={...cur,dishes};
+    localStorage.setItem(KEY,JSON.stringify(db));
+  }
+  return dishes;
+}
+function dishSourceLabel(source){
+  const map={ai:'IA',local:'cálculo local',photo:'foto + IA',favorite:'favorito',legacy:'registro anterior',written:'texto'};
+  return map[source]||'sin analizar';
+}
+function dishPhotoKey(tipo,id){return tipo+'|'+id;}
+
+function mealFromDishInputs(tipo,persist=true){
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+  const key=mealKey(fecha,tipo);
+  const cur=getMeal(fecha,tipo);
+  const existing=ensureMealDishes(fecha,tipo);
+
+  const dishes=existing.map(d=>{
+    const textEl=document.getElementById(`dishText_${tipo}_${d.id}`);
+    const kcalEl=document.getElementById(`dishKcal_${tipo}_${d.id}`);
+    const protEl=document.getElementById(`dishProt_${tipo}_${d.id}`);
+    return normalizeDish({
+      ...d,
+      text:textEl?textEl.value:d.text,
+      kcal:kcalEl?kcalEl.value:d.kcal,
+      prot:protEl?protEl.value:d.prot
+    });
+  });
+
+  const active=dishes.filter(d=>d.text.trim() || d.kcal>0 || d.prot>0);
+  const desc=active.map(d=>d.text.trim()).filter(Boolean).join(' + ');
+  const kcal=active.reduce((s,d)=>s+(Number(d.kcal)||0),0);
+  const prot=active.reduce((s,d)=>s+(Number(d.prot)||0),0);
+  const breakdown=active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})));
+
+  const meal={
+    ...cur,fecha,tipo,
+    hora:document.getElementById('hora_'+tipo)?.value||cur.hora||'',
+    desc,kcal:Math.round(kcal),prot:Math.round(prot),
+    breakdown,dishes,
+    // Mantenemos los campos anteriores para compatibilidad, pero el editor nuevo usa dishes.
+    writtenParts:cur.writtenParts||[],
+    photoParts:cur.photoParts||[]
+  };
+  if(persist){
+    db.meals[key]=meal;
+    localStorage.setItem(KEY,JSON.stringify(db));
+  }
+  return meal;
+}
+
+function updateMealDishSummary(tipo){
+  const meal=mealFromDishInputs(tipo,false);
+  const desc=document.getElementById('mealDishSummaryText_'+tipo);
+  const macros=document.getElementById('mealDishSummaryMacros_'+tipo);
+  const hiddenDesc=document.getElementById('desc_'+tipo);
+  const hiddenKcal=document.getElementById('kcal_'+tipo);
+  const hiddenProt=document.getElementById('prot_'+tipo);
+  if(desc)desc.textContent=meal.desc||'Aún no hay platos añadidos.';
+  if(macros)macros.textContent=`${Math.round(meal.kcal||0)} kcal · ${Math.round(meal.prot||0)} g proteína`;
+  if(hiddenDesc)hiddenDesc.value=meal.desc||'';
+  if(hiddenKcal)hiddenKcal.value=Math.round(meal.kcal||0);
+  if(hiddenProt)hiddenProt.value=Math.round(meal.prot||0);
+}
+
+function addMealDish(tipo){
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+  const key=mealKey(fecha,tipo);
+  const meal=mealFromDishInputs(tipo,true);
+  meal.dishes=Array.isArray(meal.dishes)?meal.dishes:[];
+  meal.dishes.push(normalizeDish({text:'',source:''}));
+  db.meals[key]=meal;
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderMeals();
+  setTimeout(()=>{
+    const last=meal.dishes[meal.dishes.length-1];
+    document.getElementById(`dishText_${tipo}_${last.id}`)?.focus();
+  },30);
+}
+
+function removeMealDish(tipo,id){
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+  const key=mealKey(fecha,tipo);
+  const meal=mealFromDishInputs(tipo,true);
+  const dishes=(meal.dishes||[]).filter(d=>String(d.id)!==String(id));
+  if(!dishes.length)dishes.push(normalizeDish({text:'',source:''}));
+  meal.dishes=dishes;
+  const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+  meal.desc=active.map(d=>d.text.trim()).filter(Boolean).join(' + ');
+  meal.kcal=active.reduce((s,d)=>s+(Number(d.kcal)||0),0);
+  meal.prot=active.reduce((s,d)=>s+(Number(d.prot)||0),0);
+  meal.breakdown=active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})));
+  db.meals[key]=meal;
+  localStorage.setItem(KEY,JSON.stringify(db));
+
+  const pk=dishPhotoKey(tipo,id),photo=pendingDishPhotos[pk];
+  if(photo?.objectUrl)try{URL.revokeObjectURL(photo.objectUrl)}catch(e){}
+  delete pendingDishPhotos[pk];
+  renderMeals();
+  render();
+}
+
+function chooseDishPhoto(tipo,id,input){
+  const file=input?.files?.[0];
+  if(!file)return;
+  const key=dishPhotoKey(tipo,id);
+  const old=pendingDishPhotos[key];
+  if(old?.objectUrl)try{URL.revokeObjectURL(old.objectUrl)}catch(e){}
+  pendingDishPhotos[key]={file,objectUrl:URL.createObjectURL(file)};
+  const box=document.getElementById(`dishPhotoPreview_${tipo}_${id}`);
+  const img=document.getElementById(`dishPhotoImg_${tipo}_${id}`);
+  if(img)img.src=pendingDishPhotos[key].objectUrl;
+  if(box)box.classList.add('show');
+  setDishStatus(tipo,id,'Foto preparada. Puedes analizarla con IA.','');
+  input.value='';
+}
+
+function setDishStatus(tipo,id,msg,kind=''){
+  const el=document.getElementById(`dishStatus_${tipo}_${id}`);
+  if(!el)return;
+  el.className='meal-dish-status'+(kind?' '+kind:'');
+  el.textContent=msg;
+}
+
+async function analyzeMealDish(tipo,id,mode='ai'){
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+  const key=mealKey(fecha,tipo);
+  const meal=mealFromDishInputs(tipo,true);
+  const dish=(meal.dishes||[]).find(d=>String(d.id)===String(id));
+  if(!dish)return;
+
+  const text=String(document.getElementById(`dishText_${tipo}_${id}`)?.value||dish.text||'').trim();
+  const photo=pendingDishPhotos[dishPhotoKey(tipo,id)];
+
+  setDishStatus(tipo,id,mode==='local'?'Calculando en local…':'Analizando con IA…');
+
+  try{
+    let result;
+    if(mode==='local'){
+      if(!text){
+        throw new Error(photo
+          ? 'El cálculo local no puede interpretar una foto. Escribe una breve descripción o usa “Analizar con IA”.'
+          : 'Escribe el plato antes de usar el cálculo local.');
+      }
+      result=localEstimateFromText(text);
+      if(!result)throw new Error('No he reconocido suficientes alimentos con el cálculo local. Prueba con IA o concreta cantidades.');
+    }else if(photo){
+      result=await analyzeOneFoodPhoto(getAiBackendUrl(),{file:photo.file,mode:'plate'},text);
+    }else{
+      if(!text)throw new Error('Escribe el plato o añade una foto.');
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),30000);
+      try{
+        const response=await fetch(getAiBackendUrl()+'/analyze-food',{
+          method:'POST',mode:'cors',cache:'no-store',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body:JSON.stringify({mode:'text',text}),
+          signal:controller.signal
+        });
+        const raw=await response.text();
+        let data={};try{data=JSON.parse(raw)}catch{}
+        if(!response.ok)throw new Error(data.error||raw||('HTTP '+response.status));
+        result=data.result||{};
+      }finally{clearTimeout(timer);}
+    }
+
+    dish.text=String(result.description||text||dish.text||'Plato').trim();
+    dish.kcal=Math.round(Number(result.kcal)||0);
+    dish.prot=Math.round(Number(result.protein_g)||0);
+    dish.source=photo?'photo':mode;
+    dish.breakdown=(mode==='local'
+      ? (Array.isArray(result.items)?result.items:[])
+      : normalizeAiMealItems(result.items)
+    ).map(x=>({...x,dishId:dish.id,partId:dish.id}));
+
+    db.meals[key]={...meal,dishes:meal.dishes};
+    localStorage.setItem(KEY,JSON.stringify(db));
+
+    const textEl=document.getElementById(`dishText_${tipo}_${id}`);
+    const kcalEl=document.getElementById(`dishKcal_${tipo}_${id}`);
+    const protEl=document.getElementById(`dishProt_${tipo}_${id}`);
+    if(textEl)textEl.value=dish.text;
+    if(kcalEl)kcalEl.value=dish.kcal;
+    if(protEl)protEl.value=dish.prot;
+    const sourceEl=document.getElementById(`dishSource_${tipo}_${id}`);
+    if(sourceEl)sourceEl.textContent=dishSourceLabel(dish.source);
+
+    mealFromDishInputs(tipo,true);
+    updateMealDishSummary(tipo);
+    setDishStatus(tipo,id,'Plato calculado. Revísalo y corrige si hace falta.','ok');
+  }catch(err){
+    setDishStatus(tipo,id,err?.name==='AbortError'?'Tiempo de espera agotado.':(err?.message||String(err)),'err');
+  }
+}
+
+function saveMealDishFavorite(tipo,id){
+  const meal=mealFromDishInputs(tipo,true);
+  const dish=(meal.dishes||[]).find(d=>String(d.id)===String(id));
+  if(!dish || (!dish.text.trim()&&!dish.kcal&&!dish.prot)){
+    alert('Primero rellena o analiza este plato.');
+    return;
+  }
+  const ok=saveDishFavoriteFromData({
+    name:dish.text,desc:dish.text,kcal:dish.kcal,prot:dish.prot,
+    breakdown:dish.breakdown||[],sourceTipo:tipo
+  });
+  if(ok)setDishStatus(tipo,id,'Guardado como favorito ✓','ok');
+}
+
+function renderMealDishCard(tipo,dish,index,total){
+  const photo=pendingDishPhotos[dishPhotoKey(tipo,dish.id)];
+  return `
+    <div class="meal-dish-card">
+      <div class="meal-dish-head">
+        <div>
+          <div class="meal-dish-title">${dishOrdinal(index+1)} plato</div>
+          <div class="meal-dish-source">Origen: <span id="dishSource_${tipo}_${dish.id}">${dishSourceLabel(dish.source)}</span></div>
+        </div>
+        ${total>1?`<button type="button" class="set-remove" onclick="removeMealDish('${tipo}','${dish.id}')">Quitar</button>`:''}
+      </div>
+
+      <label>Descripción del plato</label>
+      <input id="dishText_${tipo}_${dish.id}" value="${escapeMealText(dish.text)}"
+        placeholder="Ej. 200 g de pollo con arroz"
+        oninput="updateMealDishSummary('${tipo}')">
+
+      <div class="meal-dish-tools">
+        <button type="button" class="primary-small" onclick="analyzeMealDish('${tipo}','${dish.id}','ai')">✨ Analizar con IA</button>
+        <button type="button" class="secondary" onclick="analyzeMealDish('${tipo}','${dish.id}','local')">Cálculo local</button>
+        <label class="meal-dish-photo-label">📷 Hacer / elegir foto
+          <input type="file" accept="image/*" capture="environment" onchange="chooseDishPhoto('${tipo}','${dish.id}',this)">
+        </label>
+        <button type="button" class="set-add" onclick="saveMealDishFavorite('${tipo}','${dish.id}')">⭐ Favorito</button>
+      </div>
+
+      <div id="dishPhotoPreview_${tipo}_${dish.id}" class="meal-dish-preview ${photo?'show':''}">
+        <img id="dishPhotoImg_${tipo}_${dish.id}" src="${photo?.objectUrl||''}" alt="Foto del plato">
+        <div class="muted">La foto se usa para analizar este plato con IA.</div>
+      </div>
+
+      <div class="meal-dish-macros">
+        <div><label>Kcal del plato</label><input id="dishKcal_${tipo}_${dish.id}" type="number" min="0" value="${dish.kcal||''}" oninput="updateMealDishSummary('${tipo}')"></div>
+        <div><label>Proteína (g)</label><input id="dishProt_${tipo}_${dish.id}" type="number" min="0" value="${dish.prot||''}" oninput="updateMealDishSummary('${tipo}')"></div>
+      </div>
+      <div id="dishStatus_${tipo}_${dish.id}" class="meal-dish-status"></div>
+    </div>`;
+}
+
 function renderMeals(){
   const fecha=isoFromES(document.getElementById('cFecha').value)||today();
   let cards='';
   MEALS.forEach(m=>{
     const x=getMeal(fecha,m.key);
+    const dishes=ensureMealDishes(fecha,m.key);
+    const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+    const desc=active.map(d=>d.text.trim()).filter(Boolean).join(' + ');
+    const kcal=active.reduce((s,d)=>s+(Number(d.kcal)||0),0);
+    const prot=active.reduce((s,d)=>s+(Number(d.prot)||0),0);
+
     cards+=`
     <div class="card meal-card">
       <div class="meal-head">
         <div>
           <div class="meal-title">${m.label}</div>
-          <div class="muted">${x.desc ? 'Registrada' : 'Pendiente'}</div>
+          <div class="muted">${active.length?'Registrada / editable':'Pendiente'}</div>
         </div>
         <input class="meal-time" id="hora_${m.key}" type="time" value="${x.hora||m.time}">
       </div>
       <div class="meal-body">
-        <label>Qué has comido</label>
-        <input id="desc_${m.key}" value="${(x.desc||'').replace(/"/g,'&quot;')}" placeholder="Ej. tortilla de 2 huevos + 50 g de pan integral + café con leche">
-        <div class="written-parts-box">
-          <label>Añadir otro plato o alimento escrito</label>
-          <div class="written-parts-add">
-            <input id="foodTextNew_${m.key}" placeholder="Ej. 200 g de pechuga con arroz / un yogur / una tostada...">
-            <button type="button" class="primary-small" onclick="addWrittenMealPart('${m.key}','ai')">＋ Añadir con IA</button>
-          </div>
-          <div class="routine-actions" style="margin-top:7px">
-            <button type="button" class="set-add" onclick="addWrittenMealPart('${m.key}','local')">Añadir con cálculo local</button>
-          </div>
-          <div id="writtenParts_${m.key}" class="written-parts-list"></div>
+        <div class="muted">Añade los platos uno a uno. Cada plato puede escribirse, fotografiarse, analizarse y guardarse como favorito.</div>
+
+        <div class="meal-dishes">
+          ${dishes.map((d,idx)=>renderMealDishCard(m.key,d,idx,dishes.length)).join('')}
         </div>
 
-        <div class="food-photo-tools">
-          <div class="food-photo-actions">
-            <label class="photo-action">
-              <span>📷 Foto del plato</span>
-              <input id="foodPlatePhoto_${m.key}" type="file" accept="image/*" capture="environment" onchange="previewFoodPhoto('${m.key}','plate')">
-            </label>
-            <label class="photo-action">
-              <span>🏷️ Foto de etiqueta</span>
-              <input id="foodLabelPhoto_${m.key}" type="file" accept="image/*" capture="environment" onchange="previewFoodPhoto('${m.key}','label')">
-            </label>
-          </div>
-          <div class="photo-parts-box">
-            <div class="muted"><b>Platos añadidos por foto</b></div>
-            <div id="photoParts_${m.key}" class="photo-parts-list"></div>
-          </div>
-          <div id="foodPhotoPreviewBox_${m.key}" class="food-photo-queue">
-            <div class="food-photo-queue-head">
-              <b>Fotos de esta comida</b>
-              <span class="muted" id="foodPhotoCount_${m.key}"></span>
-            </div>
-            <div id="foodPhotoGrid_${m.key}" class="food-photo-grid"></div>
-            <p class="muted" id="foodPhotoStatus_${m.key}">Puedes añadir varios platos o etiquetas antes de analizar.</p>
-            <div class="food-photo-batch-actions">
-              <button type="button" class="primary-small" onclick="analyzeFoodPhoto('${m.key}')">✨ Analizar fotos pendientes</button>
-              <button type="button" class="set-add" onclick="clearFoodPhoto('${m.key}')">Quitar todas</button>
-            </div>
-          </div>
+        <button type="button" class="set-add meal-add-dish" onclick="addMealDish('${m.key}')">＋ Añadir ${dishOrdinal(dishes.length+1).toLowerCase()} plato</button>
+
+        <div class="meal-summary-box">
+          <b>Resumen de la comida</b>
+          <div id="mealDishSummaryText_${m.key}">${escapeMealText(desc||'Aún no hay platos añadidos.')}</div>
+          <div id="mealDishSummaryMacros_${m.key}" class="muted">${Math.round(kcal)} kcal · ${Math.round(prot)} g proteína</div>
         </div>
 
-        <div class="calc-row">
-          <div class="grow"><div class="calc-note">Escribe como hablas: plato, marca, cantidad o ración. La IA intentará entenderlo; después puedes corregir gramos/unidades.</div></div>
-          <button class="primary-small calc-btn" onclick="estimateMealWithAI('${m.key}')">✨ Calcular con IA</button>
-          <button class="secondary calc-btn" onclick="estimateMealLocal('${m.key}')">Cálculo local</button>
-          <button type="button" class="set-add" onclick="clearMealCalculation('${m.key}')">Borrar cálculo</button>
-        </div>
-        <div id="foodTextAiStatus_${m.key}" class="food-text-ai-status"></div>
-        <div id="break_${m.key}" class="breakdown" style="${x.breakdown&&x.breakdown.length?'':'display:none'}">
-          ${(x.breakdown||[]).map((b,i)=>{
-            if(b.qty!=null || b.q!=null){
-              const nb=normalizeEditableBreakdownItem(b);
-              return `<div class="breakdown-edit-row">
-                <div class="breakdown-edit-name"><b>${nb.name||nb.label||'Alimento'}</b><small id="breakInfo_${m.key}_${i}">${Math.round(Number(nb.kcal)||0)} kcal · ${Math.round(Number(nb.prot)||0)} g proteína</small></div>
-                <input type="number" step="1" min="0" value="${nb.qty}" onchange="changeBreakdownQty('${m.key}',${i},this.value)">
-                <select onchange="changeBreakdownUnit('${m.key}',${i},this.value)">
-                  <option value="g" ${nb.kind==='g'?'selected':''}>g</option>
-                  <option value="ml" ${nb.kind==='ml'?'selected':''}>ml</option>
-                  <option value="unit" ${nb.kind==='unit'?'selected':''}>ud</option>
-                  <option value="serving" ${nb.kind==='serving'?'selected':''}>ración</option>
-                </select>
-              </div>`;
-            }
-            return `<div><span>${b.label||b.name||'Alimento'}</span><b>${Math.round(Number(b.kcal)||0)} kcal · ${Math.round(Number(b.prot)||0)} g</b></div>`;
-          }).join('')}
-        </div>
-        <div class="meal-grid">
-          <div><label>Kcal</label><input id="kcal_${m.key}" type="number" value="${x.kcal||''}" placeholder="0"></div>
-          <div><label>Proteína (g)</label><input id="prot_${m.key}" type="number" value="${x.prot||''}" placeholder="0"></div>
-        </div>
+        <input id="desc_${m.key}" type="hidden" value="${escapeMealText(desc)}">
+        <input id="kcal_${m.key}" type="hidden" value="${Math.round(kcal)}">
+        <input id="prot_${m.key}" type="hidden" value="${Math.round(prot)}">
+
         <div class="meal-actions">
           <button class="primary" onclick="saveMeal('${m.key}')">Guardar ${m.label.toLowerCase()}</button>
           <button type="button" class="secondary favorite-save-btn" onclick="saveCurrentMealAsFavorite('${m.key}')">⭐ Guardar comida completa</button>
@@ -3558,8 +3797,9 @@ function renderMeals(){
       </div>
     </div>`;
   });
+
   mealCards.innerHTML=cards;
-  MEALS.forEach(m=>{renderWrittenMealParts(m.key);renderPhotoMealParts(m.key);});
+
   const vals=MEALS.map(m=>getMeal(fecha,m.key));
   const kcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
   const prot=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
@@ -4338,7 +4578,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.69 — catálogo limpio.
+/* v22.1.70 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -5847,7 +6087,30 @@ function saveRoutineItemRecord(i,doRender=true){
  if(old>=0)db.entreno[old]=rec;else db.entreno.push(rec);
  if(doRender){save();renderRoutines();populateManualRoutineSelect();renderPersonalRecords();}
 }
-function routineSaveItem(i){ saveRoutineItemRecord(i,true); }
+function routineInvalidateItem(i){
+ const a=db.rutinaActiva;if(!a||!a.items[i])return;
+ const ex=a.items[i];
+ ex.hecho=false;
+
+ // Al invalidar quitamos el registro guardado de ESTA sesión, pero conservamos
+ // los datos escritos en las series para poder corregirlos y validar de nuevo.
+ db.entreno=(db.entreno||[]).filter(x=>!(
+   x.fecha===a.fecha &&
+   x.ej===ex.ej &&
+   String(x.rutinaSessionId||'')===String(a.sessionId||'')
+ ));
+
+ save();
+ renderRoutines();
+ populateManualRoutineSelect();
+ renderPersonalRecords();
+}
+
+function routineSaveItem(i){
+ const a=db.rutinaActiva;if(!a||!a.items[i])return;
+ if(a.items[i].hecho) routineInvalidateItem(i);
+ else saveRoutineItemRecord(i,true);
+}
 
 function captureActiveRoutineInputs(){
  const a=db.rutinaActiva;if(!a)return;
@@ -6104,7 +6367,7 @@ function renderRoutines(){
         <div class="unit-field"><label>Unidad</label><select class="${previousValueClass(s,'unidad')}" id="setUnit_${i}_${j}" onchange="markRoutinePreviousValueEdited(${i},${j},'unidad',this)"><option value="min" ${s.unidadTiempo!=='seg'?'selected':''}>min</option><option value="seg" ${s.unidadTiempo==='seg'?'selected':''}>seg</option></select></div>
         <button class="set-remove" onclick="removeRoutineSet(${i},${j})">Eliminar</button>
       </div>`).join('')}</div>
-      <div class="routine-actions"><button class="set-add" onclick="addRoutineSet(${i})">+ Añadir serie</button><button class="primary-small ${ex.hecho?'validated-btn':''}" onclick="routineSaveItem(${i})">${ex.hecho?'✓ Validado':'Validar'}</button></div>`;
+      <div class="routine-actions"><button class="set-add" onclick="addRoutineSet(${i})">+ Añadir serie</button><button class="primary-small ${ex.hecho?'validated-btn':''}" onclick="routineSaveItem(${i})" title="${ex.hecho?'Pulsa para invalidar este ejercicio':'Pulsa para validar este ejercicio'}">${ex.hecho?'✓ Validado · pulsar para invalidar':'Validar'}</button></div>`;
      })()}
    </div>`;
  }).join('')+`
@@ -7366,6 +7629,7 @@ function normalizeImportedDb(x){
   Object.values(out.meals).forEach(m=>{
     if(!Array.isArray(m.writtenParts))m.writtenParts=[];
     if(!Array.isArray(m.photoParts))m.photoParts=[];
+    if(m.dishes!=null && !Array.isArray(m.dishes))m.dishes=[];
   });
   if(!Array.isArray(out.mealFavorites))out.mealFavorites=[];
   if(!Array.isArray(out.rutinaSesiones))out.rutinaSesiones=[];
@@ -7600,7 +7864,7 @@ async function uploadSyncCopy(){
   syncSetStatus('Subiendo copia…');
   try{
     const payload={
-      appVersion:'22.1.64',
+      appVersion:'22.1.70',
       savedAt:new Date().toISOString(),
       data:db
     };
@@ -8115,7 +8379,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.69 — actualización robusta de la PWA instalada */
+/* v22.1.70 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
