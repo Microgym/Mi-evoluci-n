@@ -1096,7 +1096,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.74 — catálogo visual por grupo muscular */
+/* v22.1.75 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1120,7 +1120,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.74 — varias fotos dentro de una misma comida */
+/* v22.1.75 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1134,7 +1134,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.74 — varios platos escritos dentro de una misma comida */
+/* v22.1.75 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1143,7 +1143,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.74 — auditoría de imágenes del catálogo */
+/* v22.1.75 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1161,7 +1161,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.74 — sincronización manual segura */
+/* v22.1.75 — sincronización manual segura */
 .sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sync-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .sync-status{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;min-height:42px}
@@ -1175,7 +1175,7 @@ nav .nav-label{
 @media(max-width:480px){.sync-grid,.sync-meta{grid-template-columns:1fr}}
 
 
-/* v22.1.74 — objetivo semanal + pasos cotidianos */
+/* v22.1.75 — objetivo semanal + pasos cotidianos */
 .week-goal-head{display:flex;justify-content:space-between;align-items:end;gap:12px}
 .week-goal-pct{font-size:30px;font-weight:900;line-height:1}
 .week-goal-progress{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:10px 0 8px}
@@ -1186,7 +1186,7 @@ nav .nav-label{
 @media(max-width:480px){.steps-today-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.74 — favoritos por plato */
+/* v22.1.75 — favoritos por plato */
 .dish-part{
   display:flex;justify-content:space-between;gap:10px;align-items:center;
   padding:9px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff
@@ -1200,7 +1200,7 @@ nav .nav-label{
 .photo-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:7px}
 
 
-/* v22.1.74 — asistente entrenamiento + nutrición */
+/* v22.1.75 — asistente entrenamiento + nutrición */
 .coach-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#eff6ff,#fff)}
 .coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .coach-actions button{flex:1;min-width:150px}
@@ -1219,7 +1219,7 @@ nav .nav-label{
 @media(max-width:520px){.coach-grid{grid-template-columns:1fr}.coach-actions button{min-width:100%}}
 
 
-/* v22.1.74 — platos secuenciales + invalidar ejercicio */
+/* v22.1.75 — platos secuenciales + invalidar ejercicio */
 .meal-dishes{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .meal-dish-card{border:1px solid #e5e7eb;border-radius:16px;padding:12px;background:#fff}
 .meal-dish-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
@@ -1246,7 +1246,7 @@ nav .nav-label{
 @media(max-width:520px){.meal-dish-macros{grid-template-columns:1fr}.meal-dish-tools>*{flex:1}}
 
 
-/* v22.1.74 — favoritos plegables y selector por plato */
+/* v22.1.75 — favoritos plegables y selector por plato */
 .meal-fav-card details{border:0}
 .meal-fav-card summary{
   list-style:none;cursor:pointer;font-weight:900;font-size:18px;
@@ -1274,6 +1274,29 @@ nav .nav-label{
 .dish-fav-option b{display:block}
 .dish-fav-option small{display:block;color:#6b7280;margin-top:2px}
 
+
+/* v22.1.75 — resumen completo del día por fecha */
+.day-review-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#f8fbff,#fff)}
+.day-review-head{display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap}
+.day-review-date{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.day-review-date input{width:135px}
+.day-review-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.day-review-kpi{padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+.day-review-kpi small{display:block;color:#6b7280}
+.day-review-kpi b{display:block;font-size:18px;margin-top:3px}
+.day-review-section{margin-top:10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;overflow:hidden}
+.day-review-section summary{cursor:pointer;padding:11px 12px;font-weight:900;background:#f8fafc}
+.day-review-section-body{padding:10px 12px}
+.day-review-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.day-review-row:last-child{border-bottom:0}
+.day-review-row-main{min-width:0;flex:1}
+.day-review-row-main b{display:block}
+.day-review-row-main small{display:block;color:#6b7280;margin-top:2px}
+.day-review-row-val{text-align:right;white-space:nowrap;font-weight:800}
+.day-review-balance{margin-top:10px;padding:11px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb}
+.day-review-balance .kpiLine{margin:4px 0}
+@media(max-width:700px){.day-review-kpis{grid-template-columns:1fr 1fr}}
+
 </style>
 
 </head>
@@ -1296,6 +1319,48 @@ nav .nav-label{
       <div class="hero-sub" id="mGrasaDif"></div>
     </div>
   </div>
+</div>
+
+
+<div class="card day-review-card">
+  <div class="day-review-head">
+    <div>
+      <h2 style="margin-bottom:4px">📅 Resumen del día</h2>
+      <div class="muted">Consulta en una sola vista comidas, agua, pasos, entrenamientos, actividad y mediciones de cualquier fecha.</div>
+    </div>
+    <div class="day-review-date">
+      <button type="button" class="set-add" onclick="changeDayReviewDate(-1)">←</button>
+      <input id="dayReviewDate" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa" onchange="renderDayReview()">
+      <button type="button" class="set-add" onclick="changeDayReviewDate(1)">→</button>
+      <button type="button" class="secondary" onclick="setDayReviewToday()">Hoy</button>
+    </div>
+  </div>
+
+  <div id="dayReviewTitle" style="font-weight:900;margin-top:12px"></div>
+
+  <div class="day-review-kpis">
+    <div class="day-review-kpi"><small>Comida</small><b id="dayReviewFood">0 kcal</b></div>
+    <div class="day-review-kpi"><small>Proteína</small><b id="dayReviewProtein">0 g</b></div>
+    <div class="day-review-kpi"><small>Actividad</small><b id="dayReviewActivity">~0 kcal</b></div>
+    <div class="day-review-kpi"><small>Agua</small><b id="dayReviewWater">0 L</b></div>
+  </div>
+
+  <div id="dayReviewBalance" class="day-review-balance"></div>
+
+  <details class="day-review-section" open>
+    <summary>🍽️ Comidas <span id="dayReviewMealCount"></span></summary>
+    <div id="dayReviewMeals" class="day-review-section-body"></div>
+  </details>
+
+  <details class="day-review-section">
+    <summary>🏋️ Entrenamientos <span id="dayReviewWorkoutCount"></span></summary>
+    <div id="dayReviewWorkouts" class="day-review-section-body"></div>
+  </details>
+
+  <details class="day-review-section">
+    <summary>🚶 Pasos, agua y medición</summary>
+    <div id="dayReviewOther" class="day-review-section-body"></div>
+  </details>
 </div>
 
 <div class="section-title">Hoy</div>
@@ -2149,6 +2214,8 @@ const MEALS=[
 ['pFecha','cFecha','eFecha'].forEach(id=>attachDateMask(id));
 const dailyStepsDateInit=document.getElementById('dailyStepsDate'); if(dailyStepsDateInit)dailyStepsDateInit.value=fechaES(today());
 attachDateMask('dailyStepsDate');
+const dayReviewDateInit=document.getElementById('dayReviewDate'); if(dayReviewDateInit)dayReviewDateInit.value=fechaES(today());
+attachDateMask('dayReviewDate');
 
 function profile(){
   return db.profile || {
@@ -2505,6 +2572,216 @@ async function runCoachAnalysis(focus='week'){
   }
 }
 
+
+
+function dayReviewISO(){
+  const el=document.getElementById('dayReviewDate');
+  return isoFromES(el?.value)||today();
+}
+function setDayReviewToday(){
+  const el=document.getElementById('dayReviewDate');
+  if(el)el.value=fechaES(today());
+  renderDayReview();
+}
+function changeDayReviewDate(delta){
+  const el=document.getElementById('dayReviewDate');
+  if(!el)return;
+  const iso=dayReviewISO();
+  const d=new Date(iso+'T12:00:00');
+  d.setDate(d.getDate()+Number(delta||0));
+  el.value=fechaES(d.toISOString().slice(0,10));
+  renderDayReview();
+}
+
+function dayReviewMealRows(dateIso){
+  const rows=[];
+  MEALS.forEach(def=>{
+    const m=getMeal(dateIso,def.key);
+    const has=String(m?.desc||'').trim() || Number(m?.kcal)>0 || Number(m?.prot)>0 ||
+      (Array.isArray(m?.dishes)&&m.dishes.some(d=>String(d?.text||'').trim()||Number(d?.kcal)>0||Number(d?.prot)>0));
+    if(!has)return;
+
+    let dishes=[];
+    if(Array.isArray(m.dishes) && m.dishes.length){
+      dishes=m.dishes
+        .map(normalizeDish)
+        .filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+    }else if(String(m.desc||'').trim()){
+      dishes=[{id:'legacy',text:m.desc,kcal:Number(m.kcal)||0,prot:Number(m.prot)||0,source:'legacy'}];
+    }
+
+    rows.push({
+      tipo:def.key,label:def.label,hora:m.hora||def.time||'',
+      desc:m.desc||dishes.map(d=>d.text).join(' + '),
+      kcal:Number(m.kcal)||dishes.reduce((s,d)=>s+(Number(d.kcal)||0),0),
+      prot:Number(m.prot)||dishes.reduce((s,d)=>s+(Number(d.prot)||0),0),
+      dishes
+    });
+  });
+
+  // Compatibilidad con registros históricos antiguos que no estén en db.meals.
+  if(!rows.length){
+    (db.comidas||[]).filter(x=>x.fecha===dateIso).forEach((x,idx)=>{
+      rows.push({
+        tipo:x.tipo||'comida',label:x.tipo||'Comida',hora:x.hora||'',
+        desc:x.desc||x.descripcion||'',
+        kcal:Number(x.kcal)||0,prot:Number(x.prot||x.proteina)||0,
+        dishes:[{id:'legacy_'+idx,text:x.desc||x.descripcion||'',kcal:Number(x.kcal)||0,prot:Number(x.prot||x.proteina)||0,source:'legacy'}]
+      });
+    });
+  }
+  return rows;
+}
+
+function dayReviewWorkoutRows(dateIso){
+  const all=(db.entreno||[]).filter(r=>r && r.fecha===dateIso);
+  const groups=new Map();
+  const out=[];
+
+  all.forEach(r=>{
+    if(r.rutinaSessionId){
+      const sid=String(r.rutinaSessionId);
+      if(!groups.has(sid))groups.set(sid,[]);
+      groups.get(sid).push(r);
+    }else if(!r.esResumenRutina){
+      out.push({
+        kind:'manual',
+        title:r.ej||'Entrenamiento',
+        hora:r.hora||'',
+        tipo:r.tipo||'Entrenamiento',
+        duracion:Number(r.duracion)||0,
+        kcal:Number(r.kcal)||0,
+        rows:[r]
+      });
+    }
+  });
+
+  groups.forEach((rows,sid)=>{
+    const actual=rows.filter(r=>!r.esResumenRutina);
+    const summary=rows.find(r=>r.esResumenRutina);
+    const sess=(db.rutinaSesiones||[]).find(s=>String(s.sessionId||'')===sid);
+    const first=actual[0]||summary||rows[0];
+    const duration=Number(sess?.duracionTotal)||Number(summary?.duracion)||0;
+    const kcal=rows.reduce((s,r)=>s+(Number(r.kcal)||0),0);
+    out.push({
+      kind:'routine',
+      title:sess?.nombre||first?.rutinaNombre||'Rutina',
+      hora:sess?.hora||first?.hora||'',
+      tipo:'Rutina',
+      duracion:duration,
+      kcal,
+      rows:actual,
+      omitted:sess?.omitidos||[]
+    });
+  });
+
+  out.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+  return out;
+}
+
+function renderDayReview(){
+  const dateEl=document.getElementById('dayReviewDate');
+  if(!dateEl)return;
+  if(!dateEl.value)dateEl.value=fechaES(today());
+
+  const d=dayReviewISO();
+  const meals=dayReviewMealRows(d);
+  const workouts=dayReviewWorkoutRows(d);
+  const stepsRec=db.stepsDaily?.[d]||null;
+  const water=Number(db.waterDaily?.[d]||0);
+  const weight=(db.peso||[]).find(x=>x.fecha===d)||null;
+
+  const foodKcal=meals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
+  const protein=meals.reduce((s,x)=>s+(Number(x.prot)||0),0);
+  const workoutKcal=workouts.reduce((s,x)=>s+(Number(x.kcal)||0),0);
+  const stepKcal=stepsRec
+    ? (Number.isFinite(Number(stepsRec.kcal))?Number(stepsRec.kcal):estimateDailyStepCalories(stepsRec.steps).kcal)
+    : 0;
+  const activityKcal=workoutKcal+stepKcal;
+  const margin=kcalTarget()-foodKcal;
+
+  const title=document.getElementById('dayReviewTitle');
+  const food=document.getElementById('dayReviewFood');
+  const prot=document.getElementById('dayReviewProtein');
+  const activity=document.getElementById('dayReviewActivity');
+  const waterEl=document.getElementById('dayReviewWater');
+  if(title)title.textContent=(d===today()?'Hoy · ':'')+fechaES(d);
+  if(food)food.textContent=Math.round(foodKcal)+' kcal';
+  if(prot)prot.textContent=Math.round(protein)+' g';
+  if(activity)activity.textContent='~'+Math.round(activityKcal)+' kcal';
+  if(waterEl)waterEl.textContent=(water/1000).toFixed(2).replace('.',',')+' L';
+
+  const bal=document.getElementById('dayReviewBalance');
+  if(bal){
+    bal.innerHTML=`
+      <div class="kpiLine"><span>Objetivo de comida</span><b>${Math.round(kcalTarget())} kcal</b></div>
+      <div class="kpiLine"><span>Margen hasta objetivo</span><b class="${margin>=0?'good':'warn'}">${margin>=0?'':'−'}${Math.abs(Math.round(margin))} kcal</b></div>
+      <div class="kpiLine"><span>Entrenamiento</span><b>~${Math.round(workoutKcal)} kcal</b></div>
+      <div class="kpiLine"><span>Pasos cotidianos</span><b>~${Math.round(stepKcal)} kcal</b></div>
+      <div class="muted" style="margin-top:6px">“Actividad” es el gasto estimado de entrenamientos + pasos registrados. No es el gasto energético total del día y no se suma automáticamente al presupuesto de comida.</div>`;
+  }
+
+  const mealCount=document.getElementById('dayReviewMealCount');
+  const mealsHost=document.getElementById('dayReviewMeals');
+  if(mealCount)mealCount.textContent=meals.length?'· '+meals.length:'';
+  if(mealsHost){
+    mealsHost.innerHTML=meals.length?meals.map(m=>{
+      const dishHtml=(m.dishes||[]).length>1
+        ? `<div style="margin-top:5px">${m.dishes.map((dish,idx)=>`<small style="display:block">${idx+1}. ${escapeMealText(dish.text||'Plato')} · ${Math.round(Number(dish.kcal)||0)} kcal · ${Math.round(Number(dish.prot)||0)} g</small>`).join('')}</div>`
+        : `<small>${escapeMealText(m.desc||'')}</small>`;
+      return `<div class="day-review-row">
+        <div class="day-review-row-main">
+          <b>${escapeMealText(m.label)}${m.hora?' · '+m.hora:''}</b>
+          ${dishHtml}
+        </div>
+        <div class="day-review-row-val">${Math.round(Number(m.kcal)||0)} kcal<br><small>${Math.round(Number(m.prot)||0)} g prot.</small></div>
+      </div>`;
+    }).join(''):'<div class="empty">No hay comidas registradas para esta fecha.</div>';
+  }
+
+  const workoutCount=document.getElementById('dayReviewWorkoutCount');
+  const workHost=document.getElementById('dayReviewWorkouts');
+  if(workoutCount)workoutCount.textContent=workouts.length?'· '+workouts.length:'';
+  if(workHost){
+    workHost.innerHTML=workouts.length?workouts.map(w=>{
+      let detail='';
+      if(w.kind==='routine'){
+        detail=(w.rows||[]).map(r=>escapeMealText(r.ej||'Ejercicio')).join(' · ');
+        if(w.omitted?.length)detail+=(detail?' · ':'')+'No realizados: '+w.omitted.map(escapeMealText).join(', ');
+      }else{
+        const r=w.rows?.[0]||{};
+        const bits=[];
+        if(r.series)bits.push(r.series+' series');
+        if(r.kg!=null)bits.push(r.kg+' kg');
+        if(r.reps!=null)bits.push(r.reps+' reps');
+        detail=bits.join(' · ');
+      }
+      return `<div class="day-review-row">
+        <div class="day-review-row-main">
+          <b>${w.hora?w.hora+' · ':''}${escapeMealText(w.title)}</b>
+          <small>${escapeMealText(w.tipo)}${w.duracion?' · '+Math.round(w.duracion)+' min':''}${detail?' · '+detail:''}</small>
+        </div>
+        <div class="day-review-row-val">~${Math.round(Number(w.kcal)||0)} kcal</div>
+      </div>`;
+    }).join(''):'<div class="empty">No hay entrenamientos registrados para esta fecha.</div>';
+  }
+
+  const other=document.getElementById('dayReviewOther');
+  if(other){
+    const stepTxt=stepsRec
+      ? `${Math.round(Number(stepsRec.steps)||0).toLocaleString('es-ES')} pasos${stepsRec.km!=null?' · ~'+Number(stepsRec.km).toFixed(2).replace('.',',')+' km':''} · ~${Math.round(stepKcal)} kcal`
+      : 'Sin pasos registrados';
+    const waterTxt=water?`${Math.round(water)} ml · ${(water/1000).toFixed(2).replace('.',',')} L`:'Sin agua registrada';
+    const weightTxt=weight
+      ? `${Number(weight.peso).toFixed(1).replace('.',',')} kg${weight.grasa!=null?' · '+Number(weight.grasa).toFixed(1).replace('.',',')+'% grasa':''}`
+      : 'Sin medición corporal';
+
+    other.innerHTML=`
+      <div class="day-review-row"><div class="day-review-row-main"><b>🚶 Pasos cotidianos</b><small>${stepTxt}</small></div></div>
+      <div class="day-review-row"><div class="day-review-row-main"><b>💧 Agua</b><small>${waterTxt}</small></div></div>
+      <div class="day-review-row"><div class="day-review-row-main"><b>⚖️ Medición corporal</b><small>${weightTxt}</small></div></div>`;
+  }
+}
 
 function startOfWeekISO(dateIso=today()){
   const d=new Date(dateIso+'T12:00:00');
@@ -3677,8 +3954,8 @@ function ensureMealDishes(fecha,tipo){
 
   let dishes=Array.isArray(cur.dishes)?cur.dishes.map(normalizeDish):legacyMealToDishes(cur);
 
-  // Reparación v22.1.74:
-  // Si v22.1.74 ya creó `dishes`, pero la descripción histórica contiene
+  // Reparación v22.1.75:
+  // Si v22.1.75 ya creó `dishes`, pero la descripción histórica contiene
   // un plato que no quedó representado, lo recuperamos.
   if(Array.isArray(cur.dishes) && String(cur.desc||'').trim()){
     const segments=mealDescSegments(cur.desc);
@@ -4878,7 +5155,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.74 — catálogo limpio.
+/* v22.1.75 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -7899,7 +8176,7 @@ function render(){
  if(firstAug&&last&&firstAug!==last){let wk=(last.peso-firstAug.peso)/(days(firstAug.fecha,last.fecha)/7);ritmo.innerHTML=`<b>${wk.toFixed(2)} kg/semana matemáticos</b><p class="muted">Desde ${firstAug.fecha}: ${firstAug.peso.toFixed(1)} → ${last.peso.toFixed(1)} kg. Este ritmo inicial es demasiado rápido para extrapolar; usa ~0,5–0,8 kg/semana como referencia práctica.</p>`}
  renderMilestones(last);
  chart('chartPeso',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.peso}))},{data:movAvg(db.peso)}]);chart('chartGrasa',[{data:db.peso.map(x=>({fecha:x.fecha,v:x.grasa}))}],{dec:1});chart('chartCintura',[{data:db.peso.filter(x=>x.cintura!=null).map(x=>({fecha:x.fecha,v:x.cintura}))}],{dec:1});
- renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayTimeline();renderHealthAlerts();
+ renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayReview();renderDayTimeline();renderHealthAlerts();
  if(db.peso.length>1){
  let a=db.peso[0],b=last;
  const fmt=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
@@ -8164,7 +8441,7 @@ async function uploadSyncCopy(){
   syncSetStatus('Subiendo copia…');
   try{
     const payload={
-      appVersion:'22.1.74',
+      appVersion:'22.1.75',
       savedAt:new Date().toISOString(),
       data:db
     };
@@ -8679,7 +8956,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.74 — actualización robusta de la PWA instalada */
+/* v22.1.75 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
