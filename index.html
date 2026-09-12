@@ -145,7 +145,7 @@ nav{
   -webkit-backdrop-filter:blur(22px);
   border-top:1px solid rgba(233,235,239,.9);
   display:grid;
-  grid-template-columns:repeat(7,1fr);
+  grid-template-columns:repeat(8,1fr);
   gap:4px;
 }
 nav button{
@@ -180,6 +180,7 @@ nav button .nav-label{font-size:10px;line-height:1.05;letter-spacing:.01em}
 .nav-workout{background:#eff6ff;color:#2563eb}
 .nav-progress{background:#f5f3ff;color:#7c3aed}
 .nav-training-progress{background:#eefbf4;color:#15803d}
+.nav-assistant{background:#eef2ff;color:#7c3aed}
 .nav-data{background:#fff1f2;color:#e11d48}
 nav button.active{
   background:#f8fafc;
@@ -1096,7 +1097,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.81 — catálogo visual por grupo muscular */
+/* v22.1.83 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1120,7 +1121,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.81 — varias fotos dentro de una misma comida */
+/* v22.1.83 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1134,7 +1135,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.81 — varios platos escritos dentro de una misma comida */
+/* v22.1.83 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1143,7 +1144,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.81 — auditoría de imágenes del catálogo */
+/* v22.1.83 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1161,7 +1162,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.81 — sincronización manual segura */
+/* v22.1.83 — sincronización manual segura */
 .sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sync-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .sync-status{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;min-height:42px}
@@ -1175,7 +1176,7 @@ nav .nav-label{
 @media(max-width:480px){.sync-grid,.sync-meta{grid-template-columns:1fr}}
 
 
-/* v22.1.81 — objetivo semanal + pasos cotidianos */
+/* v22.1.83 — objetivo semanal + pasos cotidianos */
 .week-goal-head{display:flex;justify-content:space-between;align-items:end;gap:12px}
 .week-goal-pct{font-size:30px;font-weight:900;line-height:1}
 .week-goal-progress{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:10px 0 8px}
@@ -1186,7 +1187,7 @@ nav .nav-label{
 @media(max-width:480px){.steps-today-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.81 — favoritos por plato */
+/* v22.1.83 — favoritos por plato */
 .dish-part{
   display:flex;justify-content:space-between;gap:10px;align-items:center;
   padding:9px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff
@@ -1200,7 +1201,7 @@ nav .nav-label{
 .photo-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:7px}
 
 
-/* v22.1.81 — asistente entrenamiento + nutrición */
+/* v22.1.83 — asistente entrenamiento + nutrición */
 .coach-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#eff6ff,#fff)}
 .coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .coach-actions button{flex:1;min-width:150px}
@@ -1219,7 +1220,7 @@ nav .nav-label{
 @media(max-width:520px){.coach-grid{grid-template-columns:1fr}.coach-actions button{min-width:100%}}
 
 
-/* v22.1.81 — platos secuenciales + invalidar ejercicio */
+/* v22.1.83 — platos secuenciales + invalidar ejercicio */
 .meal-dishes{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .meal-dish-card{border:1px solid #e5e7eb;border-radius:16px;padding:12px;background:#fff}
 .meal-dish-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
@@ -1246,7 +1247,7 @@ nav .nav-label{
 @media(max-width:520px){.meal-dish-macros{grid-template-columns:1fr}.meal-dish-tools>*{flex:1}}
 
 
-/* v22.1.81 — favoritos plegables y selector por plato */
+/* v22.1.83 — favoritos plegables y selector por plato */
 .meal-fav-card details{border:0}
 .meal-fav-card summary{
   list-style:none;cursor:pointer;font-weight:900;font-size:18px;
@@ -1275,7 +1276,7 @@ nav .nav-label{
 .dish-fav-option small{display:block;color:#6b7280;margin-top:2px}
 
 
-/* v22.1.81 — resumen completo del día por fecha */
+/* v22.1.83 — resumen completo del día por fecha */
 .day-review-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#f8fbff,#fff)}
 .day-review-head{display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap}
 .day-review-date{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
@@ -1298,7 +1299,7 @@ nav .nav-label{
 @media(max-width:700px){.day-review-kpis{grid-template-columns:1fr 1fr}}
 
 
-/* v22.1.81 — registro de comidas simplificado */
+/* v22.1.83 — registro de comidas simplificado */
 .meal-register-launch{display:flex;justify-content:center;margin:12px 0}
 .meal-register-launch button{min-width:220px}
 .meal-editor-shell{display:none}
@@ -1318,6 +1319,19 @@ nav .nav-label{
 .registered-meal-dish small{color:#6b7280;display:block;margin-top:2px}
 .meal-editor-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
 @media(max-width:650px){.meal-editor-top{grid-template-columns:1fr 1fr}.meal-editor-top>div:first-child{grid-column:1/-1}}
+
+
+/* v22.1.83 — Asistente v2 */
+.coach-decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.coach-decision{border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fff}
+.coach-decision small{display:block;color:#6b7280}
+.coach-decision b{display:block;margin-top:4px;font-size:16px}
+.coach-priority-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.coach-priority{padding:9px 10px;border-radius:11px;background:#f8fafc;border:1px solid #e5e7eb}
+.coach-data-quality{margin-top:10px;padding:9px 10px;border-radius:11px;background:#fffbeb;border:1px solid #fde68a;font-size:12px}
+.coach-local-section{margin-top:10px}
+.coach-local-section h3{margin:0 0 5px;font-size:14px}
+@media(max-width:650px){.coach-decision-grid{grid-template-columns:1fr}}
 
 </style>
 
@@ -2008,6 +2022,58 @@ nav .nav-label{
 </div>
 </section>
 
+
+<section id="asistente">
+  <div class="card hero" style="background:linear-gradient(135deg,#111827,#312e81)">
+    <div class="hero-grid">
+      <div>
+        <div class="muted" style="color:#c7d2fe">Asistente personal</div>
+        <div style="font-size:28px;font-weight:900;margin-top:4px">🧠 Entrenamiento + nutrición</div>
+        <div class="hero-sub">Analiza tus registros reales para ayudarte a perder grasa manteniendo o aumentando músculo.</div>
+      </div>
+      <div>
+        <div class="goal-badge">Objetivo actual</div>
+        <div class="hero-sub" style="margin-top:8px">Perder grasa · preservar/ganar músculo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card coach-card">
+    <h2>Análisis de tus últimas 4 semanas</h2>
+    <p class="muted">Usa peso, % de grasa, comidas, proteína, entrenamientos y pasos registrados. No cambia objetivos ni rutinas automáticamente: primero te explica qué haría.</p>
+
+    <div class="coach-grid">
+      <div class="coach-mini"><small>Periodo analizado</small><b id="coachPeriod">Últimos 28 días</b></div>
+      <div class="coach-mini"><small>Objetivo</small><b>Perder grasa · preservar/ganar músculo</b></div>
+    </div>
+
+    <div id="coachLocalSummary" class="coach-summary"></div>
+
+    <div class="coach-actions">
+      <button type="button" class="primary" onclick="runCoachAnalysis('week')">Analizar mi situación</button>
+      <button type="button" class="secondary" onclick="runCoachAnalysis('change')">Qué cambiaría ahora</button>
+      <button type="button" class="secondary" onclick="runCoachAnalysis('training')">Cómo entrenar esta semana</button>
+    </div>
+
+    <div id="coachStatus" class="muted" style="margin-top:8px"></div>
+
+    <div id="coachResult" class="coach-result">
+      <div class="coach-decision-grid">
+        <div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div>
+        <div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div>
+        <div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div>
+      </div>
+      <div class="coach-section"><h3>Situación actual</h3><div id="coachSituation"></div></div>
+      <div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div>
+      <div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div>
+      <div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div>
+      <div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div>
+    </div>
+
+    <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional. Si aparecen síntomas, lesiones o cambios importantes de salud, conviene revisarlo con un profesional.</div>
+  </div>
+</section>
+
 <section id="datos">
 <div class="card">
 <h2>IA para fotos de comida</h2>
@@ -2093,6 +2159,7 @@ nav .nav-label{
 <button data-sec="entreno"><span class="nav-ico nav-workout" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span class="nav-label">Fuerza</span></button>
 <button data-sec="evolucion"><span class="nav-ico nav-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path><path d="M18 8h0"></path></svg></span><span class="nav-label">Evolución<br>salud</span></button>
 <button data-sec="evolucionEntreno"><span class="nav-ico nav-training-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-3 3 2 4-6"></path><path d="M15 8h3v3"></path></svg></span><span class="nav-label">Evolución<br>entreno</span></button>
+<button data-sec="asistente"><span class="nav-ico nav-assistant" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 5.4A3.5 3.5 0 0 0 7.5 19H9"></path><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 5.4A3.5 3.5 0 0 1 16.5 19H15"></path><path d="M9 4v16"></path><path d="M15 4v16"></path><path d="M9 8H7"></path><path d="M15 8h2"></path><path d="M9 14H7"></path><path d="M15 14h2"></path></svg></span><span class="nav-label">Asistente</span></button>
 <button data-sec="datos"><span class="nav-ico nav-data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="nav-label">Datos</span></button>
 </nav>
 <script>
@@ -2308,6 +2375,10 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
     try{renderRecentWorkouts();}catch(e){console.error(e);}
   }
 
+  if(b.dataset.sec==='asistente'){
+    try{renderCoachLocalSummary();}catch(e){console.error(e);}
+  }
+
   if(b.dataset.sec==='comidas'){
     const d=document.getElementById('cFecha');
     if(d && !isoFromES(d.value))d.value=fechaES(today());
@@ -2423,9 +2494,56 @@ function coachMealRowsBetween(start,end){
   return rows;
 }
 
+function avgNums(arr){
+  const vals=(arr||[]).map(Number).filter(Number.isFinite);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+}
+function medianNums(arr){
+  const vals=(arr||[]).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+  if(!vals.length)return null;
+  const m=Math.floor(vals.length/2);
+  return vals.length%2?vals[m]:(vals[m-1]+vals[m])/2;
+}
+function coachStrengthProgressBetween(start,end){
+  const rows=(db.entreno||[]).filter(r=>r && r.fecha>=start&&r.fecha<=end&&!r.esResumenRutina&&r.ej);
+  const groups={};
+  rows.forEach(r=>{
+    const name=String(r.ej||'').trim();
+    if(!name)return;
+    const key=normText(name);
+    if(!groups[key])groups[key]={name,rows:[]};
+    groups[key].rows.push(r);
+  });
+  const out=[];
+  Object.values(groups).forEach(g=>{
+    const rs=g.rows.slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+    if(rs.length<2)return;
+    const score=r=>{
+      const loads=(r.sets||[]).map(s=>Number(s.kg)).filter(x=>x>0);
+      const reps=(r.sets||[]).map(s=>Number(s.reps)).filter(x=>x>0);
+      const kg=loads.length?Math.max(...loads):(Number(r.kg)||0);
+      const rp=reps.length?Math.max(...reps):(Number(r.reps)||0);
+      return {kg,rp,volume:kg*rp*Math.max(1,Number(r.series)||((r.sets||[]).length||1))};
+    };
+    const a=score(rs[0]), b=score(rs.at(-1));
+    if(!a.kg&&!a.rp&&!b.kg&&!b.rp)return;
+    out.push({
+      exercise:g.name,
+      firstDate:rs[0].fecha,lastDate:rs.at(-1).fecha,
+      firstKg:a.kg||null,lastKg:b.kg||null,
+      firstReps:a.rp||null,lastReps:b.rp||null,
+      volumeChangePct:a.volume>0?((b.volume-a.volume)/a.volume)*100:null
+    });
+  });
+  return out.slice(-20);
+}
 function buildCoachSnapshot(days=28){
   const end=today();
   const start=isoDaysAgo(days-1);
+  const mid=isoDaysAgo(Math.floor(days/2));
+  const previousEnd=addIsoDays(start,-1);
+  const previousStart=addIsoDays(previousEnd,-(days-1));
+
   const weightRows=(db.peso||[]).filter(x=>x.fecha>=start&&x.fecha<=end&&Number(x.peso)>0)
     .slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
 
@@ -2437,16 +2555,24 @@ function buildCoachSnapshot(days=28){
     dayMap[r.fecha].prot+=r.prot;
     dayMap[r.fecha].meals++;
   });
-  const nutritionDays=Object.values(dayMap);
-  const avgKcal=nutritionDays.length?nutritionDays.reduce((s,x)=>s+x.kcal,0)/nutritionDays.length:null;
-  const avgProt=nutritionDays.length?nutritionDays.reduce((s,x)=>s+x.prot,0)/nutritionDays.length:null;
+  const nutritionDays=Object.entries(dayMap).map(([fecha,x])=>({fecha,...x}));
+  const avgKcal=avgNums(nutritionDays.map(x=>x.kcal));
+  const avgProt=avgNums(nutritionDays.map(x=>x.prot));
+  const calorieTarget=kcalTarget();
+  const proteinGoal=proteinTarget();
+  const calorieAdherenceDays=nutritionDays.filter(x=>x.kcal>=calorieTarget*0.85&&x.kcal<=calorieTarget*1.15).length;
+  const proteinHitDays=nutritionDays.filter(x=>x.prot>=proteinGoal*0.93).length;
+
+  const firstHalf=nutritionDays.filter(x=>x.fecha<mid);
+  const secondHalf=nutritionDays.filter(x=>x.fecha>=mid);
 
   const stepRows=Object.entries(db.stepsDaily||{})
     .filter(([date])=>date>=start&&date<=end)
     .map(([date,x])=>({fecha:date,steps:Number(x?.steps)||0,kcal:Number(x?.kcal)||0}));
-  const avgSteps=stepRows.length?stepRows.reduce((s,x)=>s+x.steps,0)/stepRows.length:null;
+  const avgSteps=avgNums(stepRows.map(x=>x.steps));
 
   const workouts=coachWorkoutSessionsBetween(start,end);
+  const previousWorkouts=coachWorkoutSessionsBetween(previousStart,previousEnd);
   const weeks=Math.max(1,days/7);
   const avgWorkouts=workouts.length/weeks;
 
@@ -2460,22 +2586,26 @@ function buildCoachSnapshot(days=28){
     }
   }
 
-  const recentExerciseRows=(db.entreno||[]).filter(r=>r.fecha>=start&&r.fecha<=end).slice(-80).map(r=>({
+  const recentExerciseRows=(db.entreno||[]).filter(r=>r.fecha>=start&&r.fecha<=end&&!r.esResumenRutina).slice(-100).map(r=>({
     fecha:r.fecha,
-    ejercicio:r.ejercicio||r.nombre||'',
+    ejercicio:r.ej||r.ejercicio||r.nombre||'',
     kg:Number(r.kg)||null,
     reps:Number(r.reps)||null,
     series:Number(r.series)||null,
+    sets:Array.isArray(r.sets)?r.sets.slice(0,8):[],
     tipo:r.tipo||'',
     duracion:Number(r.duracion||r.minutos)||null
   }));
 
+  const strengthProgress=coachStrengthProgressBetween(start,end);
+
   return {
-    period:{start,end,days},
+    period:{start,end,days,previousStart,previousEnd},
     goal:{
-      calories:kcalTarget(),
-      protein:proteinTarget(),
+      calories:calorieTarget,
+      protein:proteinGoal,
       workoutsPerWeek:Number(profile().fuerzaDias)||null,
+      stepsPerDay:Number(profile().pasosDia)||null,
       objective:'perder grasa manteniendo o aumentando músculo'
     },
     body:{
@@ -2489,15 +2619,28 @@ function buildCoachSnapshot(days=28){
     nutrition:{
       loggedDays:nutritionDays.length,
       averageCalories:avgKcal,
-      averageProteinG:avgProt
+      averageProteinG:avgProt,
+      calorieAdherenceDays,
+      proteinHitDays,
+      calorieAdherencePct:nutritionDays.length?calorieAdherenceDays/nutritionDays.length*100:null,
+      proteinHitPct:nutritionDays.length?proteinHitDays/nutritionDays.length*100:null,
+      firstHalfAverageCalories:avgNums(firstHalf.map(x=>x.kcal)),
+      secondHalfAverageCalories:avgNums(secondHalf.map(x=>x.kcal)),
+      firstHalfAverageProtein:avgNums(firstHalf.map(x=>x.prot)),
+      secondHalfAverageProtein:avgNums(secondHalf.map(x=>x.prot))
     },
     activity:{
       workouts:workouts.length,
       averageWorkoutsPerWeek:avgWorkouts,
+      previousPeriodWorkouts:previousWorkouts.length,
       averageSteps:avgSteps,
       stepDays:stepRows.length
     },
-    workouts:workouts.slice(-20),
+    strength:{
+      trackedExercises:strengthProgress.length,
+      progress:strengthProgress
+    },
+    workouts:workouts.slice(-24),
     recentExerciseRows
   };
 }
@@ -2514,15 +2657,34 @@ function renderCoachLocalSummary(){
   const target=s.goal.workoutsPerWeek;
   const w=s.body.weeklyWeightChangeKg;
   const pct=s.body.fatPctChange;
-  host.innerHTML=`
-    <div class="kpiLine"><span>Peso · ritmo semanal</span><b>${formatCoachNum(w,2,' kg/sem')}</b></div>
-    <div class="kpiLine"><span>% grasa · cambio 28 días</span><b>${formatCoachNum(pct,1,' pp')}</b></div>
-    <div class="kpiLine"><span>Calorías medias registradas</span><b>${formatCoachNum(s.nutrition.averageCalories,0,' kcal')}</b></div>
-    <div class="kpiLine"><span>Proteína media registrada</span><b>${formatCoachNum(s.nutrition.averageProteinG,0,' g')}</b></div>
-    <div class="kpiLine"><span>Entrenamientos / semana</span><b>${formatCoachNum(s.activity.averageWorkoutsPerWeek,1)}${target?' de '+target:''}</b></div>
-    <div class="kpiLine"><span>Pasos cotidianos medios</span><b>${formatCoachNum(s.activity.averageSteps,0)}</b></div>`;
-}
 
+  const dataWarnings=[];
+  if(s.body.measurements<2)dataWarnings.push('pocas mediciones de peso');
+  if(s.nutrition.loggedDays<7)dataWarnings.push('pocos días de comidas');
+  if(s.activity.stepDays<7)dataWarnings.push('pocos días de pasos');
+  if(s.strength.trackedExercises<1)dataWarnings.push('pocos ejercicios comparables');
+
+  host.innerHTML=`
+    <div class="coach-local-section">
+      <h3>Tendencia corporal</h3>
+      <div class="kpiLine"><span>Peso · ritmo semanal</span><b>${formatCoachNum(w,2,' kg/sem')}</b></div>
+      <div class="kpiLine"><span>% grasa · cambio 28 días</span><b>${formatCoachNum(pct,1,' pp')}</b></div>
+    </div>
+    <div class="coach-local-section">
+      <h3>Nutrición</h3>
+      <div class="kpiLine"><span>Calorías medias registradas</span><b>${formatCoachNum(s.nutrition.averageCalories,0,' kcal')}</b></div>
+      <div class="kpiLine"><span>Días cerca del objetivo kcal</span><b>${formatCoachNum(s.nutrition.calorieAdherencePct,0,'%')}</b></div>
+      <div class="kpiLine"><span>Proteína media</span><b>${formatCoachNum(s.nutrition.averageProteinG,0,' g')}</b></div>
+      <div class="kpiLine"><span>Días alcanzando proteína</span><b>${formatCoachNum(s.nutrition.proteinHitPct,0,'%')}</b></div>
+    </div>
+    <div class="coach-local-section">
+      <h3>Actividad y fuerza</h3>
+      <div class="kpiLine"><span>Entrenamientos / semana</span><b>${formatCoachNum(s.activity.averageWorkoutsPerWeek,1)}${target?' de '+target:''}</b></div>
+      <div class="kpiLine"><span>Pasos cotidianos medios</span><b>${formatCoachNum(s.activity.averageSteps,0)}</b></div>
+      <div class="kpiLine"><span>Ejercicios con progreso comparable</span><b>${s.strength.trackedExercises}</b></div>
+    </div>
+    ${dataWarnings.length?`<div class="coach-data-quality"><b>Calidad del análisis:</b> faltan datos en ${dataWarnings.join(', ')}. El asistente será más conservador.</div>`:''}`;
+}
 function safeCoachText(v){
   return String(v||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
@@ -2561,6 +2723,25 @@ async function runCoachAnalysis(focus='week'){
     document.getElementById('coachNutrition').innerHTML=safeCoachText(out.nutrition||'Sin recomendación.');
     document.getElementById('coachTraining').innerHTML=safeCoachText(out.training||'Sin recomendación.');
     document.getElementById('coachNext').innerHTML=safeCoachText(out.next_week||'Sin recomendación.');
+
+    const kcalDecision=document.getElementById('coachCalorieDecision');
+    const proteinDecision=document.getElementById('coachProteinDecision');
+    const workoutDecision=document.getElementById('coachWorkoutDecision');
+    if(kcalDecision){
+      const action={maintain:'Mantener',increase:'Subir',decrease:'Bajar'}[out.calorie_action]||'Mantener';
+      kcalDecision.textContent=out.calorie_target?`${action} · ${Math.round(Number(out.calorie_target))} kcal`:`${action}`;
+    }
+    if(proteinDecision)proteinDecision.textContent=out.protein_target?`${Math.round(Number(out.protein_target))} g/día`:'—';
+    if(workoutDecision)workoutDecision.textContent=out.workout_target?`${Math.round(Number(out.workout_target))}/semana`:'—';
+
+    const priorities=document.getElementById('coachPriorities');
+    if(priorities){
+      const arr=Array.isArray(out.priorities)?out.priorities.slice(0,4):[];
+      priorities.innerHTML=arr.length
+        ? arr.map((x,i)=>`<div class="coach-priority"><b>${i+1}.</b> ${safeCoachText(x)}</div>`).join('')
+        : '<div class="muted">Sin prioridades adicionales.</div>';
+    }
+
     if(resultBox)resultBox.classList.add('show');
     if(status)status.textContent='Análisis actualizado ahora.';
   }catch(e){
@@ -3964,8 +4145,8 @@ function ensureMealDishes(fecha,tipo){
 
   let dishes=Array.isArray(cur.dishes)?cur.dishes.map(normalizeDish):legacyMealToDishes(cur);
 
-  // Reparación v22.1.81:
-  // Si v22.1.81 ya creó `dishes`, pero la descripción histórica contiene
+  // Reparación v22.1.83:
+  // Si v22.1.83 ya creó `dishes`, pero la descripción histórica contiene
   // un plato que no quedó representado, lo recuperamos.
   if(Array.isArray(cur.dishes) && String(cur.desc||'').trim()){
     const segments=mealDescSegments(cur.desc);
@@ -5357,7 +5538,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.81 — catálogo limpio.
+/* v22.1.83 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -8669,7 +8850,7 @@ async function uploadSyncCopy(){
   syncSetStatus('Subiendo copia…');
   try{
     const payload={
-      appVersion:'22.1.81',
+      appVersion:'22.1.83',
       savedAt:new Date().toISOString(),
       data:db
     };
@@ -9184,7 +9365,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.81 — actualización robusta de la PWA instalada */
+/* v22.1.83 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
