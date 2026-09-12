@@ -1096,7 +1096,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.70 — catálogo visual por grupo muscular */
+/* v22.1.74 — catálogo visual por grupo muscular */
 .visual-catalog-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .visual-catalog-stats{font-size:.86rem;color:#6b7280;margin:4px 0 10px}
 .visual-muscle-section{display:block !important;margin:16px 0 20px}
@@ -1120,7 +1120,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.70 — varias fotos dentro de una misma comida */
+/* v22.1.74 — varias fotos dentro de una misma comida */
 .food-photo-queue{display:none;margin-top:10px;border:1px solid #e2e2e7;border-radius:14px;padding:10px;background:#fafafa}
 .food-photo-queue.show{display:block}
 .food-photo-queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -1134,7 +1134,7 @@ nav .nav-label{
 .food-photo-batch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 
-/* v22.1.70 — varios platos escritos dentro de una misma comida */
+/* v22.1.74 — varios platos escritos dentro de una misma comida */
 .written-parts-box{margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fbfbfc}
 .written-parts-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .written-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
@@ -1143,7 +1143,7 @@ nav .nav-label{
 @media(max-width:480px){.written-parts-add{grid-template-columns:1fr}}
 
 
-/* v22.1.70 — auditoría de imágenes del catálogo */
+/* v22.1.74 — auditoría de imágenes del catálogo */
 .image-audit-box{margin:12px 0;padding:12px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
 .image-audit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .image-audit-summary{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -1161,7 +1161,7 @@ nav .nav-label{
 }
 
 
-/* v22.1.70 — sincronización manual segura */
+/* v22.1.74 — sincronización manual segura */
 .sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sync-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .sync-status{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;min-height:42px}
@@ -1175,7 +1175,7 @@ nav .nav-label{
 @media(max-width:480px){.sync-grid,.sync-meta{grid-template-columns:1fr}}
 
 
-/* v22.1.70 — objetivo semanal + pasos cotidianos */
+/* v22.1.74 — objetivo semanal + pasos cotidianos */
 .week-goal-head{display:flex;justify-content:space-between;align-items:end;gap:12px}
 .week-goal-pct{font-size:30px;font-weight:900;line-height:1}
 .week-goal-progress{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:10px 0 8px}
@@ -1186,7 +1186,7 @@ nav .nav-label{
 @media(max-width:480px){.steps-today-grid{grid-template-columns:1fr}}
 
 
-/* v22.1.70 — favoritos por plato */
+/* v22.1.74 — favoritos por plato */
 .dish-part{
   display:flex;justify-content:space-between;gap:10px;align-items:center;
   padding:9px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff
@@ -1200,7 +1200,7 @@ nav .nav-label{
 .photo-parts-list{display:flex;flex-direction:column;gap:7px;margin-top:7px}
 
 
-/* v22.1.70 — asistente entrenamiento + nutrición */
+/* v22.1.74 — asistente entrenamiento + nutrición */
 .coach-card{border:1px solid #dbeafe;background:linear-gradient(180deg,#eff6ff,#fff)}
 .coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .coach-actions button{flex:1;min-width:150px}
@@ -1219,7 +1219,7 @@ nav .nav-label{
 @media(max-width:520px){.coach-grid{grid-template-columns:1fr}.coach-actions button{min-width:100%}}
 
 
-/* v22.1.70 — platos secuenciales + invalidar ejercicio */
+/* v22.1.74 — platos secuenciales + invalidar ejercicio */
 .meal-dishes{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .meal-dish-card{border:1px solid #e5e7eb;border-radius:16px;padding:12px;background:#fff}
 .meal-dish-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
@@ -1244,6 +1244,35 @@ nav .nav-label{
 .meal-add-dish{margin-top:10px}
 .invalidated-btn{background:#16a34a!important;color:white!important;border-color:#16a34a!important}
 @media(max-width:520px){.meal-dish-macros{grid-template-columns:1fr}.meal-dish-tools>*{flex:1}}
+
+
+/* v22.1.74 — favoritos plegables y selector por plato */
+.meal-fav-card details{border:0}
+.meal-fav-card summary{
+  list-style:none;cursor:pointer;font-weight:900;font-size:18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px
+}
+.meal-fav-card summary::-webkit-details-marker{display:none}
+.meal-fav-card summary:after{content:'▾';font-size:18px;transition:transform .2s}
+.meal-fav-card details[open] summary:after{transform:rotate(180deg)}
+.fav-group{border:1px solid #e5e7eb;border-radius:12px;margin-top:9px;overflow:hidden;background:#fff}
+.fav-group summary{
+  font-size:14px;padding:10px 12px;background:#f8fafc
+}
+.fav-group-body{padding:8px}
+.dish-fav-picker{
+  display:none;margin-top:9px;padding:10px;border:1px solid #fde68a;
+  border-radius:12px;background:#fffbeb
+}
+.dish-fav-picker.show{display:block}
+.dish-fav-picker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.dish-fav-picker-list{display:flex;flex-direction:column;gap:7px}
+.dish-fav-option{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:8px;border:1px solid #e5e7eb;border-radius:10px;background:#fff
+}
+.dish-fav-option b{display:block}
+.dish-fav-option small{display:block;color:#6b7280;margin-top:2px}
 
 </style>
 
@@ -1520,12 +1549,14 @@ nav .nav-label{
 
 
 <div class="card meal-fav-card">
-  <h2>⭐ Comidas habituales</h2>
-  <p class="muted">Guarda platos que repites y reutilízalos sin volver a analizarlos.</p>
-  <div class="meal-fav-toolbar">
-    <input id="mealFavoriteSearch" placeholder="Buscar favorito..." oninput="renderMealFavorites()">
-  </div>
-  <div id="mealFavoritesList" class="meal-fav-list"></div>
+  <details id="mealFavoritesDetails">
+    <summary>⭐ Favoritos</summary>
+    <p class="muted">Se muestran plegados para no ocupar pantalla. Están organizados por desayuno, almuerzo, comida, merienda y cena.</p>
+    <div class="meal-fav-toolbar">
+      <input id="mealFavoriteSearch" placeholder="Buscar favorito..." oninput="renderMealFavorites()">
+    </div>
+    <div id="mealFavoritesList" class="meal-fav-list"></div>
+  </details>
 </div>
 
 <div id="mealCards"></div>
@@ -2990,20 +3021,39 @@ function renderMealFavorites(){
   }
 
   if(!items.length){
-    box.innerHTML='<div class="empty">Aún no tienes comidas habituales guardadas.</div>';
+    box.innerHTML='<div class="empty">Aún no tienes favoritos guardados.</div>';
     return;
   }
 
-  box.innerHTML=items.map(f=>{
-    const typeLabel=(MEALS.find(m=>m.key===f.sourceTipo)||{}).label||'Comida';
-    return `<div class="meal-fav-item">
-      <b>${favoriteMealLabel(f)}</b>
-      <small>${Math.round(Number(f.kcal)||0)} kcal · ${Math.round(Number(f.prot)||0)} g proteína · ${typeLabel}</small>
-      <div class="meal-fav-actions">
-        <button type="button" class="primary-small" onclick="useMealFavorite('${f.id}','${f.sourceTipo||'comida'}')">${(f.kind||'dish')==='dish'?'＋ Añadir':'Usar'}</button>
-        <button type="button" class="set-add" onclick="deleteMealFavorite('${f.id}')">Eliminar</button>
+  const mealOrder=MEALS.map(m=>m.key);
+  const groups={};
+  items.forEach(f=>{
+    const tipo=f.sourceTipo||'comida';
+    if(!groups[tipo])groups[tipo]=[];
+    groups[tipo].push(f);
+  });
+
+  const orderedKeys=[
+    ...mealOrder.filter(k=>groups[k]?.length),
+    ...Object.keys(groups).filter(k=>!mealOrder.includes(k))
+  ];
+
+  box.innerHTML=orderedKeys.map(tipo=>{
+    const label=(MEALS.find(m=>m.key===tipo)||{}).label||'Otros';
+    const rows=groups[tipo].slice().sort((a,b)=>favoriteMealLabel(a).localeCompare(favoriteMealLabel(b),'es'));
+    return `<details class="fav-group">
+      <summary>${label} <span class="muted">${rows.length}</span></summary>
+      <div class="fav-group-body">
+        ${rows.map(f=>`<div class="meal-fav-item">
+          <b>${escapeMealText(favoriteMealLabel(f))}</b>
+          <small>${Math.round(Number(f.kcal)||0)} kcal · ${Math.round(Number(f.prot)||0)} g proteína</small>
+          <div class="meal-fav-actions">
+            <button type="button" class="primary-small" onclick="useMealFavorite('${f.id}','${tipo}')">${(f.kind||'dish')==='dish'?'＋ Añadir':'Usar'}</button>
+            <button type="button" class="set-add" onclick="deleteMealFavorite('${f.id}')">Eliminar</button>
+          </div>
+        </div>`).join('')}
       </div>
-    </div>`;
+    </details>`;
   }).join('');
 }
 
@@ -3455,6 +3505,102 @@ async function estimateMealWithAI(tipo){
 
 const pendingDishPhotos={};
 
+const promptedFavoriteDishes=new Set();
+
+function favoritesForMealType(tipo){
+  return (db.mealFavorites||[]).filter(f=>(f.sourceTipo||'comida')===tipo);
+}
+
+function offerFavoritePrompt(tipo,id){
+  const key=tipo+'|'+id;
+  if(promptedFavoriteDishes.has(key))return;
+  promptedFavoriteDishes.add(key);
+
+  const favs=favoritesForMealType(tipo);
+  if(!favs.length)return;
+
+  const dish=document.getElementById(`dishText_${tipo}_${id}`);
+  if(dish && String(dish.value||'').trim())return;
+
+  if(confirm(`Tienes ${favs.length} favorito${favs.length===1?'':'s'} guardado${favs.length===1?'':'s'} para ${((MEALS.find(m=>m.key===tipo)||{}).label||tipo).toLowerCase()}.\n\n¿Quieres elegir uno?`)){
+    toggleDishFavoritePicker(tipo,id,true);
+  }
+}
+
+function toggleDishFavoritePicker(tipo,id,forceOpen=null){
+  const box=document.getElementById(`dishFavPicker_${tipo}_${id}`);
+  if(!box)return;
+  const open=forceOpen===null?!box.classList.contains('show'):!!forceOpen;
+  box.classList.toggle('show',open);
+  if(open)renderDishFavoritePicker(tipo,id);
+}
+
+function renderDishFavoritePicker(tipo,id){
+  const list=document.getElementById(`dishFavList_${tipo}_${id}`);
+  if(!list)return;
+  const favs=favoritesForMealType(tipo);
+
+  if(!favs.length){
+    list.innerHTML='<div class="muted">No tienes favoritos guardados para esta comida.</div>';
+    return;
+  }
+
+  list.innerHTML=favs.map(f=>`
+    <div class="dish-fav-option">
+      <div>
+        <b>${escapeMealText(favoriteMealLabel(f))}</b>
+        <small>${Math.round(Number(f.kcal)||0)} kcal · ${Math.round(Number(f.prot)||0)} g proteína</small>
+      </div>
+      <button type="button" class="primary-small" onclick="selectFavoriteForDish('${tipo}','${id}','${f.id}')">Elegir</button>
+    </div>`).join('');
+}
+
+function selectFavoriteForDish(tipo,id,favId){
+  const fav=(db.mealFavorites||[]).find(f=>String(f.id)===String(favId));
+  if(!fav)return;
+
+  const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
+  const key=mealKey(fecha,tipo);
+  const meal=mealFromDishInputs(tipo,true);
+  let dishes=Array.isArray(meal.dishes)?meal.dishes:[];
+  let pos=dishes.findIndex(d=>String(d.id)===String(id));
+  if(pos<0)return;
+
+  dishes[pos]=normalizeDish({
+    ...dishes[pos],
+    id,
+    text:fav.desc||fav.nombre||'Plato favorito',
+    kcal:fav.kcal,
+    prot:fav.prot,
+    source:'favorite',
+    breakdown:cloneMealBreakdown(fav.breakdown||[]).map(x=>({...x,dishId:id,partId:id}))
+  });
+
+  const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+  db.meals[key]={
+    ...meal,dishes,
+    desc:active.map(d=>d.text.trim()).filter(Boolean).join(' + '),
+    kcal:active.reduce((s,d)=>s+(Number(d.kcal)||0),0),
+    prot:active.reduce((s,d)=>s+(Number(d.prot)||0),0),
+    breakdown:active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})))
+  };
+  localStorage.setItem(KEY,JSON.stringify(db));
+
+  const textEl=document.getElementById(`dishText_${tipo}_${id}`);
+  const kcalEl=document.getElementById(`dishKcal_${tipo}_${id}`);
+  const protEl=document.getElementById(`dishProt_${tipo}_${id}`);
+  const sourceEl=document.getElementById(`dishSource_${tipo}_${id}`);
+  if(textEl)textEl.value=dishes[pos].text;
+  if(kcalEl)kcalEl.value=dishes[pos].kcal||'';
+  if(protEl)protEl.value=dishes[pos].prot||'';
+  if(sourceEl)sourceEl.textContent=dishSourceLabel('favorite');
+
+  updateMealDishSummary(tipo);
+  toggleDishFavoritePicker(tipo,id,false);
+  setDishStatus(tipo,id,'Favorito añadido a este plato ✓','ok');
+}
+
+
 function dishOrdinal(n){
   const names=['Primer','Segundo','Tercer','Cuarto','Quinto','Sexto','Séptimo','Octavo','Noveno','Décimo'];
   return names[n-1] || (n+'º');
@@ -3473,10 +3619,19 @@ function normalizeDish(d){
     createdAt:Number(d?.createdAt)||Date.now()
   };
 }
+function mealDescSegments(desc){
+  return String(desc||'').split(/\s+\+\s+/).map(s=>s.trim()).filter(Boolean);
+}
+function dishTextSimilar(a,b){
+  const na=normText(a||''), nb=normText(b||'');
+  if(!na||!nb)return false;
+  return na===nb || na.includes(nb) || nb.includes(na);
+}
 function legacyMealToDishes(cur){
   const out=[];
   const written=Array.isArray(cur?.writtenParts)?cur.writtenParts:[];
   const photos=Array.isArray(cur?.photoParts)?cur.photoParts:[];
+
   written.forEach(x=>out.push(normalizeDish({
     id:x.id,text:x.text,kcal:x.kcal,prot:x.prot,source:x.source||'written',
     breakdown:mealPartBreakdown(cur,x.id),createdAt:x.createdAt
@@ -3485,7 +3640,29 @@ function legacyMealToDishes(cur){
     id:x.id,text:x.text,kcal:x.kcal,prot:x.prot,source:'photo',
     breakdown:mealPartBreakdown(cur,x.id),createdAt:x.createdAt
   })));
-  if(!out.length && (String(cur?.desc||'').trim() || Number(cur?.kcal)>0 || Number(cur?.prot)>0)){
+
+  // MUY IMPORTANTE:
+  // En versiones anteriores podía existir un plato principal escrito directamente
+  // en "Qué has comido", además de writtenParts/photoParts. No lo descartamos.
+  const segments=mealDescSegments(cur?.desc);
+  const missing=segments.filter(seg=>!out.some(d=>dishTextSimilar(d.text,seg)));
+
+  const knownKcal=out.reduce((s,d)=>s+(Number(d.kcal)||0),0);
+  const knownProt=out.reduce((s,d)=>s+(Number(d.prot)||0),0);
+  const residualKcal=Math.max(0,Math.round((Number(cur?.kcal)||0)-knownKcal));
+  const residualProt=Math.max(0,Math.round((Number(cur?.prot)||0)-knownProt));
+  const baseBreakdown=cloneMealBreakdown((cur?.breakdown||[]).filter(x=>!x.partId && !x.dishId));
+
+  if(missing.length){
+    missing.forEach((seg,idx)=>out.unshift(normalizeDish({
+      text:seg,
+      kcal:idx===0?residualKcal:0,
+      prot:idx===0?residualProt:0,
+      source:'legacy',
+      breakdown:idx===0?baseBreakdown:[],
+      createdAt:Date.now()-1000-idx
+    })));
+  }else if(!out.length && (String(cur?.desc||'').trim() || Number(cur?.kcal)>0 || Number(cur?.prot)>0)){
     out.push(normalizeDish({
       text:cur.desc||'Plato guardado',kcal:cur.kcal,prot:cur.prot,source:'legacy',
       breakdown:cur.breakdown||[]
@@ -3493,21 +3670,57 @@ function legacyMealToDishes(cur){
   }
   return out;
 }
+
 function ensureMealDishes(fecha,tipo){
   const key=mealKey(fecha,tipo);
   const cur=getMeal(fecha,tipo);
+
   let dishes=Array.isArray(cur.dishes)?cur.dishes.map(normalizeDish):legacyMealToDishes(cur);
+
+  // Reparación v22.1.74:
+  // Si v22.1.74 ya creó `dishes`, pero la descripción histórica contiene
+  // un plato que no quedó representado, lo recuperamos.
+  if(Array.isArray(cur.dishes) && String(cur.desc||'').trim()){
+    const segments=mealDescSegments(cur.desc);
+    const missing=segments.filter(seg=>!dishes.some(d=>dishTextSimilar(d.text,seg)));
+    if(missing.length){
+      const knownKcal=dishes.reduce((s,d)=>s+(Number(d.kcal)||0),0);
+      const knownProt=dishes.reduce((s,d)=>s+(Number(d.prot)||0),0);
+      const residualKcal=Math.max(0,Math.round((Number(cur.kcal)||0)-knownKcal));
+      const residualProt=Math.max(0,Math.round((Number(cur.prot)||0)-knownProt));
+      const baseBreakdown=cloneMealBreakdown((cur.breakdown||[]).filter(x=>!x.partId && !x.dishId));
+      missing.forEach((seg,idx)=>dishes.unshift(normalizeDish({
+        text:seg,
+        kcal:idx===0?residualKcal:0,
+        prot:idx===0?residualProt:0,
+        source:'legacy',
+        breakdown:idx===0?baseBreakdown:[],
+        createdAt:Date.now()-1000-idx
+      })));
+    }
+  }
+
   if(!dishes.length)dishes=[normalizeDish({text:'',source:''})];
 
-  // Persistimos la migración solo si ya existía contenido real.
   const hadContent=String(cur.desc||'').trim() || Number(cur.kcal)>0 || Number(cur.prot)>0 ||
     (cur.writtenParts||[]).length || (cur.photoParts||[]).length || (cur.dishes||[]).length;
-  if(hadContent && !Array.isArray(cur.dishes)){
-    db.meals[key]={...cur,dishes};
+
+  if(hadContent){
+    const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+    const reconciled={
+      ...cur,
+      dishes,
+      desc:active.map(d=>d.text.trim()).filter(Boolean).join(' + '),
+      kcal:active.reduce((s,d)=>s+(Number(d.kcal)||0),0),
+      prot:active.reduce((s,d)=>s+(Number(d.prot)||0),0),
+      breakdown:active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})))
+    };
+    db.meals[key]=reconciled;
     localStorage.setItem(KEY,JSON.stringify(db));
   }
   return dishes;
 }
+
 function dishSourceLabel(source){
   const map={ai:'IA',local:'cálculo local',photo:'foto + IA',favorite:'favorito',legacy:'registro anterior',written:'texto'};
   return map[source]||'sin analizar';
@@ -3587,24 +3800,35 @@ function removeMealDish(tipo,id){
   const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
   const key=mealKey(fecha,tipo);
   const meal=mealFromDishInputs(tipo,true);
+  const current=(meal.dishes||[]).find(d=>String(d.id)===String(id));
+
+  const label=(current?.text||'este plato').trim();
+  if((current?.text||'').trim() || Number(current?.kcal)>0 || Number(current?.prot)>0){
+    if(!confirm(`¿Borrar “${label}” de esta comida?`))return;
+  }
+
   const dishes=(meal.dishes||[]).filter(d=>String(d.id)!==String(id));
+
+  // Si era el único plato, dejamos un "Primer plato" vacío para poder seguir editando.
   if(!dishes.length)dishes.push(normalizeDish({text:'',source:''}));
+
   meal.dishes=dishes;
   const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
   meal.desc=active.map(d=>d.text.trim()).filter(Boolean).join(' + ');
   meal.kcal=active.reduce((s,d)=>s+(Number(d.kcal)||0),0);
   meal.prot=active.reduce((s,d)=>s+(Number(d.prot)||0),0);
   meal.breakdown=active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})));
+
   db.meals[key]=meal;
   localStorage.setItem(KEY,JSON.stringify(db));
 
   const pk=dishPhotoKey(tipo,id),photo=pendingDishPhotos[pk];
   if(photo?.objectUrl)try{URL.revokeObjectURL(photo.objectUrl)}catch(e){}
   delete pendingDishPhotos[pk];
+
   renderMeals();
   render();
 }
-
 function chooseDishPhoto(tipo,id,input){
   const file=input?.files?.[0];
   if(!file)return;
@@ -3630,71 +3854,136 @@ function setDishStatus(tipo,id,msg,kind=''){
 async function analyzeMealDish(tipo,id,mode='ai'){
   const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
   const key=mealKey(fecha,tipo);
-  const meal=mealFromDishInputs(tipo,true);
-  const dish=(meal.dishes||[]).find(d=>String(d.id)===String(id));
-  if(!dish)return;
+  const textEl=document.getElementById(`dishText_${tipo}_${id}`);
+  const kcalEl=document.getElementById(`dishKcal_${tipo}_${id}`);
+  const protEl=document.getElementById(`dishProt_${tipo}_${id}`);
+  const sourceEl=document.getElementById(`dishSource_${tipo}_${id}`);
 
-  const text=String(document.getElementById(`dishText_${tipo}_${id}`)?.value||dish.text||'').trim();
+  const text=String(textEl?.value||'').trim();
   const photo=pendingDishPhotos[dishPhotoKey(tipo,id)];
 
-  setDishStatus(tipo,id,mode==='local'?'Calculando en local…':'Analizando con IA…');
+  if(mode==='local' && !text){
+    setDishStatus(tipo,id,'Para cálculo local escribe una descripción del plato.','err');
+    return;
+  }
+  if(mode==='ai' && !text && !photo){
+    setDishStatus(tipo,id,'Escribe el plato o añade una foto antes de analizar.','err');
+    return;
+  }
+
+  setDishStatus(tipo,id,mode==='local'?'Calculando este plato en local…':'Analizando este plato con IA…');
 
   try{
-    let result;
+    let result=null;
+
     if(mode==='local'){
-      if(!text){
-        throw new Error(photo
-          ? 'El cálculo local no puede interpretar una foto. Escribe una breve descripción o usa “Analizar con IA”.'
-          : 'Escribe el plato antes de usar el cálculo local.');
-      }
       result=localEstimateFromText(text);
-      if(!result)throw new Error('No he reconocido suficientes alimentos con el cálculo local. Prueba con IA o concreta cantidades.');
+      if(!result){
+        throw new Error('No he reconocido suficientes alimentos. Prueba con una descripción más concreta o usa IA.');
+      }
     }else if(photo){
-      result=await analyzeOneFoodPhoto(getAiBackendUrl(),{file:photo.file,mode:'plate'},text);
+      // La foto corresponde únicamente a ESTE plato.
+      result=await analyzeOneFoodPhoto(getAiBackendUrl(),{
+        file:photo.file,
+        mode:'plate'
+      },text);
     }else{
-      if(!text)throw new Error('Escribe el plato o añade una foto.');
       const controller=new AbortController();
       const timer=setTimeout(()=>controller.abort(),30000);
       try{
         const response=await fetch(getAiBackendUrl()+'/analyze-food',{
-          method:'POST',mode:'cors',cache:'no-store',
-          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          method:'POST',
+          mode:'cors',
+          cache:'no-store',
+          headers:{
+            'Content-Type':'application/json',
+            'Accept':'application/json'
+          },
           body:JSON.stringify({mode:'text',text}),
           signal:controller.signal
         });
+
         const raw=await response.text();
-        let data={};try{data=JSON.parse(raw)}catch{}
-        if(!response.ok)throw new Error(data.error||raw||('HTTP '+response.status));
+        let data={};
+        try{data=JSON.parse(raw)}catch{}
+        if(!response.ok){
+          throw new Error(data.error||raw||('HTTP '+response.status));
+        }
         result=data.result||{};
-      }finally{clearTimeout(timer);}
+      }finally{
+        clearTimeout(timer);
+      }
     }
 
-    dish.text=String(result.description||text||dish.text||'Plato').trim();
-    dish.kcal=Math.round(Number(result.kcal)||0);
-    dish.prot=Math.round(Number(result.protein_g)||0);
-    dish.source=photo?'photo':mode;
-    dish.breakdown=(mode==='local'
-      ? (Array.isArray(result.items)?result.items:[])
-      : normalizeAiMealItems(result.items)
-    ).map(x=>({...x,dishId:dish.id,partId:dish.id}));
+    const resultText=String(result?.description||text||'Plato').trim();
+    const resultKcal=Math.round(Number(result?.kcal)||0);
+    const resultProt=Math.round(Number(result?.protein_g)||0);
+    const resultItems=(mode==='local'
+      ? (Array.isArray(result?.items)?result.items:[])
+      : normalizeAiMealItems(result?.items)
+    );
 
-    db.meals[key]={...meal,dishes:meal.dishes};
+    // Actualizamos visualmente ESTE plato primero.
+    if(textEl)textEl.value=resultText;
+    if(kcalEl)kcalEl.value=resultKcal;
+    if(protEl)protEl.value=resultProt;
+    if(sourceEl)sourceEl.textContent=dishSourceLabel(photo?'photo':mode);
+
+    // Después actualizamos el objeto de comida sin reconstruir ni perder otros platos.
+    const cur=getMeal(fecha,tipo);
+    let dishes=Array.isArray(cur.dishes)?cur.dishes.map(normalizeDish):ensureMealDishes(fecha,tipo).map(normalizeDish);
+    let pos=dishes.findIndex(d=>String(d.id)===String(id));
+
+    if(pos<0){
+      dishes.push(normalizeDish({id,text:resultText}));
+      pos=dishes.length-1;
+    }
+
+    dishes[pos]=normalizeDish({
+      ...dishes[pos],
+      id,
+      text:resultText,
+      kcal:resultKcal,
+      prot:resultProt,
+      source:photo?'photo':mode,
+      breakdown:resultItems.map(x=>({...x,dishId:id,partId:id}))
+    });
+
+    const active=dishes.filter(d=>d.text.trim()||d.kcal>0||d.prot>0);
+    db.meals[key]={
+      ...cur,
+      fecha,tipo,
+      hora:document.getElementById('hora_'+tipo)?.value||cur.hora||'',
+      dishes,
+      desc:active.map(d=>d.text.trim()).filter(Boolean).join(' + '),
+      kcal:Math.round(active.reduce((s,d)=>s+(Number(d.kcal)||0),0)),
+      prot:Math.round(active.reduce((s,d)=>s+(Number(d.prot)||0),0)),
+      breakdown:active.flatMap(d=>(d.breakdown||[]).map(x=>({...x,dishId:d.id,partId:d.id})))
+    };
+
     localStorage.setItem(KEY,JSON.stringify(db));
-
-    const textEl=document.getElementById(`dishText_${tipo}_${id}`);
-    const kcalEl=document.getElementById(`dishKcal_${tipo}_${id}`);
-    const protEl=document.getElementById(`dishProt_${tipo}_${id}`);
-    if(textEl)textEl.value=dish.text;
-    if(kcalEl)kcalEl.value=dish.kcal;
-    if(protEl)protEl.value=dish.prot;
-    const sourceEl=document.getElementById(`dishSource_${tipo}_${id}`);
-    if(sourceEl)sourceEl.textContent=dishSourceLabel(dish.source);
-
-    mealFromDishInputs(tipo,true);
     updateMealDishSummary(tipo);
-    setDishStatus(tipo,id,'Plato calculado. Revísalo y corrige si hace falta.','ok');
+    setDishStatus(
+      tipo,id,
+      mode==='local'
+        ? `Calculado en local ✓ · ${resultKcal} kcal · ${resultProt} g proteína`
+        : `Analizado con IA ✓ · ${resultKcal} kcal · ${resultProt} g proteína`,
+      'ok'
+    );
+
+    // Refrescamos los totales del día sin reconstruir las tarjetas mientras el usuario edita.
+    const vals=MEALS.map(m=>getMeal(fecha,m.key));
+    const totalKcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
+    const totalProt=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
+    if(document.getElementById('mealTotalKcal'))mealTotalKcal.textContent=`${Math.round(totalKcal)} / 1.800`;
+    if(document.getElementById('mealTotalProt'))mealTotalProt.textContent=`${Math.round(totalProt)} / ${proteinTarget()} g`;
+    if(document.getElementById('mealProtBar'))mealProtBar.style.width=Math.min(100,totalProt/proteinTarget()*100)+'%';
+
   }catch(err){
-    setDishStatus(tipo,id,err?.name==='AbortError'?'Tiempo de espera agotado.':(err?.message||String(err)),'err');
+    const msg=err?.name==='AbortError'
+      ? 'Tiempo de espera agotado.'
+      : (err?.message||String(err));
+    setDishStatus(tipo,id,msg,'err');
   }
 }
 
@@ -3721,21 +4010,32 @@ function renderMealDishCard(tipo,dish,index,total){
           <div class="meal-dish-title">${dishOrdinal(index+1)} plato</div>
           <div class="meal-dish-source">Origen: <span id="dishSource_${tipo}_${dish.id}">${dishSourceLabel(dish.source)}</span></div>
         </div>
-        ${total>1?`<button type="button" class="set-remove" onclick="removeMealDish('${tipo}','${dish.id}')">Quitar</button>`:''}
+        <button type="button" class="set-remove" onclick="removeMealDish('${tipo}','${dish.id}')">🗑️ Borrar plato</button>
       </div>
 
       <label>Descripción del plato</label>
       <input id="dishText_${tipo}_${dish.id}" value="${escapeMealText(dish.text)}"
         placeholder="Ej. 200 g de pollo con arroz"
+        onfocus="offerFavoritePrompt('${tipo}','${dish.id}')"
         oninput="updateMealDishSummary('${tipo}')">
+      <div class="muted" style="margin-top:5px">El cálculo se aplica solo a este plato. Puedes escribirlo o añadir una foto.</div>
 
       <div class="meal-dish-tools">
-        <button type="button" class="primary-small" onclick="analyzeMealDish('${tipo}','${dish.id}','ai')">✨ Analizar con IA</button>
-        <button type="button" class="secondary" onclick="analyzeMealDish('${tipo}','${dish.id}','local')">Cálculo local</button>
+        <button type="button" class="primary-small" onclick="analyzeMealDish('${tipo}','${dish.id}','ai')">✨ Calcular este plato con IA</button>
+        <button type="button" class="secondary" onclick="analyzeMealDish('${tipo}','${dish.id}','local')">Calcular este plato en local</button>
         <label class="meal-dish-photo-label">📷 Hacer / elegir foto
           <input type="file" accept="image/*" capture="environment" onchange="chooseDishPhoto('${tipo}','${dish.id}',this)">
         </label>
-        <button type="button" class="set-add" onclick="saveMealDishFavorite('${tipo}','${dish.id}')">⭐ Favorito</button>
+        <button type="button" class="set-add" onclick="toggleDishFavoritePicker('${tipo}','${dish.id}')">⭐ Elegir favorito</button>
+        <button type="button" class="set-add" onclick="saveMealDishFavorite('${tipo}','${dish.id}')">☆ Guardar como favorito</button>
+      </div>
+
+      <div id="dishFavPicker_${tipo}_${dish.id}" class="dish-fav-picker">
+        <div class="dish-fav-picker-head">
+          <b>⭐ Favoritos de ${((MEALS.find(m=>m.key===tipo)||{}).label||tipo)}</b>
+          <button type="button" class="set-add" onclick="toggleDishFavoritePicker('${tipo}','${dish.id}',false)">Cerrar</button>
+        </div>
+        <div id="dishFavList_${tipo}_${dish.id}" class="dish-fav-picker-list"></div>
       </div>
 
       <div id="dishPhotoPreview_${tipo}_${dish.id}" class="meal-dish-preview ${photo?'show':''}">
@@ -4578,7 +4878,7 @@ const EXERCISE_CATALOG=[{id:'shoulder_press_machine',name:'Press de hombros en m
  {id:'glute_kickback_cable',name:'Patada de glúteo en polea',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'polea',equipment:'Polea baja + tobillera'},
  {id:'glute_bridge',name:'Puente de glúteo',zone:'Glúteo',icon:'🍑',tipo:'fuerza',modalidad:'peso_corporal',equipment:'Colchoneta'}
 ];
-/* v22.1.70 — catálogo limpio.
+/* v22.1.74 — catálogo limpio.
    Los IDs antiguos se conservan internamente para no romper rutinas/historial,
    pero los duplicados dejan de aparecer en buscadores, selectores y catálogo visual. */
 const CATALOG_DUPLICATE_ALIASES={
@@ -7864,7 +8164,7 @@ async function uploadSyncCopy(){
   syncSetStatus('Subiendo copia…');
   try{
     const payload={
-      appVersion:'22.1.70',
+      appVersion:'22.1.74',
       savedAt:new Date().toISOString(),
       data:db
     };
@@ -8379,7 +8679,7 @@ setTimeout(()=>{
 
 
 <script>
-/* v22.1.70 — actualización robusta de la PWA instalada */
+/* v22.1.74 — actualización robusta de la PWA instalada */
 (function(){
   if(!('serviceWorker' in navigator)) return;
 
