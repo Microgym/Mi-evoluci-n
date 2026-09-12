@@ -1,4 +1,4 @@
-const CACHE='mi-evolucion-v22-1-69';
+const CACHE='mi-evolucion-v22-1-70';
 const CORE=['./','./index.html','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
