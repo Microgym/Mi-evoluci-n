@@ -1,4 +1,4 @@
-const CACHE='micro-health-v22-1-91';
+const CACHE='micro-health-v22-1-92';
 const CORE=['./','./index.html','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
