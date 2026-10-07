@@ -13625,17 +13625,96 @@ function bodyReferenceProfile(){
   };
 }
 
+/* v22.2.63 — restaura umbrales masculinos v22.2.61 y separa referencias femeninas */
+function legacyMaleThresholdDef(field){
+  const defs={
+    peso:{cuts:[62.6,84.6,101.6],labels:['Delgado','En forma','Sobrepeso','Gordo'],classes:['zone-blue','zone-green','zone-orange','zone-red'],unit:'kg'},
+    imc:{cuts:[18.5,25,30],labels:['Delgado','En forma','Sobrepeso','Gordo'],classes:['zone-blue','zone-green','zone-orange','zone-red'],unit:''},
+    grasa:{cuts:[11,22,27],labels:['Bajo','En forma','Alta','Muy alta'],classes:['zone-blue','zone-green','zone-orange','zone-red'],unit:'%'},
+    musculoPct:{cuts:[40,60],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'%'},
+    humedad:{cuts:[55,65],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'%'},
+    masaOsea:{cuts:[3.1,3.3],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'kg'},
+    bmr:{cuts:[1965.9],labels:['Bajo','Excelente'],classes:['zone-blue','zone-teal'],unit:'kcal'},
+    proteinaPct:{cuts:[16,18],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'%'},
+    visceral:{cuts:[9,14],labels:['En forma','Alerta','Peligro'],classes:['zone-green','zone-orange','zone-red'],unit:''},
+    grasaSubcutanea:{cuts:[7,15],labels:['Insuficiente','En forma','Alta'],classes:['zone-blue','zone-green','zone-orange'],unit:'%'},
+    grasaKg:{cuts:[10.3,20.6,25.3],labels:['Bajo','En forma','Alta','Muy alta'],classes:['zone-blue','zone-green','zone-orange','zone-red'],unit:'kg'},
+    pesoMuscular:{cuts:[37.5,56.2],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'kg'},
+    proteinaKg:{cuts:[15.0,16.9],labels:['Insuficiente','En forma','Excelente'],classes:['zone-blue','zone-green','zone-teal'],unit:'kg'}
+  };
+  return defs[field]||null;
+}
+
+function legacyMaleScaleStatus(v,metric){
+  if(v==null || !Number.isFinite(Number(v)))return {cls:'status-neutral',label:'Sin dato'};
+  v=Number(v);
+  switch(metric){
+    case 'peso':
+      if(v<62.6)return {cls:'status-blue',label:'Delgado'};
+      if(v<84.6)return {cls:'status-green',label:'En forma'};
+      if(v<101.6)return {cls:'status-orange',label:'Sobrepeso'};
+      return {cls:'status-red',label:'Gordo'};
+    case 'imc':
+      if(v<18.5)return {cls:'status-blue',label:'Delgado'};
+      if(v<25)return {cls:'status-green',label:'En forma'};
+      if(v<30)return {cls:'status-orange',label:'Sobrepeso'};
+      return {cls:'status-red',label:'Gordo'};
+    case 'grasa':
+      if(v<11)return {cls:'status-blue',label:'Bajo'};
+      if(v<22)return {cls:'status-green',label:'En forma'};
+      if(v<27)return {cls:'status-orange',label:'Alta'};
+      return {cls:'status-red',label:'Muy alta'};
+    case 'musculoPct':
+      if(v<40)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<60)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'humedad':
+      if(v<55)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<65)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'masaOsea':
+      if(v<3.1)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<3.3)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'bmr':
+      if(v<1965.9)return {cls:'status-blue',label:'Bajo'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'proteinaPct':
+      if(v<16)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<18)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'visceral':
+      if(v<=9)return {cls:'status-green',label:'En forma'};
+      if(v<=14)return {cls:'status-orange',label:'Alerta'};
+      return {cls:'status-red',label:'Peligro'};
+    case 'grasaSubcutanea':
+      if(v<7)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<15)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-orange',label:'Alta'};
+    case 'grasaKg':
+      if(v<10.3)return {cls:'status-blue',label:'Bajo'};
+      if(v<20.6)return {cls:'status-green',label:'En forma'};
+      if(v<25.3)return {cls:'status-orange',label:'Alta'};
+      return {cls:'status-red',label:'Muy alta'};
+    case 'pesoMuscular':
+      if(v<37.5)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<56.2)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    case 'proteinaKg':
+      if(v<15.0)return {cls:'status-blue',label:'Insuficiente'};
+      if(v<16.9)return {cls:'status-green',label:'En forma'};
+      return {cls:'status-teal',label:'Excelente'};
+    default:
+      return {cls:'status-neutral',label:'Sin umbral'};
+  }
+}
+
 function bodyFatReference(){
   const {sex,age}=bodyReferenceProfile();
-  if(!sex || !Number.isFinite(age) || age<20 || age>79)return null;
-  if(sex==='female'){
-    if(age<=39)return {cuts:[21,33,39],labels:['Bajo','Saludable','Alto','Muy alto']};
-    if(age<=59)return {cuts:[23,34,40],labels:['Bajo','Saludable','Alto','Muy alto']};
-    return {cuts:[24,36,42],labels:['Bajo','Saludable','Alto','Muy alto']};
-  }
-  if(age<=39)return {cuts:[8,20,25],labels:['Bajo','Saludable','Alto','Muy alto']};
-  if(age<=59)return {cuts:[11,22,28],labels:['Bajo','Saludable','Alto','Muy alto']};
-  return {cuts:[13,25,30],labels:['Bajo','Saludable','Alto','Muy alto']};
+  if(sex!=='female' || !Number.isFinite(age) || age<20 || age>79)return null;
+  if(age<=39)return {cuts:[21,33,39],labels:['Bajo','Saludable','Alto','Muy alto']};
+  if(age<=59)return {cuts:[23,34,40],labels:['Bajo','Saludable','Alto','Muy alto']};
+  return {cuts:[24,36,42],labels:['Bajo','Saludable','Alto','Muy alto']};
 }
 
 function weightReference(){
@@ -13648,14 +13727,12 @@ function weightReference(){
 function waterReference(){
   const sex=bodyReferenceProfile().sex;
   if(sex==='female')return [45,60];
-  if(sex==='male')return [50,65];
   return null;
 }
 
 function waistReference(){
   const sex=bodyReferenceProfile().sex;
   if(sex==='female')return [80,88];
-  if(sex==='male')return [94,102];
   return null;
 }
 
@@ -13668,6 +13745,12 @@ function mifflinRestEstimate(){
 }
 
 function dynamicThresholdDef(field){
+  const {sex}=bodyReferenceProfile();
+
+  // v22.2.63: para hombre se conservan EXACTAMENTE los umbrales históricos
+  // de v22.2.61. Las referencias femeninas viven en una rama separada.
+  if(sex==='male')return legacyMaleThresholdDef(field);
+
   const fat=bodyFatReference();
   const weightCuts=weightReference();
   const water=waterReference();
@@ -13730,29 +13813,47 @@ function renderProfileThresholdTable(){
   const sexTxt=sex==='female'?'Mujer':sex==='male'?'Hombre':'Sexo no indicado';
   const ageTxt=Number.isFinite(age)?`${age} años`:'edad no indicada';
   const fmt=n=>String(Number(n).toFixed(1)).replace(/,0$/, '').replace('.0','').replace('.',',');
-  const wd=dynamicThresholdDef('peso');
-  const fd=dynamicThresholdDef('grasa');
-  const wat=dynamicThresholdDef('humedad');
-  const waist=dynamicThresholdDef('cintura');
-  const fatKg=dynamicThresholdDef('grasaKg');
-  const bmr=mifflinRestEstimate();
   const rows=[];
 
-  rows.push(['Peso',wd?`${wd.cuts.map(x=>fmt(x)+' kg').join(' · ')} (equiv. IMC 18,5 · 25 · 30)`:'Añade altura al perfil']);
-  rows.push(['IMC','18,5 · 25 · 30 (igual en hombres y mujeres adultos)']);
-  rows.push(['Grasa corporal / perímetros',fd?`${fd.cuts.map(x=>fmt(x)+'%').join(' · ')} · ${fd.labels.join(' · ')}`:'Necesita sexo y edad 20–79']);
-  rows.push(['Agua corporal',wat?`${fmt(wat.cuts[0])}–${fmt(wat.cuts[1])}% · rango orientativo`:'Necesita sexo']);
-  rows.push(['Cintura',waist?`<${fmt(waist.cuts[0])} cm · ${fmt(waist.cuts[0])}–${fmt(waist.cuts[1])} cm · ≥${fmt(waist.cuts[1])} cm`:'Necesita sexo']);
-  rows.push(['Grasa corporal (kg)',fatKg?`${fatKg.cuts.map(x=>fmt(x)+' kg').join(' · ')} · derivado del peso actual`:'Necesita peso + referencia de % grasa']);
-  rows.push(['BMR',bmr?`≈ ${bmr} kcal/día · Mifflin–St Jeor; referencia estimada, no umbral de salud`:'Necesita sexo, edad, altura y peso']);
-  rows.push(['Músculo / masa ósea / proteína / grasa subcutánea / visceral','Sin clasificación universal entre básculas: seguir tendencia o usar la tabla del fabricante']);
+  if(sex==='male'){
+    rows.push(['Peso','62,6 · 84,6 · 101,6 kg · Delgado · En forma · Sobrepeso · Gordo']);
+    rows.push(['IMC','18,5 · 25 · 30 · Delgado · En forma · Sobrepeso · Gordo']);
+    rows.push(['Grasa corporal','11 · 22 · 27% · Bajo · En forma · Alta · Muy alta']);
+    rows.push(['Músculo','40 · 60% · Insuficiente · En forma · Excelente']);
+    rows.push(['Agua corporal','55 · 65% · Insuficiente · En forma · Excelente']);
+    rows.push(['Masa ósea','3,1 · 3,3 kg · Insuficiente · En forma · Excelente']);
+    rows.push(['BMR','1965,9 kcal · Bajo / Excelente']);
+    rows.push(['Proteína','16 · 18% · Insuficiente · En forma · Excelente']);
+    rows.push(['Grasa visceral','≤9 En forma · 10–14 Alerta · >14 Peligro']);
+    rows.push(['Grasa subcutánea','7 · 15% · Insuficiente · En forma · Alta']);
+    rows.push(['Grasa corporal (kg)','10,3 · 20,6 · 25,3 kg · Bajo · En forma · Alta · Muy alta']);
+    rows.push(['Peso muscular','37,5 · 56,2 kg · Insuficiente · En forma · Excelente']);
+    rows.push(['Proteína corporal','15,0 · 16,9 kg · Insuficiente · En forma · Excelente']);
+    rows.push(['Cintura / grasa por perímetros','Sin umbral en el sistema masculino histórico v22.2.61']);
+  }else{
+    const wd=dynamicThresholdDef('peso');
+    const fd=dynamicThresholdDef('grasa');
+    const wat=dynamicThresholdDef('humedad');
+    const waist=dynamicThresholdDef('cintura');
+    const fatKg=dynamicThresholdDef('grasaKg');
+    const bmr=mifflinRestEstimate();
+    rows.push(['Peso',wd?`${wd.cuts.map(x=>fmt(x)+' kg').join(' · ')} (equiv. IMC 18,5 · 25 · 30)`:'Añade altura al perfil']);
+    rows.push(['IMC','18,5 · 25 · 30']);
+    rows.push(['Grasa corporal / perímetros',fd?`${fd.cuts.map(x=>fmt(x)+'%').join(' · ')} · ${fd.labels.join(' · ')}`:'Necesita sexo mujer y edad 20–79']);
+    rows.push(['Agua corporal',wat?`${fmt(wat.cuts[0])}–${fmt(wat.cuts[1])}% · rango orientativo`:'Necesita sexo']);
+    rows.push(['Cintura',waist?`<${fmt(waist.cuts[0])} cm · ${fmt(waist.cuts[0])}–${fmt(waist.cuts[1])} cm · ≥${fmt(waist.cuts[1])} cm`:'Necesita sexo']);
+    rows.push(['Grasa corporal (kg)',fatKg?`${fatKg.cuts.map(x=>fmt(x)+' kg').join(' · ')} · derivado del peso actual`:'Necesita peso + referencia de % grasa']);
+    rows.push(['BMR',bmr?`≈ ${bmr} kcal/día · Mifflin–St Jeor; referencia estimada, no umbral de salud`:'Necesita sexo, edad, altura y peso']);
+    rows.push(['Músculo / masa ósea / proteína / grasa subcutánea / visceral','Sin clasificación femenina universal entre básculas: seguir tendencia o usar la tabla del fabricante']);
+  }
 
   el.innerHTML=`<div class="threshold-profile-head"><b>${sexTxt}</b><span>${ageTxt}${height?` · ${height} cm`:''}${weight?` · ${String(weight).replace('.',',')} kg`:''}</span></div>
   <table class="threshold-table"><tr><th>Métrica</th><th>Referencia aplicada</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
 }
 
 function scaleStatus(v,metric){
- return dynamicScaleStatus(v,metric);
+  if(bodyReferenceProfile().sex==='male')return legacyMaleScaleStatus(v,metric);
+  return dynamicScaleStatus(v,metric);
 }
 
 function neutralStatus(){return {cls:'status-neutral',label:'Sin umbral'}}
@@ -14119,8 +14220,9 @@ function renderHealthAlerts(){
   }
 
   const fat=scaleStatus(latest.grasa,'grasa');
-  if(fat.label==='Alta'||fat.label==='Muy alta'){
-    alerts.push({cls:fat.label==='Muy alta'?'alert-bad':'alert-warn',txt:`Grasa corporal ${latest.grasa}%: ${fat.label.toLowerCase()}.`});
+  if(['Alta','Alto','Muy alta','Muy alto'].includes(fat.label)){
+    const severe=fat.label==='Muy alta'||fat.label==='Muy alto';
+    alerts.push({cls:severe?'alert-bad':'alert-warn',txt:`Grasa corporal ${latest.grasa}%: ${fat.label.toLowerCase()}.`});
   }
 
   const smoothRows=(db.peso||[]);
@@ -14157,7 +14259,9 @@ function thresholdVisualForMetric(field,currentValue){
   const d=dynamicThresholdDef(field);
   if(!d){
     const msg=field==='bmr'
-      ? 'El BMR no tiene un umbral “bueno/malo”. Micro Health usa una estimación personalizada como referencia.'
+      ? (bodyReferenceProfile().sex==='male'
+          ? 'BMR sin dato suficiente para aplicar el umbral histórico masculino.'
+          : 'El BMR no tiene un umbral femenino “bueno/malo”. Micro Health usa una estimación personalizada como referencia.')
       : 'Sin umbral universal fiable para este parámetro; úsalo principalmente para seguir la tendencia de la misma báscula.';
     return `<div class="muted" style="margin-top:8px">${msg}</div>`;
   }
