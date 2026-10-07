@@ -2080,6 +2080,13 @@ details.active-routine-item.validated:not([open]) > summary{
 .pdf-report-card .pdf-report-chips button{border:1px solid #d8e7e6;background:#fff;color:#236476;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800}
 @media(max-width:560px){.pdf-report-card .pdf-report-grid{grid-template-columns:1fr}}
 
+/* v22.2.66 — Coach 360º: exportación PDF de consultas y evaluaciones */
+.coach-pdf-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.coach-pdf-actions button{border:1px solid #d6e7e5;background:#fff;color:#176474;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:850;cursor:pointer}
+.coach-pdf-actions button:hover{background:#f2faf8}
+.coach-pdf-status{font-size:11px;color:#607985;margin-top:7px;min-height:16px}
+@media(max-width:560px){.assistant-chat-head{align-items:flex-start;gap:8px}.coach-pdf-actions{justify-content:flex-start}.coach-pdf-actions button{flex:1}}
+
 
 .compare-used-dates{
   margin:0 0 10px;padding:9px 11px;border-radius:12px;background:#eef8f6;
@@ -3852,7 +3859,7 @@ button,a,label,summary,input,select,textarea{
 
 
 <section id="asistente" class="mock-page">
-  <div class="mock-page-title"><h2>Asistente</h2><p>Tu coach de salud y entrenamiento con IA</p></div>
+  <div class="mock-page-title"><h2>Coach 360º</h2><p>Tu coach de salud, nutrición y entrenamiento con IA</p></div>
 
   <div class="mock-panel assistant-hero">
     <div class="assistant-hero-grid">
@@ -3869,8 +3876,8 @@ button,a,label,summary,input,select,textarea{
 
   <div class="mock-panel assistant-chat-panel">
     <div class="assistant-chat-head">
-      <div><h3>Habla con tu asistente</h3><small>Responde usando tus datos actuales de Micro Health</small></div>
-      <button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button>
+      <div><h3>Habla con tu Coach</h3><small>Responde usando tus datos actuales de Micro Health</small></div>
+      <div class="coach-pdf-actions"><button type="button" onclick="exportCoachPdf('last')">PDF última consulta</button><button type="button" onclick="exportCoachPdf('conversation')">PDF conversación</button><button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button></div>
     </div>
     <div id="assistantChatFeed" class="assistant-chat-feed"></div>
     <div class="assistant-chat-quick">
@@ -3883,14 +3890,14 @@ button,a,label,summary,input,select,textarea{
       <textarea id="assistantChatInput" placeholder="Ej. ¿Sigo definiendo o me conviene ganar músculo? Hazme la dieta de mañana. ¿Qué ceno hoy?" onkeydown="assistantChatKeydown(event)"></textarea>
       <button id="assistantChatSend" type="button" class="assistant-chat-send" onclick="sendAssistantMessage()">Enviar</button>
     </div>
-    <div id="assistantChatStatus" class="assistant-chat-status"></div>
+    <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
     <div class="assistant-context-note">Cada pregunta usa un contexto compacto del periodo que estás consultando para responder con tus datos sin gastar tokens innecesarios. El chat se guarda solo en este dispositivo dentro de los datos de Micro Health.</div>
   </div>
 
   <div class="mock-panel assistant-analysis">
     <div class="assistant-chatlike"><div class="assistant-avatar"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 0 1 8 0v5a4 4 0 0 1-8 0Z"></path><path d="M12 5V3"></path><circle cx="12" cy="2.5" r="1"></circle></svg></div><div class="assistant-bubble">También puedes pedir un análisis estructurado de tus últimas 4 semanas.</div></div>
     <div id="coachLocalSummary" class="coach-summary"></div>
-    <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar últimas 4 semanas</button></div>
+    <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar últimas 4 semanas</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
     <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Estrategia</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><div class="coach-section"><h3>Situación actual</h3><div id="coachSituation"></div></div><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></div>
     <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
@@ -3982,13 +3989,13 @@ button,a,label,summary,input,select,textarea{
 <button data-sec="entreno"><span class="nav-ico nav-workout" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span class="nav-label">Entreno</span></button>
 <button data-sec="evolucion"><span class="nav-ico nav-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 14h2"></path><path d="M12 10h2"></path><path d="M16 7h2"></path></svg></span><span class="nav-label">Evolución<br>salud</span></button>
 <button data-sec="evolucionEntreno"><span class="nav-ico nav-training-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-3 3 2 4-6"></path><path d="M15 8h3v3"></path></svg></span><span class="nav-label">Evolución<br>entreno</span></button>
-<button data-sec="asistente"><span class="nav-ico nav-assistant" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 5.5c-2.4 0-4.5 2-4.5 4.5 0 1.5.7 2.8 1.8 3.6"></path><path d="M14.5 5.5c2.4 0 4.5 2 4.5 4.5 0 1.5-.7 2.8-1.8 3.6"></path><path d="M9 7.5c0-1.4 1.3-2.5 3-2.5s3 1.1 3 2.5v9c0 1.4-1.3 2.5-3 2.5s-3-1.1-3-2.5z"></path><path d="M8 10h1"></path><path d="M15 10h1"></path><path d="M8 14h1"></path><path d="M15 14h1"></path></svg></span><span class="nav-label">Asistente</span></button>
+<button data-sec="asistente"><span class="nav-ico nav-assistant" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 5.5c-2.4 0-4.5 2-4.5 4.5 0 1.5.7 2.8 1.8 3.6"></path><path d="M14.5 5.5c2.4 0 4.5 2 4.5 4.5 0 1.5-.7 2.8-1.8 3.6"></path><path d="M9 7.5c0-1.4 1.3-2.5 3-2.5s3 1.1 3 2.5v9c0 1.4-1.3 2.5-3 2.5s-3-1.1-3-2.5z"></path><path d="M8 10h1"></path><path d="M15 10h1"></path><path d="M8 14h1"></path><path d="M15 14h1"></path></svg></span><span class="nav-label">Coach</span></button>
 <button data-sec="datos"><span class="nav-ico nav-data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="nav-label">Datos</span></button>
 </nav>
 <script>
 const SEED=[{"fecha":"2026-06-26","peso":98.3,"imc":29,"grasa":26.5,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1864,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":26,"masaMagra":72.3,"pesoMuscular":64.7,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-06-27","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1862,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.4,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-26","peso":98.2,"imc":29,"grasa":26.4,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1863,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":25.9,"masaMagra":72.3,"pesoMuscular":64.6,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-08-28","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.7,"humedad":53,"masaOsea":3.5,"bmr":1861,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.3,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-29","peso":96.0,"imc":28.4,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1854,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.5,"masaMagra":71.5,"pesoMuscular":62.8,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-08-30","peso":95.8,"imc":28.3,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1853,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.4,"masaMagra":71.4,"pesoMuscular":62.7,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-02","peso":95.3,"imc":28.2,"grasa":25.2,"musculoPct":65.3,"humedad":54,"masaOsea":3.5,"bmr":1852,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.6,"grasaKg":24,"masaMagra":71.3,"pesoMuscular":62.2,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-04","peso":94.9,"imc":28,"grasa":25.0,"musculoPct":65.2,"humedad":54,"masaOsea":3.4,"bmr":1850,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.4,"grasaKg":23.7,"masaMagra":71.2,"pesoMuscular":61.9,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-05","peso":94.3,"imc":27.9,"grasa":24.8,"musculoPct":65.0,"humedad":54,"masaOsea":3.4,"bmr":1846,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.2,"grasaKg":23.4,"masaMagra":70.9,"pesoMuscular":61.3,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-08","peso":94.1,"imc":27.8,"grasa":24.6,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.0,"grasaKg":23.1,"masaMagra":71.0,"pesoMuscular":61.2,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-10","peso":93.7,"imc":27.7,"grasa":24.4,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.7,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":21.9,"grasaKg":22.9,"masaMagra":70.8,"pesoMuscular":60.9,"proteinaKg":16.6,"cintura":null}];
 const KEY='miguel-evolucion-v4';
-function fresh(){return {peso:[],comidas:[],entreno:[],meals:{},profile:null,rutinaSesiones:[],stepsDaily:{},sleepDaily:{},gyms:['Gimnasio Atalanta','La Calderona','Casa'],defaultGym:'Gimnasio Atalanta',lastGym:'Gimnasio Atalanta',assistantChat:[]}}
+function fresh(){return {peso:[],comidas:[],entreno:[],meals:{},profile:null,rutinaSesiones:[],stepsDaily:{},sleepDaily:{},gyms:['Gimnasio Atalanta','La Calderona','Casa'],defaultGym:'Gimnasio Atalanta',lastGym:'Gimnasio Atalanta',assistantChat:[],lastCoachEvaluation:null}}
 let db;
 try{db=JSON.parse(localStorage.getItem(KEY)||'null')||fresh()}catch(e){db=fresh()}
 if(!db.peso) db.peso=[];
@@ -5581,7 +5588,7 @@ function renderCoachLocalSummary(){
       <div class="kpiLine"><span>Pasos cotidianos medios</span><b>${formatCoachNum(s.activity.averageSteps,0)}</b></div>
       <div class="kpiLine"><span>Ejercicios con progreso comparable</span><b>${s.strength.trackedExercises}</b></div>
     </div>
-    ${dataWarnings.length?`<div class="coach-data-quality"><b>Calidad del análisis:</b> faltan datos en ${dataWarnings.join(', ')}. El asistente será más conservador.</div>`:''}`;
+    ${dataWarnings.length?`<div class="coach-data-quality"><b>Calidad del análisis:</b> faltan datos en ${dataWarnings.join(', ')}. El Coach será más conservador.</div>`:''}`;
 }
 function safeCoachText(v){
   return String(v||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
@@ -5652,7 +5659,7 @@ function renderAssistantChat(){
   if(!feed)return;
   const rows=assistantChatRows();
   if(!rows.length){
-    feed.innerHTML='<div class="assistant-chat-empty"><b>Pregunta lo que quieras sobre tu progreso.</b><br>El asistente utilizará tus registros recientes para responder.</div>';
+    feed.innerHTML='<div class="assistant-chat-empty"><b>Pregunta lo que quieras sobre tu progreso.</b><br>El Coach utilizará tus registros recientes para responder.</div>';
     return;
   }
   feed.innerHTML=rows.map(m=>`
@@ -5674,7 +5681,7 @@ function saveAssistantChat(){
   localStorage.setItem(KEY,JSON.stringify(db));
 }
 function clearAssistantChat(){
-  if(!confirm('¿Borrar la conversación del Asistente en este dispositivo?'))return;
+  if(!confirm('¿Borrar la conversación del Coach en este dispositivo?'))return;
   db.assistantChat=[];
   saveAssistantChat();
   renderAssistantChat();
@@ -5855,7 +5862,8 @@ async function sendAssistantMessage(){
       contextLabel:temporal.label,
       metricCard,
       actions:assistantSuggestedActions(message),
-      memoryLine:assistantMemoryLine(message,snapshot)
+      memoryLine:assistantMemoryLine(message,snapshot),
+      dataThrough:snapshot.generatedForDate||today()
     });
     saveAssistantChat();
     renderAssistantChat();
@@ -5871,6 +5879,125 @@ async function sendAssistantMessage(){
     clearTimeout(timer);
     if(send)send.disabled=false;
   }
+}
+
+
+function coachPdfDateTime(ms){
+  const d=ms?new Date(ms):new Date();
+  return d.toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function coachPdfIsoDate(ms){
+  const d=ms?new Date(ms):new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function coachPdfDataDate(v){
+  const iso=storedDateISO(v)||String(v||'');
+  const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?`${m[3]}/${m[2]}/${m[1]}`:(v||'No registrada');
+}
+function coachPdfLatestPair(){
+  const rows=assistantChatRows();
+  for(let i=rows.length-1;i>=0;i--){
+    if(rows[i]?.role!=='assistant')continue;
+    let user=null;
+    for(let j=i-1;j>=0;j--){if(rows[j]?.role==='user'){user=rows[j];break}}
+    return user?[user,rows[i]]:[rows[i]];
+  }
+  return rows.slice(-2);
+}
+function mhPdfBuildCoachDocument(doc){
+  const W=595.28,H=841.89,M=46,contentW=W-M*2;
+  const navy=[0.055,0.235,0.30],teal=[0.06,0.61,0.50],muted=[0.38,0.48,0.52],light=[0.95,0.98,0.98],linec=[0.84,0.91,0.90],userBg=[0.94,0.97,1.0],coachBg=[0.95,0.985,0.975];
+  const pages=[];let page=null,y=0;
+  const safe=x=>String(x??'').replace(/[–—]/g,'-').replace(/→/g,'->').replace(/•/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/€/g,'EUR').split('').map(ch=>ch.charCodeAt(0)>255?'?':ch).join('').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/[\r\n]+/g,' ');
+  const n=v=>Number(v).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+  const col=a=>`${n(a[0])} ${n(a[1])} ${n(a[2])}`;
+  const yp=t=>H-t;
+  function text(x,top,str,size=10,bold=false,color=navy,align='left'){
+    const ss=safe(str),approx=ss.length*size*.50;let xx=x;if(align==='right')xx=x-approx;else if(align==='center')xx=x-approx/2;
+    page.ops.push(`BT /${bold?'F2':'F1'} ${n(size)} Tf ${col(color)} rg 1 0 0 1 ${n(xx)} ${n(yp(top))} Tm (${ss}) Tj ET\n`);
+  }
+  function line(x1,t1,x2,t2,color=linec,width=.7){page.ops.push(`${col(color)} RG ${n(width)} w ${n(x1)} ${n(yp(t1))} m ${n(x2)} ${n(yp(t2))} l S\n`)}
+  function rect(x,top,w,h,fill=null,stroke=null,rw=.7){if(fill)page.ops.push(`${col(fill)} rg ${n(x)} ${n(yp(top+h))} ${n(w)} ${n(h)} re f\n`);if(stroke)page.ops.push(`${col(stroke)} RG ${n(rw)} w ${n(x)} ${n(yp(top+h))} ${n(w)} ${n(h)} re S\n`)}
+  function logo(x,top,size=30){
+    const s=size/48, X=v=>x+v*s, Y=v=>yp(top+v*s);
+    page.ops.push(`${col(teal)} rg ${n(X(24))} ${n(Y(43))} m ${n(X(13))} ${n(Y(39))} ${n(X(8))} ${n(Y(30))} ${n(X(9))} ${n(Y(17))} c ${n(X(17))} ${n(Y(18))} ${n(X(23))} ${n(Y(22))} ${n(X(27))} ${n(Y(28))} c ${n(X(26))} ${n(Y(34))} ${n(X(25))} ${n(Y(38))} ${n(X(24))} ${n(Y(43))} c h f\n`);
+    page.ops.push(`${col(navy)} rg ${n(X(24))} ${n(Y(43))} m ${n(X(25))} ${n(Y(30))} ${n(X(30))} ${n(Y(18))} ${n(X(41))} ${n(Y(9))} c ${n(X(42))} ${n(Y(23))} ${n(X(37))} ${n(Y(34))} ${n(X(24))} ${n(Y(43))} c h f\n`);
+    page.ops.push(`${col(navy)} RG 1 w ${n(X(24))} ${n(Y(42))} m ${n(X(23))} ${n(Y(33))} ${n(X(23))} ${n(Y(25))} ${n(X(25))} ${n(Y(18))} c S\n`);
+  }
+  function addPage(){page={ops:[]};pages.push(page);logo(M,28,31);text(M+40,45,'Micro Health',14,true,navy);text(M+40,59,'Coach 360º',8.5,false,muted);text(W-M,48,doc.headerRight||'Consulta',8.5,false,muted,'right');y=82;line(M,y,W-M,y,linec,.8);y+=20}
+  function wrap(str,maxW,size=9.5){const words=safe(str).split(/\s+/).filter(Boolean);const out=[];let cur='';const lim=Math.max(10,Math.floor(maxW/(size*.50)));for(const w of words){const t=cur?cur+' '+w:w;if(t.length>lim&&cur){out.push(cur);cur=w}else cur=t}if(cur)out.push(cur);return out.length?out:['']}
+  function ensure(h){if(y+h>H-58)addPage()}
+  function para(str,size=9.5,color=navy,bold=false,indent=0,leading=13){for(const ln of String(str??'').split(/\n+/)){const ls=wrap(ln||' ',contentW-indent,size);for(const t of ls){ensure(leading+3);text(M+indent,y,t,size,bold,color);y+=leading}}}
+  function section(title){ensure(32);y+=4;text(M,y,title,13,true,navy);y+=12;line(M,y,W-M,y,linec,.7);y+=13}
+  function meta(label,value){ensure(18);text(M,y,label,8,false,muted);text(M+118,y,value||'—',8.5,true,navy);y+=15}
+  function message(m){
+    const isUser=m.role==='user',label=isUser?'Tú':'Coach 360º',bg=isUser?userBg:coachBg,all=[];
+    for(const paraText of String(m.text||'').split(/\n+/))all.push(...wrap(paraText||' ',contentW-28,9.5));
+    let pos=0,part=0;
+    while(pos<all.length){
+      if(H-58-y<75)addPage();
+      const maxLines=Math.max(1,Math.floor((H-58-y-43)/13));
+      const chunk=all.slice(pos,pos+maxLines),isLast=pos+chunk.length>=all.length;
+      const contextExtra=isLast&&m.contextLabel?14:0,h=Math.max(50,32+chunk.length*13+contextExtra);
+      rect(M,y,contentW,h,bg,linec,.6);
+      text(M+12,y+17,part?label+' (continuación)':label,8.5,true,isUser?navy:teal);
+      const stamp=m.createdAt?coachPdfDateTime(m.createdAt):(m.time||'');text(W-M-12,y+17,stamp,7.5,false,muted,'right');
+      let yy=y+34;for(const ln of chunk){text(M+12,yy,ln,9.5,false,navy);yy+=13}
+      if(isLast&&m.contextLabel)text(M+12,y+h-10,`Contexto: ${m.contextLabel}`,7,false,muted);
+      y+=h+11;pos+=chunk.length;part++;
+    }
+  }
+  addPage();
+  text(M,y,doc.title||'Coach 360º',21,true,navy);y+=26;
+  if(doc.subtitle){para(doc.subtitle,9,muted,false,0,12);y+=5}
+  meta('Fecha de consulta',doc.consultedAt||coachPdfDateTime());
+  meta('Datos analizados hasta',doc.dataThrough||'No registrado');
+  if(doc.profileName)meta('Perfil',doc.profileName);
+  y+=5;
+  if(doc.type==='evaluation'){
+    const r=doc.result||{};
+    section('Decisión del Coach');
+    para(`Estrategia: ${r.strategy||r.recommended_strategy||'—'}`,10,navy,true);
+    const ca={maintain:'Mantener',increase:'Subir',decrease:'Bajar'}[r.calorie_action]||r.calorie_action||'—';
+    para(`Calorías: ${ca}${r.calorie_target?' · '+Math.round(Number(r.calorie_target))+' kcal/día':''}`,9.5);
+    para(`Proteína: ${r.protein_target?Math.round(Number(r.protein_target))+' g/día':'—'} · Entrenamientos: ${r.workout_target?Math.round(Number(r.workout_target))+'/semana':'—'}`,9.5);
+    const blocks=[['Situación actual',r.situation],['Estrategia recomendada',r.strategy_rationale||r.strategy_reason],['Nutrición',r.nutrition],['Entrenamiento',r.training],['Recuperación y actividad',r.recovery||r.recovery_activity]];
+    for(const [t,v] of blocks){if(v){section(t);para(v)}}
+    if(Array.isArray(r.priorities)&&r.priorities.length){section('Prioridades');r.priorities.slice(0,6).forEach((v,i)=>para(`${i+1}. ${v}`,9.5))}
+    if(r.next_week||r.next_steps){section('Próxima semana');para(r.next_week||r.next_steps)}
+  }else{
+    section(doc.type==='conversation'?'Conversación':'Consulta');
+    (doc.messages||[]).forEach(message);
+  }
+  section('Nota');para('Documento generado localmente por Micro Health a partir de la conversación o evaluación guardada en este dispositivo. Es orientación general y no sustituye atención médica o nutricional profesional.',8.2,muted);
+  const total=pages.length;pages.forEach((pg,i)=>{page=pg;line(M,H-35,W-M,H-35,linec,.5);text(M,H-20,'Micro Health · Coach 360º',7,false,muted);text(W-M,H-20,`Página ${i+1} de ${total}`,7,false,muted,'right')});
+  const objects=[];const pageIds=[],contentIds=[];for(let i=0;i<pages.length;i++){pageIds.push(5+i*2);contentIds.push(6+i*2)}
+  objects[1]='<< /Type /Catalog /Pages 2 0 R >>';objects[2]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] /Count ${pages.length} >>`;objects[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';objects[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  pages.forEach((pg,i)=>{const stream=pg.ops.join('');objects[pageIds[i]]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n(W)} ${n(H)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentIds[i]} 0 R >>`;objects[contentIds[i]]=`<< /Length ${stream.length} >>\nstream\n${stream}endstream`});
+  let out='%PDF-1.4\n%âãÏÓ\n',offsets=[0];const maxId=objects.length-1;for(let id=1;id<=maxId;id++){offsets[id]=out.length;out+=`${id} 0 obj\n${objects[id]}\nendobj\n`}const xref=out.length;out+=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`;for(let id=1;id<=maxId;id++)out+=String(offsets[id]).padStart(10,'0')+' 00000 n \n';out+=`trailer\n<< /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return bytes;
+}
+function exportCoachPdf(mode='last'){
+  const status=document.getElementById('coachPdfStatus');
+  try{
+    const p=profile()||{};let doc=null,stamp=Date.now();
+    if(mode==='evaluation'){
+      const ev=db.lastCoachEvaluation;
+      if(!ev?.result){throw new Error('Primero genera una evaluación con “Analizar últimas 4 semanas”.')}
+      stamp=Number(ev.createdAt)||Date.now();
+      doc={type:'evaluation',title:'Evaluación Coach 360º',subtitle:'Valoración estructurada de estrategia, nutrición, entrenamiento y recuperación.',headerRight:'Evaluación',consultedAt:coachPdfDateTime(stamp),dataThrough:coachPdfDataDate(ev.dataThrough),profileName:p.nombre||'',result:ev.result};
+    }else{
+      const messages=mode==='conversation'?assistantChatRows():coachPdfLatestPair();
+      if(!messages.length)throw new Error('Todavía no hay conversación para exportar.');
+      const lastAssistant=[...messages].reverse().find(x=>x.role==='assistant')||messages.at(-1);stamp=Number(lastAssistant?.createdAt)||Date.now();
+      doc={type:mode==='conversation'?'conversation':'last',title:mode==='conversation'?'Conversación Coach 360º':'Consulta Coach 360º',subtitle:mode==='conversation'?'Historial de la conversación guardada en este dispositivo.':'Última pregunta y respuesta del Coach.',headerRight:mode==='conversation'?'Conversación':'Consulta',consultedAt:coachPdfDateTime(stamp),dataThrough:coachPdfDataDate(lastAssistant?.dataThrough||''),profileName:p.nombre||'',messages};
+    }
+    const bytes=mhPdfBuildCoachDocument(doc),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    const kind=mode==='evaluation'?'Evaluacion':mode==='conversation'?'Conversacion':'Consulta';a.href=url;a.download=`Micro_Health_Coach_${kind}_${coachPdfIsoDate(stamp)}.pdf`;a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    if(status)status.textContent='PDF generado ✓ · '+doc.consultedAt;
+  }catch(e){console.error(e);if(status)status.textContent='No se pudo generar el PDF: '+(e?.message||e);else alert(e?.message||e)}
 }
 
 async function runCoachAnalysis(focus='week'){
@@ -5903,6 +6030,8 @@ async function runCoachAnalysis(focus='week'){
     }
 
     const out=data.result||{};
+    db.lastCoachEvaluation={createdAt:Date.now(),dataThrough:snapshot.generatedForDate||today(),period:snapshot.period||null,result:out};
+    localStorage.setItem(KEY,JSON.stringify(db));
     document.getElementById('coachSituation').innerHTML=safeCoachText(out.situation||'Sin valoración.');
     document.getElementById('coachNutrition').innerHTML=safeCoachText(out.nutrition||'Sin recomendación.');
     document.getElementById('coachTraining').innerHTML=safeCoachText(out.training||'Sin recomendación.');

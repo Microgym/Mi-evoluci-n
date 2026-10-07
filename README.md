@@ -1,42 +1,33 @@
-# Micro Health v22.2.65 — Coach 360º
+# Micro Health v22.2.66 — Coach 360º + PDF
 
-Esta versión convierte el Asistente en un Coach 360º que cruza composición corporal, evolución, nutrición, energía, entrenamiento, fuerza, actividad y recuperación.
+Esta versión mantiene el Coach 360º de v22.2.65 y añade exportación local a PDF de sus consultas y evaluaciones.
 
-## Coach 360º
+## Novedades
 
-- El objetivo elegido en Perfil es una intención, no una orden: el Coach puede recomendar definir, recomposición, mantenimiento, ganancia muscular controlada o recuperación/mantenimiento temporal si las tendencias lo justifican.
-- Usa tendencias de varias semanas y evita decidir por una sola medición BIA o un solo día.
-- Nutrición completa: kcal, proteína, hidratos, grasas, fibra, azúcares totales/libres, comidas recientes y favoritos.
-- Energía: TDEE y balance estimados por Micro Health, identificados como estimaciones.
-- Actividad y entrenamiento: pasos, distancia, sesiones, ejercicios y evolución de fuerza.
-- Recuperación: sueño y agua cuando existen registros.
-- Composición corporal: usa las referencias activas de la Biblioteca de umbrales según el perfil.
-
-## Dietas y planificación
-
-El chat puede crear dietas/menús personalizados, completar lo que queda del día y adaptar la alimentación al objetivo y al entrenamiento. El Perfil incorpora objetivo principal, número habitual de comidas, tipo de alimentación, alimentos preferidos, alimentos a evitar y alergias/intolerancias. Las alergias/intolerancias se tratan como restricciones estrictas.
+- La sección visible se unifica como **Coach 360º** (la navegación muestra **Coach**).
+- **PDF última consulta**: exporta la última pregunta y la respuesta asociada.
+- **PDF conversación**: exporta el historial del chat guardado en el dispositivo.
+- **PDF evaluación**: exporta la última evaluación estructurada de las 4 semanas.
+- Los PDF incluyen el **logo vectorial de Micro Health**, fecha y hora de la consulta, fecha hasta la que llegan los datos analizados y nombre del perfil cuando existe.
+- Cada nueva respuesta del Coach guarda `dataThrough` para que futuras exportaciones indiquen exactamente hasta qué fecha llegaba el contexto utilizado.
+- La última evaluación estructurada se guarda localmente como `lastCoachEvaluation` para poder exportarla después.
+- La generación del PDF se hace **localmente en el navegador**; el PDF no se envía a Cloudflare ni a servicios externos.
 
 ## Compatibilidad y datos
 
 - La clave localStorage sigue siendo exactamente `miguel-evolucion-v4`.
 - No se borran ni transforman mediciones históricas.
-- Los perfiles antiguos siguen siendo válidos; los nuevos campos tienen valores por defecto.
-- Se conserva íntegra la Biblioteca de umbrales de v22.2.64.
-- `sw.js` usa la caché `micro-health-v22-2-65`.
+- Los perfiles y chats existentes siguen siendo válidos.
+- Se conserva íntegra la Biblioteca de umbrales y el Coach 360º de v22.2.65.
+- `sw.js` usa la caché `micro-health-v22-2-66`.
 
-## Cloudflare Worker requerido
+## Cloudflare
 
-Para activar plenamente Coach 360º, usar **MicroHealth Cloudflare Worker v7.0 Coach360** en el Worker existente `mi-evolucion-foof-ai`.
+**No requiere cambios en Cloudflare respecto a v22.2.65.** Se mantiene el Worker v7.0 Coach360 ya instalado.
 
-El Worker v7.0:
-- conserva `/analyze-food`, `/analyze-cardio` y `/analyze-sleep` del Worker anterior;
-- amplía `/assistant-chat` para estrategia, dietas y recomendaciones 360º;
-- amplía `/coach` con estrategia recomendada, justificación y recuperación;
-- amplía el contexto para evitar truncar el nuevo snapshot;
-- no requiere cambiar el secret `OPENAI_API_KEY`.
+## Archivos a sustituir en GitHub Pages
 
-## Validación
-
-- JavaScript inline de `index.html`: `node --check` OK.
-- Worker v7.0: `node --check` OK.
-- Smoke tests locales de `/health`, protección por API key, `/assistant-chat` y `/coach`: OK.
+- `index.html`
+- `sw.js`
+- `README.md` (recomendado)
+- `manifest.webmanifest` no cambia, pero se incluye en el paquete por comodidad.
