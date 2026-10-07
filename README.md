@@ -1,29 +1,42 @@
-# Micro Health v22.2.64 — Biblioteca central de umbrales
+# Micro Health v22.2.65 — Coach 360º
 
-Esta versión sustituye el enfoque de umbrales dispersos por una biblioteca central consultable desde **Peso > Biblioteca de umbrales**.
+Esta versión convierte el Asistente en un Coach 360º que cruza composición corporal, evolución, nutrición, energía, entrenamiento, fuerza, actividad y recuperación.
 
-## Cambios principales
+## Coach 360º
 
-- El Perfil selecciona automáticamente las referencias aplicables según sexo, edad, altura y peso, solo cuando cada métrica necesita esas variables.
-- Grasa corporal: rangos por sexo y edad (Omron BF511, basados en Gallagher/McCarthy).
-- Músculo esquelético: rangos por sexo y edad (Omron BF511).
-- IMC y peso derivado: referencias adultas OMS; el peso se calcula desde altura + cortes de IMC.
-- Cintura: referencias por sexo de riesgo metabólico OMS.
-- Agua corporal: rango orientativo adulto por sexo de Tanita.
-- Masa ósea: referencia orientativa por sexo y tramo de peso de Tanita.
-- Grasa visceral: escala Omron 1–30 (1–9 normal, 10–14 alto, 15–30 muy alto).
-- BMR: referencia personalizada Mifflin–St Jeor, sin clasificarlo como “bueno/malo”.
-- Proteína, grasa subcutánea y peso muscular: se prioriza tendencia cuando no existe una referencia universal independiente del modelo de báscula.
-- Los umbrales masculinos históricos de Micro Health v22.2.61 se conservan dentro de la biblioteca para consulta y comparación.
+- El objetivo elegido en Perfil es una intención, no una orden: el Coach puede recomendar definir, recomposición, mantenimiento, ganancia muscular controlada o recuperación/mantenimiento temporal si las tendencias lo justifican.
+- Usa tendencias de varias semanas y evita decidir por una sola medición BIA o un solo día.
+- Nutrición completa: kcal, proteína, hidratos, grasas, fibra, azúcares totales/libres, comidas recientes y favoritos.
+- Energía: TDEE y balance estimados por Micro Health, identificados como estimaciones.
+- Actividad y entrenamiento: pasos, distancia, sesiones, ejercicios y evolución de fuerza.
+- Recuperación: sueño y agua cuando existen registros.
+- Composición corporal: usa las referencias activas de la Biblioteca de umbrales según el perfil.
 
-## Datos y compatibilidad
+## Dietas y planificación
 
-- No se modifican mediciones históricas.
+El chat puede crear dietas/menús personalizados, completar lo que queda del día y adaptar la alimentación al objetivo y al entrenamiento. El Perfil incorpora objetivo principal, número habitual de comidas, tipo de alimentación, alimentos preferidos, alimentos a evitar y alergias/intolerancias. Las alergias/intolerancias se tratan como restricciones estrictas.
+
+## Compatibilidad y datos
+
 - La clave localStorage sigue siendo exactamente `miguel-evolucion-v4`.
-- No hay migración de datos.
-- No requiere cambios en Cloudflare Worker.
-- `sw.js` usa la caché `micro-health-v22-2-64` para forzar la actualización de la PWA.
+- No se borran ni transforman mediciones históricas.
+- Los perfiles antiguos siguen siendo válidos; los nuevos campos tienen valores por defecto.
+- Se conserva íntegra la Biblioteca de umbrales de v22.2.64.
+- `sw.js` usa la caché `micro-health-v22-2-65`.
 
-## Archivos de GitHub
+## Cloudflare Worker requerido
 
-Sustituir `index.html`, `sw.js`, `README.md` y `manifest.webmanifest` por los incluidos en este paquete. Mantener los iconos existentes del repositorio.
+Para activar plenamente Coach 360º, usar **MicroHealth Cloudflare Worker v7.0 Coach360** en el Worker existente `mi-evolucion-foof-ai`.
+
+El Worker v7.0:
+- conserva `/analyze-food`, `/analyze-cardio` y `/analyze-sleep` del Worker anterior;
+- amplía `/assistant-chat` para estrategia, dietas y recomendaciones 360º;
+- amplía `/coach` con estrategia recomendada, justificación y recuperación;
+- amplía el contexto para evitar truncar el nuevo snapshot;
+- no requiere cambiar el secret `OPENAI_API_KEY`.
+
+## Validación
+
+- JavaScript inline de `index.html`: `node --check` OK.
+- Worker v7.0: `node --check` OK.
+- Smoke tests locales de `/health`, protección por API key, `/assistant-chat` y `/coach`: OK.
