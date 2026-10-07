@@ -1,4 +1,4 @@
-const CACHE='micro-health-v22-2-54';
+const CACHE='micro-health-v22-2-55';
 const CORE=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./favicon-32.png'];
 
 self.addEventListener('install',event=>{
