@@ -1,15 +1,13 @@
-# Micro Health v22.2.71 — Orden de Entreno
+# Micro Health v22.2.72 — Registro de entrenamiento por pasos
 
-En **Entreno** el orden ahora es: siguiente rutina recomendada, mis rutinas (plegadas por defecto, con inicio desde cada rutina), registrar entrenamiento, historial reciente y entrenamientos registrados. El resumen «Esta semana» se conserva después del historial. Cuando se inicia una rutina, el panel de rutina activa aparece junto a la recomendación.
+En Entreno > Registrar entrenamiento:
+1. Fecha (hoy), hora (ahora) y gimnasio (Gimnasio Atalanta).
+2. Tipo de entrenamiento.
+3. Para fuerza: elegir ejercicio por nombre/imagen, búsqueda y grupo muscular.
+4. Peso y repeticiones por serie (3 por defecto), añadir/quitar series, añadir más ejercicios y validar/guardar.
 
-Se ha retirado solo el botón general **🏋️ Iniciar rutina**. Se mantienen los botones de inicio de las rutinas existentes y el de la recomendación.
+Los demás tipos conservan su formulario anterior para desarrollarlos más adelante.
+Las rutinas y los registros anteriores no se modifican. Clave localStorage: `miguel-evolucion-v4`.
 
-**Entrenamientos registrados** separa las sesiones **Por rutina** y los **Entrenamientos individuales**; se conservan las acciones de modificar, eliminar, cambiar fecha y gimnasio.
-
-No cambian los registros ni la clave local `miguel-evolucion-v4`. No se requiere cambio de Cloudflare.
-
-## Publicación
-
-1. Exporta una copia de seguridad JSON por precaución.
-2. Sustituye `index.html` y `sw.js` en la raíz de GitHub Pages.
-3. No reinstales la PWA ni borres sus datos. La caché pasa a `micro-health-v22-2-71`.
+## Despliegue
+Sustituye `index.html` y `sw.js` en GitHub Pages. No cambies Cloudflare, ni reinstales la PWA. Exporta tu JSON antes de actualizar.
