@@ -1,33 +1,23 @@
-# Micro Health v22.2.66 — Coach 360º + PDF
+# Micro Health v22.2.68 — Corrección de Orientación nutricional
 
-Esta versión mantiene el Coach 360º de v22.2.65 y añade exportación local a PDF de sus consultas y evaluaciones.
+## Qué se corrige
 
-## Novedades
+- Orientación nutricional recibe las mismas variables `kt` y `pt` que el resumen superior de Comidas. Se elimina toda posibilidad de que esa tarjeta use otros campos de objetivos o sus valores de respaldo.
+- La tarjeta muestra explícitamente «objetivos de Datos: X kcal / Y g proteína» y la versión «v22.2.68». Esto permite verificar que la PWA instalada está mostrando la versión nueva.
+- La descripción del objetivo corporal se toma de «Objetivo principal» en Perfil, en vez de fijar «perder grasa manteniendo músculo» para todos los perfiles.
+- No cambia el historial ni los objetivos guardados; no hay migración.
 
-- La sección visible se unifica como **Coach 360º** (la navegación muestra **Coach**).
-- **PDF última consulta**: exporta la última pregunta y la respuesta asociada.
-- **PDF conversación**: exporta el historial del chat guardado en el dispositivo.
-- **PDF evaluación**: exporta la última evaluación estructurada de las 4 semanas.
-- Los PDF incluyen el **logo vectorial de Micro Health**, fecha y hora de la consulta, fecha hasta la que llegan los datos analizados y nombre del perfil cuando existe.
-- Cada nueva respuesta del Coach guarda `dataThrough` para que futuras exportaciones indiquen exactamente hasta qué fecha llegaba el contexto utilizado.
-- La última evaluación estructurada se guarda localmente como `lastCoachEvaluation` para poder exportarla después.
-- La generación del PDF se hace **localmente en el navegador**; el PDF no se envía a Cloudflare ni a servicios externos.
+## Despliegue GitHub Pages
 
-## Compatibilidad y datos
+1. Exporta tu copia JSON antes de actualizar.
+2. Sustituye los archivos **index.html** y **sw.js** de la raíz del repositorio (no subas la carpeta `github_v22.2.68` como una subcarpeta nueva).
+3. Comprueba en Comidas que Orientación nutricional muestra «v22.2.68» y «objetivos de Datos: 2.000 kcal / 165 g proteína» si esos son tus objetivos actuales.
+4. Si no aparece v22.2.68, el dispositivo todavía no ha cargado el código actualizado: revisa que GitHub Pages haya publicado los archivos y abre de nuevo la PWA con conexión. No borres datos ni reinstales.
 
-- La clave localStorage sigue siendo exactamente `miguel-evolucion-v4`.
-- No se borran ni transforman mediciones históricas.
-- Los perfiles y chats existentes siguen siendo válidos.
-- Se conserva íntegra la Biblioteca de umbrales y el Coach 360º de v22.2.65.
-- `sw.js` usa la caché `micro-health-v22-2-66`.
+`manifest.webmanifest` no cambia. `README.md` es opcional.
 
-## Cloudflare
+## Compatibilidad
 
-**No requiere cambios en Cloudflare respecto a v22.2.65.** Se mantiene el Worker v7.0 Coach360 ya instalado.
-
-## Archivos a sustituir en GitHub Pages
-
-- `index.html`
-- `sw.js`
-- `README.md` (recomendado)
-- `manifest.webmanifest` no cambia, pero se incluye en el paquete por comodidad.
+- Clave localStorage sin cambios: `miguel-evolucion-v4`.
+- No requiere modificar Cloudflare Worker.
+- Mantiene Coach 360º, biblioteca de umbrales y exportación PDF.
