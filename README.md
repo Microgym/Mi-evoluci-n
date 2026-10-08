@@ -1,11 +1,11 @@
-# Micro Health v22.2.74 — navegación del registro de entrenamiento
+# Micro Health v22.2.75 — Registro de Fuerza: series sin valores heredados
 
-## Corrección
-- Paso 3: el catálogo se desplaza de forma independiente y los botones **Anterior / Siguiente** permanecen siempre visibles al pie de la ventana flotante.
-- Al seleccionar un ejercicio aparece también **Continuar con este ejercicio** junto a su nombre.
-- Se puede volver de 4 a 3, de 3 a 2 y de 2 a 1 sin perder los valores ya introducidos en las series.
-- El botón Cerrar sigue disponible en todas las pantallas.
-- Sin cambios en los registros, la clave de almacenamiento ni Cloudflare.
+- En entrenamientos **nuevos**, cada ejercicio comienza con 3 series vacías. Ya no se cargan automáticamente los kg ni las repeticiones de sesiones anteriores del mismo gimnasio.
+- Introducir repeticiones por serie es obligatorio; el peso puede quedar vacío si el ejercicio no lo necesita.
+- La validación indica **qué serie** tiene un valor pendiente o inválido y lleva el foco al campo.
+- Botón opcional «Copiar serie 1 a las demás» para repetir una misma combinación de peso y repeticiones, y «Añadir serie» crea una fila vacía.
+- Editar entrenamientos existentes mantiene sus series originales.
+- No cambia `miguel-evolucion-v4`, registros previos ni Cloudflare.
 
-## Instalación
-Sustituir `index.html` y `sw.js` en GitHub Pages. No borrar la PWA ni los datos del navegador. Exportar JSON como copia de seguridad antes de actualizar.
+## Actualización
+Exporta antes el JSON de seguridad. Sustituye `index.html` y `sw.js` en GitHub Pages. No reinstales la PWA ni borres los datos locales.

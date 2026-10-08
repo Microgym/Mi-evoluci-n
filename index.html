@@ -1742,7 +1742,7 @@ nav button[data-sec="entreno"] .nav-label{letter-spacing:-.01em}
 .data-collapsible>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:#173c5e;background:#fbfdfe}
 .data-collapsible>summary::-webkit-details-marker{display:none}
 .data-collapsible-body{padding:0 16px 16px}
-/* v22.2.74 — Peso: entrada e historial plegados por defecto */
+/* v22.2.75 — Peso: entrada e historial plegados por defecto */
 #peso .weight-section-fold{margin-bottom:12px}
 #peso .weight-section-fold>summary{min-height:72px;padding:13px 16px}
 #peso .weight-fold-heading{display:flex;align-items:center;gap:12px;min-width:0}
@@ -3094,7 +3094,7 @@ button,a,label,summary,input,select,textarea{
 @media(max-width:560px){.threshold-profile-head{align-items:flex-start;flex-direction:column}.threshold-profile-head span{text-align:left}}
 
 
-/* v22.2.74 — orden de Entreno e historial separado por origen */
+/* v22.2.75 — orden de Entreno e historial separado por origen */
 #entreno .training-launch{grid-template-columns:1fr}
 #entreno .training-launch .primary{width:100%}
 #entreno .training-history-category{margin:8px 0 18px}
@@ -3102,7 +3102,9 @@ button,a,label,summary,input,select,textarea{
 #entreno .training-history-category h3{margin:0 0 11px;font-size:16px;color:#0d4450}
 #entreno .training-history-category h3 .muted{font-size:13px;font-weight:600}
 
-/* v22.2.74 — registro de entrenamiento por pasos */
+/* v22.2.75 — registro de entrenamiento por pasos */
+.wizard-set-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.wizard-set-actions button{flex:1;min-width:170px}
 .workout-wizard-progress{background:#edf5f6;color:#155269;border-radius:12px;padding:11px 13px;font-weight:700;margin:10px 0 18px}
 .workout-wizard-page[hidden],.workout-wizard-queued[hidden]{display:none!important}
 .workout-wizard-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 3px}
@@ -3121,7 +3123,7 @@ button,a,label,summary,input,select,textarea{
 #workoutTopCard.wizard-strength-values #wizardSetsPanel{display:block!important}
 #workoutTopCard.wizard-other-type #wizardOriginalSave{display:none!important}
 
-/* v22.2.74 — diálogo flotante de entrenamiento, usable en iPhone/Android/PC */
+/* v22.2.75 — diálogo flotante de entrenamiento, usable en iPhone/Android/PC */
 .training-modal-backdrop[hidden]{display:none!important}
 .training-modal-backdrop{position:fixed;inset:0;background:rgba(8,30,40,.62);z-index:9997;backdrop-filter:blur(3px)}
 body.workout-modal-open{overflow:hidden!important}
@@ -3138,7 +3140,7 @@ body.workout-modal-open{overflow:hidden!important}
 #workoutTopCard .workout-wizard-actions button[hidden]{display:none!important}
 #workoutTopCard .workout-wizard-error{color:#9d2727;background:#fff0f0;border:1px solid #f2c4c4;border-radius:10px;padding:10px 12px;font-size:14px}
 #workoutTopCard .workout-wizard-error[hidden]{display:none!important}
-/* v22.2.74 — navegación permanente; catálogo con desplazamiento propio */
+/* v22.2.75 — navegación permanente; catálogo con desplazamiento propio */
 body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!important}
 #workoutTopCard.training-editor-card.show{display:flex;flex-direction:column;overflow:hidden!important}
 #workoutTopCard .training-editor-head{position:relative;top:auto;margin-top:0;flex:0 0 auto}
@@ -3492,7 +3494,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.74</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.75</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3820,9 +3822,10 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 
     <div id="wizardSetsPanel" style="display:none">
       <h3>Series del ejercicio</h3>
-      <p class="muted">Por defecto 3 series. Puedes ajustar el peso y las repeticiones de cada una.</p>
+      <p class="muted">Empiezas con 3 series vacías. Indica las repeticiones realizadas en cada una; el peso puede quedar vacío si no corresponde. No se copian los resultados de entrenamientos anteriores.</p>
       <div id="wizardSetsList"></div>
-      <button type="button" class="set-add" onclick="wizardAddSet()">＋ Añadir serie</button>
+      <div class="wizard-set-actions"><button type="button" class="set-add" onclick="wizardAddSet()">＋ Añadir serie</button>
+      <button type="button" class="secondary" onclick="wizardCopyFirstSet()">Copiar serie 1 a las demás</button></div>
     </div>
     <label>Notas</label>
     <input id="eNotas" placeholder="Ej. intervalos, sensaciones, descanso…">
@@ -8866,7 +8869,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.74</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.75</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -9385,7 +9388,8 @@ function selectManualExercise(id){
   }
   if(x.tipo==='fuerza'){
     const gym=normalizeGymName(document.getElementById('eGym')?.value)||currentGym();
-    prefillManualStrengthFromGym(x.name,gym);
+    // v22.2.75: los registros nuevos no heredan pesos ni repeticiones previos.
+    // Los valores históricos siguen disponibles en el historial, sin convertirse en datos actuales.
   }
 
   renderManualExercisePicker();
@@ -13472,7 +13476,7 @@ function renderTrainingHistoryActions(){
               groupHtml('Entrenamientos individuales',byManual,'No hay entrenamientos individuales registrados.');
  el.querySelectorAll('.history-date-editor input').forEach(input=>prepareMicroHealthDateInput(input));
 }
-/* v22.2.74 — asistente de registro; no altera rutinas ni entrenamientos históricos */
+/* v22.2.75 — series nuevas vacías y validación precisa; no altera datos históricos */
 let workoutWizardStep=1;
 let wizardQueuedExercises=[];
 let wizardSetRows=[];
@@ -13510,13 +13514,19 @@ function wizardRenderSets(){
  <div><label for="wizReps${i}">Reps</label><input id="wizReps${i}" type="number" min="1" step="1" value="${row.reps}" oninput="wizardUpdateSet(${i},'reps',this.value)"></div>
  <button type="button" class="set-remove" aria-label="Quitar serie ${i+1}" onclick="wizardRemoveSet(${i})">×</button></div>`).join('');
 }
-function wizardUpdateSet(i,key,value){if(wizardSetRows[i])wizardSetRows[i][key]=value;}
-function wizardAddSet(){wizardSetRows.push({...wizardSetRows[wizardSetRows.length-1]||{kg:'',reps:''}});wizardRenderSets();}
+function wizardUpdateSet(i,key,value){if(wizardSetRows[i]){wizardSetRows[i][key]=value;setWorkoutWizardError();}}
+function wizardAddSet(){wizardSetRows.push({kg:'',reps:''});wizardRenderSets();}
+function wizardCopyFirstSet(){
+ if(!wizardSetRows.length)return;
+ const first={...wizardSetRows[0]};
+ wizardSetRows=wizardSetRows.map((row,i)=>i===0?row:{...first});
+ wizardRenderSets();setWorkoutWizardError();
+}
 function wizardRemoveSet(i){if(wizardSetRows.length<=1)return alert('Debe quedar al menos una serie.');wizardSetRows.splice(i,1);wizardRenderSets();}
 function wizardInitSets(){
- const kg=document.getElementById('eKg')?.value||'',reps=document.getElementById('eReps')?.value||'';
+ // El formulario antiguo no debe inyectar valores previos en las nuevas series.
  const n=Math.min(20,Math.max(1,Number(document.getElementById('eSeries')?.value)||3));
- wizardSetRows=Array.from({length:n},()=>({kg,reps}));wizardRenderSets();
+ wizardSetRows=Array.from({length:n},()=>({kg:'',reps:''}));wizardRenderSets();
 }
 function wizardIsStrength(){return document.getElementById('eTipo')?.value==='fuerza';}
 function wizardShowStep(step){
@@ -13566,8 +13576,26 @@ function wizardNext(){
 function wizardBack(){wizardShowStep(Math.max(1,workoutWizardStep-1));}
 function wizardStrengthRecord(){
  const ej=document.getElementById('eEj')?.value.trim();if(!ej)return null;
- const sets=wizardSetRows.map(x=>({kg:x.kg===''?null:Number(x.kg),reps:x.reps===''?null:Number(x.reps)}));
- if(!sets.length||sets.some(x=>x.reps==null||!Number.isInteger(x.reps)||x.reps<=0||x.kg!=null&&(!Number.isFinite(x.kg)||x.kg<0))){alert('Indica repeticiones válidas en todas las series y un peso válido si corresponde.');return null;}
+ if(!wizardSetRows.length){setWorkoutWizardError('Añade al menos una serie.');return null;}
+ const sets=[];
+ for(let i=0;i<wizardSetRows.length;i++){
+  const row=wizardSetRows[i];
+  const repsText=String(row.reps??'').trim();
+  const kgText=String(row.kg??'').trim().replace(',','.');
+  const reps=repsText===''?null:Number(repsText);
+  const kg=kgText===''?null:Number(kgText);
+  let field=null,reason='';
+  if(reps===null||!Number.isInteger(reps)||reps<=0){field='reps';reason=`Serie ${i+1}: introduce un número entero de repeticiones mayor que cero.`;}
+  else if(kg!==null&&(!Number.isFinite(kg)||kg<0)){field='kg';reason=`Serie ${i+1}: indica un peso válido (0 o mayor) o déjalo vacío si no corresponde.`;}
+  if(field){
+   setWorkoutWizardError(reason);
+   const input=document.getElementById(`wiz${field==='kg'?'Kg':'Reps'}${i}`);
+   input?.focus();input?.scrollIntoView?.({block:'center',behavior:'smooth'});
+   return null;
+  }
+  sets.push({kg,reps});
+ }
+ setWorkoutWizardError();
  const fecha=isoFromES(document.getElementById('eFecha')?.value||'');if(!fecha){alert('Fecha no válida.');return null;}
  const gym=document.getElementById('eGym')?.value||'Gimnasio Atalanta';
  return {fecha,hora:document.getElementById('eHora')?.value||currentHHMM(),gym,tipo:'fuerza',
@@ -13610,6 +13638,7 @@ function openTrainingEditor(){
   const type=document.getElementById('eTipo');if(type)type.value='fuerza';
   const gym='Gimnasio Atalanta';ensureGymOptions('eGym',gym);
   const count=document.getElementById('eSeries');if(count)count.value='3';
+  ['eKg','eReps','eEquipo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   wizardQueuedExercises=[];wizardSetRows=[];resetManualExerciseSelection();
   toggleTrainingFields();
  }else ensureGymOptions('eGym',currentGym());
