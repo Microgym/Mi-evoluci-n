@@ -3102,7 +3102,7 @@ button,a,label,summary,input,select,textarea{
 #entreno .training-history-category h3{margin:0 0 11px;font-size:16px;color:#0d4450}
 #entreno .training-history-category h3 .muted{font-size:13px;font-weight:600}
 
-/* v22.2.81 — historial accesible y acciones explícitas */
+/* v22.2.83 — historial accesible y acciones explícitas */
 #entreno .training-recent-item{grid-template-columns:42px minmax(0,1fr) auto;cursor:default}
 #entreno .training-recent-main{min-width:0}
 #entreno .training-recent-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
@@ -3131,7 +3131,7 @@ button,a,label,summary,input,select,textarea{
 #workoutTopCard.wizard-other-type #wizardOriginalSave{display:none!important}
 
 
-/* v22.2.81 — Cardio: registro guiado en 4 pasos sin catálogo de Fuerza */
+/* v22.2.83 — Cardio: registro guiado en 4 pasos sin catálogo de Fuerza */
 #workoutTopCard.wizard-cardio-data #manualExercisePicker,
 #workoutTopCard.wizard-cardio-data #strengthFields,
 #workoutTopCard.wizard-cardio-data #wizardSetsPanel,
@@ -3142,7 +3142,7 @@ button,a,label,summary,input,select,textarea{
 #workoutTopCard.wizard-cardio-data #manualTrainingFields > .row {display:flex!important}
 #workoutTopCard.wizard-cardio-data #manualTrainingFields > .row #eKcal {background:#f1f7f7}
 
-/* v22.2.81 — Deporte: mismo asistente de 4 pasos que Cardio */
+/* v22.2.83 — Deporte: mismo asistente de 4 pasos que Cardio */
 #workoutTopCard.wizard-sport-data #manualExercisePicker,
 #workoutTopCard.wizard-sport-data #strengthFields,
 #workoutTopCard.wizard-sport-data #wizardSetsPanel,
@@ -3192,14 +3192,14 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
  #workoutTopCard .workout-wizard-actions button{min-width:0;flex:1 1 auto}
 }
 
-/* v22.2.81 — confirmación persistente y aviso visible tras cerrar el diálogo */
+/* v22.2.83 — confirmación persistente y aviso visible tras cerrar el diálogo */
 .training-save-confirmation[hidden]{display:none!important}
 .training-save-confirmation{background:#e9f7f2;border:1px solid #a8d7c7;color:#175b49;border-radius:14px;padding:13px 16px;font-weight:700;margin:12px 0}
 #trainingSaveToast{position:fixed;z-index:10050;top:max(18px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-16px);width:min(440px,calc(100vw - 28px));box-sizing:border-box;background:#115d4d;color:white;padding:16px 18px;border-radius:15px;box-shadow:0 12px 35px rgba(0,0,0,.24);font-weight:700;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 #trainingSaveToast.visible{opacity:1;transform:translate(-50%,0)}
 
 
-/* v22.2.81 · Golf scorecard */
+/* v22.2.83 · Golf scorecard */
 #golfFields .golf-score-scroll{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;margin:12px 0}
 #golfFields .golf-table{width:100%;min-width:445px;border-collapse:collapse;font-size:13px}
 #golfFields .golf-table th,#golfFields .golf-table td{padding:7px 5px;border-bottom:1px solid #dfebea;text-align:center;white-space:nowrap}
@@ -3214,7 +3214,16 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 .golf-evo-stats{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0;font-size:13px}
 .golf-evo-stats span{padding:7px 9px;background:#f0f7f6;border-radius:9px}
 .golf-evo-spark{width:100%;height:80px;max-width:360px;display:block}
-.golf-history-card{margin:8px 0;padding:8px 10px;background:#f2f8f7;border-radius:10px;font-size:12px;line-height:1.6}
+ .golf-history-card{margin:8px 0;padding:8px 10px;background:#f2f8f7;border-radius:10px;font-size:12px;line-height:1.6}
+/* v22.2.83: bola levantada y resultado bruto por hoyo */
+#golfFields .golf-table{min-width:675px}
+#golfFields .golf-score-cell{display:flex;align-items:center;gap:5px;justify-content:center}
+#golfFields .golf-lift-btn{font-size:11px;white-space:nowrap;border:1px solid #9fbdb9;border-radius:7px;padding:8px 7px;background:#f2f8f7;color:#174e55;cursor:pointer;min-height:40px}
+#golfFields .golf-lift-btn.is-lifted{background:#173e4a;color:white;border-color:#173e4a}
+#golfFields .golf-result-cell{font-size:12px;font-weight:700;color:#145d50}
+.golf-evo-shortcut{margin:12px 0 16px}
+.golf-evo-shortcut button{width:100%;text-align:left;padding:12px 15px;border:1px solid #b5d9d2;background:#eaf6f3;border-radius:12px;color:#155449;font-weight:750;cursor:pointer}
+
 </style>
 
 </head>
@@ -3549,7 +3558,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.81</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.83</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3659,7 +3668,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   <div class="training-screen-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div>
   <div><h2>Entrenamiento</h2><div class="muted">Registra sesiones, progresa en fuerza y organiza tus rutinas.</div></div>
 </div>
-
+<div class="golf-evo-shortcut"><button type="button" onclick="openGolfEvolution()">⛳ Ver mi evolución de golf · Masía, Lagos y Nuevos ↓</button></div>
 
 <div id="nextRoutineCard" class="routine-next-card"></div>
 
@@ -3773,8 +3782,10 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
         <input id="eSportMinutes" type="number" min="1" placeholder="Ej. 90" oninput="syncSportDuration();previewCalories()">
       </div>
       <div id="golfFields" style="display:none">
-        <h3>⛳ Club de Golf Escorpión · barras azules</h3>
-        <p class="muted">Elige 9 hoyos o combina dos recorridos de 9. Anota los golpes hoyo a hoyo; el borrador se conserva automáticamente en este dispositivo.</p>
+        <h3>⛳ Golf · mis campos</h3>
+        <p class="muted">Elige 9 hoyos o combina dos recorridos. Anota tus golpes o pulsa «Levantar bola» cuando no termines un hoyo: suma 0 puntos Stableford y no se inventan golpes. El borrador se guarda automáticamente.</p>
+        <label>Campo de golf</label>
+        <select id="golfCourseSelect" onchange="golfCourseChanged()"><option value="escorpion">Club de Golf Escorpión</option></select>
         <div class="row">
           <div><label>Primer recorrido</label><select id="golfRoute1" onchange="golfRouteChanged()"><option value="masia">Masía</option><option value="lagos">Lagos</option><option value="nuevos">Nuevos</option></select></div>
           <div><label>Segundo recorrido</label><select id="golfRoute2" onchange="golfRouteChanged()"><option value="">Solo 9 hoyos</option><option value="lagos">Lagos</option><option value="nuevos">Nuevos</option><option value="masia">Masía</option></select></div>
@@ -3786,12 +3797,25 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
         <input id="eGolfHoles" type="hidden" value="9"><input id="eGolfClub" type="hidden" value="Club de Golf Escorpión">
         <div id="golfScoreSummary" class="golf-score-summary" aria-live="polite"></div>
         <div id="golfScoreTable" class="golf-score-scroll"></div>
-        <p id="golfScoreNote" class="sport-hint">Puntos Stableford orientativos: se usa el hándicap introducido como golpes concedidos para 18 hoyos. Para puntos oficiales WHS faltan slope y course rating de azules.</p>
-        <details id="golfConfigDetails" class="golf-config"><summary>⚙️ Editar pares, índices, metros y hándicap del campo</summary>
-          <p class="muted">Estos datos se guardan en Micro Health y sus copias de seguridad. Los resultados antiguos conservan los datos de cada partida.</p>
-          <label>Recorrido que quieres editar</label><select id="golfConfigRoute" onchange="golfRenderConfig()"><option value="masia">Masía</option><option value="lagos">Lagos</option><option value="nuevos">Nuevos</option></select>
+        <p id="golfScoreNote" class="sport-hint">El resultado (birdie, par, bogey…) es bruto, sin hándicap. Si levantas bola, el hoyo vale 0 puntos Stableford y la vuelta no tiene total bruto exacto. La evolución está en Entreno → «⛳ Evolución de golf · Todos mis campos». Stableford orientativo: faltan slope y course rating de azules para WHS oficial.</p>
+        <details id="golfConfigDetails" class="golf-config"><summary>⚙️ Mis campos · crear, editar o leer tarjeta con foto</summary>
+          <p class="muted">Los campos se guardan en tu copia de seguridad JSON. Las partidas anteriores mantienen su tarjeta original.</p>
+          <h4>Crear campo nuevo</h4>
+          <label>Nombre del campo</label><input id="golfNewCourseName" placeholder="Ej. Club de Golf ..." maxlength="100">
+          <div class="row"><div><label>Barras de salida</label><input id="golfNewCourseTee" placeholder="Ej. amarillas" maxlength="35"></div><div><label>Hoyos</label><select id="golfNewCourseHoles"><option value="9">9 hoyos</option><option value="18" selected>18 hoyos</option><option value="27">27 hoyos</option></select></div></div>
+          <button type="button" class="secondary" onclick="golfCreateCourse()">+ Crear campo</button>
+          <div id="golfCreateMessage" class="sport-hint" role="status"></div>
+          <hr><h4>Editar campo y recorrido seleccionados</h4>
+          <label>Nombre del campo</label><input id="golfEditCourseName" maxlength="100">
+          <label>Barras de salida</label><input id="golfEditCourseTee" maxlength="35">
+          <label>Recorrido de 9 hoyos que quieres editar</label><select id="golfConfigRoute" onchange="golfRenderConfig()"></select>
+          <label>Nombre del recorrido</label><input id="golfEditRouteName" maxlength="65">
+          <p class="muted">Rellena los pares, hándicaps de hoyo y metros manualmente, o sube una foto de la tarjeta del campo para preparar los valores. Revisa siempre lo detectado antes de guardar.</p>
+          <label>📷 Foto de la tarjeta del campo (opcional)</label>
+          <input id="golfCardPhoto" class="ios-photo-input" type="file" accept="image/*" onchange="golfAnalyzeScorecardPhoto(this)">
+          <div id="golfPhotoStatus" class="sport-hint" role="status">La foto se enviará al servicio de IA de Micro Health para leerla. Revisa los datos antes de guardarlos; los valores no reconocidos quedarán sin rellenar.</div>
           <div id="golfConfigTable" class="golf-score-scroll"></div>
-          <button type="button" class="secondary" onclick="golfSaveConfig()">Guardar datos del campo</button>
+          <button type="button" class="primary" onclick="golfSaveConfig()">Guardar cambios del campo y recorrido</button>
           <div id="golfConfigMessage" class="sport-hint" role="status"></div>
         </details>
       </div>
@@ -3959,7 +3983,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   <p class="muted">Puedes editar o eliminar una actividad concreta sin afectar a las demás del mismo día.</p>
   <div id="trainingHistoryActions"></div>
 </div></div></details>
-<details class="training-fold" id="golfEvolutionDetails" open><summary><span class="training-section-label">⛳ Evolución de golf · Escorpión</span></summary><div class="training-fold-body"><div class="card"><p class="muted">Estadísticas independientes de Masía, Lagos y Nuevos, también si juegas 18 hoyos combinando recorridos.</p><div id="golfEvolutionContent"></div></div></div></details>
+<details class="training-fold" id="golfEvolutionDetails" open><summary><span class="training-section-label">⛳ Evolución de golf · Todos mis campos</span></summary><div class="training-fold-body"><div class="card"><p class="muted">Estadísticas independientes por campo y por recorrido de 9 hoyos, también en partidas combinadas.</p><div id="golfEvolutionContent"></div></div></div></details>
 
 
 <div class="card training-dashboard">
@@ -8967,7 +8991,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.81</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.83</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -9567,7 +9591,7 @@ const SPORT_ACTIVITIES={
   otro:{label:'Otro deporte',mets:{suave:4.0,moderada:6.0,intensa:8.0}}
 };
 
-/* v22.2.81 · Club de Golf Escorpión · tarjeta, configuración y evolución */
+/* v22.2.83 · Club de Golf Escorpión · tarjeta, configuración y evolución */
 const GOLF_ROUTES={
  masia:{name:'Masía',par:[5,4,4,4,4,3,4,3,5],hcp:[6,16,10,2,4,18,8,14,12],meters:[442,313,344,377,340,138,339,154,440]},
  lagos:{name:'Lagos',par:[4,4,3,4,3,5,4,3,5],hcp:[5,9,17,3,15,13,11,7,1],meters:[366,318,141,331,120,471,323,159,435]},
@@ -9575,17 +9599,57 @@ const GOLF_ROUTES={
 };
 let golfScores={};let golfInitialized=false;let golfEditHoleSnapshot=null;
 function golfConfig(){
- if(!db.golfConfig || typeof db.golfConfig!=='object')db.golfConfig={};
- if(!db.golfConfig.routes)db.golfConfig.routes={};
+ if(!db.golfConfig||typeof db.golfConfig!=='object')db.golfConfig={};
+ const cfg=db.golfConfig;
+ if(!cfg.routes)cfg.routes={};
  for(const [key,defaults] of Object.entries(GOLF_ROUTES)){
-  if(!db.golfConfig.routes[key])db.golfConfig.routes[key]={par:[...defaults.par],hcp:[...defaults.hcp],meters:[...defaults.meters]};
+  if(!cfg.routes[key])cfg.routes[key]={par:[...defaults.par],hcp:[...defaults.hcp],meters:[...defaults.meters]};
  }
- if(!Number.isFinite(Number(db.golfConfig.handicap)))db.golfConfig.handicap=28;
- return db.golfConfig;
+ if(!cfg.courses||typeof cfg.courses!=='object')cfg.courses={};
+ if(!Number.isFinite(Number(cfg.handicap)))cfg.handicap=28;
+ return cfg;
 }
+function golfCourseMap(){
+ const cfg=golfConfig();
+ return {escorpion:{name:cfg.escorpionName||'Club de Golf Escorpión',tee:cfg.escorpionTee||'azules',routes:Object.fromEntries(Object.entries(GOLF_ROUTES).map(([id,r])=>[id,{name:r.name,...cfg.routes[id]}]))},...cfg.courses};
+}
+function golfCurrentCourseId(){return document.getElementById('golfCourseSelect')?.value||'escorpion';}
+function golfCurrentCourse(){return golfCourseMap()[golfCurrentCourseId()]||golfCourseMap().escorpion;}
+function golfRouteName(key,courseId='escorpion'){return golfCourseMap()[courseId]?.routes?.[key]?.name||GOLF_ROUTES[key]?.name||key;}
 function golfEsc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function golfPopulateSelectors(courseId,route1,route2){
+ const courses=golfCourseMap(),courseSelect=document.getElementById('golfCourseSelect');if(!courseSelect)return;
+ courseSelect.innerHTML=Object.entries(courses).map(([id,c])=>`<option value="${golfEsc(id)}">${golfEsc(c.name)} · ${golfEsc(c.tee||'barras sin indicar')}</option>`).join('');
+ courseSelect.value=courses[courseId]?courseId:'escorpion';
+ const routes=Object.entries(golfCurrentCourse().routes),a=document.getElementById('golfRoute1'),b=document.getElementById('golfRoute2'),edit=document.getElementById('golfConfigRoute');
+ const opts=routes.map(([id,r])=>`<option value="${golfEsc(id)}">${golfEsc(r.name)}</option>`).join('');
+ if(a){a.innerHTML=opts;a.value=routes.some(([id])=>id===route1)?route1:routes[0]?.[0]||'';}
+ if(b){b.innerHTML='<option value="">Solo 9 hoyos</option>'+opts;b.value=routes.some(([id])=>id===route2)&&route2!==a.value?route2:'';}
+ if(edit){const old=edit.value;edit.innerHTML=opts;edit.value=routes.some(([id])=>id===old)?old:a.value;}
+ golfRenderCourseInfo();
+}
+function golfRenderCourseInfo(){
+ const c=golfCurrentCourse(),name=document.getElementById('golfEditCourseName'),tee=document.getElementById('golfEditCourseTee');
+ if(name)name.value=c.name;if(tee)tee.value=c.tee||'';
+}
 function golfSelectedRoutes(){const a=document.getElementById('golfRoute1')?.value||'masia',b=document.getElementById('golfRoute2')?.value||'';return b&&a!==b?[a,b]:[a];}
-function golfSelectedHoles(){const cfg=golfConfig();return golfSelectedRoutes().flatMap(route=>Array.from({length:9},(_,i)=>{const old=golfEditHoleSnapshot?.[route]?.[i];return {route,index:i,par:Number(old?.par??cfg.routes[route].par[i]),hcp:Number(old?.hcp??cfg.routes[route].hcp[i]),meters:Number(old?.meters??cfg.routes[route].meters[i]),score:golfScores[route]?.[i]??''};}));}
+function golfSelectedHoles(){const course=golfCurrentCourse();return golfSelectedRoutes().flatMap(route=>Array.from({length:9},(_,i)=>{const old=golfEditHoleSnapshot?.[route]?.[i],cfg=course.routes[route];if(!cfg)return [];return {route,index:i,par:Number(old?.par??cfg.par[i]),hcp:Number(old?.hcp??cfg.hcp[i]),meters:Number(old?.meters??cfg.meters[i]),score:golfScores[route]?.[i]??''};})).flat();}
+function golfCourseChanged(){
+ golfPopulateSelectors(golfCurrentCourseId());golfScores={};golfEditHoleSnapshot=null;
+ golfRenderConfig();golfRenderScorecard();golfPersistDraft();previewCalories();
+}
+function golfCreateCourse(){
+ const name=document.getElementById('golfNewCourseName')?.value.trim(),tee=document.getElementById('golfNewCourseTee')?.value.trim()||'sin indicar',n=Number(document.getElementById('golfNewCourseHoles')?.value),msg=document.getElementById('golfCreateMessage');
+ if(!name||name.length<3){msg.textContent='Escribe el nombre del campo (mínimo 3 caracteres).';return;}
+ if(![9,18,27].includes(n)){msg.textContent='Selecciona 9, 18 o 27 hoyos.';return;}
+ const cfg=golfConfig();if(Object.values(golfCourseMap()).some(c=>c.name.toLowerCase()===name.toLowerCase())){msg.textContent='Ya existe un campo con ese nombre.';return;}
+ const id='campo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+ const routes={};for(let i=0;i<n/9;i++){const key=id+'_r'+(i+1);routes[key]={name:n===9?'Recorrido único':i===0?'Primeros 9':i===1?'Segundos 9':'Terceros 9',par:Array(9).fill(null),hcp:Array(9).fill(null),meters:Array(9).fill(null)};}
+ cfg.courses[id]={name,tee,routes};
+ try{localStorage.setItem(KEY,JSON.stringify(db));}catch(err){delete cfg.courses[id];msg.textContent='No se pudo guardar el campo.';return;}
+ golfPopulateSelectors(id);golfScores={};golfEditHoleSnapshot=null;golfRenderConfig();golfRenderScorecard();golfPersistDraft();renderGolfEvolution();
+ msg.textContent='✓ Campo creado. Los hoyos empiezan vacíos: rellena los datos reales, a mano o con una foto, y guárdalos antes de registrar partidas.';
+}
 function golfRoundStrokes(holes,handicap){
  // Si los índices forman un 1..18 único, se usan tal como figuran en la tarjeta.
  // Si se repiten (Lagos + Nuevos), se reparten los golpes por cada 9 hoyos.
@@ -9603,28 +9667,44 @@ function golfRoundStrokes(holes,handicap){
  }
  return {received,officialIndices:complete};
 }
+function golfResultLabel(h){
+ if(h.lifted||h.score==='X')return 'Bola levantada';
+ if(h.score===''||h.score==null)return '—';
+ const n=Number(h.score);if(!Number.isInteger(n)||n<1)return '—';
+ const diff=n-Number(h.par);
+ if(diff<=-4)return `${diff} · Bajo par`;
+ return ({'-3':'Albatros','-2':'Eagle','-1':'Birdie','0':'Par','1':'Bogey','2':'Doble bogey','3':'Triple bogey'})[diff]||`+${diff} sobre par`;
+}
 function golfStats(holes,handicap){
  const {received,officialIndices}=golfRoundStrokes(holes,handicap);
- let gross=0,par=0,stableford=0,net=0,played=0;
- holes.forEach((h,i)=>{const score=Number(h.score);if(h.score!==''&&Number.isInteger(score)&&score>0){played++;gross+=score;par+=h.par;net+=score-received[i];stableford+=Math.max(0,2+h.par+received[i]-score);}});
- return {gross,par,net,stableford,played,total:holes.length,received,officialIndices};
+ let grossRaw=0,par=0,stableford=0,netRaw=0,played=0,lifted=0,scored=0;
+ holes.forEach((h,i)=>{
+  if(h.lifted||h.score==='X'){played++;lifted++;return;}
+  const score=Number(h.score);
+  if(h.score!==''&&h.score!=null&&Number.isInteger(score)&&score>0){
+   played++;scored++;grossRaw+=score;par+=h.par;netRaw+=score-received[i];
+   stableford+=Math.max(0,2+h.par+received[i]-score);
+  }
+ });
+ const exact=played===holes.length&&lifted===0;
+ return {gross:exact?grossRaw:null,grossRaw,par,net:exact?netRaw:null,stableford,played,total:holes.length,received,officialIndices,lifted,scored,exact};
 }
 function golfPersistDraft(){
  if(editingTrainingIndex!=null)return;
- db.golfDraft={routes:golfSelectedRoutes(),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,scores:JSON.parse(JSON.stringify(golfScores)),minutes:document.getElementById('eGolfMinutes')?.value||'',fecha:document.getElementById('eFecha')?.value||''};
+ db.golfDraft={courseId:golfCurrentCourseId(),routes:golfSelectedRoutes(),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,scores:JSON.parse(JSON.stringify(golfScores)),minutes:document.getElementById('eGolfMinutes')?.value||'',fecha:document.getElementById('eFecha')?.value||''};
  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(err){console.warn('No se pudo conservar el borrador de golf',err);}
 }
 function golfSetup(record=null){
  golfConfig();const a=document.getElementById('golfRoute1'),b=document.getElementById('golfRoute2'),h=document.getElementById('golfRoundHandicap');if(!a||!b||!h)return;
  const draft=!record?db.golfDraft:null;
  const routes=record?.golfRecorridos?.length?record.golfRecorridos:draft?.routes?.length?draft.routes:['masia'];
- a.value=GOLF_ROUTES[routes[0]]?routes[0]:'masia';b.value=GOLF_ROUTES[routes[1]]?routes[1]:'';
+ golfPopulateSelectors(record?.golfCourseId||draft?.courseId||'escorpion',routes[0],routes[1]);
  h.value=record?.golfHandicap??draft?.handicap??golfConfig().handicap;
  golfScores={};golfEditHoleSnapshot=null;
  if(Array.isArray(record?.golfTarjeta)){
   golfEditHoleSnapshot={};record.golfTarjeta.forEach(x=>{if(!golfEditHoleSnapshot[x.route])golfEditHoleSnapshot[x.route]=[];golfEditHoleSnapshot[x.route][x.index]=x;});
  }
- if(Array.isArray(record?.golfTarjeta))record.golfTarjeta.forEach(x=>{if(!golfScores[x.route])golfScores[x.route]=Array(9).fill('');golfScores[x.route][x.index]=x.score??'';});
+ if(Array.isArray(record?.golfTarjeta))record.golfTarjeta.forEach(x=>{if(!golfScores[x.route])golfScores[x.route]=Array(9).fill('');golfScores[x.route][x.index]=x.lifted?'X':(x.score??'');});
  else if(draft?.scores)golfScores=JSON.parse(JSON.stringify(draft.scores));
  if(!record&&draft?.minutes&&document.getElementById('eGolfMinutes'))document.getElementById('eGolfMinutes').value=draft.minutes;
  golfInitialized=true;golfRenderScorecard();golfRenderConfig();
@@ -9642,15 +9722,26 @@ function golfScoreChanged(route,index,el){
  el.setAttribute('aria-invalid',value!==''&&(!Number.isInteger(Number(value))||Number(value)<1||Number(value)>20)?'true':'false');
  golfRenderTotals();golfPersistDraft();
 }
+function golfToggleLift(route,index){
+ if(!golfScores[route])golfScores[route]=Array(9).fill('');
+ golfScores[route][index]=golfScores[route][index]==='X'?'':'X';
+ const host=document.getElementById('golfScoreTable'),left=host?.scrollLeft||0,top=host?.scrollTop||0;
+ golfRenderScorecard();if(host){host.scrollLeft=left;host.scrollTop=top;}
+ golfPersistDraft();
+}
+function openGolfEvolution(){
+ const section=document.getElementById('golfEvolutionDetails');if(!section)return;
+ section.open=true;renderGolfEvolution();section.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function golfRenderScorecard(){
  const host=document.getElementById('golfScoreTable');if(!host)return;
  const holes=golfSelectedHoles();const h=document.getElementById('eGolfHoles');if(h)h.value=String(holes.length);
- const club=document.getElementById('eGolfClub');if(club)club.value='Club de Golf Escorpión';
+ const club=document.getElementById('eGolfClub');if(club)club.value=golfCurrentCourse().name;
  let last='';
- host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>'+holes.map((hole,i)=>{
-  let head='';if(hole.route!==last){last=hole.route;head=`<tr><th colspan="7" style="text-align:left">${GOLF_ROUTES[hole.route].name}</th></tr>`;}
+ host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes / Levantar</th><th>Resultado bruto</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>'+holes.map((hole,i)=>{
+  let head='';if(hole.route!==last){last=hole.route;head=`<tr><th colspan="8" style="text-align:left">${golfRouteName(hole.route,golfCurrentCourseId())}</th></tr>`;}
   const v=hole.score;
-  return head+`<tr><td>${i+1}</td><td>${hole.par}</td><td>${hole.hcp}</td><td>${hole.meters}</td><td><input type="number" inputmode="numeric" min="1" max="20" step="1" aria-label="Golpes ${GOLF_ROUTES[hole.route].name} hoyo ${hole.index+1}" value="${golfEsc(v)}" oninput="golfScoreChanged('${hole.route}',${hole.index},this)"></td><td data-golf-received="${i}">—</td><td data-golf-points="${i}">—</td></tr>`;
+  return head+`<tr><td>${i+1}</td><td>${hole.par||'—'}</td><td>${hole.hcp||'—'}</td><td>${hole.meters||'—'}</td><td><div class="golf-score-cell"><input type="number" inputmode="numeric" min="1" max="20" step="1" aria-label="Golpes ${golfRouteName(hole.route,golfCurrentCourseId())} hoyo ${hole.index+1}" value="${v==='X'?'':golfEsc(v)}" ${v==='X'?'disabled':''} oninput="golfScoreChanged('${hole.route}',${hole.index},this)"><button type="button" class="golf-lift-btn ${v==='X'?'is-lifted':''}" aria-pressed="${v==='X'}" onclick="golfToggleLift('${hole.route}',${hole.index})">${v==='X'?'↩ Reanudar':'⚑ Levantar'}</button></div></td><td class="golf-result-cell" data-golf-result="${i}">${golfResultLabel(hole)}</td><td data-golf-received="${i}">—</td><td data-golf-points="${i}">—</td></tr>`;
  }).join('')+'</tbody></table>';
  golfRenderTotals();
 }
@@ -9659,56 +9750,102 @@ function golfRenderTotals(){
  const holes=golfSelectedHoles(),hcp=Number(document.getElementById('golfRoundHandicap')?.value);
  if(!Number.isInteger(hcp)||hcp<0||hcp>54){host.textContent='Indica un hándicap entero entre 0 y 54.';return;}
  const st=golfStats(holes,hcp),allPar=holes.reduce((a,h)=>a+h.par,0);
- holes.forEach((hole,i)=>{const strokes=st.received[i];const got=Number(hole.score);const points=hole.score!==''&&Number.isInteger(got)&&got>0?Math.max(0,2+hole.par+strokes-got):null;
-  const received=document.querySelector(`[data-golf-received="${i}"]`),pt=document.querySelector(`[data-golf-points="${i}"]`);
-  if(received)received.textContent=String(strokes);if(pt)pt.textContent=points==null?'—':String(points);
+ holes.forEach((hole,i)=>{const strokes=st.received[i];const got=Number(hole.score);const points=hole.score==='X'?0:hole.score!==''&&Number.isInteger(got)&&got>0?Math.max(0,2+hole.par+strokes-got):null;
+  const received=document.querySelector(`[data-golf-received="${i}"]`),pt=document.querySelector(`[data-golf-points="${i}"]`),result=document.querySelector(`[data-golf-result="${i}"]`);
+  if(received)received.textContent=String(strokes);if(pt)pt.textContent=points==null?'—':String(points);if(result)result.textContent=golfResultLabel(hole);
  });
- host.innerHTML=`<b>${holes.length} hoyos · par ${allPar} · ${st.played}/${st.total} completados</b><div>Golpes: <b>${st.gross}</b>${st.played?` · Respecto al par jugado: <b>${st.gross-st.par>=0?'+':''}${st.gross-st.par}</b>`:''}</div><div>Stableford orientativo: <b>${st.stableford} puntos</b> · Neto: <b>${st.net}</b></div>${st.officialIndices?'':'<small>Índices combinados no únicos: distribución orientativa de golpes por recorrido de 9 hoyos.</small>'}`;
+ host.innerHTML=`<b>${holes.length} hoyos · par ${allPar} · ${st.played}/${st.total} completados</b><div>Golpes: <b>${st.exact?st.gross:(st.lifted?'Sin total exacto (bola levantada)':st.scored?st.grossRaw+' (parcial)':'—')}</b>${st.exact?` · Respecto al par: <b>${st.gross-st.par>=0?'+':''}${st.gross-st.par}</b>`:''}</div><div>Stableford orientativo: <b>${st.stableford} puntos</b> · Neto: <b>${st.exact?st.net:'—'}</b>${st.lifted?` · ${st.lifted} bola${st.lifted>1?'s':''} levantada${st.lifted>1?'s':''} (0 puntos)`:''}</div>${st.officialIndices?'':'<small>Índices combinados no únicos: distribución orientativa de golpes por recorrido de 9 hoyos.</small>'}`;
 }
 function golfRenderConfig(){
- const route=document.getElementById('golfConfigRoute')?.value||'masia',host=document.getElementById('golfConfigTable');if(!host)return;
- const cfg=golfConfig().routes[route];
- host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>Metros</th></tr></thead><tbody>'+Array.from({length:9},(_,i)=>`<tr><td>${i+1}</td><td><input type="number" data-golf-config="par" data-hole="${i}" min="3" max="6" value="${cfg.par[i]}"></td><td><input type="number" data-golf-config="hcp" data-hole="${i}" min="1" max="18" value="${cfg.hcp[i]}"></td><td><input type="number" data-golf-config="meters" data-hole="${i}" min="1" max="1000" style="width:65px;max-width:65px" value="${cfg.meters[i]}"></td></tr>`).join('')+'</tbody></table>';
+ const route=document.getElementById('golfConfigRoute')?.value||golfSelectedRoutes()[0],host=document.getElementById('golfConfigTable');if(!host)return;
+ const cfg=golfCurrentCourse().routes[route];if(!cfg){host.innerHTML='';return;}
+ const label=document.getElementById('golfEditRouteName');if(label)label.value=cfg.name;
+ host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>Metros</th></tr></thead><tbody>'+Array.from({length:9},(_,i)=>`<tr><td>${i+1}</td><td><input type="number" data-golf-config="par" data-hole="${i}" min="3" max="6" value="${cfg.par[i]??''}"></td><td><input type="number" data-golf-config="hcp" data-hole="${i}" min="1" max="18" value="${cfg.hcp[i]??''}"></td><td><input type="number" data-golf-config="meters" data-hole="${i}" min="0" max="1000" style="width:65px;max-width:65px" value="${cfg.meters[i]||''}" placeholder="—"></td></tr>`).join('')+'</tbody></table>';
 }
 function golfSaveConfig(){
- const route=document.getElementById('golfConfigRoute')?.value||'masia',host=document.getElementById('golfConfigTable'),msg=document.getElementById('golfConfigMessage');
+ const route=document.getElementById('golfConfigRoute')?.value,host=document.getElementById('golfConfigTable'),msg=document.getElementById('golfConfigMessage'),id=golfCurrentCourseId();
  const next={};for(const key of ['par','hcp','meters']){
-  const els=[...host.querySelectorAll(`[data-golf-config="${key}"]`)];next[key]=els.map(el=>Number(el.value));
-  const lo=key==='par'?3:1,hi=key==='par'?6:key==='hcp'?18:1000;
+  const els=[...host.querySelectorAll(`[data-golf-config="${key}"]`)];next[key]=els.map(el=>el.value.trim()===''&&key==='meters'?0:Number(el.value));
+  const lo=key==='par'?3:key==='meters'?0:1,hi=key==='par'?6:key==='hcp'?18:1000;
   if(next[key].length!==9||next[key].some(n=>!Number.isInteger(n)||n<lo||n>hi)){msg.textContent='Comprueba los 9 valores de '+key+'.';return;}
  }
  if(new Set(next.hcp).size!==9){msg.textContent='Los 9 índices de hándicap deben ser distintos.';return;}
- const cfg=golfConfig(),old=cfg.routes[route];cfg.routes[route]=next;
- const h=Number(document.getElementById('golfRoundHandicap')?.value);
- if(Number.isInteger(h)&&h>=0&&h<=54)cfg.handicap=h;
- try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){cfg.routes[route]=old;msg.textContent='No se pudo guardar la configuración.';return;}
- msg.textContent='✓ Recorrido guardado. Las partidas anteriores no se modifican.';golfRenderScorecard();
+ const name=document.getElementById('golfEditCourseName')?.value.trim(),tee=document.getElementById('golfEditCourseTee')?.value.trim(),routeName=document.getElementById('golfEditRouteName')?.value.trim();
+ if(!name||!routeName){msg.textContent='Indica los nombres del campo y recorrido.';return;}
+ const cfg=golfConfig(),backup=JSON.stringify(cfg),course=golfCurrentCourse();
+ next.name=routeName;
+ if(id==='escorpion'){cfg.routes[route]={name:routeName,par:next.par,hcp:next.hcp,meters:next.meters};cfg.escorpionTee=tee||'azules';if(name!=='Club de Golf Escorpión')cfg.escorpionName=name;}
+ else {cfg.courses[id].routes[route]=next;cfg.courses[id].name=name;cfg.courses[id].tee=tee||'sin indicar';}
+ const h=Number(document.getElementById('golfRoundHandicap')?.value);if(Number.isInteger(h)&&h>=0&&h<=54)cfg.handicap=h;
+ try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){db.golfConfig=JSON.parse(backup);msg.textContent='No se pudo guardar la configuración.';return;}
+ const a=document.getElementById('golfRoute1')?.value,b=document.getElementById('golfRoute2')?.value;
+ golfPopulateSelectors(id,a,b);golfRenderConfig();golfRenderScorecard();renderGolfEvolution();
+ msg.textContent='✓ Campo y recorrido guardados. Las tarjetas de partidas anteriores no se modifican.';
+}
+async function golfAnalyzeScorecardPhoto(input){
+ const status=document.getElementById('golfPhotoStatus'),file=input?.files?.[0];if(!file)return;
+ const route=document.getElementById('golfConfigRoute')?.value,course=golfCurrentCourse(),selectedCourse=golfCurrentCourseId();
+ status.textContent='Analizando foto de la tarjeta…';
+ try{
+  const imageDataUrl=await foodPhotoToDataUrl(file),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),50000);
+  let response;try{response=await fetch(getAiBackendUrl()+'/analyze-golf-scorecard',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl,course:course.name,route:course.routes[route]?.name,tee:course.tee}),signal:controller.signal});}finally{clearTimeout(timer);}
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'No se pudo leer la foto.');
+  if(golfCurrentCourseId()!==selectedCourse||document.getElementById('golfConfigRoute')?.value!==route)throw Error('Has cambiado de campo o recorrido durante la lectura. Vuelve a seleccionar la foto.');
+  const result=data.result||{},rows=Array.isArray(result.holes)?result.holes:[];
+  let updated=0;
+  for(const item of rows){const i=Number(item.hole)-1;if(!Number.isInteger(i)||i<0||i>8)continue;
+   for(const [key,field,lo,hi] of [['par','par',3,6],['hcp','hcp',1,18],['meters','meters',1,1000]]){
+    const val=item[field];if(val==null||val==='')continue;const n=Number(val);if(!Number.isInteger(n)||n<lo||n>hi)continue;
+    const el=document.querySelector(`#golfConfigTable [data-golf-config="${key}"][data-hole="${i}"]`);if(el){el.value=n;updated++;}
+   }
+  }
+  status.textContent=updated?`✓ Foto analizada: ${updated} valores propuestos (${result.confidence||'confianza no indicada'}). Revisa los 9 hoyos y pulsa «Guardar cambios». ${result.note||''}`:'La IA no encontró valores fiables para este recorrido. Puedes rellenarlos manualmente.';
+ }catch(err){status.textContent='No se pudo analizar la foto: '+(err?.name==='AbortError'?'tiempo de espera agotado':err.message)+'. Puedes introducir los datos a mano.';}
+ finally{input.value='';}
 }
 function golfRecordData(){
  const holes=golfSelectedHoles(),handicap=Number(document.getElementById('golfRoundHandicap')?.value);
  if(!Number.isInteger(handicap)||handicap<0||handicap>54)return {error:'El hándicap debe ser un número entero entre 0 y 54.'};
- if(holes.some(h=>h.score!==''&&(!Number.isInteger(Number(h.score))||Number(h.score)<1||Number(h.score)>20)))return {error:'Revisa los golpes: deben ser enteros entre 1 y 20.'};
+ if(holes.some(h=>!Number.isInteger(h.par)||h.par<3||h.par>6||!Number.isInteger(h.hcp)||h.hcp<1||h.hcp>18))return {error:'Completa y guarda primero los pares e índices de hándicap de los 9 hoyos de cada recorrido seleccionado.'};
+ if(holes.some(h=>h.score!==''&&h.score!=='X'&&(!Number.isInteger(Number(h.score))||Number(h.score)<1||Number(h.score)>20)))return {error:'Revisa los golpes: deben ser enteros entre 1 y 20, o marca «Levantar bola».'};
  const stats=golfStats(holes,handicap);
  if(stats.played>0&&stats.played<holes.length)return {error:`Faltan ${holes.length-stats.played} hoyos por completar. Tu borrador está guardado; puedes volver más tarde.`};
- return {handicap,holes:holes.map(h=>({...h,score:h.score===''?null:Number(h.score)})),stats,recorridos:golfSelectedRoutes()};
+ return {handicap,holes:holes.map(h=>({...h,score:h.score===''||h.score==='X'?null:Number(h.score),lifted:h.score==='X'})),stats,recorridos:golfSelectedRoutes()};
 }
 function golfHistoryDetail(r){
  if(r?.deporte!=='golf'||!Array.isArray(r.golfTarjeta)||!r.golfTarjeta.length)return '';
- const played=r.golfTarjeta.filter(h=>h.score!=null);
- return `<div class="golf-history-card"><b>${golfEsc((r.golfRecorridos||[]).map(k=>GOLF_ROUTES[k]?.name||k).join(' + '))}</b> · ${played.length}/${r.golfTarjeta.length} hoyos<br>Golpes: <b>${r.golfGolpes??'—'}</b> · Par: ${r.golfParTotal??'—'} · Neto: ${r.golfNeto??'—'} · Stableford orientativo: <b>${r.golfStableford??'—'}</b> · Hcp ${r.golfHandicap??'—'}<details><summary>Ver tarjeta hoyo a hoyo</summary><div class="golf-score-scroll"><table class="golf-table"><tr><th>Recorrido</th><th>Hoyo</th><th>Par</th><th>Golpes</th></tr>${r.golfTarjeta.map(h=>`<tr><td>${golfEsc(GOLF_ROUTES[h.route]?.name||h.route)}</td><td>${h.index+1}</td><td>${h.par}</td><td>${h.score??'—'}</td></tr>`).join('')}</table></div></details></div>`;
+ const played=r.golfTarjeta.filter(h=>h.score!=null||h.lifted);
+ const lifts=r.golfTarjeta.filter(h=>h.lifted).length;
+ const gross=lifts?'Sin total exacto (bola levantada)':(r.golfGolpes??'—');
+ return `<div class="golf-history-card"><b>${golfEsc(r.golfCourseName||'Club de Golf Escorpión')} · </b><b>${golfEsc((r.golfRecorridos||[]).map(k=>r.golfRouteNames?.[k]||golfRouteName(k,r.golfCourseId||'escorpion')).join(' + '))}</b> · ${played.length}/${r.golfTarjeta.length} hoyos<br>Golpes: <b>${gross}</b> · Par: ${r.golfParTotal??'—'} · Neto: ${lifts?'—':r.golfNeto??'—'} · Stableford orientativo: <b>${r.golfStableford??'—'}</b> · Hcp ${r.golfHandicap??'—'}<details><summary>Ver tarjeta hoyo a hoyo</summary><div class="golf-score-scroll"><table class="golf-table"><tr><th>Recorrido</th><th>Hoyo</th><th>Par</th><th>Golpes</th><th>Resultado bruto</th></tr>${r.golfTarjeta.map(h=>`<tr><td>${golfEsc(r.golfRouteNames?.[h.route]||golfRouteName(h.route,r.golfCourseId||'escorpion'))}</td><td>${h.index+1}</td><td>${h.par}</td><td>${h.lifted?'⚑ Levantada':h.score??'—'}</td><td>${golfResultLabel(h)}</td></tr>`).join('')}</table></div></details></div>`;
 }
 function renderGolfEvolution(){
  const host=document.getElementById('golfEvolutionContent');if(!host)return;
  const all=(db.entreno||[]).filter(r=>r.deporte==='golf'&&Array.isArray(r.golfTarjeta));
- host.innerHTML=Object.entries(GOLF_ROUTES).map(([key,route])=>{
-  const rounds=all.flatMap(r=>{const holes=r.golfTarjeta.filter(h=>h.route===key);if(holes.length!==9||holes.some(h=>!Number.isInteger(h.score)||h.score<1))return [];return [{date:r.fecha,gross:holes.reduce((s,h)=>s+h.score,0),par:holes.reduce((s,h)=>s+h.par,0),hcp:r.golfHandicap,stableford:r.golfStableford}];}).sort((a,b)=>a.date.localeCompare(b.date));
-  if(!rounds.length)return `<div class="golf-evo-card"><b>${route.name}</b><div class="muted">Aún no hay vueltas completas de 9 hoyos.</div></div>`;
-  const gross=rounds.map(r=>r.gross),avg=gross.reduce((a,b)=>a+b,0)/gross.length,best=Math.min(...gross),last=rounds[rounds.length-1];
-  const min=Math.min(...gross)-2,max=Math.max(...gross)+2,span=Math.max(1,max-min);
-  const pts=rounds.map((r,i)=>`${15+(rounds.length===1?0:i*320/(rounds.length-1))},${64-(r.gross-min)/span*48}`).join(' ');
-  const graph=rounds.length>1?`<svg class="golf-evo-spark" viewBox="0 0 350 80" role="img" aria-label="Evolución de golpes en ${route.name}"><line x1="12" y1="68" x2="340" y2="68" stroke="#ccdcd8"/><polyline points="${pts}" fill="none" stroke="#168c7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${rounds.map((r,i)=>`<circle cx="${15+i*320/(rounds.length-1)}" cy="${64-(r.gross-min)/span*48}" r="4" fill="#168c7a"><title>${golfEsc(r.date)}: ${r.gross} golpes</title></circle>`).join('')}</svg>`:'';
-  return `<div class="golf-evo-card"><b>${route.name}</b><div class="golf-evo-stats"><span>Vueltas: <b>${rounds.length}</b></span><span>Media: <b>${avg.toFixed(1)}</b></span><span>Mejor: <b>${best}</b></span><span>Última: <b>${last.gross}</b></span></div>${graph}<small class="muted">Últimas vueltas: ${rounds.slice(-5).map(r=>`${golfEsc(fechaES(r.date))}: ${r.gross}`).join(' · ')}</small></div>`;
- }).join('');
+ host.innerHTML=Object.entries(golfCourseMap()).map(([courseId,course])=>`<h3>${golfEsc(course.name)} · ${golfEsc(course.tee||'barras sin indicar')}</h3>`+Object.entries(course.routes).map(([key,route])=>{
+  const rounds=all.filter(r=>(r.golfCourseId||'escorpion')===courseId).flatMap(r=>{
+   const holes=r.golfTarjeta.filter(h=>h.route===key);
+   if(holes.length!==9||holes.some(h=>!h.lifted&&(!Number.isInteger(h.score)||h.score<1)))return [];
+   const lifts=holes.filter(h=>h.lifted).length;
+   const allHoles=r.golfTarjeta,handicap=Number(r.golfHandicap)||0;
+   const {received}=golfRoundStrokes(allHoles,handicap);
+   const points=allHoles.reduce((sum,h,i)=>sum+(h.route===key&&!h.lifted?Math.max(0,2+h.par+received[i]-h.score):0),0);
+   return [{date:r.fecha,gross:lifts?null:holes.reduce((sum,h)=>sum+h.score,0),points,lifts}];
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!rounds.length)return `<div class="golf-evo-card"><b>${route.name}</b><div class="muted">Aún no hay vueltas completas de 9 hoyos. Puedes levantar bola y terminar la tarjeta.</div></div>`;
+  const exact=rounds.filter(r=>r.gross!=null),gross=exact.map(r=>r.gross);
+  const avg=gross.length?gross.reduce((a,b)=>a+b,0)/gross.length:null;
+  const best=gross.length?Math.min(...gross):null;
+  const last=rounds[rounds.length-1];
+  const avgPoints=rounds.reduce((a,b)=>a+b.points,0)/rounds.length;
+  let graph='';
+  if(exact.length>1){
+   const min=Math.min(...gross)-2,max=Math.max(...gross)+2,span=Math.max(1,max-min);
+   const pts=exact.map((r,i)=>`${15+i*320/(exact.length-1)},${64-(r.gross-min)/span*48}`).join(' ');
+   graph=`<svg class="golf-evo-spark" viewBox="0 0 350 80" role="img" aria-label="Evolución de golpes exactos en ${route.name}"><line x1="12" y1="68" x2="340" y2="68" stroke="#ccdcd8"/><polyline points="${pts}" fill="none" stroke="#168c7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${exact.map((r,i)=>`<circle cx="${15+i*320/(exact.length-1)}" cy="${64-(r.gross-min)/span*48}" r="4" fill="#168c7a"><title>${golfEsc(r.date)}: ${r.gross} golpes</title></circle>`).join('')}</svg>`;
+  }
+  return `<div class="golf-evo-card"><b>${route.name}</b><div class="golf-evo-stats"><span>Vueltas: <b>${rounds.length}</b></span><span>Media golpes: <b>${avg==null?'—':avg.toFixed(1)}</b></span><span>Mejor: <b>${best??'—'}</b></span><span>Media Stableford*: <b>${avgPoints.toFixed(1)}</b></span><span>Última: <b>${last.gross??'Bola levantada'}</b></span></div>${graph}<small class="muted">Últimas vueltas: ${rounds.slice(-5).map(r=>`${golfEsc(fechaES(r.date))}: ${r.gross??'⚑ levantada'} (${r.points} pts)`).join(' · ')}</small>${rounds.some(r=>r.lifts)?'<p class="muted">Las vueltas con bola levantada cuentan para Stableford* y partidas, pero no para la media ni el gráfico de golpes.</p>':''}<small class="muted">*Stableford orientativo según hándicap introducido.</small></div>`;
+ }).join('')).join('');
 }
 
 function sportLabel(key){return SPORT_ACTIVITIES[key]?.label||'Deporte'}
@@ -9745,7 +9882,7 @@ function handleSportChange(){
 function sportRecordSummary(r){
   if(r?.tipo!=='deporte')return '';
   if(r.deporte==='golf'){
-    return [r.golfHoyos?`${r.golfHoyos} hoyos`:'',(r.golfRecorridos||[]).map(k=>GOLF_ROUTES[k]?.name||k).join(' + '),r.golfGolpes!=null?`${r.golfGolpes} golpes`:'',r.golfStableford!=null?`${r.golfStableford} ptos Stableford orientativos`:'',r.golfClub||''].filter(Boolean).join(' · ');
+    return [r.golfHoyos?`${r.golfHoyos} hoyos`:'',(r.golfRecorridos||[]).map(k=>r.golfRouteNames?.[k]||golfRouteName(k,r.golfCourseId||'escorpion')).join(' + '),r.golfTarjeta?.some(h=>h.lifted)?'Bola levantada':r.golfGolpes!=null?`${r.golfGolpes} golpes`:'',r.golfStableford!=null?`${r.golfStableford} ptos Stableford orientativos`:'',r.golfClub||''].filter(Boolean).join(' · ');
   }
   return r.duracion?`${Math.round(Number(r.duracion))} min jugados`:'';
 }
@@ -13935,7 +14072,7 @@ function wizardQueueExercise(){
  document.getElementById('eSeries').value='3';wizardSetRows=[];
  wizardShowStep(3);
 }
-/* v22.2.81 — confirmar persistencia antes de cerrar; render aislado de guardado */
+/* v22.2.83 — confirmar persistencia antes de cerrar; render aislado de guardado */
 let wizardSaveInProgress=false;
 function showTrainingSavedConfirmation(message){
  const banner=document.getElementById('trainingSaveConfirmation');
@@ -13946,7 +14083,7 @@ function showTrainingSavedConfirmation(message){
  if(showTrainingSavedConfirmation.timeout)clearTimeout(showTrainingSavedConfirmation.timeout);
  showTrainingSavedConfirmation.timeout=setTimeout(()=>toast.classList.remove('visible'),4800);
 }
-/* v22.2.81 — revisión de duración e intensidad antes de persistir Fuerza */
+/* v22.2.83 — revisión de duración e intensidad antes de persistir Fuerza */
 let wizardDurationReviewInitialized=false;
 function wizardElapsedMinutes(){
  const iso=isoFromES(document.getElementById('eFecha')?.value||'');
@@ -14019,7 +14156,7 @@ function wizardGoToCaloriesReview(){
  wizardShowStep(5);
 }
 
-/* v22.2.81 — Deporte: guardado guiado con una única estimación kcal por sesión */
+/* v22.2.83 — Deporte: guardado guiado con una única estimación kcal por sesión */
 function wizardSaveSport(){
  if(workoutWizardStep!==4){setWorkoutWizardError('Revisa la duración y las kcal antes de guardar.');return;}
  if(wizardSaveInProgress)return;
@@ -14047,16 +14184,18 @@ function wizardSaveSport(){
   kcal,kcalFuente:weight==null?'sin_peso':'estimada_met',
   golfHoyos:golf?holes:null,golfClub:golf?(document.getElementById('eGolfClub')?.value.trim()||''):'',
   duracionEstimadaGolf:golf&&!document.getElementById('eGolfMinutes')?.value?.trim(),
-  ...(golf?{golfRecorridos:golfData.recorridos,golfTarjeta:golfData.holes,golfHandicap:golfData.handicap,golfGolpes:golfData.stats.played?golfData.stats.gross:null,golfParTotal:golfData.holes.reduce((sum,h)=>sum+h.par,0),golfNeto:golfData.stats.played?golfData.stats.net:null,golfStableford:golfData.stats.played?golfData.stats.stableford:null,golfStablefordOrientativo:true,golfBarras:'azules'}:{}),
+  ...(golf?{golfRecorridos:golfData.recorridos,golfTarjeta:golfData.holes,golfHandicap:golfData.handicap,golfGolpes:golfData.stats.exact?golfData.stats.gross:null,golfBolasLevantadas:golfData.stats.lifted,golfParTotal:golfData.holes.reduce((sum,h)=>sum+h.par,0),golfNeto:golfData.stats.exact?golfData.stats.net:null,golfStableford:golfData.stats.played?golfData.stats.stableford:null,golfStablefordOrientativo:true,golfCourseId:golfCurrentCourseId(),golfCourseName:golfCurrentCourse().name,golfRouteNames:Object.fromEntries(golfSelectedRoutes().map(k=>[k,golfRouteName(k,golfCurrentCourseId())])),golfBarras:golfCurrentCourse().tee||'sin indicar'}:{}),
   notas:document.getElementById('eNotas')?.value.trim()||''};
  const isEdit=editingTrainingIndex!=null;
  wizardSaveInProgress=true;
  const button=document.getElementById('wizardSaveButton');if(button)button.disabled=true;
  const previous=db.entreno.slice();
+ const previousGolfDraft=db.golfDraft?JSON.parse(JSON.stringify(db.golfDraft)):undefined;
+ const previousHandicap=golf?golfConfig().handicap:null;
  try{
   if(isEdit)db.entreno[editingTrainingIndex]=record;
   else db.entreno.push(record);
-  if(golf)delete db.golfDraft;
+  if(golf){golfConfig().handicap=golfData.handicap;delete db.golfDraft;}
   localStorage.setItem(KEY,JSON.stringify(db));
  }catch(err){
   db.entreno=previous;if(golf){db.golfDraft=previousGolfDraft;golfConfig().handicap=previousHandicap;}console.error('No se pudo guardar deporte',err);
@@ -14073,7 +14212,7 @@ function wizardSaveSport(){
  if(button)button.disabled=false;wizardSaveInProgress=false;
 }
 
-/* v22.2.81 — Cardio: guardar con confirmación y sin duplicar kcal */
+/* v22.2.83 — Cardio: guardar con confirmación y sin duplicar kcal */
 function wizardSaveCardio(){
  if(workoutWizardStep!==4){setWorkoutWizardError('Revisa la duración y las kcal antes de guardar.');return;}
  if(wizardSaveInProgress)return;
@@ -14262,7 +14401,7 @@ function showTrainingDayInfo(iso){
  const kcal=document.getElementById('trainingDayInfoKcal');if(kcal)kcal.textContent='~'+Math.round(st.kcal)+' kcal';
  document.querySelectorAll('.training-day-col').forEach(el=>el.classList.toggle('selected',el.dataset.date===iso));
 }
-/* v22.2.81 — acceso directo desde Historial reciente al registro editable. */
+/* v22.2.83 — acceso directo desde Historial reciente al registro editable. */
 function jumpToRecentWorkout(fecha,hora,sessionId,recordIndex){
  const fold=document.getElementById('trainingHistoryDetails');
  if(fold)fold.open=true;
