@@ -1,14 +1,13 @@
-# Micro Health v22.2.69 — Peso plegado
+# Micro Health v22.2.70 — Orden de Comidas
 
-- En **Peso**, «Añadir medición» e «Historial» empiezan plegados. Toca sus encabezados para abrirlos o cerrarlos.
-- Si eliges editar una medición del historial, «Añadir medición» se abre automáticamente y muestra los datos editables.
-- «Estado corporal actual» sigue visible. La «Biblioteca de umbrales» sigue plegada.
-- No se modifica ningún dato, fórmula, objetivo, historial ni clave de almacenamiento.
+En **Comidas**, justo debajo del título se muestra primero **Registrar comida**, después **Agua del día** (plegable, con los mismos controles de antes) y, a continuación, el resto de secciones conserva su orden relativo: resumen/orientación, calculadora, editor cuando se abre, comidas registradas y favoritos.
+
+No se modifican objetivos, registros, fórmulas ni la clave `miguel-evolucion-v4`.
 
 ## Publicación
 
-1. Haz una copia JSON de seguridad antes de actualizar.
-2. En la raíz de GitHub Pages, sustituye **index.html** y **sw.js**.
-3. No hay cambios en Cloudflare ni necesidad de reinstalar la PWA.
+1. Exporta una copia de seguridad JSON por precaución.
+2. Sustituye **index.html** y **sw.js** en la raíz de GitHub Pages.
+3. No es necesario cambiar Cloudflare, reinstalar la PWA ni borrar datos.
 
-`manifest.webmanifest` no cambia. Clave localStorage: `miguel-evolucion-v4`.
+La caché pasa a `micro-health-v22-2-70`. El manifiesto no cambia.
