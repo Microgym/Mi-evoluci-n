@@ -1742,6 +1742,16 @@ nav button[data-sec="entreno"] .nav-label{letter-spacing:-.01em}
 .data-collapsible>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:#173c5e;background:#fbfdfe}
 .data-collapsible>summary::-webkit-details-marker{display:none}
 .data-collapsible-body{padding:0 16px 16px}
+/* v22.2.69 — Peso: entrada e historial plegados por defecto */
+#peso .weight-section-fold{margin-bottom:12px}
+#peso .weight-section-fold>summary{min-height:72px;padding:13px 16px}
+#peso .weight-fold-heading{display:flex;align-items:center;gap:12px;min-width:0}
+#peso .weight-fold-heading>b,#peso .weight-fold-heading>span:last-child>b{display:block;font-size:16px;line-height:1.35;color:#123d47}
+#peso .weight-fold-heading small{display:block;margin-top:3px;font-size:12px;line-height:1.35;color:#708591;font-weight:500}
+#peso .weight-fold-arrow{flex-shrink:0;font-size:18px;color:#718b94;transition:transform .15s}
+#peso .weight-section-fold[open] .weight-fold-arrow{transform:rotate(180deg)}
+#peso .weight-section-fold .data-collapsible-body{padding-top:8px}
+
 @media(max-width:760px){
  .section-page-copy h2{font-size:26px}
  #peso .body-status-grid{grid-template-columns:1fr 1fr}
@@ -3294,7 +3304,7 @@ button,a,label,summary,input,select,textarea{
 
 <section id="peso">
 <div class="section-page-head"><div class="section-page-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></div><div class="section-page-copy"><h2>Peso</h2><p>Mediciones y composición corporal</p></div></div>
-<div class="card"><div class="mock-card-head"><div class="mock-card-title"><span class="mh-i scale"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></span><div><h2>Añadir medición</h2><p>Registra los datos de tu báscula</p></div></div></div>
+<details id="weightEntryDetails" class="data-collapsible weight-section-fold"><summary><span class="weight-fold-heading"><span class="mh-i scale" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></span><span><b>Añadir medición</b><small>Registra los datos de tu báscula</small></span></span><span class="weight-fold-arrow" aria-hidden="true">▾</span></summary><div class="data-collapsible-body">
 <p class="muted">Puedes rellenar solo los campos que te dé la báscula. Peso es el único obligatorio.</p>
 <div id="weightEditBanner" class="editing-banner" style="display:none">
   Estás modificando una medición ya guardada. Al guardar se actualizará esa medición, sin crear un duplicado.
@@ -3352,7 +3362,7 @@ button,a,label,summary,input,select,textarea{
 <p id="circumferenceMeasureHelp" class="muted">La estimación se adapta automáticamente al sexo indicado en el perfil y se guarda separada del % de grasa de la báscula.</p>
 
 <p><button id="saveWeightButton" class="primary" onclick="addPeso()">Guardar medición</button></p>
-</div>
+</div></details>
 
 
 <div class="card">
@@ -3369,7 +3379,7 @@ button,a,label,summary,input,select,textarea{
   <p class="threshold-note">La biblioteca centraliza las referencias. El Perfil selecciona automáticamente las aplicables según sexo, edad, altura y peso. Las mediciones guardadas no se modifican. Los umbrales históricos de Micro Health se conservan para consulta.</p>
 </div></details>
 
-<div class="card"><h2><span class="mh-title"><span class="mh-i data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="mh-title-text">Historial</span></span></h2><div id="pesoTabla"></div></div>
+<details id="weightHistoryDetails" class="data-collapsible weight-section-fold"><summary><span class="weight-fold-heading"><span class="mh-i data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span><b>Historial</b><small>Consultar y editar mediciones anteriores</small></span></span><span class="weight-fold-arrow" aria-hidden="true">▾</span></summary><div class="data-collapsible-body"><div id="pesoTabla"></div></div></details>
 </section>
 
 <section id="comidas" data-food-mockup="true">
@@ -3402,7 +3412,7 @@ button,a,label,summary,input,select,textarea{
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.68</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.69</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -5159,7 +5169,9 @@ function editWeightMeasurement(fecha){
   const banner=document.getElementById('weightEditBanner'); if(banner)banner.style.display='block';
   const btn=document.getElementById('saveWeightButton'); if(btn)btn.textContent='Guardar cambios';
   previewCircumferenceBodyFat();
-  document.querySelector('#peso .card')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const entryDetails=document.getElementById('weightEntryDetails');
+  if(entryDetails)entryDetails.open=true;
+  (entryDetails||document.querySelector('#peso .card'))?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function addPeso(){
  let r={
@@ -8750,7 +8762,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.68</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.69</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
