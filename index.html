@@ -1742,7 +1742,7 @@ nav button[data-sec="entreno"] .nav-label{letter-spacing:-.01em}
 .data-collapsible>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:#173c5e;background:#fbfdfe}
 .data-collapsible>summary::-webkit-details-marker{display:none}
 .data-collapsible-body{padding:0 16px 16px}
-/* v22.2.69 — Peso: entrada e historial plegados por defecto */
+/* v22.2.70 — Peso: entrada e historial plegados por defecto */
 #peso .weight-section-fold{margin-bottom:12px}
 #peso .weight-section-fold>summary{min-height:72px;padding:13px 16px}
 #peso .weight-fold-heading{display:flex;align-items:center;gap:12px;min-width:0}
@@ -3388,6 +3388,21 @@ button,a,label,summary,input,select,textarea{
     <div><h2>Comidas</h2><p>Alimentación consciente, una vida mejor</p></div>
   </div>
 
+  <button type="button" class="primary food-register-main" onclick="startMealRegistration('comida',foodViewISO())"><span class="plus">＋</span>Registrar comida</button>
+
+  <div class="food-water-card">
+    <details id="foodWaterDetails">
+      <summary><span>💧 Agua del día</span><span id="foodWaterSummary" class="muted">0 L</span></summary>
+      <div class="food-details-body" id="waterCard">
+        <div class="water-goal-row"><div><label>Objetivo diario (ml)</label><input id="waterGoalMl" type="number" min="500" step="250" placeholder="Ej. 2000" onchange="saveWaterGoal()"></div><button class="secondary" type="button" onclick="saveWaterGoal()">Guardar objetivo</button></div>
+        <div class="water-progress-wrap"><div class="water-progress-meta"><span id="waterProgressText">0 / 2000 ml</span><b id="waterProgressPct">0%</b></div><div class="water-progress"><div id="waterProgressBar" style="width:0%"></div></div></div>
+        <div class="water-quick"><button type="button" onclick="addWater(250)">+250 ml</button><button type="button" onclick="addWater(500)">+500 ml</button><button type="button" onclick="addWater(750)">+750 ml</button></div>
+        <div class="row"><div><label>Total bebido (ml)</label><input id="waterMl" type="number" min="0" step="50" placeholder="Ej. 2000" oninput="updateWaterDisplay()"></div><div><label>Equivale a</label><input id="waterLiters" type="text" readonly placeholder="0,00 L"></div></div>
+        <div class="routine-actions"><button class="primary" type="button" onclick="saveDailyWater()">Guardar total</button><button class="set-remove" type="button" onclick="resetDailyWater()">Poner a 0</button></div><div id="waterDailyInfo" class="muted" style="margin-top:8px"></div>
+      </div>
+    </details>
+  </div>
+
   <div class="food-dashboard">
     <div class="food-dashboard-head">
       <b>Resumen del día</b>
@@ -3412,7 +3427,7 @@ button,a,label,summary,input,select,textarea{
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.69</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.70</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3420,7 +3435,6 @@ button,a,label,summary,input,select,textarea{
     </div>
   </div>
 
-  <button type="button" class="primary food-register-main" onclick="startMealRegistration('comida',foodViewISO())"><span class="plus">＋</span>Registrar comida</button>
 
   <div class="calorie-calc-card">
     <details id="calorieCalculatorDetails">
@@ -3511,18 +3525,7 @@ button,a,label,summary,input,select,textarea{
     </details>
   </div>
 
-  <div class="food-water-card">
-    <details id="foodWaterDetails">
-      <summary><span>💧 Agua del día</span><span id="foodWaterSummary" class="muted">0 L</span></summary>
-      <div class="food-details-body" id="waterCard">
-        <div class="water-goal-row"><div><label>Objetivo diario (ml)</label><input id="waterGoalMl" type="number" min="500" step="250" placeholder="Ej. 2000" onchange="saveWaterGoal()"></div><button class="secondary" type="button" onclick="saveWaterGoal()">Guardar objetivo</button></div>
-        <div class="water-progress-wrap"><div class="water-progress-meta"><span id="waterProgressText">0 / 2000 ml</span><b id="waterProgressPct">0%</b></div><div class="water-progress"><div id="waterProgressBar" style="width:0%"></div></div></div>
-        <div class="water-quick"><button type="button" onclick="addWater(250)">+250 ml</button><button type="button" onclick="addWater(500)">+500 ml</button><button type="button" onclick="addWater(750)">+750 ml</button></div>
-        <div class="row"><div><label>Total bebido (ml)</label><input id="waterMl" type="number" min="0" step="50" placeholder="Ej. 2000" oninput="updateWaterDisplay()"></div><div><label>Equivale a</label><input id="waterLiters" type="text" readonly placeholder="0,00 L"></div></div>
-        <div class="routine-actions"><button class="primary" type="button" onclick="saveDailyWater()">Guardar total</button><button class="set-remove" type="button" onclick="resetDailyWater()">Poner a 0</button></div><div id="waterDailyInfo" class="muted" style="margin-top:8px"></div>
-      </div>
-    </details>
-  </div>
+
 
   <input id="cFecha" type="text" value="" style="display:none">
   <div id="mealCards" class="food-hidden-compat"></div>
@@ -8762,7 +8765,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.69</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.70</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
