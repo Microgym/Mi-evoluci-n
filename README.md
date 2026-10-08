@@ -1,11 +1,8 @@
-# Micro Health v22.2.75 — Registro de Fuerza: series sin valores heredados
+# Micro Health v22.2.76 — Historial de entrenamientos accesible
 
-- En entrenamientos **nuevos**, cada ejercicio comienza con 3 series vacías. Ya no se cargan automáticamente los kg ni las repeticiones de sesiones anteriores del mismo gimnasio.
-- Introducir repeticiones por serie es obligatorio; el peso puede quedar vacío si el ejercicio no lo necesita.
-- La validación indica **qué serie** tiene un valor pendiente o inválido y lleva el foco al campo.
-- Botón opcional «Copiar serie 1 a las demás» para repetir una misma combinación de peso y repeticiones, y «Añadir serie» crea una fila vacía.
-- Editar entrenamientos existentes mantiene sus series originales.
-- No cambia `miguel-evolucion-v4`, registros previos ni Cloudflare.
-
-## Actualización
-Exporta antes el JSON de seguridad. Sustituye `index.html` y `sw.js` en GitHub Pages. No reinstales la PWA ni borres los datos locales.
+- **Historial reciente**: botones visibles **Ver detalles** y **Modificar** (para entrenamientos individuales). El botón Ver detalles abre y desplaza a Entrenamientos registrados, mostrando las series individuales.
+- **Entrenamientos registrados**: ahora abierto por defecto y visible (se corrige el selector CSS que ocultaba los grupos), con registros separados en **Por rutina** y **Entrenamientos individuales**, y opciones para modificar/eliminar.
+- Al guardar un entrenamiento de fuerza se actualizan explícitamente ambas vistas del historial.
+- Se mantiene el asistente flotante de registro, con series en blanco por defecto.
+- No se modifica el modelo de datos ni la clave local `miguel-evolucion-v4`.
+- GitHub: sustituir `index.html` y `sw.js`. Cloudflare no cambia.
