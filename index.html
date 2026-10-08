@@ -3102,7 +3102,7 @@ button,a,label,summary,input,select,textarea{
 #entreno .training-history-category h3{margin:0 0 11px;font-size:16px;color:#0d4450}
 #entreno .training-history-category h3 .muted{font-size:13px;font-weight:600}
 
-/* v22.2.78 — historial accesible y acciones explícitas */
+/* v22.2.79 — historial accesible y acciones explícitas */
 #entreno .training-recent-item{grid-template-columns:42px minmax(0,1fr) auto;cursor:default}
 #entreno .training-recent-main{min-width:0}
 #entreno .training-recent-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
@@ -3129,6 +3129,18 @@ button,a,label,summary,input,select,textarea{
 #workoutTopCard.wizard-strength-values #strengthFields .row:has(#eKg){display:none!important}
 #workoutTopCard.wizard-strength-values #wizardSetsPanel{display:block!important}
 #workoutTopCard.wizard-other-type #wizardOriginalSave{display:none!important}
+
+
+/* v22.2.79 — Cardio: registro guiado en 4 pasos sin catálogo de Fuerza */
+#workoutTopCard.wizard-cardio-data #manualExercisePicker,
+#workoutTopCard.wizard-cardio-data #strengthFields,
+#workoutTopCard.wizard-cardio-data #wizardSetsPanel,
+#workoutTopCard.wizard-cardio-data #wizardOriginalSave,
+#workoutTopCard.wizard-cardio-data #trainingEditBanner {display:none!important}
+#workoutTopCard.wizard-cardio-data #cardioSpecificFields {display:block!important}
+#workoutTopCard.wizard-cardio-data #normalDurationField {display:block!important}
+#workoutTopCard.wizard-cardio-data #manualTrainingFields > .row {display:flex!important}
+#workoutTopCard.wizard-cardio-data #manualTrainingFields > .row #eKcal {background:#f1f7f7}
 
 /* v22.2.75 — diálogo flotante de entrenamiento, usable en iPhone/Android/PC */
 .training-modal-backdrop[hidden]{display:none!important}
@@ -3168,7 +3180,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
  #workoutTopCard .workout-wizard-actions button{min-width:0;flex:1 1 auto}
 }
 
-/* v22.2.78 — confirmación persistente y aviso visible tras cerrar el diálogo */
+/* v22.2.79 — confirmación persistente y aviso visible tras cerrar el diálogo */
 .training-save-confirmation[hidden]{display:none!important}
 .training-save-confirmation{background:#e9f7f2;border:1px solid #a8d7c7;color:#175b49;border-radius:14px;padding:13px 16px;font-weight:700;margin:12px 0}
 #trainingSaveToast{position:fixed;z-index:10050;top:max(18px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-16px);width:min(440px,calc(100vw - 28px));box-sizing:border-box;background:#115d4d;color:white;padding:16px 18px;border-radius:15px;box-shadow:0 12px 35px rgba(0,0,0,.24);font-weight:700;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
@@ -3508,7 +3520,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.78</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.79</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3763,9 +3775,9 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     </div>
 
     <div id="cardioSpecificFields" class="card strength-box" style="display:none">
-      <h3>❤️ Datos de cardio</h3>
+      <h3>❤️ Datos de cardio</h3><p class="muted">Elige la actividad, indica el tiempo realizado y añade los datos de la máquina si los tienes. Después podrás revisar las kcal antes de guardar.</p>
       <label>Actividad cardio</label>
-      <select id="eCardioActividad" onchange="previewCalories()"></select>
+      <select id="eCardioActividad" onchange="wizardCardioActivityChanged();previewCalories()"></select>
       <div class="row">
         <div><label>Velocidad (km/h)</label><input id="eVelocidad" type="number" step="0.1" min="0" placeholder="Opcional"></div>
         <div><label>Inclinación (%)</label><input id="eInclinacion" type="number" step="0.5" min="0" placeholder="Opcional"></div>
@@ -3871,7 +3883,8 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
       <div class="muted" id="wizardCaloriesExplanation">Estimación MET según peso, minutos e intensidad; no es una medición exacta.</div>
     </div>
     <p class="muted" id="wizardExerciseReview"></p>
-    <p class="muted">Las kcal y la duración se reparten entre los ejercicios de esta sesión para que el total solo se contabilice una vez en Inicio, TDEE, informes y Coach.</p>
+    <p class="muted" id="wizardCardioMachineNote" hidden>Si la máquina ha proporcionado kcal, se utilizará ese valor en lugar de la estimación MET.</p>
+    <p class="muted" id="wizardSplitCaloriesNote">Las kcal y la duración se reparten entre los ejercicios de esta sesión para que el total solo se contabilice una vez en Inicio, TDEE, informes y Coach.</p>
   </div>
   <div id="wizardQueuedPanel" class="workout-wizard-queued" hidden></div>
   </div><!-- /workoutWizardContent -->
@@ -8903,7 +8916,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.78</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.79</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -9589,7 +9602,10 @@ function previewCalories(){
  const tipo=eTipo.value,intensidad=eIntensidad.value,min=Number(eDuracion.value||0);
  const cardioActividad=tipo==='cardio'?(eCardioActividad.value||'otro_cardio'):null;
  if(tipo==='cardio' && eKcal?.dataset?.machine==='1' && eKcal.value!=='')return;
- eKcal.value=min>0?calcActivityCalories(tipo,intensidad,min,cardioActividad):'';
+ if(tipo==='cardio'){
+  const weight=wizardSessionWeight();
+  eKcal.value=min>0&&weight!=null?Math.round(activityMET('cardio',intensidad,cardioActividad)*3.5*weight/200*min):'';
+ }else eKcal.value=min>0?calcActivityCalories(tipo,intensidad,min,cardioActividad):'';
 }
 
 let editingTrainingIndex=null;
@@ -13209,6 +13225,13 @@ function editTrainingIndex(i){
    if(typeof eInclinacion!=='undefined')eInclinacion.value=r.inclinacion??'';
    if(typeof eDistancia!=='undefined')eDistancia.value=r.distancia??'';
    if(typeof eResistencia!=='undefined')eResistencia.value=r.resistencia||'';
+  for(const [id,value] of [['eFcMedia',r.fcMedia],['eFcMax',r.fcMax],['eWatts',r.watts],['eRpm',r.rpm]]){
+   const el=document.getElementById(id);if(el)el.value=value??'';
+  }
+  const kcalEl=document.getElementById('eKcal');if(kcalEl){
+   kcalEl.dataset.machine=r.kcalFuente==='maquina'?'1':'';
+   kcalEl.value=r.kcalFuente==='maquina'&&r.kcal!=null?String(r.kcal):'';
+  }
  }
 
  if(typeof eModalidad!=='undefined')eModalidad.value=r.modalidad||'maquina';
@@ -13566,26 +13589,34 @@ function wizardInitSets(){
  wizardSetRows=Array.from({length:n},()=>({kg:'',reps:''}));wizardRenderSets();
 }
 function wizardIsStrength(){return document.getElementById('eTipo')?.value==='fuerza';}
+function wizardIsCardio(){return document.getElementById('eTipo')?.value==='cardio';}
+function wizardCardioActivityChanged(){
+ const activity=document.getElementById('eCardioActividad')?.value||'otro_cardio';
+ const ej=document.getElementById('eEj');if(ej)ej.value=(CARDIO_ACTIVITIES[activity]||CARDIO_ACTIVITIES.otro_cardio).label;
+}
 function wizardShowStep(step){
- const strength=wizardIsStrength();workoutWizardStep=step;setWorkoutWizardError();
+ const strength=wizardIsStrength(),cardio=wizardIsCardio();workoutWizardStep=step;setWorkoutWizardError();
  const card=document.getElementById('workoutTopCard');if(!card)return;
- card.classList.remove('wizard-strength-pick','wizard-strength-values','wizard-other-type');
+ card.classList.remove('wizard-strength-pick','wizard-strength-values','wizard-other-type','wizard-cardio-data');
  if(step===3&&strength)card.classList.add('wizard-strength-pick');
  if(step===4&&strength)card.classList.add('wizard-strength-values');
- if(step===3&&!strength)card.classList.add('wizard-other-type');
- [1,2,3].forEach(n=>{const el=document.getElementById('wizardStep'+n);if(el)el.hidden=n!==Math.min(step,3)||step===5;});
- const review=document.getElementById('wizardStep5');if(review)review.hidden=step!==5;
- const names=['','Fecha, hora y gimnasio','Tipo de entrenamiento',strength?'Seleccionar ejercicio':'Datos del entrenamiento','Peso, repeticiones y series','Confirmar duración y kcal'];
- document.getElementById('workoutWizardProgress').textContent=`Paso ${step} de ${strength?5:3} · ${names[step]}`;
+ if(step===3&&cardio)card.classList.add('wizard-cardio-data');
+ if(step===3&&!strength&&!cardio)card.classList.add('wizard-other-type');
+ [1,2,3].forEach(n=>{const el=document.getElementById('wizardStep'+n);if(el)el.hidden=n!==step;});
+ const isReview=step===5&&strength||step===4&&cardio;
+ const review=document.getElementById('wizardStep5');if(review)review.hidden=!isReview;
+ const names=['','Fecha, hora y gimnasio','Tipo de entrenamiento',strength?'Seleccionar ejercicio':'Datos del entrenamiento',strength?'Peso, repeticiones y series':'Confirmar duración y kcal','Confirmar duración y kcal'];
+ document.getElementById('workoutWizardProgress').textContent=`Paso ${step} de ${strength?5:cardio?4:3} · ${names[step]}`;
  const back=document.getElementById('wizardBackButton'),next=document.getElementById('wizardNextButton');
  const add=document.getElementById('wizardAddExerciseButton'),save=document.getElementById('wizardSaveButton');
- back.hidden=step===1;next.hidden=step>=(strength?4:3);
+ back.hidden=step===1;next.hidden=step>=(strength?4:cardio?3:3);
+ if(cardio&&step===3)next.hidden=false;
  add.hidden=!(strength&&step===4&&editingTrainingIndex==null);
- save.hidden=step!==(strength?5:3)&&!(strength&&step===4)&&!(strength&&step===3&&wizardQueuedExercises.length>0);
+ save.hidden=cardio?step!==4:(step!==(strength?5:3)&&!(strength&&step===4)&&!(strength&&step===3&&wizardQueuedExercises.length>0));
  save.textContent=strength&&step!==5?'Revisar duración y kcal':'Validar y guardar';
  if(step===4&&strength && !wizardSetRows.length)wizardInitSets();
  if(step===3&&strength)renderManualExercisePicker();
- if(step===5&&strength)wizardPrepareCaloriesReview();
+ if(isReview)wizardPrepareCaloriesReview();
  const selectionContinue=document.getElementById('wizardSelectedContinue');
  if(selectionContinue)selectionContinue.hidden=!(step===3&&strength&&document.getElementById('eEj')?.value);
  const queued=document.getElementById('wizardQueuedPanel');
@@ -13605,11 +13636,21 @@ function wizardNext(){
   wizardShowStep(2);return;
  }
  if(workoutWizardStep===2){
-  toggleTrainingFields();handleTrainingTypeChange();wizardShowStep(3);return;
+  toggleTrainingFields();handleTrainingTypeChange();
+  if(wizardIsCardio())wizardCardioActivityChanged();
+  wizardShowStep(3);return;
  }
  if(workoutWizardStep===3&&wizardIsStrength()){
-  if(!document.getElementById('eEj')?.value)return alert('Selecciona un ejercicio por nombre o imagen.');
-  if(!wizardSetRows.length)wizardInitSets();wizardShowStep(4);
+  if(!document.getElementById('eEj')?.value){setWorkoutWizardError('Selecciona un ejercicio por nombre o imagen.');return;}
+  if(!wizardSetRows.length)wizardInitSets();wizardShowStep(4);return;
+ }
+ if(workoutWizardStep===3&&wizardIsCardio()){
+  const duration=Number(document.getElementById('eDuracion')?.value);
+  if(!Number.isInteger(duration)||duration<1||duration>480){
+   setWorkoutWizardError('Indica la duración real del cardio entre 1 y 480 minutos.');
+   document.getElementById('eDuracion')?.focus();return;
+  }
+  wizardShowStep(4);return;
  }
 }
 function wizardBack(){wizardShowStep(workoutWizardStep===5&&!document.getElementById('eEj')?.value?3:Math.max(1,workoutWizardStep-1));}
@@ -13652,7 +13693,7 @@ function wizardQueueExercise(){
  document.getElementById('eSeries').value='3';wizardSetRows=[];
  wizardShowStep(3);
 }
-/* v22.2.78 — confirmar persistencia antes de cerrar; render aislado de guardado */
+/* v22.2.79 — confirmar persistencia antes de cerrar; render aislado de guardado */
 let wizardSaveInProgress=false;
 function showTrainingSavedConfirmation(message){
  const banner=document.getElementById('trainingSaveConfirmation');
@@ -13663,7 +13704,7 @@ function showTrainingSavedConfirmation(message){
  if(showTrainingSavedConfirmation.timeout)clearTimeout(showTrainingSavedConfirmation.timeout);
  showTrainingSavedConfirmation.timeout=setTimeout(()=>toast.classList.remove('visible'),4800);
 }
-/* v22.2.78 — revisión de duración e intensidad antes de persistir Fuerza */
+/* v22.2.79 — revisión de duración e intensidad antes de persistir Fuerza */
 let wizardDurationReviewInitialized=false;
 function wizardElapsedMinutes(){
  const iso=isoFromES(document.getElementById('eFecha')?.value||'');
@@ -13687,7 +13728,8 @@ function wizardPrepareCaloriesReview(){
  if(!duration||!intensity)return;
  if(!wizardDurationReviewInitialized){
   const existing=editingTrainingIndex!=null?Number(db.entreno?.[editingTrainingIndex]?.duracion):null;
-  const proposal=(Number.isFinite(existing)&&existing>0?existing:wizardElapsedMinutes());
+  const cardioDuration=wizardIsCardio()?Number(document.getElementById('eDuracion')?.value):null;
+  const proposal=(wizardIsCardio()&&cardioDuration>0?cardioDuration:Number.isFinite(existing)&&existing>0?existing:wizardElapsedMinutes());
   duration.value=proposal!=null&&proposal>0?String(proposal):'';
   intensity.value=document.getElementById('eIntensidad')?.value||'moderada';
   wizardDurationReviewInitialized=true;
@@ -13695,7 +13737,9 @@ function wizardPrepareCaloriesReview(){
  const names=[...wizardQueuedExercises.map(x=>x.ej)];
  const current=document.getElementById('eEj')?.value.trim();if(current)names.push(current);
  const label=document.getElementById('wizardExerciseReview');
- if(label)label.textContent=`Ejercicios de la sesión (${names.length}): ${names.join(' · ')}`;
+ if(label)label.textContent=wizardIsCardio()?`Actividad: ${(CARDIO_ACTIVITIES[document.getElementById('eCardioActividad')?.value]||CARDIO_ACTIVITIES.otro_cardio).label}`:`Ejercicios de la sesión (${names.length}): ${names.join(' · ')}`;
+ const split=document.getElementById('wizardSplitCaloriesNote');if(split)split.hidden=wizardIsCardio();
+ const machine=document.getElementById('wizardCardioMachineNote');if(machine)machine.hidden=!wizardIsCardio();
  wizardUpdateCaloriesReview();
 }
 function wizardUpdateCaloriesReview(){
@@ -13708,14 +13752,20 @@ function wizardUpdateCaloriesReview(){
  if(!Number.isInteger(duration)||duration<1||duration>480){
   output.textContent='Indica una duración de 1 a 480 min';return;
  }
- if(weight==null){
+ const machineAvailable=wizardIsCardio()&&document.getElementById('eKcal')?.dataset?.machine==='1'&&document.getElementById('eKcal')?.value!=='';
+ if(weight==null&&!machineAvailable){
   output.textContent='Sin estimación (falta peso corporal)';
   if(explanation)explanation.textContent='Puedes guardar la sesión, pero no se inventarán kcal sin una medición de peso válida.';
   return;
  }
- const kcal=Math.round(activityMET('fuerza',intensity)*3.5*weight/200*duration);
- output.textContent=`~${kcal} kcal · ${duration} min`;
- if(explanation)explanation.textContent=`Peso registrado: ${weight} kg · Intensidad: ${intensity}. Estimación MET orientativa; incluye pausas de la sesión, no solo el tiempo de levantamiento.`;
+ const cardio=wizardIsCardio();
+ const kcalEl=document.getElementById('eKcal');
+ const machineKcal=cardio&&kcalEl?.dataset?.machine==='1'&&kcalEl.value!==''?Number(kcalEl.value):null;
+ const isMachine=machineKcal!=null&&Number.isFinite(machineKcal)&&machineKcal>=0;
+ const activity=document.getElementById('eCardioActividad')?.value||'otro_cardio';
+ const kcal=isMachine?machineKcal:Math.round(activityMET(cardio?'cardio':'fuerza',intensity,cardio?activity:null)*3.5*weight/200*duration);
+ output.textContent=`${isMachine?'':'~'}${kcal} kcal · ${duration} min`;
+ if(explanation)explanation.textContent=isMachine?'Kcal indicadas por la máquina. Se guardarán una sola vez para esta sesión.':`Peso registrado: ${weight} kg · Intensidad: ${intensity}. Estimación MET orientativa según ${cardio?'actividad de cardio':'sesión de fuerza'} y duración.`;
 }
 function wizardGoToCaloriesReview(){
  const current=document.getElementById('eEj')?.value.trim();
@@ -13723,9 +13773,67 @@ function wizardGoToCaloriesReview(){
  if(!current&&!wizardQueuedExercises.length){setWorkoutWizardError('Añade al menos un ejercicio antes de continuar.');return;}
  wizardShowStep(5);
 }
+
+/* v22.2.79 — Cardio: guardar con confirmación y sin duplicar kcal */
+function wizardSaveCardio(){
+ if(workoutWizardStep!==4){setWorkoutWizardError('Revisa la duración y las kcal antes de guardar.');return;}
+ if(wizardSaveInProgress)return;
+ const minutes=Number(document.getElementById('wizardDurationConfirm')?.value);
+ if(!Number.isInteger(minutes)||minutes<1||minutes>480){setWorkoutWizardError('Confirma una duración de 1 a 480 minutos.');document.getElementById('wizardDurationConfirm')?.focus();return;}
+ const date=isoFromES(document.getElementById('eFecha')?.value||'');
+ if(!date){setWorkoutWizardError('Indica una fecha válida.');return;}
+ const activity=document.getElementById('eCardioActividad')?.value||'otro_cardio';
+ const intensity=document.getElementById('wizardIntensityConfirm')?.value||'moderada';
+ const weight=wizardSessionWeight();
+ const kcalEl=document.getElementById('eKcal');
+ const hasMachine=kcalEl?.dataset?.machine==='1'&&kcalEl.value!=='';
+ const machineKcal=hasMachine?Number(kcalEl.value):null;
+ if(hasMachine&&(!Number.isFinite(machineKcal)||machineKcal<0)){setWorkoutWizardError('Las kcal de la máquina no son válidas.');return;}
+ const kcal=hasMachine?machineKcal:(weight==null?null:Math.round(activityMET('cardio',intensity,activity)*3.5*weight/200*minutes));
+ const getNumber=id=>{const v=document.getElementById(id)?.value;return v==null||v.trim()===''?null:Number(v);};
+ for(const id of ['eVelocidad','eInclinacion','eDistancia','eFcMedia','eFcMax','eWatts','eRpm']){
+  const value=getNumber(id);if(value!=null&&(!Number.isFinite(value)||value<0)){
+   setWorkoutWizardError('Comprueba los valores numéricos del cardio; no pueden ser negativos.');document.getElementById(id)?.focus();return;
+  }
+ }
+ const old=editingTrainingIndex!=null?db.entreno?.[editingTrainingIndex]||{}:{};
+ const label=(CARDIO_ACTIVITIES[activity]||CARDIO_ACTIVITIES.otro_cardio).label;
+ const record={...old,fecha:date,hora:document.getElementById('eHora')?.value||currentHHMM(),
+  gym:document.getElementById('eGym')?.value||'Gimnasio Atalanta',tipo:'cardio',ej:label,
+  exerciseId:resolveExerciseAliasId({ej:label})||null,cardioActividad:activity,duracion:minutes,intensidad:intensity,
+  kcal,kcalFuente:hasMachine?'maquina':weight==null?'sin_peso':'estimada_met',
+  velocidad:getNumber('eVelocidad'),inclinacion:getNumber('eInclinacion'),distancia:getNumber('eDistancia'),
+  resistencia:document.getElementById('eResistencia')?.value.trim()||'',fcMedia:getNumber('eFcMedia'),
+  fcMax:getNumber('eFcMax'),watts:getNumber('eWatts'),rpm:getNumber('eRpm'),
+  notas:document.getElementById('eNotas')?.value.trim()||''};
+ const isEdit=editingTrainingIndex!=null;
+ wizardSaveInProgress=true;
+ const button=document.getElementById('wizardSaveButton');if(button)button.disabled=true;
+ const previous=db.entreno.slice();
+ try{
+  if(isEdit)db.entreno[editingTrainingIndex]=record;
+  else db.entreno.push(record);
+  localStorage.setItem(KEY,JSON.stringify(db));
+ }catch(err){
+  db.entreno=previous;console.error('No se pudo guardar cardio',err);
+  setWorkoutWizardError('No se ha podido guardar el cardio. Comprueba el almacenamiento del dispositivo.');
+  if(button)button.disabled=false;wizardSaveInProgress=false;return;
+ }
+ editingTrainingIndex=null;wizardDurationReviewInitialized=false;
+ if(kcalEl){kcalEl.dataset.machine='';kcalEl.value='';}
+ try{hideWorkoutModal();}catch(err){console.error('No se pudo cerrar el diálogo',err);document.getElementById('workoutTopCard')?.classList.remove('show');document.body.classList.remove('workout-modal-open');document.getElementById('trainingModalBackdrop')?.setAttribute('hidden','');}
+ showTrainingSavedConfirmation(isEdit?'Cardio modificado y guardado correctamente.':'Cardio guardado correctamente.');
+ const history=document.getElementById('trainingHistoryDetails');if(history)history.open=true;
+ try{render();}catch(err){console.error('Error actualizando paneles de cardio',err);}
+ try{renderTrainingDashboard();}catch(err){console.error('Error actualizando resumen de cardio',err);}
+ try{renderTrainingHistoryActions();}catch(err){console.error('Error actualizando historial de cardio',err);}
+ if(button)button.disabled=false;wizardSaveInProgress=false;
+}
+
 function wizardSaveWorkout(){
  if(!document.getElementById('workoutTopCard')?.classList.contains('show'))return;
  if(wizardSaveInProgress)return;
+ if(wizardIsCardio()){wizardSaveCardio();return;}
  if(!wizardIsStrength()){addEntreno();return;}
  if(workoutWizardStep!==5){wizardGoToCaloriesReview();return;}
  const current=document.getElementById('eEj')?.value.trim();
@@ -13806,6 +13914,8 @@ function openTrainingEditor(){
   const count=document.getElementById('eSeries');if(count)count.value='3';
   ['eKg','eReps','eEquipo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   wizardQueuedExercises=[];wizardSetRows=[];resetManualExerciseSelection();
+  ['eDuracion','eVelocidad','eInclinacion','eDistancia','eResistencia','eFcMedia','eFcMax','eWatts','eRpm','eNotas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const kcalEl=document.getElementById('eKcal');if(kcalEl){kcalEl.value='';kcalEl.dataset.machine='';}
   wizardDurationReviewInitialized=false;
   toggleTrainingFields();
  }else {ensureGymOptions('eGym',currentGym());wizardDurationReviewInitialized=false;}
@@ -13852,7 +13962,7 @@ function showTrainingDayInfo(iso){
  const kcal=document.getElementById('trainingDayInfoKcal');if(kcal)kcal.textContent='~'+Math.round(st.kcal)+' kcal';
  document.querySelectorAll('.training-day-col').forEach(el=>el.classList.toggle('selected',el.dataset.date===iso));
 }
-/* v22.2.78 — acceso directo desde Historial reciente al registro editable. */
+/* v22.2.79 — acceso directo desde Historial reciente al registro editable. */
 function jumpToRecentWorkout(fecha,hora,sessionId,recordIndex){
  const fold=document.getElementById('trainingHistoryDetails');
  if(fold)fold.open=true;
