@@ -1,13 +1,9 @@
-# Micro Health v22.2.72 — Registro de entrenamiento por pasos
+# Micro Health v22.2.73 — Registro de entreno flotante
 
-En Entreno > Registrar entrenamiento:
-1. Fecha (hoy), hora (ahora) y gimnasio (Gimnasio Atalanta).
-2. Tipo de entrenamiento.
-3. Para fuerza: elegir ejercicio por nombre/imagen, búsqueda y grupo muscular.
-4. Peso y repeticiones por serie (3 por defecto), añadir/quitar series, añadir más ejercicios y validar/guardar.
+Corrige el fallo de v22.2.72: los botones de navegación estaban dentro del paso 3 y quedaban ocultos durante los pasos 1 y 2. Ahora los botones están fuera de todas las pantallas.
 
-Los demás tipos conservan su formulario anterior para desarrollarlos más adelante.
-Las rutinas y los registros anteriores no se modifican. Clave localStorage: `miguel-evolucion-v4`.
-
-## Despliegue
-Sustituye `index.html` y `sw.js` en GitHub Pages. No cambies Cloudflare, ni reinstales la PWA. Exporta tu JSON antes de actualizar.
+- El registro se abre en una ventana flotante con fondo oscurecido, desplazamiento interno y botón Cerrar.
+- Fecha/hora actuales y Gimnasio Atalanta por defecto.
+- Paso 1 → Tipo → Selección de ejercicio → Series (3 iniciales).
+- Los registros antiguos y la clave localStorage `miguel-evolucion-v4` no cambian.
+- Para desplegar: sustituir `index.html` y `sw.js` en GitHub Pages. Cloudflare no cambia.
