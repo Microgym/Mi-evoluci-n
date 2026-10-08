@@ -2080,7 +2080,7 @@ details.active-routine-item.validated:not([open]) > summary{
 .pdf-report-card .pdf-report-chips button{border:1px solid #d8e7e6;background:#fff;color:#236476;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800}
 @media(max-width:560px){.pdf-report-card .pdf-report-grid{grid-template-columns:1fr}}
 
-/* v22.2.66 — Coach 360º: exportación PDF de consultas y evaluaciones */
+/* v22.2.68 — objetivos únicos de Datos en Orientación nutricional */
 .coach-pdf-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 .coach-pdf-actions button{border:1px solid #d6e7e5;background:#fff;color:#176474;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:850;cursor:pointer}
 .coach-pdf-actions button:hover{background:#f2faf8}
@@ -3402,7 +3402,7 @@ button,a,label,summary,input,select,textarea{
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivo: perder grasa manteniendo músculo</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.68</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -8599,12 +8599,16 @@ function renderFoodFavoriteChips(){
     : '<span class="muted">Aún no tienes favoritos guardados.</span>';
 }
 
-function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,fat,fiber}){
+function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,fat,fiber,kt,pt}){
   const box=document.getElementById('nutritionGuidance');
   if(!box)return;
-  const profile=db.profile||{};
-  const kt=Math.max(1,Number(profile.kcalTarget||profile.objetivoKcal||1800)||1800);
-  const pt=Math.max(1,Number(profile.proteinTarget||profile.objetivoProteina||130)||130);
+  // v22.2.68: los objetivos vienen del MISMO cálculo que pinta el resumen superior.
+  // Nunca se aplican objetivos secundarios o antiguos en esta tarjeta.
+  kt=Number(kt); pt=Number(pt);
+  if(!Number.isFinite(kt)||kt<=0||!Number.isFinite(pt)||pt<=0){
+    box.textContent='No se pueden leer los objetivos actuales de Datos.';
+    return;
+  }
   const now=new Date();
   const todayIso=today();
   const isToday=fecha===todayIso;
@@ -8746,7 +8750,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · objetivo: perder grasa manteniendo músculo</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.68</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -8804,7 +8808,7 @@ function renderFoodDashboard(){
   set('foodDashWaterSub',`${wp}% de ${(waterGoal/1000).toFixed(1).replace('.',',')} L`);
   set('foodDashMealsSub',meals.length?`${meals.length} registrada${meals.length===1?'':'s'}`:'Sin registros');
   set('foodWaterSummary',(water/1000).toFixed(2).replace('.',',')+' L');
-  renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,fat,fiber});
+  renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,fat,fiber,kt,pt});
   renderRegisteredMeals(); renderFoodFavoriteChips(); loadDailyWater();
 }
 
