@@ -1,12 +1,7 @@
-# Micro Health v22.2.79 — Cardio guiado
+Micro Health v22.2.81 — Golf Club de Golf Escorpión.
 
-Actualiza en GitHub Pages únicamente `index.html` y `sw.js`. Mantiene la clave localStorage `miguel-evolucion-v4` y los datos anteriores. No modificar Cloudflare Worker.
+Sustituir index.html y sw.js en GitHub Pages. No cambiar Cloudflare.
 
-## Novedades
-- Cardio guiado: fecha/hora/gimnasio → tipo Cardio → actividad, duración, intensidad y métricas opcionales → revisión de kcal y confirmación.
-- Las kcal proceden de la máquina si se ha leído una cifra; de lo contrario, estimación MET por actividad, peso real registrado, duración e intensidad. Si falta peso, no inventa kcal.
-- Guardado seguro con cierre, confirmación y acceso a historial, sin duplicar sesiones ni kcal.
-- Modificación de registros cardio con campos de FC, potencia, cadencia y kcal de máquina.
-- Fuerza y demás tipos conservan sus flujos existentes.
+Golf: Masía, Lagos, Nuevos; pares, hcp hoyo y metros editables; barras azules; handicap inicial 28; 9 o 18 hoyos combinables; tarjeta por hoyos con borrador guardado; puntos Stableford orientativos; historial, edición y evolución por recorrido.
 
-Antes de actualizar, exporta copia de seguridad JSON desde la aplicación. No borres datos, ni desinstales la PWA.
+Datos previos conservados bajo la clave miguel-evolucion-v4. Exportar JSON antes de actualizar.
