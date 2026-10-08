@@ -1742,7 +1742,7 @@ nav button[data-sec="entreno"] .nav-label{letter-spacing:-.01em}
 .data-collapsible>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:#173c5e;background:#fbfdfe}
 .data-collapsible>summary::-webkit-details-marker{display:none}
 .data-collapsible-body{padding:0 16px 16px}
-/* v22.2.73 — Peso: entrada e historial plegados por defecto */
+/* v22.2.74 — Peso: entrada e historial plegados por defecto */
 #peso .weight-section-fold{margin-bottom:12px}
 #peso .weight-section-fold>summary{min-height:72px;padding:13px 16px}
 #peso .weight-fold-heading{display:flex;align-items:center;gap:12px;min-width:0}
@@ -3094,7 +3094,7 @@ button,a,label,summary,input,select,textarea{
 @media(max-width:560px){.threshold-profile-head{align-items:flex-start;flex-direction:column}.threshold-profile-head span{text-align:left}}
 
 
-/* v22.2.73 — orden de Entreno e historial separado por origen */
+/* v22.2.74 — orden de Entreno e historial separado por origen */
 #entreno .training-launch{grid-template-columns:1fr}
 #entreno .training-launch .primary{width:100%}
 #entreno .training-history-category{margin:8px 0 18px}
@@ -3102,7 +3102,7 @@ button,a,label,summary,input,select,textarea{
 #entreno .training-history-category h3{margin:0 0 11px;font-size:16px;color:#0d4450}
 #entreno .training-history-category h3 .muted{font-size:13px;font-weight:600}
 
-/* v22.2.73 — registro de entrenamiento por pasos */
+/* v22.2.74 — registro de entrenamiento por pasos */
 .workout-wizard-progress{background:#edf5f6;color:#155269;border-radius:12px;padding:11px 13px;font-weight:700;margin:10px 0 18px}
 .workout-wizard-page[hidden],.workout-wizard-queued[hidden]{display:none!important}
 .workout-wizard-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 3px}
@@ -3121,7 +3121,7 @@ button,a,label,summary,input,select,textarea{
 #workoutTopCard.wizard-strength-values #wizardSetsPanel{display:block!important}
 #workoutTopCard.wizard-other-type #wizardOriginalSave{display:none!important}
 
-/* v22.2.73 — diálogo flotante de entrenamiento, usable en iPhone/Android/PC */
+/* v22.2.74 — diálogo flotante de entrenamiento, usable en iPhone/Android/PC */
 .training-modal-backdrop[hidden]{display:none!important}
 .training-modal-backdrop{position:fixed;inset:0;background:rgba(8,30,40,.62);z-index:9997;backdrop-filter:blur(3px)}
 body.workout-modal-open{overflow:hidden!important}
@@ -3138,6 +3138,20 @@ body.workout-modal-open{overflow:hidden!important}
 #workoutTopCard .workout-wizard-actions button[hidden]{display:none!important}
 #workoutTopCard .workout-wizard-error{color:#9d2727;background:#fff0f0;border:1px solid #f2c4c4;border-radius:10px;padding:10px 12px;font-size:14px}
 #workoutTopCard .workout-wizard-error[hidden]{display:none!important}
+/* v22.2.74 — navegación permanente; catálogo con desplazamiento propio */
+body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!important}
+#workoutTopCard.training-editor-card.show{display:flex;flex-direction:column;overflow:hidden!important}
+#workoutTopCard .training-editor-head{position:relative;top:auto;margin-top:0;flex:0 0 auto}
+#workoutTopCard .workout-wizard-content{min-height:0;flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 3px 10px}
+#workoutTopCard .workout-wizard-actions{position:relative;bottom:auto;flex:0 0 auto;margin:0;padding:12px 0 max(12px,env(safe-area-inset-bottom));background:#fff;box-shadow:0 -6px 16px rgba(15,76,92,.05)}
+#workoutTopCard .wizard-selected-continue{display:block;width:100%;margin-top:12px;padding:12px}
+#workoutTopCard .wizard-selected-continue[hidden]{display:none!important}
+@media(max-width:600px){
+ #workoutTopCard .training-editor-head{top:auto;margin-top:0}
+ #workoutTopCard .workout-wizard-actions{bottom:auto;gap:7px}
+ #workoutTopCard .workout-wizard-actions button{min-height:44px}
+}
+
 @media(max-width:600px){
  #workoutTopCard.training-editor-card.show{top:max(6px,env(safe-area-inset-top));bottom:max(6px,env(safe-area-inset-bottom));width:calc(100vw - 12px);border-radius:18px;padding:15px}
  #workoutTopCard .training-editor-head{top:-15px;margin-top:-9px}
@@ -3478,7 +3492,7 @@ body.workout-modal-open{overflow:hidden!important}
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.73</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.74</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3624,6 +3638,7 @@ body.workout-modal-open{overflow:hidden!important}
 <div class="card training-editor-card" id="workoutTopCard" role="dialog" aria-modal="true" aria-labelledby="trainingModalTitle" tabindex="-1">
 
   <div class="training-editor-head"><h2 id="trainingModalTitle">Registrar entrenamiento</h2><button type="button" class="set-add" onclick="closeTrainingEditor()" aria-label="Cerrar registro">✕ Cerrar</button></div>
+  <div id="workoutWizardContent" class="workout-wizard-content">
   <div class="workout-wizard-progress" id="workoutWizardProgress" aria-live="polite">Paso 1 de 4 · Fecha y gimnasio</div>
   <p id="workoutWizardError" class="workout-wizard-error" role="alert" hidden></p>
   <div id="wizardStep1" class="workout-wizard-page">
@@ -3721,6 +3736,7 @@ body.workout-modal-open{overflow:hidden!important}
       <div class="manual-selected">
         <div class="muted">Seleccionado</div>
         <b id="manualSelectedExerciseLabel">Ninguno</b>
+        <button type="button" class="primary wizard-selected-continue" id="wizardSelectedContinue" onclick="wizardNext()" hidden>Continuar con este ejercicio →</button>
       </div>
 
       <input id="eEj" type="hidden">
@@ -3822,8 +3838,9 @@ body.workout-modal-open{overflow:hidden!important}
   </div>
   </div><!-- /wizardStep3: acciones fuera de las pantallas -->
   <div id="wizardQueuedPanel" class="workout-wizard-queued" hidden></div>
+  </div><!-- /workoutWizardContent -->
   <div class="workout-wizard-actions" id="workoutWizardActions">
-    <button type="button" class="secondary" id="wizardBackButton" onclick="wizardBack()" hidden>← Atrás</button>
+    <button type="button" class="secondary" id="wizardBackButton" onclick="wizardBack()" hidden>← Anterior</button>
     <button type="button" class="primary" id="wizardNextButton" onclick="wizardNext()">Siguiente →</button>
     <button type="button" class="secondary" id="wizardAddExerciseButton" onclick="wizardQueueExercise()" hidden>＋ Añadir otro ejercicio</button>
     <button type="button" class="primary" id="wizardSaveButton" onclick="wizardSaveWorkout()" hidden>Validar y guardar</button>
@@ -8849,7 +8866,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.73</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.74</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -9351,10 +9368,12 @@ function selectManualExercise(id){
   if(!x)return;
 
   const ej=document.getElementById('eEj');
+  if(ej&&ej.dataset.exerciseId!==x.id&&typeof wizardSetRows!=='undefined')wizardSetRows=[];
   if(ej){ej.value=x.name;ej.dataset.exerciseId=x.id;}
 
   const label=document.getElementById('manualSelectedExerciseLabel');
   if(label)label.textContent=x.name;
+  const continueButton=document.getElementById('wizardSelectedContinue');if(continueButton)continueButton.hidden=false;
 
   if(document.getElementById('eModalidad') && x.modalidad)document.getElementById('eModalidad').value=x.modalidad;
   if(document.getElementById('eEquipo'))document.getElementById('eEquipo').value=x.equipment||'';
@@ -9426,6 +9445,7 @@ function resetManualExerciseSelection(){
   if(ej){ej.value='';ej.dataset.exerciseId='';}
   const label=document.getElementById('manualSelectedExerciseLabel');
   if(label)label.textContent='Ninguno';
+  const continueButton=document.getElementById('wizardSelectedContinue');if(continueButton)continueButton.hidden=true;
   const s=document.getElementById('manualExerciseSearch');
   if(s)s.value='';
   const c=document.getElementById('manualPersistentComment'); if(c)c.value='';
@@ -13452,7 +13472,7 @@ function renderTrainingHistoryActions(){
               groupHtml('Entrenamientos individuales',byManual,'No hay entrenamientos individuales registrados.');
  el.querySelectorAll('.history-date-editor input').forEach(input=>prepareMicroHealthDateInput(input));
 }
-/* v22.2.73 — asistente de registro; no altera rutinas ni entrenamientos históricos */
+/* v22.2.74 — asistente de registro; no altera rutinas ni entrenamientos históricos */
 let workoutWizardStep=1;
 let wizardQueuedExercises=[];
 let wizardSetRows=[];
@@ -13469,7 +13489,7 @@ function showWorkoutModal(){
  card.classList.add('show');
  if(backdrop)backdrop.hidden=false;
  document.body.classList.add('workout-modal-open');
- card.scrollTop=0;
+ document.getElementById('workoutWizardContent')?.scrollTo?.(0,0);
 }
 function hideWorkoutModal(){
  document.getElementById('workoutTopCard')?.classList.remove('show');
@@ -13517,10 +13537,12 @@ function wizardShowStep(step){
  save.textContent=strength&&step===3?'Guardar ejercicios añadidos':'Validar y guardar';
  if(step===4&&strength && !wizardSetRows.length)wizardInitSets();
  if(step===3&&strength)renderManualExercisePicker();
+ const selectionContinue=document.getElementById('wizardSelectedContinue');
+ if(selectionContinue)selectionContinue.hidden=!(step===3&&strength&&document.getElementById('eEj')?.value);
  const queued=document.getElementById('wizardQueuedPanel');
  queued.hidden=!wizardQueuedExercises.length;
  if(wizardQueuedExercises.length)queued.textContent=`Ejercicios añadidos: ${wizardQueuedExercises.map(x=>x.ej).join(' · ')}`;
- card.scrollTop=0;
+ document.getElementById('workoutWizardContent')?.scrollTo?.(0,0);
 }
 function wizardNext(){
  if(workoutWizardStep===1){
@@ -13538,7 +13560,7 @@ function wizardNext(){
  }
  if(workoutWizardStep===3&&wizardIsStrength()){
   if(!document.getElementById('eEj')?.value)return alert('Selecciona un ejercicio por nombre o imagen.');
-  wizardInitSets();wizardShowStep(4);
+  if(!wizardSetRows.length)wizardInitSets();wizardShowStep(4);
  }
 }
 function wizardBack(){wizardShowStep(Math.max(1,workoutWizardStep-1));}
