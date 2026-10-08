@@ -1,9 +1,11 @@
-# Micro Health v22.2.73 — Registro de entreno flotante
+# Micro Health v22.2.74 — navegación del registro de entrenamiento
 
-Corrige el fallo de v22.2.72: los botones de navegación estaban dentro del paso 3 y quedaban ocultos durante los pasos 1 y 2. Ahora los botones están fuera de todas las pantallas.
+## Corrección
+- Paso 3: el catálogo se desplaza de forma independiente y los botones **Anterior / Siguiente** permanecen siempre visibles al pie de la ventana flotante.
+- Al seleccionar un ejercicio aparece también **Continuar con este ejercicio** junto a su nombre.
+- Se puede volver de 4 a 3, de 3 a 2 y de 2 a 1 sin perder los valores ya introducidos en las series.
+- El botón Cerrar sigue disponible en todas las pantallas.
+- Sin cambios en los registros, la clave de almacenamiento ni Cloudflare.
 
-- El registro se abre en una ventana flotante con fondo oscurecido, desplazamiento interno y botón Cerrar.
-- Fecha/hora actuales y Gimnasio Atalanta por defecto.
-- Paso 1 → Tipo → Selección de ejercicio → Series (3 iniciales).
-- Los registros antiguos y la clave localStorage `miguel-evolucion-v4` no cambian.
-- Para desplegar: sustituir `index.html` y `sw.js` en GitHub Pages. Cloudflare no cambia.
+## Instalación
+Sustituir `index.html` y `sw.js` en GitHub Pages. No borrar la PWA ni los datos del navegador. Exportar JSON como copia de seguridad antes de actualizar.
