@@ -3102,6 +3102,13 @@ button,a,label,summary,input,select,textarea{
 #entreno .training-history-category h3{margin:0 0 11px;font-size:16px;color:#0d4450}
 #entreno .training-history-category h3 .muted{font-size:13px;font-weight:600}
 
+/* v22.2.76 — historial accesible y acciones explícitas */
+#entreno .training-recent-item{grid-template-columns:42px minmax(0,1fr) auto;cursor:default}
+#entreno .training-recent-main{min-width:0}
+#entreno .training-recent-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+#entreno .training-recent-actions button{font-size:12px;padding:7px 10px;min-height:34px}
+@media(max-width:430px){#entreno .training-recent-item{grid-template-columns:34px minmax(0,1fr)}#entreno .training-recent-date{grid-column:2;justify-self:start}}
+
 /* v22.2.75 — registro de entrenamiento por pasos */
 .wizard-set-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
 .wizard-set-actions button{flex:1;min-width:170px}
@@ -3494,7 +3501,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     </div>
     <div id="nutritionGuidance" class="nutrition-guidance">
       <div class="nutrition-guidance-head">
-        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.75</small></div>
+        <div><b>Orientación nutricional</b><small>Objetivos actuales de Datos · v22.2.76</small></div>
         <span id="nutritionOverall" class="nutrition-overall">Sin datos</span>
       </div>
       <div id="nutritionGuidanceGrid" class="nutrition-guidance-grid"></div>
@@ -3859,7 +3866,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   </div></div>
 </details>
 
-<details class="training-fold" id="trainingHistoryDetails"><summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg></span>Entrenamientos registrados <span id="trainingHistoryCount" class="muted"></span></span></summary><div class="training-fold-body"><div class="card">
+<details class="training-fold" id="trainingHistoryDetails" open><summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg></span>Entrenamientos registrados <span id="trainingHistoryCount" class="muted"></span></span></summary><div class="training-fold-body"><div class="card">
   <h2>Entrenamientos registrados</h2>
   <p class="muted">Puedes editar o eliminar una actividad concreta sin afectar a las demás del mismo día.</p>
   <div id="trainingHistoryActions"></div>
@@ -8869,7 +8876,7 @@ function renderNutritionGuidance({fecha,meals,kcal,prot,carbs,sugars,freeSugars,
     <div class="nutrition-guidance-head">
       <div>
         <b>Orientación nutricional</b>
-        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.75</small>
+        <small>${dayInProgress?`Día en curso · ${hh}:${mm}`:'Valoración del día'} · ${coachGoalLabel(profile()?.objetivoCoach||'coach')} · objetivos de Datos: ${Math.round(kt).toLocaleString('es-ES')} kcal / ${Math.round(pt)} g proteína · v22.2.76</small>
       </div>
       <span class="nutrition-guidance-badge ${toneClass(badgeTone)}">${badge}</span>
     </div>
@@ -13384,19 +13391,22 @@ function renderTrainingHistoryActions(){
      const sport=r.tipo==='deporte'?sportRecordSummary(r):'';
      const durationBit=(r.tipo==='deporte'&&r.deporte==='golf')?'':(r.duracion?Math.round(Number(r.duracion))+' min':'');
      const detail=[durationBit,r.intensidad||'',r.kcal!=null?'~'+Math.round(Number(r.kcal))+' kcal':'',strength,cardio,sport].filter(Boolean).join(' · ');
-     return `<div class="history-item" data-training-index="${i}" data-training-date="${r.fecha}" data-training-hour="${r.hora||''}">
-       <div class="history-top">
-         <div><b>${fechaES(r.fecha)}${r.hora?' · '+r.hora:''} · ${recordGym(r)} · ${r.ej||'Actividad'}</b><div class="history-detail">${detail}</div></div>
-         <div class="history-actions"><button class="edit-btn" onclick="editTrainingIndex(${i})">Modificar</button><button class="delete-btn" onclick="deleteTrainingIndex(${i})">Eliminar</button></div>
-       </div>
-       <div class="history-date-editor">
-         <label>Fecha de este entrenamiento</label>
-         <div class="history-date-editor-row">
-           <input type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa" value="${fechaES(r.fecha)}">
-           <button type="button" class="primary-small" onclick="updateManualHistoryDate(${i},this.parentElement.querySelector('input').value)">Guardar fecha</button>
-         </div>
-       </div>
-     </div>`;
+     const setDetail=(r.sets||[]).map((set,j)=>{
+      const parts=[set.kg!=null?set.kg+' kg':'Peso corporal',set.reps!=null?set.reps+' repeticiones':''].filter(Boolean);
+      return `<div class="history-detail">Serie ${j+1}: ${parts.join(' · ')}</div>`;
+    }).join('');
+    return `<details class="history-item" data-training-index="${i}" data-training-date="${r.fecha}" data-training-hour="${r.hora||''}">
+      <summary><b>${fechaES(r.fecha)}${r.hora?' · '+r.hora:''} · ${recordGym(r)} · ${r.ej||'Actividad'}</b><div class="history-detail">${detail}</div></summary>
+      <div class="history-actions-visible"><button type="button" class="edit-btn" onclick="editTrainingIndex(${i})">Modificar</button><button type="button" class="delete-btn" onclick="deleteTrainingIndex(${i})">Eliminar</button></div>
+      ${setDetail?`<div style="margin:9px 0"><b>Series registradas</b>${setDetail}</div>`:''}
+      <div class="history-date-editor">
+        <label>Fecha de este entrenamiento</label>
+        <div class="history-date-editor-row">
+          <input type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa" value="${fechaES(r.fecha)}">
+          <button type="button" class="primary-small" onclick="updateManualHistoryDate(${i},this.parentElement.querySelector('input').value)">Guardar fecha</button>
+        </div>
+      </div>
+    </details>`;
    }
 
    const doneCount=entry.rows.length;
@@ -13468,10 +13478,10 @@ function renderTrainingHistoryActions(){
  };
  const byRoutine=entries.filter(entry=>entry.kind==='routine');
  const byManual=entries.filter(entry=>entry.kind==='manual');
- const groupHtml=(title,items,emptyText)=>`<section class="training-history-category">
+ const groupHtml=(title,items,emptyText)=>`<div class="training-history-category">
    <h3>${title} <span class="muted">(${items.length})</span></h3>
    ${items.length?items.map(renderHistoryEntry).join(''):`<div class="empty">${emptyText}</div>`}
- </section>`;
+ </div>`;
  el.innerHTML=groupHtml('Por rutina',byRoutine,'No hay sesiones de rutina registradas.')+
               groupHtml('Entrenamientos individuales',byManual,'No hay entrenamientos individuales registrados.');
  el.querySelectorAll('.history-date-editor input').forEach(input=>prepareMicroHealthDateInput(input));
@@ -13629,7 +13639,10 @@ function wizardSaveWorkout(){
  wizardQueuedExercises=[];wizardSetRows=[];
  save();
  hideWorkoutModal();
+ const historyFold=document.getElementById('trainingHistoryDetails');
+ if(historyFold)historyFold.open=true;
  renderTrainingDashboard();
+ renderTrainingHistoryActions();
 }
 function openTrainingEditor(){
  if(editingTrainingIndex==null){
@@ -13685,15 +13698,31 @@ function showTrainingDayInfo(iso){
  const kcal=document.getElementById('trainingDayInfoKcal');if(kcal)kcal.textContent='~'+Math.round(st.kcal)+' kcal';
  document.querySelectorAll('.training-day-col').forEach(el=>el.classList.toggle('selected',el.dataset.date===iso));
 }
+/* v22.2.76 — acceso directo desde Historial reciente al registro editable. */
 function jumpToRecentWorkout(fecha,hora,sessionId,recordIndex){
- const fold=document.getElementById('trainingHistoryDetails');if(fold)fold.open=true;
+ const fold=document.getElementById('trainingHistoryDetails');
+ if(fold)fold.open=true;
  renderTrainingHistoryActions();
+ const host=document.getElementById('trainingHistoryActions');
  let target=null;
- if(sessionId){target=[...document.querySelectorAll('[data-routine-key]')].find(el=>String(el.dataset.routineKey||'').includes(String(sessionId)))||null;if(target&&target.tagName==='DETAILS')target.open=true;}
- if(!target&&recordIndex!=null)target=document.querySelector('[data-training-index="'+Number(recordIndex)+'"]');
- if(!target){target=[...document.querySelectorAll('[data-training-date]')].find(el=>el.dataset.trainingDate===fecha&&(!hora||el.dataset.trainingHour===hora))||null;}
- if(target){target.classList.add('history-jump-highlight');target.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>target.classList.remove('history-jump-highlight'),1800);}
- else if(fold)fold.scrollIntoView({behavior:'smooth',block:'start'});
+ if(host&&sessionId){
+  target=[...host.querySelectorAll('[data-routine-key]')].find(el=>String(el.dataset.routineKey||'')==='sid:'+String(sessionId))||null;
+  if(target&&target.tagName==='DETAILS')target.open=true;
+ }
+ if(!target&&host&&recordIndex!=null&&Number.isInteger(Number(recordIndex))){
+  target=host.querySelector('[data-training-index="'+Number(recordIndex)+'"]');
+ }
+ if(!target&&host){
+  target=[...host.querySelectorAll('[data-training-date]')].find(el=>el.dataset.trainingDate===fecha&&(!hora||el.dataset.trainingHour===hora))||null;
+ }
+ if(target&&target.tagName==='DETAILS')target.open=true;
+ // Safari/iPhone necesita un fotograma para desplegar el contenedor antes de desplazar.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const destination=target||fold;
+  if(!destination)return;
+  destination.scrollIntoView({behavior:'smooth',block:'center'});
+  if(target){target.classList.add('history-jump-highlight');setTimeout(()=>target.classList.remove('history-jump-highlight'),2200);}
+ }));
 }
 function renderTrainingDashboard(){
  const bars=document.getElementById('trainingWeekBars');
@@ -13726,7 +13755,15 @@ function renderTrainingDashboard(){
  const recentHost=document.getElementById('trainingRecentList');
  if(recentHost){
    const recent=coachWorkoutSessionsBetween('1900-01-01',today()).slice(-5).reverse();
-   recentHost.innerHTML=recent.length?recent.map(r=>`<div class="training-recent-item" role="button" tabindex="0" onclick="jumpToRecentWorkout('${r.fecha}','${r.hora||''}','${r.sessionId||''}',${Number.isInteger(r.recordIndex)?r.recordIndex:'null'})"><div class="training-recent-icon"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div><div class="training-recent-main"><b>${escapeMealText(r.nombre||r.tipo||'Entrenamiento')}</b><small>${escapeMealText(r.tipo||'Entrenamiento')}${r.hora?' · '+r.hora:''} · Pulsa para ver</small></div><div class="training-recent-date">${fechaES(r.fecha)}</div></div>`).join(''):'<div class="empty">Todavía no hay entrenamientos recientes.</div>';
+   recentHost.innerHTML=recent.length?recent.map(r=>{
+     const idx=Number.isInteger(r.recordIndex)?r.recordIndex:null;
+     const date=String(r.fecha||'').replace(/[^0-9-]/g,'');
+     const hour=String(r.hora||'').replace(/[^0-9:]/g,'');
+     const sid=String(r.sessionId||'').replace(/[^a-zA-Z0-9_:-]/g,'');
+     const view=`jumpToRecentWorkout('${date}','${hour}','${sid}',${idx==null?'null':idx})`;
+     const edit=idx!=null?`<button type="button" class="edit-btn" onclick="editTrainingIndex(${idx})">Modificar</button>`:'';
+     return `<div class="training-recent-item"><div class="training-recent-icon"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div><div class="training-recent-main"><b>${escapeMealText(r.nombre||r.tipo||'Entrenamiento')}</b><small>${escapeMealText(r.tipo||'Entrenamiento')}${r.hora?' · '+escapeMealText(r.hora):''}</small><div class="training-recent-actions"><button type="button" class="primary-small" onclick="${view}">Ver detalles</button>${edit}</div></div><div class="training-recent-date">${fechaES(r.fecha)}</div></div>`;
+   }).join(''):'<div class="empty">Todavía no hay entrenamientos recientes.</div>';
    const rc=document.getElementById('trainingRecentCount'); if(rc)rc.textContent=recent.length?`(${recent.length})`:'';
  }
 
