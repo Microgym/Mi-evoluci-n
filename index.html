@@ -6141,7 +6141,7 @@ async function coachCreateRoutineFromReply(createdAt){
       const message=(complete?'COMPLETA LA RECOMENDACIÓN PARA QUE SEA UNA RUTINA UTILIZABLE. Si faltan ejercicios específicos, elige ejercicios apropiados del catálogo, según el objetivo y la distribución del Coach. No afirmes que fueron recomendados literalmente. ':'CONVIERTE LA RECOMENDACIÓN EN RUTINA. ')+
         'Devuelve ÚNICAMENTE JSON válido, sin Markdown, con esta estructura: '+
         '{"nombre":"Plan del Coach","diasSemana":3,"dias":[{"nombre":"Día 1 - Tren superior","ejercicios":[{"nombre":"nombre exacto del catálogo","series":3,"repeticiones":12}]}]}. '+
-        'Si hay varios días, sepáralos en el array dias. Si el texto solo dice la distribución semanal, propón ejercicios concretos apropiados del catálogo para cada día. '+
+        'OBLIGATORIO: si diasSemana es N, el array dias debe tener EXACTAMENTE N elementos, cada uno con un nombre distinto y su propia lista de ejercicios. Nunca pongas todos los ejercicios en una sola sesión. Si el texto solo dice la distribución semanal, propón ejercicios concretos apropiados del catálogo para cada día. '+
         'No inventes pesos, historial, lesiones ni equipamiento. Los nombres de ejercicios DEBEN coincidir con el catálogo. '+
         'CATÁLOGO: '+JSON.stringify(exerciseNames).slice(0,23000)+'. '+
         'CONTEXTO DE RECOMENDACIONES: '+original.slice(0,12500);
@@ -6155,12 +6155,23 @@ async function coachCreateRoutineFromReply(createdAt){
     }
     let plan=await requestPlan(false);
     let result=coachRoutineBuildDraft(plan||{},row.text);
-    if(!result.draft.ejercicios.length){
-      coachRoutineImportMessage('La recomendación no incluía ejercicios reconocibles. Pidiendo al Coach que complete el plan con el catálogo…');
+    // Una frecuencia semanal no equivale a una única sesión. No mostrar una
+    // propuesta de cuatro días si la IA ha mezclado los ejercicios en uno.
+    function distinctDays(r){return new Set(r.draft.ejercicios.map(x=>x.dia||'Sesión única')).size;}
+    function expectedDays(p,r){
+      const explicit=Array.isArray(p?.dias)?p.dias:Array.isArray(p?.sesiones)?p.sesiones:[];
+      const n=Number(p?.diasSemana||r.draft.objetivoSemanal||0);
+      return Math.min(7,Math.max(explicit.length,Number.isInteger(n)?n:0));
+    }
+    if(!result.draft.ejercicios.length || (expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result))){
+      coachRoutineImportMessage('El Coach no ha separado correctamente las sesiones. Solicitando una distribución por días…');
       plan=await requestPlan(true);
       result=coachRoutineBuildDraft(plan||{},row.text);
     }
     if(!result.draft.ejercicios.length)throw new Error('El Coach no ha proporcionado ejercicios reconocibles. No se ha guardado nada.');
+    if(expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result)){
+      throw new Error('El Coach ha indicado '+expectedDays(plan,result)+' días pero no ha distribuido los ejercicios en sesiones diferentes. No se ha guardado ninguna rutina. Vuelve a intentarlo.');
+    }
     coachRoutineOpenEditor(result);
   }catch(e){
     coachRoutineImportMessage('No se ha creado ninguna rutina: '+(e?.name==='AbortError'?'la consulta tardó demasiado.':(e?.message||e))+' Puedes pedir al Coach: «Dame una rutina con ejercicios concretos, series y repeticiones».');
