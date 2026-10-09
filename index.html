@@ -3743,6 +3743,15 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   </div>
   <div class="prefill-actions">
     <button class="set-add" type="button" onclick="applyPreviousValuesToActiveRoutine()">Cargar últimos valores</button>
+    <button class="set-add" type="button" onclick="openActiveRoutineExercisePicker()">＋ Añadir ejercicio a esta sesión</button>
+  </div>
+  <div id="activeRoutineExercisePicker" class="card" style="display:none;margin:10px 0;border:1px solid #b7dcd9" aria-label="Añadir ejercicio a la rutina en curso">
+    <div class="routine-head"><h3>＋ Añadir ejercicio</h3><button class="set-add" type="button" onclick="closeActiveRoutineExercisePicker()">✕ Cerrar</button></div>
+    <p class="muted">Elige un ejercicio del catálogo. Se añadirá a esta sesión sin borrar lo ya registrado.</p>
+    <label for="activeRoutineExerciseSearch">Buscar por ejercicio, músculo o máquina</label>
+    <input id="activeRoutineExerciseSearch" placeholder="Buscar ejercicio…" oninput="renderActiveRoutineExercisePicker()" autocomplete="off">
+    <label style="display:flex;align-items:center;gap:8px;margin:12px 0"><input type="checkbox" id="activeRoutineAlsoSaveTemplate" style="width:auto"> Añadir también a la rutina de Mis rutinas para futuras sesiones</label>
+    <div id="activeRoutineExerciseResults" style="max-height:340px;overflow-y:auto;display:grid;gap:8px"></div>
   </div>
   <div id="activePrefillInfo" class="prefill-info">Si esta rutina ya se hizo antes, los últimos kg/reps/tiempos se cargan automáticamente en amarillo.</div>
   <div id="activeRoutineList"></div>
@@ -13127,7 +13136,7 @@ function previousFinishedRoutineSession(active){
 
 function previousRoutineRecord(active,exerciseName){
   const sess=previousFinishedRoutineSession(active);
-  if(!sess)return null;
+  if(!sess)return lastRoutineExerciseRecord(active.id,active.nombre,exerciseName,active.gym);
 
   const rows=(db.entreno||[]).filter(r=>
     !r.esResumenRutina &&
@@ -13135,7 +13144,7 @@ function previousRoutineRecord(active,exerciseName){
     r.ej===exerciseName
   );
 
-  if(!rows.length)return null;
+  if(!rows.length)return lastRoutineExerciseRecord(active.id,active.nombre,exerciseName,active.gym);
   const r=rows[0];
   return {...r,_session:sess};
 }
@@ -13205,8 +13214,9 @@ function currentExerciseComparison(ex,prev){
   return `Hoy: ${currentBest} kg · ${d>0?'+':''}${d.toFixed(1).replace('.',',')} kg respecto a la sesión anterior`;
 }
 
-function lastLoadFor(ex){
- const rows=(db.entreno||[]).filter(r=>sameExerciseName(r,ex) && recordBestKg(r)!=null).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+function lastLoadFor(ex,gym=db.rutinaActiva?.gym||currentGym()){
+ const wantedGym=gymLabel(gym);
+ const rows=(db.entreno||[]).filter(r=>sameExerciseName(r,ex) && recordGym(r)===wantedGym && recordBestKg(r)!=null).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
  if(!rows.length)return 'Sin carga anterior registrada';
  const kg=recordBestKg(rows[0]);
  return `${kg} kg · ${rows[0].series||''} × ${rows[0].reps||''} · ${fechaES(rows[0].fecha)}`;
@@ -13236,8 +13246,19 @@ function sameExerciseName(a,b){
 }
 
 function lastRoutineExerciseRecord(routineId,routineName,exerciseName,gym=currentGym()){
-  const wantedName=normText(String(routineName||'')).trim();
+  // Buscar la última carga del EJERCICIO en el GIMNASIO, sin exigir que
+  // pertenezca a la misma rutina (también vale un entrenamiento individual).
   const wantedGym=gymLabel(gym);
+  const exerciseHistory=(db.entreno||[])
+    .filter(r=>!r.esResumenRutina && recordGym(r)===wantedGym && sameExerciseName(r,exerciseName))
+    .filter(r=>Array.isArray(r.sets) && r.sets.some(s=>s.kg!=null || s.reps!=null) || r.kg!=null || r.reps!=null)
+    .sort((a,b)=>{
+      const byDate=String(b.fecha||'').localeCompare(String(a.fecha||''));
+      if(byDate)return byDate;
+      return String(b.hora||'').localeCompare(String(a.hora||''));
+    });
+  if(exerciseHistory.length)return {...exerciseHistory[0],_session:null};
+  const wantedName=normText(String(routineName||'')).trim();
   const session=lastCompletedRoutineSessionForId(routineId,routineName,wantedGym);
   const all=(db.entreno||[]).filter(r=>!r.esResumenRutina && recordGym(r)===wantedGym);
 
@@ -13824,6 +13845,54 @@ function closeRoutineExerciseFocus(index){
   clearRoutineExerciseFocus();
 }
 
+// v22.2.92 · Añadir ejercicios a una sesión activa, opcionalmente también a su plantilla.
+function openActiveRoutineExercisePicker(){
+  if(!db.rutinaActiva)return;
+  const panel=document.getElementById('activeRoutineExercisePicker');
+  if(!panel)return;
+  panel.style.display='block';
+  const search=document.getElementById('activeRoutineExerciseSearch');
+  if(search)search.value='';
+  const checkbox=document.getElementById('activeRoutineAlsoSaveTemplate');
+  if(checkbox)checkbox.checked=false;
+  renderActiveRoutineExercisePicker();
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeActiveRoutineExercisePicker(){
+  const panel=document.getElementById('activeRoutineExercisePicker');
+  if(panel)panel.style.display='none';
+}
+function renderActiveRoutineExercisePicker(){
+  const results=document.getElementById('activeRoutineExerciseResults');
+  if(!results)return;
+  const q=normText(document.getElementById('activeRoutineExerciseSearch')?.value||'');
+  const matches=EXERCISE_CATALOG.filter(x=>!q||normText([x.name,x.zone,x.equipment].join(' ')).includes(q)).slice(0,80);
+  results.innerHTML=matches.length?matches.map(x=>`<button type="button" class="set-add" style="display:flex;justify-content:space-between;text-align:left;gap:8px;padding:12px" onclick="addExerciseToActiveRoutine('${x.id}')"><span><b>${x.name}</b><br><small>${x.zone||''} · ${x.equipment||''}</small></span><span>＋</span></button>`).join(''):'<p class="muted">No se han encontrado ejercicios.</p>';
+}
+function addExerciseToActiveRoutine(id){
+  const active=db.rutinaActiva;
+  const x=catalogExerciseById(id);
+  if(!active||!x)return;
+  // Capturar los valores que el usuario esté editando antes de repintar.
+  captureActiveRoutineInputs();
+  const template={tipo:x.tipo,ej:x.name,exerciseId:x.id,series:x.tipo==='fuerza'?3:1,reps:x.tipo==='fuerza'?12:null,kg:null,tiempo:x.tipo==='cardio'?10:null,unidadTiempo:'min',duracion:x.tipo==='cardio'?10:6,intensidad:'moderada',modalidad:x.modalidad,equipo:x.equipment,cardioActividad:x.tipo==='cardio'?cardioActivityForExercise({ej:x.name,equipo:x.equipment}):null,comentario:exercisePersistentComment(x.name)};
+  const newItem=preloadExerciseFromPrevious(template,active.id,active.nombre,active.items.length,active.gym);
+  active.items.push(newItem);
+  const keep=document.getElementById('activeRoutineAlsoSaveTemplate')?.checked;
+  if(keep){
+    const saved=(db.rutinas||[]).find(r=>String(r.id)===String(active.id));
+    if(saved){
+      if(!Array.isArray(saved.ejercicios))saved.ejercicios=[];
+      saved.ejercicios.push(JSON.parse(JSON.stringify(template)));
+    }
+  }
+  save();
+  renderRoutines();
+  closeActiveRoutineExercisePicker();
+  const n=active.items.length-1;
+  const target=document.querySelector(`[data-routine-index="${n}"]`);
+  if(target){target.open=true;target.scrollIntoView({behavior:'smooth',block:'start'});}
+}
 function renderRoutines(){
  clearRoutineExerciseFocus();
  ensureRoutines();
@@ -13851,6 +13920,7 @@ function renderRoutines(){
      </div>
      <div class="routine-actions">
        <button class="primary-small" onclick="startRoutine('${r.id}')">Iniciar rutina</button>
+       <button class="set-add" onclick="editSavedRoutine('${r.id}')">✎ Modificar · añadir ejercicios</button>
        <button class="set-remove" onclick="deleteRoutine('${r.id}')">Eliminar</button>
      </div>
    </div>`).join('');
