@@ -1,1 +1,2 @@
+Micro Health v22.2.89: creación de rutinas por días desde el Coach; segundo intento automático con catálogo si no hay ejercicios reconocibles. Mantiene datos y KEY.
 Micro Health v22.2.88: corrige visibilidad del asistente al crear rutinas. El estado, errores y previsualización se muestran en un panel encima del chat, accesible con scroll. No cambia almacenamiento ni Worker. Sustituir index.html y sw.js.
