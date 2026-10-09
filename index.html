@@ -3763,6 +3763,32 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   <h2>Rutinas</h2>
   <p class="muted">El orden de esta lista define la rotación recomendada. Puedes cambiarlo cuando quieras con ↑ y ↓. Al terminar una rutina, la app te propondrá automáticamente la siguiente.</p>
   <div id="routineList"></div>
+  <!-- v22.2.93: restore actual routine editor markup; it was absent in v22.2.93 -->
+  <details id="routineBuilderSection" style="margin-top:14px;border:1px solid #cde4e2;border-radius:16px;padding:12px;background:#f8fcfc">
+    <summary style="cursor:pointer;font-weight:750">✎ Editor de rutinas · crear o modificar</summary>
+    <div id="routineBuilder" style="display:none;margin-top:14px">
+      <h3 id="routineDraftTitle" style="margin:4px 0 12px">Editar rutina</h3>
+      <label for="newRoutineName">Nombre de la rutina</label>
+      <input id="newRoutineName" placeholder="Nombre de la rutina" autocomplete="off">
+      <label for="routineWeeklyGoal">Objetivo semanal (opcional)</label>
+      <input id="routineWeeklyGoal" type="number" min="1" max="7" placeholder="Días por semana">
+      <div id="routineEditNotice" class="routine-edit-notice" style="display:none"></div>
+      <button id="routineAddExerciseToggle" class="set-add" type="button" onclick="showRoutineAddExerciseArea()">＋ Añadir ejercicios del catálogo</button>
+      <div id="routineAddExerciseArea" style="display:none;margin-top:14px">
+        <h4>Buscar ejercicios por nombre o grupo muscular</h4>
+        <input id="exerciseSearch" type="search" placeholder="Buscar ejercicio…" oninput="renderExerciseCatalog()" autocomplete="off">
+        <div id="muscleChips" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
+        <div id="exerciseCatalog" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:9px;max-height:390px;overflow:auto"></div>
+      </div>
+      <h4 id="routineExercisesHeading" style="margin:16px 0 10px">Ejercicios de esta rutina</h4>
+      <div id="draftExercises"></div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:16px">
+        <button class="primary" type="button" onclick="saveRoutineDraft()">✓ Guardar cambios en la rutina</button>
+        <button class="set-add" type="button" onclick="closeRoutineBuilderEditor()">Cancelar · volver a Mis rutinas</button>
+      </div>
+    </div>
+    <button id="newRoutineBuilderButton" class="set-add" type="button" onclick="newRoutineDraft()" style="margin-top:12px">＋ Crear nueva rutina</button>
+  </details>
 </div></div></details>
 
 
@@ -12510,6 +12536,13 @@ function showRoutineAddExerciseArea(){
   if(area)setTimeout(()=>area.scrollIntoView({behavior:'smooth',block:'start'}),40);
 }
 
+function closeRoutineBuilderEditor(){
+  const section=document.getElementById('routineBuilderSection');
+  const builder=document.getElementById('routineBuilder');
+  if(builder)builder.style.display='none';
+  if(section)section.open=false;
+  routineDraft=null;
+}
 function editSavedRoutine(id){
  ensureRoutines();
  const sid=String(id);
@@ -13845,7 +13878,7 @@ function closeRoutineExerciseFocus(index){
   clearRoutineExerciseFocus();
 }
 
-// v22.2.92 · Añadir ejercicios a una sesión activa, opcionalmente también a su plantilla.
+// v22.2.93 · Añadir ejercicios a una sesión activa, opcionalmente también a su plantilla.
 function openActiveRoutineExercisePicker(){
   if(!db.rutinaActiva)return;
   const panel=document.getElementById('activeRoutineExercisePicker');
