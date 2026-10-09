@@ -4205,6 +4205,11 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
       <div><h3>Habla con tu Coach</h3><small>Responde usando tus datos actuales de Micro Health</small></div>
       <div class="coach-pdf-actions"><button type="button" onclick="exportCoachPdf('last')">PDF última consulta</button><button type="button" onclick="exportCoachPdf('conversation')">PDF conversación</button><button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button></div>
     </div>
+    <div id="coachRoutineImportPanel" class="mock-panel" style="margin:10px 0;display:none;border:2px solid #167e72;padding:14px;border-radius:14px" aria-live="polite">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><strong>🏋️ Crear rutina del Coach</strong><button type="button" class="secondary" onclick="coachRoutineHidePanel()">✕ Cerrar</button></div>
+      <div id="coachRoutineImportStatus" role="status" class="assistant-chat-status" style="margin:10px 0"></div>
+      <div id="coachRoutinePreview" style="margin-top:12px" hidden></div>
+    </div>
     <div id="assistantChatFeed" class="assistant-chat-feed"></div>
     <div class="assistant-chat-quick">
       <button type="button" onclick="askAssistantQuick('¿Cómo voy esta semana?')">¿Cómo voy?</button>
@@ -4216,7 +4221,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
       <textarea id="assistantChatInput" placeholder="Ej. ¿Sigo definiendo o me conviene ganar músculo? Hazme la dieta de mañana. ¿Qué ceno hoy?" onkeydown="assistantChatKeydown(event)"></textarea>
       <button id="assistantChatSend" type="button" class="assistant-chat-send" onclick="sendAssistantMessage()">Enviar</button>
     </div>
-    <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachRoutineImportStatus" role="status" class="assistant-chat-status" aria-live="polite"></div><div id="coachRoutinePreview" class="mock-panel" style="margin-top:12px" hidden></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
+    <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
     <div class="assistant-context-note">Cada pregunta usa un contexto compacto del periodo que estás consultando para responder con tus datos sin gastar tokens innecesarios. El chat se guarda solo en este dispositivo dentro de los datos de Micro Health.</div>
   </div>
 
@@ -5988,8 +5993,17 @@ function assistantMemoryLine(message,snapshot){
    Nunca sobrescribe rutinas existentes ni guarda ejercicios sin revisión. */
 let coachRoutineImportBusy=false;
 function coachRoutineImportMessage(msg){
+  const panel=document.getElementById('coachRoutineImportPanel');
+  if(panel)panel.style.display='block';
   const el=document.getElementById('coachRoutineImportStatus');
   if(el)el.textContent=String(msg||'');
+}
+function coachRoutineHidePanel(){
+  document.getElementById('coachRoutineImportPanel').style.display='none';
+}
+function coachRoutineFocusPanel(){
+  const panel=document.getElementById('coachRoutineImportPanel');
+  if(panel){panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});}
 }
 function coachRoutineCleanName(name){
   return String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
@@ -6044,13 +6058,13 @@ function coachRoutineBuildDraft(plan,sourceText){
 let coachRoutinePending=null;
 function coachRoutineOpenEditor(result){
   if(!result.draft.ejercicios.length){
-    coachRoutineImportMessage('La recomendación no contiene ejercicios identificables del catálogo. Pide al Coach una rutina con ejercicios, series y repeticiones concretas.');
+    coachRoutineImportMessage('No se han reconocido ejercicios del catálogo en esta recomendación. Pide al Coach ejercicios concretos y vuelve a intentarlo.');coachRoutineFocusPanel();
     return;
   }
   coachRoutinePending=result;
   coachRoutineRenderPreview();
   coachRoutineImportMessage('Propuesta preparada. Revísala antes de guardarla en Mis rutinas.');
-  document.getElementById('coachRoutinePreview')?.scrollIntoView({behavior:'smooth',block:'center'});
+  coachRoutineFocusPanel();
 }
 function coachRoutineRenderPreview(){
   const host=document.getElementById('coachRoutinePreview');
@@ -6098,12 +6112,15 @@ function coachRoutineConfirmSave(){
   }catch(e){coachRoutineImportMessage('No se ha podido confirmar el guardado: '+(e?.message||e));}
 }
 async function coachCreateRoutineFromReply(createdAt){
-  if(coachRoutineImportBusy)return;
+  if(coachRoutineImportBusy){coachRoutineImportMessage('La rutina ya se está preparando. Espera un momento…');coachRoutineFocusPanel();return;}
   const row=(db.assistantChat||[]).find(m=>m.role==='assistant'&&Number(m.createdAt)===Number(createdAt));
-  if(!row||!String(row.text||'').trim())return;
+  if(!row||!String(row.text||'').trim()){
+    coachRoutineImportMessage('No encuentro esta respuesta en el historial. Vuelve a pedir al Coach la rutina e inténtalo otra vez.');coachRoutineFocusPanel();return;
+  }
   if(coachRoutinePending&&!confirm('Hay una propuesta del Coach sin guardar. ¿Quieres sustituirla?'))return;
   coachRoutineImportBusy=true;
   coachRoutineImportMessage('Preparando la rutina recomendada y comprobando ejercicios del catálogo…');
+  coachRoutineFocusPanel();
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),60000);
   try{
@@ -6124,10 +6141,11 @@ async function coachCreateRoutineFromReply(createdAt){
     const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}
     if(!response.ok)throw new Error(data.error||'El Coach no ha podido preparar la rutina (HTTP '+response.status+').');
     const plan=coachRoutineReadJson(data.reply||data.result?.reply||'');
-    if(!plan||!Array.isArray(plan.ejercicios))throw new Error('La respuesta no contenía una rutina estructurada. Prueba a pedir al Coach una rutina con ejercicios, series y repeticiones.');
+    if(!plan||!Array.isArray(plan.ejercicios))throw new Error('El Coach ha devuelto texto en vez de una rutina estructurada. Vuelve a pedir una lista de ejercicios con series y repeticiones.');
     coachRoutineOpenEditor(coachRoutineBuildDraft(plan,row.text));
   }catch(e){
-    coachRoutineImportMessage('No se ha creado ninguna rutina: '+(e?.name==='AbortError'?'la consulta tardó demasiado.':(e?.message||e)));
+    coachRoutineImportMessage('No se ha creado ninguna rutina: '+(e?.name==='AbortError'?'la consulta tardó demasiado.':(e?.message||e))+' Puedes pedir al Coach: «Dame una rutina con ejercicios concretos, series y repeticiones».');
+    coachRoutineFocusPanel();
   }finally{clearTimeout(timer);coachRoutineImportBusy=false;}
 }
 function renderAssistantChat(){
