@@ -4216,7 +4216,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
       <textarea id="assistantChatInput" placeholder="Ej. ¿Sigo definiendo o me conviene ganar músculo? Hazme la dieta de mañana. ¿Qué ceno hoy?" onkeydown="assistantChatKeydown(event)"></textarea>
       <button id="assistantChatSend" type="button" class="assistant-chat-send" onclick="sendAssistantMessage()">Enviar</button>
     </div>
-    <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
+    <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachRoutineImportStatus" role="status" class="assistant-chat-status" aria-live="polite"></div><div id="coachRoutinePreview" class="mock-panel" style="margin-top:12px" hidden></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
     <div class="assistant-context-note">Cada pregunta usa un contexto compacto del periodo que estás consultando para responder con tus datos sin gastar tokens innecesarios. El chat se guarda solo en este dispositivo dentro de los datos de Micro Health.</div>
   </div>
 
@@ -5984,6 +5984,152 @@ function assistantMemoryLine(message,snapshot){
   return bits.join(' · ');
 }
 
+/* v22.2.87 — Convertir recomendaciones del Coach en una rutina editable.
+   Nunca sobrescribe rutinas existentes ni guarda ejercicios sin revisión. */
+let coachRoutineImportBusy=false;
+function coachRoutineImportMessage(msg){
+  const el=document.getElementById('coachRoutineImportStatus');
+  if(el)el.textContent=String(msg||'');
+}
+function coachRoutineCleanName(name){
+  return String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ').trim();
+}
+function coachRoutineFindCatalogExercise(label){
+  const q=coachRoutineCleanName(label);
+  if(!q||q.length<4)return null;
+  const catalog=EXERCISE_CATALOG||[];
+  let match=catalog.find(x=>coachRoutineCleanName(x.name)===q);
+  if(match)return match;
+  // Evitar coincidencias accidentales: coincidencia por nombre completo.
+  match=catalog.find(x=>{const n=coachRoutineCleanName(x.name);return n.length>=7&&(q.includes(n)||n.includes(q)&&q.length>=7)});
+  return match||null;
+}
+function coachRoutineReadJson(reply){
+  const raw=String(reply||'').replace(/```(?:json)?/gi,'').replace(/```/g,'').trim();
+  let obj=null;
+  try{obj=JSON.parse(raw)}catch{}
+  if(!obj){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{obj=JSON.parse(raw.slice(a,b+1))}catch{}}}
+  return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null;
+}
+function coachRoutineSafeNum(value,min,max,fallback){
+  const n=Number(value);
+  return Number.isFinite(n)&&n>=min&&n<=max?n:fallback;
+}
+function coachRoutineBuildDraft(plan,sourceText){
+  const items=Array.isArray(plan?.ejercicios)?plan.ejercicios:[];
+  const exercises=[],missing=[];
+  items.slice(0,25).forEach(item=>{
+    if(!item||typeof item!=='object')return;
+    const label=String(item.nombre||item.ejercicio||item.name||'').trim().slice(0,120);
+    if(!label)return;
+    const x=coachRoutineFindCatalogExercise(label);
+    if(!x){missing.push(label);return;}
+    const isCardio=x.tipo==='cardio';
+    exercises.push({
+      tipo:x.tipo,ej:x.name,exerciseId:x.id,
+      series:coachRoutineSafeNum(item.series,1,12,isCardio?1:3),
+      reps:isCardio?null:coachRoutineSafeNum(item.repeticiones??item.reps,1,100,12),
+      kg:null, // No inventar cargas ni copiar automáticamente valores anteriores.
+      tiempo:isCardio?coachRoutineSafeNum(item.minutos??item.duracion,1,240,15):null,
+      unidadTiempo:'min',duracion:isCardio?coachRoutineSafeNum(item.minutos??item.duracion,1,240,15):6,
+      intensidad:'moderada',modalidad:x.modalidad,equipo:x.equipment,
+      cardioActividad:isCardio?cardioActivityForExercise({ej:x.name,equipo:x.equipment}):null,
+      categoriaManual:null,comentario:exercisePersistentComment(x.name)
+    });
+  });
+  const name=String(plan?.nombre||'Rutina recomendada por Coach').trim().slice(0,80)||'Rutina recomendada por Coach';
+  return {draft:{id:'r'+Date.now(),nombre:name,objetivoSemanal:coachRoutineSafeNum(plan?.diasSemana,1,7,null),ejercicios:exercises},missing};
+}
+let coachRoutinePending=null;
+function coachRoutineOpenEditor(result){
+  if(!result.draft.ejercicios.length){
+    coachRoutineImportMessage('La recomendación no contiene ejercicios identificables del catálogo. Pide al Coach una rutina con ejercicios, series y repeticiones concretas.');
+    return;
+  }
+  coachRoutinePending=result;
+  coachRoutineRenderPreview();
+  coachRoutineImportMessage('Propuesta preparada. Revísala antes de guardarla en Mis rutinas.');
+  document.getElementById('coachRoutinePreview')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function coachRoutineRenderPreview(){
+  const host=document.getElementById('coachRoutinePreview');
+  if(!host)return;
+  if(!coachRoutinePending){host.hidden=true;host.innerHTML='';return;}
+  const {draft,missing}=coachRoutinePending;
+  host.hidden=false;
+  host.innerHTML=`<h3>🏋️ Rutina propuesta por el Coach</h3>
+    <p class="muted">Revisa y modifica antes de guardar. No se ha guardado todavía.</p>
+    <label>Nombre de la rutina</label><input maxlength="80" value="${assistantEscape(draft.nombre).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}" oninput="coachRoutinePending.draft.nombre=this.value" />
+    <label>Objetivo semanal (días, opcional)</label><input type="number" min="1" max="7" value="${draft.objetivoSemanal??''}" onchange="coachRoutinePending.draft.objetivoSemanal=this.value?Number(this.value):null" />
+    ${draft.ejercicios.map((ex,i)=>`<div class="draft-row"><b>${i+1}. ${assistantEscape(ex.ej)}</b><div class="row"><div><label>Series</label><input type="number" min="1" max="12" value="${ex.series||3}" onchange="coachRoutinePending.draft.ejercicios[${i}].series=Number(this.value)"></div>
+    <div><label>${ex.tipo==='cardio'?'Minutos':'Repeticiones'}</label><input type="number" min="1" max="240" value="${ex.tipo==='cardio'?ex.tiempo:(ex.reps||12)}" onchange="coachRoutineSetMetric(${i},this.value)"></div></div>
+    <button type="button" class="set-remove" onclick="coachRoutineRemoveExercise(${i})">Quitar ejercicio</button></div>`).join('')}
+    ${missing.length?`<p class="sport-hint">No se encontraron en el catálogo: ${missing.map(assistantEscape).join(', ')}. Puedes añadirlos después desde el editor de rutinas cuando esté disponible.</p>`:''}
+    <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
+}
+function coachRoutineSetMetric(i,v){
+  const ex=coachRoutinePending?.draft?.ejercicios?.[i];if(!ex)return;
+  const n=Number(v);if(!Number.isFinite(n)||n<1)return;
+  if(ex.tipo==='cardio'){ex.tiempo=Math.min(240,n);ex.duracion=ex.tiempo;}
+  else ex.reps=Math.min(100,n);
+}
+function coachRoutineRemoveExercise(i){
+  if(!coachRoutinePending)return;
+  coachRoutinePending.draft.ejercicios.splice(i,1);
+  coachRoutineRenderPreview();
+}
+function coachRoutineCancel(){coachRoutinePending=null;coachRoutineRenderPreview();coachRoutineImportMessage('Propuesta descartada. No se ha guardado ninguna rutina.');}
+function coachRoutineConfirmSave(){
+  if(!coachRoutinePending)return;
+  const d=coachRoutinePending.draft;
+  d.nombre=String(d.nombre||'Rutina Coach').trim().slice(0,80);
+  if(!d.nombre||!d.ejercicios.length){coachRoutineImportMessage('Escribe un nombre y deja al menos un ejercicio.');return;}
+  if(d.ejercicios.some(x=>!Number.isInteger(x.series)||x.series<1||x.series>12||x.tipo!=='cardio'&&(!Number.isFinite(x.reps)||x.reps<1))){
+    coachRoutineImportMessage('Revisa las series y repeticiones de los ejercicios.');return;
+  }
+  try{
+    ensureRoutines();
+    db.rutinas.push(JSON.parse(JSON.stringify(d)));
+    save();
+    coachRoutinePending=null;coachRoutineRenderPreview();
+    renderRoutines();populateManualRoutineSelect();renderNextRoutine();
+    coachRoutineImportMessage('✓ Rutina «'+d.nombre+'» guardada correctamente en Entreno → Mis rutinas.');
+  }catch(e){coachRoutineImportMessage('No se ha podido confirmar el guardado: '+(e?.message||e));}
+}
+async function coachCreateRoutineFromReply(createdAt){
+  if(coachRoutineImportBusy)return;
+  const row=(db.assistantChat||[]).find(m=>m.role==='assistant'&&Number(m.createdAt)===Number(createdAt));
+  if(!row||!String(row.text||'').trim())return;
+  if(coachRoutinePending&&!confirm('Hay una propuesta del Coach sin guardar. ¿Quieres sustituirla?'))return;
+  coachRoutineImportBusy=true;
+  coachRoutineImportMessage('Preparando la rutina recomendada y comprobando ejercicios del catálogo…');
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),60000);
+  try{
+    const recent=buildCoachSnapshot(28);
+    const exerciseNames=EXERCISE_CATALOG.map(x=>x.name).filter(Boolean);
+    // El endpoint existente del Coach interpreta el texto y devuelve JSON estructurado.
+    const message='CONVERSIÓN DE RUTINA, NO CONSEJO NUEVO. A partir de la siguiente recomendación previa del Coach, devuelve EXCLUSIVAMENTE un objeto JSON válido con la forma '+
+      '{"nombre":"...","diasSemana":3,"ejercicios":[{"nombre":"...","series":3,"repeticiones":12,"minutos":null}]}.'+
+      ' Extrae SOLO ejercicios realmente recomendados en el texto. El nombre de cada ejercicio DEBE coincidir exactamente con uno de los nombres del catálogo disponible. '+
+      'No inventes ejercicios, pesos, ni series que el texto no especifique (si no especifica series o repeticiones usa 3 y 12). '+
+      'Si no hay ejercicios concretos, devuelve {"nombre":"Rutina Coach","ejercicios":[]}. '+
+      'CATÁLOGO DE NOMBRES: '+JSON.stringify(exerciseNames).slice(0,12000)+'. '+
+      'RECOMENDACIÓN ORIGINAL: '+String(row.text).slice(0,8500);
+    const response=await fetch(getAiBackendUrl()+'/assistant-chat',{
+      method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({message,snapshot:recent,history:[],coachMode:'coach360',context:{days:28,label:'Últimas 4 semanas'}}),signal:controller.signal
+    });
+    const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}
+    if(!response.ok)throw new Error(data.error||'El Coach no ha podido preparar la rutina (HTTP '+response.status+').');
+    const plan=coachRoutineReadJson(data.reply||data.result?.reply||'');
+    if(!plan||!Array.isArray(plan.ejercicios))throw new Error('La respuesta no contenía una rutina estructurada. Prueba a pedir al Coach una rutina con ejercicios, series y repeticiones.');
+    coachRoutineOpenEditor(coachRoutineBuildDraft(plan,row.text));
+  }catch(e){
+    coachRoutineImportMessage('No se ha creado ninguna rutina: '+(e?.name==='AbortError'?'la consulta tardó demasiado.':(e?.message||e)));
+  }finally{clearTimeout(timer);coachRoutineImportBusy=false;}
+}
 function renderAssistantChat(){
   const feed=document.getElementById('assistantChatFeed');
   if(!feed)return;
@@ -6000,6 +6146,7 @@ function renderAssistantChat(){
         ${assistantEscape(m.text)}
         ${m.role==='assistant'&&m.memoryLine?`<div class="assistant-memory-line">${assistantEscape(m.memoryLine)}</div>`:''}
         ${m.role==='assistant'&&m.actions?assistantActionHtml(m.actions):''}
+        ${m.role==='assistant'&&!/^No he podido responder|^La IA está temporalmente/.test(String(m.text||''))?`<div class="assistant-response-actions"><button type="button" class="primary-action" onclick="coachCreateRoutineFromReply(${Number(m.createdAt)||0})">🏋️ Crear rutina con esta recomendación</button></div>`:''}
         <span class="assistant-msg-time">${assistantEscape(m.time||'')}</span>
       </div>
     </div>`).join('');
