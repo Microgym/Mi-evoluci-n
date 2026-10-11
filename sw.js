@@ -1,5 +1,5 @@
-const CACHE='micro-health-v22-3-01';
-const CORE=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./favicon-32.png'];
+const CACHE='micro-health-v22-3-02';
+const CORE=['./','./index.html','./anatomia-diseno1-front.png','./anatomia-diseno1-back.png','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./favicon-32.png'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();

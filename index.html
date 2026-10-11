@@ -3298,7 +3298,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 .volume-stat small{display:block;color:#58717c;font-weight:700}.volume-stat b{display:block;font-size:clamp(18px,4vw,27px);color:#073b4b;margin-top:5px}
 .volume-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.volume-panel{background:#fff;border:1px solid #dce9ec;border-radius:17px;padding:14px;min-width:0}
 .volume-dialog .volume-panel{display:block!important;visibility:visible!important}.volume-panel h3{margin:0 0 12px;font-size:18px}.volume-bar-row{display:grid;grid-template-columns:83px 75px 1fr;align-items:center;gap:6px;margin:10px 0;font-size:13px}
-.volume-track{background:#e8eff2;height:12px;border-radius:15px;overflow:hidden}.volume-fill{height:100%;border-radius:15px}.volume-figures{display:flex;justify-content:space-around;gap:10px;align-items:start}.volume-figure{width:49%;text-align:center}.volume-figure svg{width:100%;max-height:325px}.volume-figure small{display:block;color:#5b7480}
+.volume-track{background:#e8eff2;height:12px;border-radius:15px;overflow:hidden}.volume-fill{height:100%;border-radius:15px}.volume-figures{display:flex;justify-content:space-around;gap:10px;align-items:start}.volume-figure{width:49%;text-align:center}.volume-figure svg{width:100%;max-height:325px}.volume-anatomy-real .volume-muscle-overlay{opacity:.63;mix-blend-mode:multiply}.volume-anatomy-real{overflow:visible}.volume-figure small{display:block;color:#5b7480}
 .volume-table{width:100%;border-collapse:collapse;font-size:12px}.volume-table td,.volume-table th{padding:8px 4px;border-bottom:1px solid #e1eaee;text-align:left}.volume-table td:last-child{text-align:right;white-space:nowrap}
 .volume-legend{font-size:12px;color:#506d77;margin-top:12px}.volume-note{font-size:12px;color:#5a7580;margin:14px 0}.volume-footer{display:flex;gap:10px;justify-content:flex-end}.volume-footer button{border:1px solid #c8e3dd;border-radius:14px;padding:13px;font-weight:800;color:#125963;background:#e8f5f3}.volume-footer button:last-child{background:#0b6673;color:#fff}
 @media(max-width:690px){.volume-dialog{max-height:96dvh;padding:13px}.volume-columns{grid-template-columns:1fr}.volume-bar-row{grid-template-columns:78px 76px 1fr}.volume-stats{gap:5px}.volume-stat{padding:9px 5px}.volume-figure svg{max-height:290px}}
@@ -5395,7 +5395,7 @@ function renderProfile(){
 }
 
 function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
-// v22.3.01: cada entrada o salida de Entreno reinicia los desplegables.
+// v22.3.02: cada entrada o salida de Entreno reinicia los desplegables.
 function closeTrainingFolds(){
  const root=document.getElementById('entreno');
  if(!root)return;
@@ -13744,7 +13744,7 @@ function cancelActiveRoutine(){
 }
 
 
-/* v22.3.01: volumen total y mapa anatómico segmentado, sin alterar los registros */
+/* v22.3.02: volumen total y mapa anatómico segmentado, sin alterar los registros */
 const VOLUME_COLORS={Pecho:'#dc3446',Espalda:'#2585e8',Hombro:'#f4aa21','Bíceps':'#8349de','Tríceps':'#32a85a',Pierna:'#e7bd37','Glúteo':'#2e9e87',Abdomen:'#0b9e9c',Otro:'#8ca0aa'};
 const VOLUME_MUSCLE_COLORS={'Cuádriceps':'#e4ad2d','Isquiotibiales':'#d89128','Gemelos':'#f1c75a','Glúteos':'#249c88','Aductores':'#c39a2b','Pectorales':'#d84b5a','Dorsales':'#287fd3','Trapecios':'#548fd4','Lumbares':'#4a9ddd','Deltoides':'#f1a326','Bíceps':'#8351d5','Tríceps':'#3aaf74','Abdominales':'#139e9d','Oblicuos':'#51b3b1','Piernas (general)':'#b3a06d','Espalda (general)':'#91a3b7','Otros':'#a4b1b8'};
 function volumeZone(r){
@@ -13802,8 +13802,8 @@ function volumeEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;
 function volumeFigure(side,muscles,gender='male'){
  const values=Object.fromEntries(muscles);
  const female=gender==='female';
- const color=m=>values[m]>0?(VOLUME_MUSCLE_COLORS[m]||'#9ca9b3'):'#e1e7e9';
- const shape=(d,m)=>`<path d="${d}" fill="${color(m)}" stroke="#78929d" stroke-width=".75" stroke-linejoin="round"><title>${volumeEscape(m)}: ${volumeNumber(values[m]||0)} kg</title></path>`;
+ const color=m=>values[m]>0?(VOLUME_MUSCLE_COLORS[m]||'#9ca9b3'):(female?'#e1e7e9':'transparent');
+ const shape=(d,m)=>`<path d="${d}" fill="${color(m)}" stroke="${values[m]>0?'#546975':'none'}" stroke-width=".65" stroke-linejoin="round"><title>${volumeEscape(m)}: ${volumeNumber(values[m]||0)} kg</title></path>`;
  const mirror=(d,m)=>`<g>${shape(d,m)}<g transform="translate(220 0) scale(-1 1)">${shape(d,m)}</g></g>`;
  const guide=(d)=>`<path d="${d}" fill="none" stroke="#fff" stroke-width="1" opacity=".62"/>`;
  const silhouette=female?'M99 63 Q80 65 68 76 Q50 78 44 91 L27 154 Q24 164 30 168 L41 172 L62 123 L65 160 Q70 183 75 200 Q72 225 76 249 L82 330 L83 370 L100 370 L108 267 L112 232 L120 267 L122 370 L139 370 L141 330 L147 249 Q151 225 148 200 Q153 183 155 160 L158 123 L179 172 L190 168 Q196 164 193 154 L176 91 Q170 78 152 76 Q140 65 121 63Z':'M99 63 Q78 64 63 77 Q46 78 41 91 L24 156 Q22 166 28 171 L42 174 L62 122 L65 166 Q69 187 77 206 L77 249 L82 332 L83 372 L101 372 L108 264 L112 231 L116 264 L123 372 L141 372 L142 332 L147 249 L147 206 Q155 187 159 166 L162 122 L182 174 L196 171 Q202 166 200 156 L183 91 Q178 78 161 77 Q146 64 125 63Z';
@@ -13834,6 +13834,15 @@ function volumeFigure(side,muscles,gender='male'){
  ${mirror('M82 285 L102 286 L100 329 L83 330Z','Gemelos')}
  ${mirror('M83 334 L100 333 L98 367 L84 367Z','Gemelos')}
  `;
+ // La ilustración original elegida (diseño 1) es la base anatómica. Las capas musculares se colorean según los ejercicios.
+ // La versión femenina conserva el mapa vectorial hasta disponer de la ilustración femenina equivalente.
+ if(!female){
+  const asset=side==='front'?'./anatomia-diseno1-front.png':'./anatomia-diseno1-back.png';
+  return `<svg class="volume-anatomy volume-anatomy-real" viewBox="0 0 220 405" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomía realista diseño 1, vista ${side==='front'?'frontal':'posterior'}, con músculos coloreados según el entrenamiento">
+   <image href="${asset}" x="21" y="5" width="178" height="382" preserveAspectRatio="none"/>
+   <g class="volume-muscle-overlay">${side==='front'?front:back}</g>
+  </svg>`;
+ }
  // Las zonas genéricas se señalan en la leyenda, no se colorean como si se conociera un músculo específico.
  return `<svg class="volume-anatomy" viewBox="0 0 220 405" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa anatómico ${side==='front'?'frontal':'posterior'} detallado">
  <defs><linearGradient id="vol-shade-${side}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".24"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#203c45" stop-opacity=".20"/></linearGradient></defs>
@@ -13852,14 +13861,14 @@ function closeVolumeSummary(){const el=document.getElementById('volumeOverlay');
 function openVolumeSummary(rows,meta={}){
  const overlay=document.getElementById('volumeOverlay'),content=document.getElementById('volumeSummaryContent');if(!overlay||!content)return;
  const a=volumeAnalysis(rows);const max=a.groups.length?a.groups[0][1]:1;
- const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const isFemale=gender.includes('mujer')||gender.includes('female')||gender==='f'||gender==='femenino';const label=isFemale?'Figura femenina':'Figura masculina';
+ const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const isFemale=gender.includes('mujer')||gender.includes('female')||gender==='f'||gender==='femenino';const label=isFemale?'Figura femenina vectorial':'Ilustración anatómica diseño 1';
  const bars=a.groups.map(([zone,kg])=>`<div class="volume-bar-row"><b>${zone}</b><span>${volumeNumber(kg)} kg</span><div class="volume-track"><div class="volume-fill" style="width:${100*kg/max}%;background:${VOLUME_COLORS[zone]||VOLUME_COLORS.Otro}"></div></div></div>`).join('');
  const table=a.details.map(r=>`<tr><td>${volumeEscape(r.ej||'Ejercicio')}</td><td>${Array.isArray(r.sets)?r.sets.length:(r.series||'—')}</td><td>${volumeNumber(r.volumenKg)} kg</td></tr>`).join('');
  const gym=meta.gym||rows?.[0]?.gym||'';const date=meta.fecha||rows?.[0]?.fecha||'';
  content.innerHTML=`<div class="volume-head"><div><h2>✓ Entrenamiento completado</h2><div>${volumeEscape(meta.nombre||'Entrenamiento de fuerza')} · ${date?volumeEscape(fechaES(date)):''} ${gym?' · '+volumeEscape(gym):''}</div></div><button class="volume-close" onclick="closeVolumeSummary()">✕ Cerrar</button></div>
  <div class="volume-stats"><div class="volume-stat"><small>Total de kilos movidos</small><b>${volumeNumber(a.total)} kg</b></div><div class="volume-stat"><small>Ejercicios de fuerza</small><b>${a.details.length}</b></div><div class="volume-stat"><small>Grupos trabajados</small><b>${a.groups.length}</b></div></div>
  <div class="volume-columns"><div><section class="volume-panel"><h3>Kilos movidos por músculo</h3>${bars||'<p>No hay series con kilos y repeticiones registrados.</p>'}</section><section class="volume-panel" style="margin-top:12px"><h3>Detalle por ejercicio</h3><table class="volume-table"><thead><tr><th>Ejercicio</th><th>Series</th><th>Volumen</th></tr></thead><tbody>${table}</tbody></table></section></div>
- <section class="volume-panel"><h3>Mapa muscular detallado</h3><p class="volume-legend">Ilustración anatómica segmentada, inspirada en el diseño 1. Solo se colorean músculos identificables por el ejercicio.</p><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.muscles,isFemale?'female':'male')}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.muscles,isFemale?'female':'male')}<small>Vista posterior</small></div></div><div class="volume-legend">${label} anatómica · zonas identificadas coloreadas; gris = sin trabajo identificado. Las zonas generales no se colorean como músculos concretos.</div><h3 style="margin-top:16px">Kilos por músculo principal</h3><div style="margin-top:12px">${a.muscles.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_MUSCLE_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
+ <section class="volume-panel"><h3>Mapa muscular detallado</h3><p class="volume-legend">Ilustración anatómica del diseño 1 con resaltado dinámico por músculo. Solo se colorean músculos identificables por el ejercicio.</p><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.muscles,isFemale?'female':'male')}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.muscles,isFemale?'female':'male')}<small>Vista posterior</small></div></div><div class="volume-legend">${label} anatómica · zonas identificadas coloreadas; gris = sin trabajo identificado. Las zonas generales no se colorean como músculos concretos.</div><h3 style="margin-top:16px">Kilos por músculo principal</h3><div style="margin-top:12px">${a.muscles.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_MUSCLE_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
  <p class="volume-note">Volumen externo = suma de kg × repeticiones de cada serie. Cada ejercicio se asigna a un solo músculo principal estimado para evitar duplicaciones; los músculos secundarios también participan, pero no se suman como kilos adicionales. Si el ejercicio es ambiguo, se indica zona general. No mide la fuerza real soportada por cada músculo. Las series con peso corporal sin carga externa no suman kilos.</p>
  <div class="volume-footer"><button onclick="closeVolumeSummary()">Volver a Entreno</button><button onclick="closeVolumeSummary()">✓ Aceptar</button></div>`;
  overlay.hidden=false;document.body.classList.add('volume-summary-open');
