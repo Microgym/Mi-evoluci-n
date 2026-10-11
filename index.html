@@ -3280,6 +3280,11 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 #entreno .golf-quick-play small{font-size:12px;font-weight:500;line-height:1.4;color:#426a5c}
 #entreno .golf-quick-play .golf-quick-arrow{font-size:24px;flex:none}
 @media(max-width:390px){#entreno .golf-quick-play{padding:14px 12px;gap:10px}#entreno .golf-quick-play strong{font-size:18px}}
+
+/* v22.2.95 · Doble referencia de medidas corporales */
+.body-threshold-comparison{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:10px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.75);font-size:12px;line-height:1.45;color:#395b62}
+.body-threshold-comparison span{display:block}
+.body-threshold-comparison b{color:#164d58}
 </style>
 
 </head>
@@ -3553,9 +3558,9 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 
 
 <div class="card">
-  <div class="mock-card-head"><div class="mock-card-title"><span class="mh-i progress"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path></svg></span><div><h2>Estado corporal actual</h2><p>Tu última medición de un vistazo</p></div></div></div>
+  <div class="mock-card-head"><div class="mock-card-title"><span class="mh-i progress"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path></svg></span><div><h2>Estado corporal actual</h2><p>Tu última medición · referencia actual e histórica</p></div></div></div>
   <p class="muted">Tus mediciones históricas de la hoja <b>peso casa</b> se han incorporado a estos indicadores.</p>
-  <p class="muted">Colores orientativos para ayudarte a interpretar la última medición. En las métricas de báscula BIA, la tendencia es más útil que un valor aislado.</p>
+  <p class="muted">Cada indicador muestra la referencia actual y, si el perfil es masculino y existe un corte comparable, la clasificación histórica v22.2.61. Los umbrales históricos son informativos y no sustituyen las referencias actuales. En las métricas de báscula BIA, la tendencia es más útil que un valor aislado.</p>
   <div id="bodyStatusGrid" class="body-status-grid"></div>
 </div>
 
@@ -9056,7 +9061,19 @@ async function analyzeMealDish(tipo,id,mode='ai'){
     if(document.getElementById('mealProtBar'))mealProtBar.style.width=Math.min(100,totalProt/proteinTarget()*100)+'%';
   }catch(err){
     const msg=err?.name==='AbortError'?'Tiempo de espera agotado.':(err?.message||String(err));
-    setDishStatus(tipo,id,msg,'err');
+    // Si falla la IA, no registrar cero como resultado ni borrar lo que el usuario ya escribió.
+    // Para un plato descrito por texto, ofrecer el cálculo local existente como respaldo.
+    if(mode==='ai' && text){
+      const fallback=localEstimateFromText(text);
+      if(fallback && Number(fallback.kcal)>0 && Array.isArray(fallback.items) && fallback.items.length){
+        if(kcalEl)kcalEl.value=Math.round(Number(fallback.kcal));
+        if(protEl)protEl.value=Math.round(Number(fallback.protein_g)||0);
+        if(sourceEl)sourceEl.textContent=dishSourceLabel('local');
+        setDishStatus(tipo,id,'La IA no ha podido completar el análisis ('+escapeMealText(msg)+'). Se ha preparado un cálculo local provisional de kcal y proteínas. Comprueba los valores antes de guardar; el resto de nutrientes permanece sin estimar.','warn');
+        return;
+      }
+    }
+    setDishStatus(tipo,id,'No se ha calculado este plato: '+escapeMealText(msg)+'. Puedes reintentarlo o introducir los datos manualmente. No se han guardado calorías inventadas.','err');
   }
 }
 
@@ -15700,6 +15717,38 @@ function renderProfileThresholdTable(){
 
 function neutralStatus(){return {cls:'status-neutral',label:'Sin umbral'}}
 
+// Comparación informativa con los cortes masculinos conservados en v22.2.61.
+// No modifica mediciones, objetivos ni la clasificación activa.
+const HISTORICAL_MALE_THRESHOLDS={
+ peso:{cuts:[62.6,84.6,101.6],labels:['Delgado','En forma','Sobrepeso','Gordo']},
+ imc:{cuts:[18.5,25,30],labels:['Delgado','En forma','Sobrepeso','Gordo']},
+ grasa:{cuts:[11,22,27],labels:['Bajo','En forma','Alta','Muy alta']},
+ musculoPct:{cuts:[40,60],labels:['Insuficiente','En forma','Excelente']},
+ humedad:{cuts:[55,65],labels:['Insuficiente','En forma','Excelente']},
+ masaOsea:{cuts:[3.1,3.3],labels:['Insuficiente','En forma','Excelente']},
+ bmr:{cuts:[1965.9],labels:['Bajo','Excelente']},
+ proteinaPct:{cuts:[16,18],labels:['Insuficiente','En forma','Excelente']},
+ grasaSubcutanea:{cuts:[7,15],labels:['Insuficiente','En forma','Alta']},
+ grasaKg:{cuts:[10.3,20.6,25.3],labels:['Bajo','En forma','Alta','Muy alta']},
+ pesoMuscular:{cuts:[37.5,56.2],labels:['Insuficiente','En forma','Excelente']},
+ proteinaKg:{cuts:[15,16.9],labels:['Insuficiente','En forma','Excelente']}
+};
+function historicalMaleStatus(v,metric){
+  if(v==null || v==='' || !Number.isFinite(Number(v)))return null;
+  if(bodyReferenceProfile().sex!=='male')return null;
+  const n=Number(v);
+  if(metric==='visceral')return n<=9?'En forma':n<=14?'Alerta':'Peligro';
+  const def=HISTORICAL_MALE_THRESHOLDS[metric];
+  if(!def)return null;
+  let idx=def.cuts.findIndex(c=>n<c);
+  if(idx<0)idx=def.cuts.length;
+  return def.labels[idx]||null;
+}
+function bodyMetricCardWithHistory(title,value,status,metric,rawValue,trend='',subtitle=''){
+  const old=historicalMaleStatus(rawValue,metric);
+  const comparison=old?`<div class="body-threshold-comparison"><span><b>Referencia actual:</b> ${String(status.label).replace(/[&<>"']/g,'')}</span><span><b>Histórico masculino v22.2.61:</b> ${old}</span></div>`:'';
+  return `<div class="body-status-card ${status.cls}"><div class="body-status-title">${title}</div><div class="body-status-value">${value}<span class="status-badge">${status.label}</span></div><div class="body-status-meta">${[trend,subtitle].filter(Boolean).join(' · ')}</div>${comparison}</div>`;
+}
 function bodyMetricCard(title,value,status,trend='',subtitle=''){
  return `<div class="body-status-card ${status.cls}">
    <div class="body-status-title">${title}</div>
@@ -15720,25 +15769,25 @@ function renderBodyStatus(){
  const prev=rows.length>1?rows[rows.length-2]:null;
 
  const cards=[
-   bodyMetricCard('Peso',valOrDash(latest.peso,1,' kg'),scaleStatus(latest.peso,'peso'),trendMeta('peso',latest,prev,1)),
-   bodyMetricCard('IMC',valOrDash(latest.imc,1),scaleStatus(latest.imc,'imc'),trendMeta('imc',latest,prev,1)),
-   bodyMetricCard('Grasa corporal',valOrDash(latest.grasa,1,'%'),scaleStatus(latest.grasa,'grasa'),trendMeta('grasa',latest,prev,1)),
-   bodyMetricCard('Músculo',valOrDash(latest.musculoPct,1,'%'),scaleStatus(latest.musculoPct,'musculoPct'),trendMeta('musculoPct',latest,prev,1)),
-   bodyMetricCard('Humedad / agua',valOrDash(latest.humedad,1,'%'),scaleStatus(latest.humedad,'humedad'),trendMeta('humedad',latest,prev,1)),
-   bodyMetricCard('Masa ósea',valOrDash(latest.masaOsea,1,' kg'),scaleStatus(latest.masaOsea,'masaOsea'),trendMeta('masaOsea',latest,prev,1)),
-   bodyMetricCard('BMR',latest.bmr!=null?Math.round(Number(latest.bmr))+' kcal':'—',scaleStatus(latest.bmr,'bmr'),trendMeta('bmr',latest,prev,0)),
-   bodyMetricCard('Tasa proteína',valOrDash(latest.proteinaPct,1,'%'),scaleStatus(latest.proteinaPct,'proteinaPct'),trendMeta('proteinaPct',latest,prev,1)),
+   bodyMetricCardWithHistory('Peso',valOrDash(latest.peso,1,' kg'),scaleStatus(latest.peso,'peso'),'peso',latest.peso,trendMeta('peso',latest,prev,1)),
+   bodyMetricCardWithHistory('IMC',valOrDash(latest.imc,1),scaleStatus(latest.imc,'imc'),'imc',latest.imc,trendMeta('imc',latest,prev,1)),
+   bodyMetricCardWithHistory('Grasa corporal',valOrDash(latest.grasa,1,'%'),scaleStatus(latest.grasa,'grasa'),'grasa',latest.grasa,trendMeta('grasa',latest,prev,1)),
+   bodyMetricCardWithHistory('Músculo',valOrDash(latest.musculoPct,1,'%'),scaleStatus(latest.musculoPct,'musculoPct'),'musculoPct',latest.musculoPct,trendMeta('musculoPct',latest,prev,1)),
+   bodyMetricCardWithHistory('Humedad / agua',valOrDash(latest.humedad,1,'%'),scaleStatus(latest.humedad,'humedad'),'humedad',latest.humedad,trendMeta('humedad',latest,prev,1)),
+   bodyMetricCardWithHistory('Masa ósea',valOrDash(latest.masaOsea,1,' kg'),scaleStatus(latest.masaOsea,'masaOsea'),'masaOsea',latest.masaOsea,trendMeta('masaOsea',latest,prev,1)),
+   bodyMetricCardWithHistory('BMR',latest.bmr!=null?Math.round(Number(latest.bmr))+' kcal':'—',scaleStatus(latest.bmr,'bmr'),'bmr',latest.bmr,trendMeta('bmr',latest,prev,0)),
+   bodyMetricCardWithHistory('Tasa proteína',valOrDash(latest.proteinaPct,1,'%'),scaleStatus(latest.proteinaPct,'proteinaPct'),'proteinaPct',latest.proteinaPct,trendMeta('proteinaPct',latest,prev,1)),
    bodyMetricCard('Edad corporal',latest.edadCuerpo!=null?Math.round(Number(latest.edadCuerpo))+' años':'—',neutralStatus(),trendMeta('edadCuerpo',latest,prev,0)),
-   bodyMetricCard('Grasa visceral',latest.visceral??'—',scaleStatus(latest.visceral,'visceral'),trendMeta('visceral',latest,prev,1)),
-   bodyMetricCard('Grasa subcutánea',valOrDash(latest.grasaSubcutanea,1,'%'),scaleStatus(latest.grasaSubcutanea,'grasaSubcutanea'),trendMeta('grasaSubcutanea',latest,prev,1)),
-   bodyMetricCard('Grasa corporal',valOrDash(latest.grasaKg,1,' kg'),scaleStatus(latest.grasaKg,'grasaKg'),trendMeta('grasaKg',latest,prev,1)),
+   bodyMetricCardWithHistory('Grasa visceral',latest.visceral??'—',scaleStatus(latest.visceral,'visceral'),'visceral',latest.visceral,trendMeta('visceral',latest,prev,1)),
+   bodyMetricCardWithHistory('Grasa subcutánea',valOrDash(latest.grasaSubcutanea,1,'%'),scaleStatus(latest.grasaSubcutanea,'grasaSubcutanea'),'grasaSubcutanea',latest.grasaSubcutanea,trendMeta('grasaSubcutanea',latest,prev,1)),
+   bodyMetricCardWithHistory('Grasa corporal',valOrDash(latest.grasaKg,1,' kg'),scaleStatus(latest.grasaKg,'grasaKg'),'grasaKg',latest.grasaKg,trendMeta('grasaKg',latest,prev,1)),
    bodyMetricCard('Peso sin grasa',valOrDash(latest.masaMagra,1,' kg'),neutralStatus(),trendMeta('masaMagra',latest,prev,1)),
-   bodyMetricCard('Peso muscular',valOrDash(latest.pesoMuscular,1,' kg'),scaleStatus(latest.pesoMuscular,'pesoMuscular'),trendMeta('pesoMuscular',latest,prev,1)),
-   bodyMetricCard('Proteína corporal',valOrDash(latest.proteinaKg,1,' kg'),scaleStatus(latest.proteinaKg,'proteinaKg'),trendMeta('proteinaKg',latest,prev,1)),
-   bodyMetricCard('Cintura / abdomen',valOrDash(latest.cintura,1,' cm'),scaleStatus(latest.cintura,'cintura'),trendMeta('cintura',latest,prev,1)),
+   bodyMetricCardWithHistory('Peso muscular',valOrDash(latest.pesoMuscular,1,' kg'),scaleStatus(latest.pesoMuscular,'pesoMuscular'),'pesoMuscular',latest.pesoMuscular,trendMeta('pesoMuscular',latest,prev,1)),
+   bodyMetricCardWithHistory('Proteína corporal',valOrDash(latest.proteinaKg,1,' kg'),scaleStatus(latest.proteinaKg,'proteinaKg'),'proteinaKg',latest.proteinaKg,trendMeta('proteinaKg',latest,prev,1)),
+   bodyMetricCardWithHistory('Cintura / abdomen',valOrDash(latest.cintura,1,' cm'),scaleStatus(latest.cintura,'cintura'),'cintura',latest.cintura,trendMeta('cintura',latest,prev,1)),
    bodyMetricCard('Cuello',valOrDash(latest.cuello,1,' cm'),neutralStatus(),trendMeta('cuello',latest,prev,1)),
    bodyMetricCard('Cadera',valOrDash(latest.cadera,1,' cm'),neutralStatus(),trendMeta('cadera',latest,prev,1)),
-   bodyMetricCard('Grasa por perímetros',valOrDash(latest.grasaPerimetros,1,'%'),scaleStatus(latest.grasaPerimetros,'grasaPerimetros'),trendMeta('grasaPerimetros',latest,prev,1))
+   bodyMetricCardWithHistory('Grasa por perímetros',valOrDash(latest.grasaPerimetros,1,'%'),scaleStatus(latest.grasaPerimetros,'grasaPerimetros'),'grasaPerimetros',latest.grasaPerimetros,trendMeta('grasaPerimetros',latest,prev,1))
  ];
  el.innerHTML=cards.join('');
 }
