@@ -13766,41 +13766,67 @@ function volumeAnalysis(rows){
 }
 function volumeNumber(v){return Math.round(v).toLocaleString('es-ES');}
 function volumeEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function volumeFigure(side,groups){
- const on=z=>groups[z]>0?(VOLUME_COLORS[z]||VOLUME_COLORS.Otro):'#d7e2e5';
- const shape=(d,z)=>`<path d="${d}" fill="${on(z)}" stroke="#7b9ba4" stroke-width="1.2"/>`;
- const outline='#e5ecee';
- return `<svg viewBox="0 0 160 310" role="img" aria-label="Vista ${side==='front'?'frontal':'posterior'} de los músculos trabajados">
- <ellipse cx="80" cy="26" rx="19" ry="23" fill="${outline}" stroke="#8299a1" stroke-width="1.4"/>
- <path d="M70 47L68 58 48 65 34 83 21 151 32 156 49 104 48 166 56 200 64 259 66 299 77 299 80 220 84 299 96 299 101 259 109 200 114 166 111 104 128 156 139 151 126 83 112 65 92 58 90 47Z" fill="${outline}" stroke="#8299a1" stroke-width="2"/>
+function volumeFigure(side,groups,gender='male'){
+ // groups is the ordered [name, kg] array produced by volumeAnalysis.
+ // Convert it to a lookup: the previous SVG checked groups['Pecho'] on an array,
+ // so every muscle remained grey even when its volume was positive.
+ const volumes=Object.fromEntries((Array.isArray(groups)?groups:Object.entries(groups||{})).map(([z,kg])=>[z,Number(kg)||0]));
+ const female=gender==='female';
+ const color=z=>volumes[z]>0?(VOLUME_COLORS[z]||VOLUME_COLORS.Otro):'#dce5e8';
+ const part=(d,z,extra='')=>`<path d="${d}" fill="${color(z)}" stroke="#617a85" stroke-width="1.05" stroke-linejoin="round" ${extra}/>`;
+ const mirrored=(d,z)=>`<g>${part(d,z)}<g transform="translate(220 0) scale(-1 1)">${part(d,z)}</g></g>`;
+ const line=(d)=>`<path d="${d}" fill="none" stroke="#6b8590" stroke-width=".85" stroke-linecap="round" opacity=".72"/>`;
+ const chest=female?'M105 83 Q89 75 74 89 Q67 99 76 119 Q91 127 108 118 Z':'M105 83 Q89 75 74 89 Q66 102 76 121 Q91 128 108 118 Z';
+ const outline=female?'M99 63 Q80 65 68 76 Q50 78 44 91 L27 154 Q24 164 30 168 L41 172 L62 123 L65 160 Q70 183 75 200 Q72 225 76 249 L82 330 L83 370 L100 370 L108 267 L112 232 L120 267 L122 370 L139 370 L141 330 L147 249 Q151 225 148 200 Q153 183 155 160 L158 123 L179 172 L190 168 Q196 164 193 154 L176 91 Q170 78 152 76 Q140 65 121 63Z':'M99 63 Q78 64 63 77 Q46 78 41 91 L24 156 Q22 166 28 171 L42 174 L62 122 L65 166 Q69 187 77 206 L77 249 L82 332 L83 372 L101 372 L108 264 L112 231 L116 264 L123 372 L141 372 L142 332 L147 249 L147 206 Q155 187 159 166 L162 122 L182 174 L196 171 Q202 166 200 156 L183 91 Q178 78 161 77 Q146 64 125 63Z';
+ return `<svg class="volume-anatomy" viewBox="0 0 220 405" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomía ${side==='front'?'frontal':'posterior'}: músculos trabajados coloreados según el volumen registrado">
+ <defs>
+ <linearGradient id="vol-shade-${side}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".20"/><stop offset=".48" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#123" stop-opacity=".15"/></linearGradient>
+ </defs>
+ <ellipse cx="110" cy="389" rx="56" ry="4" fill="#e3ecee"/>
+ <path d="${outline}" fill="#e7edef" stroke="#8da1a9" stroke-width="1.6"/>
+ <path d="M99 57L98 72 122 72 121 57Z" fill="#d4aa91" stroke="#987c6b" stroke-width=".8"/>
+ <ellipse cx="110" cy="36" rx="23" ry="29" fill="#dfb59b" stroke="#8e817a" stroke-width="1"/>
+ ${side==='front'?`<path d="M87 34 Q85 6 109 6 Q133 5 134 31 Q124 21 117 19 Q102 29 87 27Z" fill="#4a3b35"/><path d="M100 37h5m10 0h5" stroke="#62534c" stroke-width="1.4"/><path d="M108 48q3 2 6 0" fill="none" stroke="#956c63"/>`:`<path d="M87 30 Q84 6 109 6 Q136 5 134 33 Q113 24 87 33Z" fill="#4a3b35"/>`}
  ${side==='front'?`
- ${shape('M70 60Q58 57 49 68L52 97Q65 105 79 98L79 66Z','Pecho')}
- ${shape('M90 60Q102 57 111 68L108 97Q95 105 81 98L81 66Z','Pecho')}
- ${shape('M49 67Q36 71 35 88L49 99 55 76Z','Hombro')}${shape('M111 67Q124 71 125 88L111 99 105 76Z','Hombro')}
- ${shape('M34 91L25 133 36 137 48 103Z','Bíceps')}${shape('M126 91L135 133 124 137 112 103Z','Bíceps')}
- ${shape('M60 106L79 108 79 164 54 164Z','Abdomen')}${shape('M81 108L100 106 106 164 81 164Z','Abdomen')}
+ ${mirrored('M98 69 Q80 69 65 83 Q55 91 58 110 L72 123 Q91 130 108 118 L108 85Z','Pecho')}
+ ${mirrored('M62 78 Q44 79 40 94 L43 111 L60 117 Q73 96 74 87Z','Hombro')}
+ ${mirrored('M43 111 Q35 129 31 151 L44 156 L61 119Z','Bíceps')}
+ ${mirrored('M31 154 L25 168 Q32 176 43 171 L47 158Z','Otro')}
+ ${mirrored('M78 124 L108 128 L108 147 L83 148Z','Abdomen')}
+ ${mirrored('M83 150 L108 149 L108 170 L84 169Z','Abdomen')}
+ ${mirrored('M84 172 L108 172 L108 196 L80 192Z','Abdomen')}
+ ${mirrored('M73 125 Q77 152 78 190 L66 174 L64 132Z','Espalda')}
+ ${mirrored('M78 206 Q92 203 108 207 L106 246 L101 289 L81 282 L75 249Z','Pierna')}
+ ${mirrored('M81 285 L101 291 L100 328 L83 330Z','Pierna')}
+ ${mirrored('M83 334 L100 333 L98 367 L84 367Z','Pierna')}
  `:`
- ${shape('M68 60L50 72 52 122 78 137 78 65Z','Espalda')}${shape('M92 60L110 72 108 122 82 137 82 65Z','Espalda')}
- ${shape('M49 67Q36 71 35 88L49 99 55 76Z','Hombro')}${shape('M111 67Q124 71 125 88L111 99 105 76Z','Hombro')}
- ${shape('M34 91L25 133 36 137 48 103Z','Tríceps')}${shape('M126 91L135 133 124 137 112 103Z','Tríceps')}
- ${shape('M54 164L79 165 78 203 61 202Z','Glúteo')}${shape('M81 165L106 164 99 202 82 203Z','Glúteo')}
+ ${mirrored('M99 68 Q78 67 66 83 L74 112 L107 132 L108 82Z','Espalda')}
+ ${mirrored('M62 79 Q44 79 40 94 L43 111 L60 116 L75 89Z','Hombro')}
+ ${mirrored('M43 113 Q35 131 31 151 L44 156 L61 120Z','Tríceps')}
+ ${mirrored('M31 154 L25 168 Q32 176 43 171 L47 158Z','Otro')}
+ ${mirrored('M75 113 L107 134 L107 192 L79 183Z','Espalda')}
+ ${mirrored('M79 191 Q93 190 108 197 L107 222 Q95 236 78 230Z','Glúteo')}
+ ${mirrored('M79 232 L106 237 L103 283 L82 282 L76 251Z','Pierna')}
+ ${mirrored('M82 285 L102 286 L100 329 L83 330Z','Pierna')}
+ ${mirrored('M83 334 L100 333 L98 367 L84 367Z','Pierna')}
  `}
- ${shape('M56 204L78 206 76 258 65 258Z','Pierna')}${shape('M82 206L104 204 95 258 84 258Z','Pierna')}
- ${shape('M66 260L77 260 75 294 67 294Z','Pierna')}${shape('M84 260L95 260 93 294 85 294Z','Pierna')}
+ ${line('M110 83L110 194')}
+ <path d="M83 370L100 370L102 379L78 379Z M120 370L137 370L143 379L118 379Z" fill="#57626b" stroke="#3d535c" stroke-width=".8"/>
+ <path d="${outline}" fill="url(#vol-shade-${side})" opacity=".38" pointer-events="none"/>
  </svg>`;
 }
 function closeVolumeSummary(){const el=document.getElementById('volumeOverlay');if(el)el.hidden=true;document.body.classList.remove('volume-summary-open');}
 function openVolumeSummary(rows,meta={}){
  const overlay=document.getElementById('volumeOverlay'),content=document.getElementById('volumeSummaryContent');if(!overlay||!content)return;
  const a=volumeAnalysis(rows);const max=a.groups.length?a.groups[0][1]:1;
- const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const label=gender.includes('mujer')||gender.includes('female')||gender==='f'?'Silueta femenina':'Silueta masculina';
+ const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const isFemale=gender.includes('mujer')||gender.includes('female')||gender==='f'||gender==='femenino';const label=isFemale?'Figura femenina':'Figura masculina';
  const bars=a.groups.map(([zone,kg])=>`<div class="volume-bar-row"><b>${zone}</b><span>${volumeNumber(kg)} kg</span><div class="volume-track"><div class="volume-fill" style="width:${100*kg/max}%;background:${VOLUME_COLORS[zone]||VOLUME_COLORS.Otro}"></div></div></div>`).join('');
  const table=a.details.map(r=>`<tr><td>${volumeEscape(r.ej||'Ejercicio')}</td><td>${Array.isArray(r.sets)?r.sets.length:(r.series||'—')}</td><td>${volumeNumber(r.volumenKg)} kg</td></tr>`).join('');
  const gym=meta.gym||rows?.[0]?.gym||'';const date=meta.fecha||rows?.[0]?.fecha||'';
  content.innerHTML=`<div class="volume-head"><div><h2>✓ Entrenamiento completado</h2><div>${volumeEscape(meta.nombre||'Entrenamiento de fuerza')} · ${date?volumeEscape(fechaES(date)):''} ${gym?' · '+volumeEscape(gym):''}</div></div><button class="volume-close" onclick="closeVolumeSummary()">✕ Cerrar</button></div>
  <div class="volume-stats"><div class="volume-stat"><small>Total de kilos movidos</small><b>${volumeNumber(a.total)} kg</b></div><div class="volume-stat"><small>Ejercicios de fuerza</small><b>${a.details.length}</b></div><div class="volume-stat"><small>Grupos trabajados</small><b>${a.groups.length}</b></div></div>
  <div class="volume-columns"><div><section class="volume-panel"><h3>Kilos movidos por músculo</h3>${bars||'<p>No hay series con kilos y repeticiones registrados.</p>'}</section><section class="volume-panel" style="margin-top:12px"><h3>Detalle por ejercicio</h3><table class="volume-table"><thead><tr><th>Ejercicio</th><th>Series</th><th>Volumen</th></tr></thead><tbody>${table}</tbody></table></section></div>
- <section class="volume-panel"><h3>Músculos trabajados</h3><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.groups)}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.groups)}<small>Vista posterior</small></div></div><div class="volume-legend">${label} esquemática · colores por grupo muscular; gris = sin carga registrada.</div><div style="margin-top:12px">${a.groups.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
+ <section class="volume-panel"><h3>Músculos trabajados</h3><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.groups,isFemale?'female':'male')}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.groups,isFemale?'female':'male')}<small>Vista posterior</small></div></div><div class="volume-legend">${label} anatómica · músculos coloreados según los kilos registrados; gris = sin carga registrada.</div><div style="margin-top:12px">${a.groups.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
  <p class="volume-note">Volumen externo = suma de kg × repeticiones de cada serie. Cada ejercicio se asigna a su grupo principal para evitar duplicaciones; no mide la fuerza real soportada por cada músculo. Las series con peso corporal sin carga externa no suman kilos.</p>
  <div class="volume-footer"><button onclick="closeVolumeSummary()">Volver a Entreno</button><button onclick="closeVolumeSummary()">✓ Aceptar</button></div>`;
  overlay.hidden=false;document.body.classList.add('volume-summary-open');

@@ -1,1 +1,1 @@
-Micro Health v22.2.98 — Corrige el resumen muscular invisible: el CSS general section{display:none} ocultaba las tarjetas interiores. Se fuerzan visibles solo dentro del modal de volumen. Sustituir index.html y sw.js; conservar los datos.
+Micro Health v22.2.99 — Corrección del coloreado muscular y figuras anatómicas frontal/posterior. Sustituir index.html y sw.js. Datos conservados; sin cambios Cloudflare.
