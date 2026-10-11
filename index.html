@@ -3756,7 +3756,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 </div>
 <div class="golf-evo-shortcut"><button type="button" onclick="openGolfEvolution()">⛳ Ver mi evolución de golf · Masía, Lagos y Nuevos ↓</button></div>
 
-<div id="nextRoutineCard" class="routine-next-card"></div>
+<details class="training-fold" id="trainingNextRoutineFold"><summary><span class="training-section-label">⭐ Siguiente rutina recomendada</span></summary><div class="training-fold-body"><div id="nextRoutineCard" class="routine-next-card"></div></div></details>
 
 <div class="card training-active-shell" id="activeRoutineCard" style="display:none">
   <div class="routine-head">
@@ -4116,7 +4116,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 
 
 <div id="trainingSaveConfirmation" class="training-save-confirmation" role="status" aria-live="polite" hidden></div>
-<details class="training-fold" id="recentTrainingHistoryDetails" open>
+<details class="training-fold" id="recentTrainingHistoryDetails">
   <summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg></span>Historial reciente <span id="trainingRecentCount" class="muted"></span></span></summary>
   <div class="training-fold-body"><div class="card">
     <h2>Historial reciente</h2>
@@ -4124,15 +4124,15 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
   </div></div>
 </details>
 
-<details class="training-fold" id="trainingHistoryDetails" open><summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg></span>Entrenamientos registrados <span id="trainingHistoryCount" class="muted"></span></span></summary><div class="training-fold-body"><div class="card">
+<details class="training-fold" id="trainingHistoryDetails"><summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg></span>Entrenamientos registrados <span id="trainingHistoryCount" class="muted"></span></span></summary><div class="training-fold-body"><div class="card">
   <h2>Entrenamientos registrados</h2>
   <p class="muted">Puedes editar o eliminar una actividad concreta sin afectar a las demás del mismo día.</p>
   <div id="trainingHistoryActions"></div>
 </div></div></details>
-<details class="training-fold" id="golfEvolutionDetails" open><summary><span class="training-section-label">⛳ Evolución de golf · Todos mis campos</span></summary><div class="training-fold-body"><div class="card"><p class="muted">Estadísticas independientes por campo y por recorrido de 9 hoyos, también en partidas combinadas.</p><div id="golfEvolutionContent"></div></div></div></details>
+<details class="training-fold" id="golfEvolutionDetails"><summary><span class="training-section-label">⛳ Evolución de golf · Todos mis campos</span></summary><div class="training-fold-body"><div class="card"><p class="muted">Estadísticas independientes por campo y por recorrido de 9 hoyos, también en partidas combinadas.</p><div id="golfEvolutionContent"></div></div></div></details>
 
 
-<div class="card training-dashboard">
+<details class="training-fold" id="trainingWeekFold"><summary><span class="training-section-label">📅 Esta semana · resumen de entrenamientos</span></summary><div class="training-fold-body"><div class="card training-dashboard">
   <div class="training-week-head">
     <div><h2>Esta semana</h2><div class="muted" id="trainingWeekMessage">Tu progreso semanal de entrenamientos.</div></div>
     <div class="training-week-score" id="trainingWeekScore">0 / —</div>
@@ -4151,8 +4151,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
     <div class="training-mini"><small>Duración</small><b id="trainingTodayMinutes">0 min</b></div>
     <div class="training-mini"><small>Gasto estimado</small><b id="trainingTodayKcal">~0 kcal</b></div>
   </div>
-</div>
-
+</div></div></details>
 
 <div class="grid training-legacy-week"><div class="card"><div class="muted">Tiempo esta semana</div><div class="metric" id="weekMinutes">0 min</div></div><div class="card"><div class="muted">Sesiones esta semana</div><div class="metric" id="weekSessions">0</div></div></div>
 
@@ -5396,7 +5395,17 @@ function renderProfile(){
 }
 
 function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+// v22.3.00: cada entrada o salida de Entreno reinicia los desplegables.
+function closeTrainingFolds(){
+ const root=document.getElementById('entreno');
+ if(!root)return;
+ root.querySelectorAll('details.training-fold').forEach(el=>{el.open=false;});
+ // El editor anidado tampoco debe quedarse desplegado entre visitas.
+ const editor=document.getElementById('routineBuilderSection');if(editor)editor.open=false;
+}
+document.addEventListener('DOMContentLoaded',closeTrainingFolds);
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  closeTrainingFolds();
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
   document.getElementById(b.dataset.sec).classList.add('active');
