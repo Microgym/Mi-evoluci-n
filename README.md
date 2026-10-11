@@ -1,1 +1,1 @@
-Micro Health v22.2.93 — Reparación del editor de Mis rutinas. Se restituyen todos los campos y controles HTML que faltaban en la v22.2.92. No modifica la clave de almacenamiento ni los datos existentes.
+Micro Health v22.2.95 — doble clasificación actual e histórica masculina en Peso. Sustituir index.html y sw.js. No modifica datos ni Cloudflare.
