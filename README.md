@@ -2,3 +2,6 @@ Micro Health v22.2.99 — Corrección del coloreado muscular y figuras anatómic
 
 
 v22.3.00: Entreno: todas las secciones principales plegadas al entrar y tras salir; Siguiente rutina y Esta semana también desplegables. Los accesos directos y entrenamiento activo siguen accesibles.
+
+
+v22.3.01: Mapa anatómico segmentado con músculos principales específicos, manteniendo volumen total y grupos generales.
