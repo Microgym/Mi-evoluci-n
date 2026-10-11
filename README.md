@@ -1,4 +1,1 @@
-Micro Health v22.2.96 — resumen visual de volumen de fuerza al terminar y desde historial. Sustituir index.html y sw.js. Conserva KEY miguel-evolucion-v4 y datos.
-
-
-v22.2.97: corrige el resumen visual oculto por `section{display:none}` global.
+Micro Health v22.2.98 — Corrige el resumen muscular invisible: el CSS general section{display:none} ocultaba las tarjetas interiores. Se fuerzan visibles solo dentro del modal de volumen. Sustituir index.html y sw.js; conservar los datos.
