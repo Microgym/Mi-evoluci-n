@@ -1,1 +1,1 @@
-Micro Health v22.2.95 — doble clasificación actual e histórica masculina en Peso. Sustituir index.html y sw.js. No modifica datos ni Cloudflare.
+Micro Health v22.2.96 — resumen visual de volumen de fuerza al terminar y desde historial. Sustituir index.html y sw.js. Conserva KEY miguel-evolucion-v4 y datos.

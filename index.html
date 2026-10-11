@@ -3281,10 +3281,27 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 #entreno .golf-quick-play .golf-quick-arrow{font-size:24px;flex:none}
 @media(max-width:390px){#entreno .golf-quick-play{padding:14px 12px;gap:10px}#entreno .golf-quick-play strong{font-size:18px}}
 
-/* v22.2.95 · Doble referencia de medidas corporales */
+/* v22.2.96 · Doble referencia de medidas corporales */
 .body-threshold-comparison{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:10px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.75);font-size:12px;line-height:1.45;color:#395b62}
 .body-threshold-comparison span{display:block}
 .body-threshold-comparison b{color:#164d58}
+
+/* v22.2.96 — resumen visual de volumen al terminar una sesión */
+.volume-overlay{position:fixed;inset:0;background:rgba(10,32,41,.65);z-index:100100;display:flex;align-items:center;justify-content:center;padding:12px}
+.volume-overlay[hidden]{display:none!important}
+.volume-dialog{background:#f6fafb;color:#123644;width:min(100%,1040px);max-height:94dvh;overflow-y:auto;border-radius:22px;padding:18px;box-shadow:0 18px 70px #102d4160}
+.volume-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.volume-head h2{font-size:clamp(22px,4vw,30px);margin:0 0 6px;color:#0d3442}
+.volume-close{background:#e7f4f1;border:1px solid #c8e3dd;border-radius:14px;padding:12px;font-weight:800;color:#125963;cursor:pointer}
+.volume-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.volume-stat{background:white;border:1px solid #dce9ec;border-radius:16px;padding:13px;text-align:center}
+.volume-stat small{display:block;color:#58717c;font-weight:700}.volume-stat b{display:block;font-size:clamp(18px,4vw,27px);color:#073b4b;margin-top:5px}
+.volume-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.volume-panel{background:#fff;border:1px solid #dce9ec;border-radius:17px;padding:14px;min-width:0}
+.volume-panel h3{margin:0 0 12px;font-size:18px}.volume-bar-row{display:grid;grid-template-columns:83px 75px 1fr;align-items:center;gap:6px;margin:10px 0;font-size:13px}
+.volume-track{background:#e8eff2;height:12px;border-radius:15px;overflow:hidden}.volume-fill{height:100%;border-radius:15px}.volume-figures{display:flex;justify-content:space-around;gap:10px;align-items:start}.volume-figure{width:49%;text-align:center}.volume-figure svg{width:100%;max-height:325px}.volume-figure small{display:block;color:#5b7480}
+.volume-table{width:100%;border-collapse:collapse;font-size:12px}.volume-table td,.volume-table th{padding:8px 4px;border-bottom:1px solid #e1eaee;text-align:left}.volume-table td:last-child{text-align:right;white-space:nowrap}
+.volume-legend{font-size:12px;color:#506d77;margin-top:12px}.volume-note{font-size:12px;color:#5a7580;margin:14px 0}.volume-footer{display:flex;gap:10px;justify-content:flex-end}.volume-footer button{border:1px solid #c8e3dd;border-radius:14px;padding:13px;font-weight:800;color:#125963;background:#e8f5f3}.volume-footer button:last-child{background:#0b6673;color:#fff}
+@media(max-width:690px){.volume-dialog{max-height:96dvh;padding:13px}.volume-columns{grid-template-columns:1fr}.volume-bar-row{grid-template-columns:78px 76px 1fr}.volume-stats{gap:5px}.volume-stat{padding:9px 5px}.volume-figure svg{max-height:290px}}
 </style>
 
 </head>
@@ -13717,6 +13734,80 @@ function cancelActiveRoutine(){
  renderNextRoutine();
 }
 
+
+/* v22.2.96: volumen por serie, reparto estimado por zona; sin modificar registros */
+const VOLUME_COLORS={Pecho:'#dc3446',Espalda:'#2585e8',Hombro:'#f4aa21','Bíceps':'#8349de','Tríceps':'#32a85a',Pierna:'#e7bd37','Glúteo':'#2e9e87',Abdomen:'#0b9e9c',Otro:'#8ca0aa'};
+function volumeZone(r){
+ const z=normText(String(inferBodyZoneFromName(r.ej||'',r.tipo||'fuerza')||''));
+ if(z.includes('pecho')||z.includes('pectoral'))return 'Pecho';
+ if(z.includes('espalda')||z.includes('dorsal'))return 'Espalda';
+ if(z.includes('hombro')||z.includes('deltoid'))return 'Hombro';
+ if(z.includes('bicep'))return 'Bíceps';
+ if(z.includes('tricep'))return 'Tríceps';
+ if(z.includes('glut'))return 'Glúteo';
+ if(z.includes('pierna')||z.includes('cuadr')||z.includes('femoral')||z.includes('gemelo'))return 'Pierna';
+ if(z.includes('abdomen')||z.includes('core'))return 'Abdomen';
+ return 'Otro';
+}
+function volumeRowKg(r){
+ if(!r||r.esResumenRutina||r.tipo!=='fuerza')return 0;
+ if(Array.isArray(r.sets)&&r.sets.length)return r.sets.reduce((sum,s)=>{
+  const kg=Number(s.kg),reps=Number(s.reps);
+  return sum+(s.kg!==null&&s.kg!==''&&s.reps!==null&&s.reps!==''&&Number.isFinite(kg)&&Number.isFinite(reps)&&kg>0&&reps>0?kg*reps:0);
+ },0);
+ const kg=Number(r.kg),reps=Number(r.reps),series=Number(r.series);
+ return Number.isFinite(kg)&&kg>0&&Number.isFinite(reps)&&reps>0&&Number.isFinite(series)&&series>0?kg*reps*series:0;
+}
+function volumeAnalysis(rows){
+ const details=(rows||[]).filter(r=>r&&!r.esResumenRutina&&r.tipo==='fuerza').map(r=>({...r,volumenKg:volumeRowKg(r),volumeZone:volumeZone(r)}));
+ const groups={};let total=0;
+ details.forEach(r=>{total+=r.volumenKg;groups[r.volumeZone]=(groups[r.volumeZone]||0)+r.volumenKg;});
+ return {details,total,groups:Object.entries(groups).filter(([,kg])=>kg>0).sort((a,b)=>b[1]-a[1])};
+}
+function volumeNumber(v){return Math.round(v).toLocaleString('es-ES');}
+function volumeEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function volumeFigure(side,groups){
+ const on=z=>groups[z]>0?(VOLUME_COLORS[z]||VOLUME_COLORS.Otro):'#d7e2e5';
+ const shape=(d,z)=>`<path d="${d}" fill="${on(z)}" stroke="#7b9ba4" stroke-width="1.2"/>`;
+ const outline='#e5ecee';
+ return `<svg viewBox="0 0 160 310" role="img" aria-label="Vista ${side==='front'?'frontal':'posterior'} de los músculos trabajados">
+ <ellipse cx="80" cy="26" rx="19" ry="23" fill="${outline}" stroke="#8299a1" stroke-width="1.4"/>
+ <path d="M70 47L68 58 48 65 34 83 21 151 32 156 49 104 48 166 56 200 64 259 66 299 77 299 80 220 84 299 96 299 101 259 109 200 114 166 111 104 128 156 139 151 126 83 112 65 92 58 90 47Z" fill="${outline}" stroke="#8299a1" stroke-width="2"/>
+ ${side==='front'?`
+ ${shape('M70 60Q58 57 49 68L52 97Q65 105 79 98L79 66Z','Pecho')}
+ ${shape('M90 60Q102 57 111 68L108 97Q95 105 81 98L81 66Z','Pecho')}
+ ${shape('M49 67Q36 71 35 88L49 99 55 76Z','Hombro')}${shape('M111 67Q124 71 125 88L111 99 105 76Z','Hombro')}
+ ${shape('M34 91L25 133 36 137 48 103Z','Bíceps')}${shape('M126 91L135 133 124 137 112 103Z','Bíceps')}
+ ${shape('M60 106L79 108 79 164 54 164Z','Abdomen')}${shape('M81 108L100 106 106 164 81 164Z','Abdomen')}
+ `:`
+ ${shape('M68 60L50 72 52 122 78 137 78 65Z','Espalda')}${shape('M92 60L110 72 108 122 82 137 82 65Z','Espalda')}
+ ${shape('M49 67Q36 71 35 88L49 99 55 76Z','Hombro')}${shape('M111 67Q124 71 125 88L111 99 105 76Z','Hombro')}
+ ${shape('M34 91L25 133 36 137 48 103Z','Tríceps')}${shape('M126 91L135 133 124 137 112 103Z','Tríceps')}
+ ${shape('M54 164L79 165 78 203 61 202Z','Glúteo')}${shape('M81 165L106 164 99 202 82 203Z','Glúteo')}
+ `}
+ ${shape('M56 204L78 206 76 258 65 258Z','Pierna')}${shape('M82 206L104 204 95 258 84 258Z','Pierna')}
+ ${shape('M66 260L77 260 75 294 67 294Z','Pierna')}${shape('M84 260L95 260 93 294 85 294Z','Pierna')}
+ </svg>`;
+}
+function closeVolumeSummary(){const el=document.getElementById('volumeOverlay');if(el)el.hidden=true;document.body.classList.remove('volume-summary-open');}
+function openVolumeSummary(rows,meta={}){
+ const overlay=document.getElementById('volumeOverlay'),content=document.getElementById('volumeSummaryContent');if(!overlay||!content)return;
+ const a=volumeAnalysis(rows);const max=a.groups.length?a.groups[0][1]:1;
+ const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const label=gender.includes('mujer')||gender.includes('female')||gender==='f'?'Silueta femenina':'Silueta masculina';
+ const bars=a.groups.map(([zone,kg])=>`<div class="volume-bar-row"><b>${zone}</b><span>${volumeNumber(kg)} kg</span><div class="volume-track"><div class="volume-fill" style="width:${100*kg/max}%;background:${VOLUME_COLORS[zone]||VOLUME_COLORS.Otro}"></div></div></div>`).join('');
+ const table=a.details.map(r=>`<tr><td>${volumeEscape(r.ej||'Ejercicio')}</td><td>${Array.isArray(r.sets)?r.sets.length:(r.series||'—')}</td><td>${volumeNumber(r.volumenKg)} kg</td></tr>`).join('');
+ const gym=meta.gym||rows?.[0]?.gym||'';const date=meta.fecha||rows?.[0]?.fecha||'';
+ content.innerHTML=`<div class="volume-head"><div><h2>✓ Entrenamiento completado</h2><div>${volumeEscape(meta.nombre||'Entrenamiento de fuerza')} · ${date?volumeEscape(fechaES(date)):''} ${gym?' · '+volumeEscape(gym):''}</div></div><button class="volume-close" onclick="closeVolumeSummary()">✕ Cerrar</button></div>
+ <div class="volume-stats"><div class="volume-stat"><small>Total de kilos movidos</small><b>${volumeNumber(a.total)} kg</b></div><div class="volume-stat"><small>Ejercicios de fuerza</small><b>${a.details.length}</b></div><div class="volume-stat"><small>Grupos trabajados</small><b>${a.groups.length}</b></div></div>
+ <div class="volume-columns"><div><section class="volume-panel"><h3>Kilos movidos por músculo</h3>${bars||'<p>No hay series con kilos y repeticiones registrados.</p>'}</section><section class="volume-panel" style="margin-top:12px"><h3>Detalle por ejercicio</h3><table class="volume-table"><thead><tr><th>Ejercicio</th><th>Series</th><th>Volumen</th></tr></thead><tbody>${table}</tbody></table></section></div>
+ <section class="volume-panel"><h3>Músculos trabajados</h3><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.groups)}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.groups)}<small>Vista posterior</small></div></div><div class="volume-legend">${label} esquemática · colores por grupo muscular; gris = sin carga registrada.</div><div style="margin-top:12px">${a.groups.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
+ <p class="volume-note">Volumen externo = suma de kg × repeticiones de cada serie. Cada ejercicio se asigna a su grupo principal para evitar duplicaciones; no mide la fuerza real soportada por cada músculo. Las series con peso corporal sin carga externa no suman kilos.</p>
+ <div class="volume-footer"><button onclick="closeVolumeSummary()">Volver a Entreno</button><button onclick="closeVolumeSummary()">✓ Aceptar</button></div>`;
+ overlay.hidden=false;document.body.classList.add('volume-summary-open');
+}
+function openVolumeRoutineHistory(key){const rows=(db.entreno||[]).filter(r=>routineGroupKey(r)===key&&!r.esResumenRutina);if(!rows.length)return;openVolumeSummary(rows,{nombre:rows[0].rutinaNombre||'Rutina',fecha:rows[0].fecha,gym:rows[0].gym});}
+function openVolumeSingleHistory(index){const r=(db.entreno||[])[index];if(r)openVolumeSummary([r],{nombre:r.ej,fecha:r.fecha,gym:r.gym});}
+
 function finishRoutine(){
  const a=db.rutinaActiva;if(!a)return;
  captureActiveRoutineInputs();
@@ -13832,9 +13923,9 @@ function finalizeRoutineConfirmed(skippedPending){
  renderActivity();
  renderNextRoutine();
 
- if(suggested){
-   setTimeout(()=>alert(`Rutina “${completedRoutineName}” finalizada.\n\nLa siguiente recomendada es: “${suggested.nombre}”.`),50);
- }
+ const sessionRows=(db.entreno||[]).filter(r=>String(r.rutinaSessionId||'')===String(a.sessionId||'')&&!r.esResumenRutina);
+ openVolumeSummary(sessionRows,{nombre:completedRoutineName,fecha:a.fecha,gym:a.gym});
+
 }
 
 function toggleRoutineFavorite(id){
@@ -14346,7 +14437,7 @@ function renderTrainingHistoryActions(){
     }).join('');
     return `<details class="history-item" data-training-index="${i}" data-training-date="${r.fecha}" data-training-hour="${r.hora||''}">
       <summary><b>${fechaES(r.fecha)}${r.hora?' · '+r.hora:''} · ${recordGym(r)} · ${r.ej||'Actividad'}</b><div class="history-detail">${detail}</div></summary>
-      <div class="history-actions-visible"><button type="button" class="edit-btn" onclick="editTrainingIndex(${i})">Modificar</button><button type="button" class="delete-btn" onclick="deleteTrainingIndex(${i})">Eliminar</button></div>
+      <div class="history-actions-visible">${r.tipo==='fuerza'?`<button type="button" class="set-add" onclick="openVolumeSingleHistory(${i})">💪 Ver kilos y músculos</button>`:''}<button type="button" class="edit-btn" onclick="editTrainingIndex(${i})">Modificar</button><button type="button" class="delete-btn" onclick="deleteTrainingIndex(${i})">Eliminar</button></div>
       ${setDetail?`<div style="margin:9px 0"><b>Series registradas</b>${setDetail}</div>`:''}
       ${golfHistoryDetail(r)}
       <div class="history-date-editor">
@@ -14398,6 +14489,7 @@ function renderTrainingHistoryActions(){
      </summary>
 
      <div class="history-actions-visible">
+       <button class="set-add" type="button" onclick="event.preventDefault();event.stopPropagation();openVolumeRoutineHistory('${jsKey}')">💪 Ver kilos y músculos</button>
        <button class="edit-btn" type="button" onclick="event.preventDefault();event.stopPropagation();openRoutineHistoryDetails('${jsKey}')">Modificar</button>
        <button class="delete-btn" type="button" onclick="event.preventDefault();event.stopPropagation();deleteRoutineSessionHistory('${jsKey}')">Eliminar</button>
      </div>
@@ -14901,6 +14993,7 @@ function wizardSaveWorkout(){
  try{render();}catch(err){console.error('Error actualizando paneles tras guardar',err);}
  try{renderTrainingDashboard();}catch(err){console.error('Error actualizando resumen de entrenos',err);}
  try{renderTrainingHistoryActions();}catch(err){console.error('Error actualizando historial de entrenos',err);}
+ if(rows.some(r=>r.tipo==='fuerza'))openVolumeSummary(rows,{nombre:rows.length>1?'Entrenamiento de fuerza':rows[0].ej,fecha:rows[0].fecha,gym:rows[0].gym});
  if(button)button.disabled=false;
  wizardSaveInProgress=false;
 }
@@ -17945,4 +18038,5 @@ setTimeout(()=>{
 
 </script>
 
+<div class="volume-overlay" id="volumeOverlay" hidden role="presentation" onclick="if(event.target===this)closeVolumeSummary()"><section class="volume-dialog" role="dialog" aria-modal="true" aria-label="Resumen de kilos movidos"><div id="volumeSummaryContent"></div></section></div>
 </body></html>
