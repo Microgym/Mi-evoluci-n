@@ -4047,7 +4047,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 
 <div class="home-card mh23-home-goals-card" id="mh23HomeGoalsCard">
   <div class="home-card-heading"><div class="heading-left"><div class="home-square-icon target">◎</div><b>Objetivos de mi perfil</b></div></div>
-  <div class="data-goals3" id="mh23HomeGoalsView"><div class="muted">Cargando los objetivos guardados en Datos…</div></div>
+  <div class="data-goals3" id="mh23HomeGoalsView"><div class="muted">Leyendo objetivos del perfil…</div></div>
 </div>
 <div class="home-card home-alert-card">
   <div class="home-card-heading"><div class="heading-left"><div class="home-square-icon alert"><svg viewBox="0 0 24 24"><path d="M6 16h12"></path><path d="M8 16V10a4 4 0 0 1 8 0v6"></path><path d="M10 19h4"></path></svg></div><b>Alertas y señales</b></div></div>
@@ -19386,29 +19386,48 @@ window.mh23TrainingJump=function(destination){
  move('.life-report','mh23ProgressReport');
 })();
 </script>
-<script id="mh23-home-order-v19">
+<script id="mh46-profile-goals-direct">
 (function(){
-  const init=()=>{
-    const home=document.getElementById('inicio');
-    const weight=home?.querySelector('.home-weight-card');
-    const week=home?.querySelector('.home-week-card');
-    const goals=document.getElementById('mh23HomeGoalsCard');
-    const milestone=home?.querySelector('.home-milestone-card');
-    const alerts=home?.querySelector('.home-alert-card');
-    if(!home||!weight||!week||!goals||!milestone||!alerts)return;
-    weight.after(week);week.after(goals);goals.after(milestone);milestone.after(alerts);
-    const source=document.getElementById('dataGoalsSummary');
-    const dest=document.getElementById('mh23HomeGoalsView');
-    if(!source||!dest)return;
-    const update=()=>{
-      const content=source.innerHTML;
-      dest.innerHTML=content.trim()?content:'<div class="muted">Configura tus objetivos desde Perfil y ajustes.</div>';
-    };
-    update();
-    new MutationObserver(update).observe(source,{childList:true,subtree:true,characterData:true,attributes:true});
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
-  else init();
+ 'use strict';
+ const KEY='miguel-evolucion-v4';
+ const n=(value)=>{const x=Number(value);return Number.isFinite(x)&&x>0?x:null;};
+ const fmt=(v)=>Number(v).toLocaleString('es-ES');
+ function updateGoals(){
+   const dest=document.getElementById('mh23HomeGoalsView');
+   if(!dest)return;
+   let p=null;
+   try{const data=JSON.parse(localStorage.getItem(KEY)||'null');p=data&&data.profile;}catch(e){console.warn('Objetivos: no se pudieron leer los datos del perfil',e);}
+   if(!p||typeof p!=='object'){
+     dest.innerHTML='<div class="muted">Todavía no has configurado tus objetivos. Puedes hacerlo en Perfil y ajustes.</div>';
+     return;
+   }
+   const goals=[['Calorías',n(p.kcalObjetivo),'kcal'],['Proteína',n(p.proteinaObjetivo),'g'],['Pasos',n(p.pasosDia),'pasos']];
+   const entries=goals.filter(x=>x[1]!==null);
+   if(!entries.length){dest.innerHTML='<div class="muted">No hay objetivos numéricos guardados. Puedes añadirlos en Perfil y ajustes.</div>';return;}
+   dest.replaceChildren();
+   entries.forEach(([label,value,unit])=>{
+     const card=document.createElement('div');card.className='data-goal-cell';
+     const small=document.createElement('small');small.textContent=label;
+     const strong=document.createElement('b');strong.textContent=fmt(value)+' '+unit;
+     card.append(small,strong);dest.append(card);
+   });
+ }
+ const init=()=>{
+   updateGoals();
+   window.addEventListener('pageshow',updateGoals);
+   window.addEventListener('focus',updateGoals);
+   document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateGoals();});
+   window.addEventListener('storage',e=>{if(e.key===KEY)updateGoals();});
+   const btn=document.getElementById('dataProfileForm');
+   if(btn)btn.addEventListener('submit',()=>setTimeout(updateGoals,50));
+   // Update after the profile is changed elsewhere inside this same page.
+   document.addEventListener('click',e=>{
+     if(e.target.closest('[type="submit"],#saveProfile,#dataSaveProfile'))setTimeout(updateGoals,150);
+   });
+   const source=document.getElementById('dataGoalsSummary');
+   if(source)new MutationObserver(updateGoals).observe(source,{childList:true,subtree:true,characterData:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script><style id="mh34-medication-collapsible-style">
 #mh25-medication details.mh34-med-collapsible{padding:0;overflow:hidden}
@@ -20081,6 +20100,33 @@ fileInput.addEventListener('change',async()=>{
 @media(max-width:390px){#mh23-tabs button{font-size:9px!important;letter-spacing:-.3px;padding-inline:0!important}#mh23-tabs button span{font-size:19px}}
 #mh43-medication-page>.mh43-page-head{background:linear-gradient(135deg,#e9f8f1,#fff)}
 #mh43-medication-page .mh43-med-add{margin:0 0 13px}
+</style>
+
+<style id="mh45-mobile-repair">
+/* Correct the narrow columns inherited from the desktop cards after moving into Mi día. */
+#miDia #mh43-goals, #miDia #mh43-goals .home-card, #miDia #mh43-goals .home-card *{box-sizing:border-box}
+#miDia #mh43-goals{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important}
+#miDia #mh43-goals .home-weight-card{display:grid!important;position:relative;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:12px 16px!important;align-items:start!important;width:100%!important;max-width:100%!important;padding:16px!important;overflow:hidden}
+#miDia #mh43-goals .home-weight-icon,#miDia #mh43-goals .home-divider{display:none!important}
+#miDia #mh43-goals .home-weight-current,#miDia #mh43-goals .home-weight-goal{grid-column:auto!important;grid-row:auto!important;min-width:0!important;width:auto!important;max-width:100%!important;margin:0!important;padding:0!important;overflow-wrap:normal!important;word-break:normal!important}
+#miDia #mh43-goals .home-weight-current small,#miDia #mh43-goals .home-weight-goal small{font-size:13px!important;line-height:1.3!important;margin-bottom:8px}
+#miDia #mh43-goals .home-big{font-size:clamp(27px,8vw,38px)!important;line-height:1.12!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important}
+#miDia #mh43-goals .home-goal-number{font-size:clamp(23px,7vw,32px)!important;line-height:1.12!important}
+#miDia #mh43-goals .home-weight-change,#miDia #mh43-goals .home-sub{font-size:12px!important;line-height:1.45!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:normal!important;margin-top:7px!important}
+#miDia #mh43-goals .home-weight-change::before{font-size:13px!important}
+#miDia #mh43-goals .home-chevron{position:absolute!important;right:5px!important;top:8px!important;font-size:22px!important;width:24px!important;height:28px!important;grid-column:auto!important;grid-row:auto!important}
+#miDia #mh43-goals .home-week-card{display:grid!important;grid-template-columns:minmax(0,1fr) 66px!important;gap:12px!important;align-items:center!important;width:100%!important;padding:16px!important;overflow:hidden}
+#miDia #mh43-goals .home-week-card .home-square-icon,#miDia #mh43-goals .home-week-card>.home-chevron{display:none!important}
+#miDia #mh43-goals .home-week-main{min-width:0!important;grid-column:1!important}
+#miDia #mh43-goals .home-week-main small{font-size:14px!important;line-height:1.4!important}
+#miDia #mh43-goals .home-week-text,#miDia #mh43-goals .home-week-text b{font-size:clamp(22px,6vw,28px)!important;line-height:1.2!important}
+#miDia #mh43-goals .home-ring{grid-column:2!important;grid-row:1!important;width:64px!important;height:64px!important}
+#miDia #mh43-goals .home-ring::before{inset:8px!important}
+#miDia #mh43-goals .mh23-home-goals-card{width:100%!important;max-width:100%!important;min-width:0!important;overflow-wrap:break-word!important}
+#miDia #mh23-day-habits>h3{display:none!important}
+#miDia .mh23-day-group>h3{font-size:clamp(19px,5.1vw,23px)!important;line-height:1.27!important;margin:12px 0 14px!important}
+#miDia #mh43-goals .home-card,#miDia #mh43-milestones .home-card,#miDia #mh43-alerts .home-card{border-radius:16px!important}
+@media(max-width:370px){#miDia #mh43-goals .home-weight-card{grid-template-columns:minmax(0,1fr)!important}#miDia #mh43-goals .home-weight-goal{grid-column:1!important;border-top:1px solid #dbe7e5;padding-top:10px!important}}
 </style>
 <script id="mh43-day-rearrange-script">
 (function(){
