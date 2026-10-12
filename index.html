@@ -4726,6 +4726,17 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #asistente .mh36-result-details>summary{cursor:pointer;padding:12px 8px;border:1px solid #dce7e4;border-radius:10px;font-weight:700;color:#176d65}
 #asistente .mh36-result-details[open]>summary{margin-bottom:12px}
 </style>
+<style id="mh39-nutrition-style">
+#asistente .mh39-nutrition{margin:15px 0;padding:14px}
+#asistente .mh39-nutrition>summary{font-size:16px}
+#asistente .mh39-nutri-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+#asistente .mh39-nutri-card{border:1px solid #dce7e4;border-radius:10px;padding:10px;min-width:0}
+#asistente .mh39-nutri-card small{display:block;color:#52645f;margin-bottom:5px}
+#asistente .mh39-nutri-card b{display:block;font-size:19px;overflow-wrap:anywhere}
+#asistente .mh39-nutri-card em{font-size:12px;font-style:normal;color:#52645f}
+#asistente .mh39-apply-actions{margin-top:12px}
+#asistente .mh39-nutrition p{line-height:1.45}
+</style>
 <section id="asistente" class="mock-page">
   <div class="mock-page-title"><h2>Coach 360º</h2><p>Tu coach de salud, nutrición y entrenamiento con IA</p></div>
 
@@ -4780,6 +4791,12 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
     <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Mi objetivo (elegido por mí)</small><b id="mh38DeclaredGoal">—</b></div><div class="coach-decision"><small>Estrategia sugerida (Coach)</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><p class="mh38-coach-note">Tu objetivo lo decides tú. La estrategia es una propuesta del Coach, no cambia automáticamente calorías, proteínas ni rutinas.</p><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
+    <details id="mh39NutritionPanel" class="mh36-more mh39-nutrition">
+      <summary>🥗 Mi recomendación nutricional</summary>
+      <p class="muted">Estimaciones orientativas según tu objetivo, evolución y registros del período elegido. Nunca se aplican solas.</p>
+      <div id="mh39NutritionContent" aria-live="polite">Pulsa «Analizar período» para preparar la recomendación.</div>
+      <div class="mh39-apply-actions"><button type="button" id="mh39ApplyTargets" onclick="mh39ApplyTargets()" hidden>Aplicar calorías y proteínas recomendadas</button><span id="mh39ApplyStatus" class="muted"></span></div>
+    </details>
     <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
   </div>
 </section>
@@ -7305,6 +7322,7 @@ async function runCoachAnalysis(focus='week'){
         : '<div class="muted">Sin prioridades adicionales.</div>';
     }
 
+    mh39RenderNutrition(snapshot,out);
     if(resultBox)resultBox.classList.add('show');
     if(status)status.textContent='Análisis actualizado: '+range.start+' a '+range.end+'.';
   }catch(e){
@@ -7316,6 +7334,83 @@ async function runCoachAnalysis(focus='week'){
 
 
 
+
+
+// v22.3.39: propuestas nutricionales informativas. Nunca modificar objetivos sin confirmación.
+let mh39PendingTargets=null;
+function mh39Finite(value,min,max){
+  if(value===null||value===undefined||value==='')return null;
+  const n=Number(value);return Number.isFinite(n)&&n>=min&&n<=max?n:null;
+}
+function mh39RenderNutrition(snapshot,out){
+  const host=document.getElementById('mh39NutritionContent');
+  const btn=document.getElementById('mh39ApplyTargets');
+  const status=document.getElementById('mh39ApplyStatus');
+  if(!host)return;
+  mh39PendingTargets=null;if(btn)btn.hidden=true;if(status)status.textContent='';
+  const goal=snapshot.goal?.declared||'coach';
+  const kg=mh39Finite(snapshot.body?.latestWeight,30,350);
+  const tdee=mh39Finite(snapshot.energy?.averageEstimatedTdeeKcal,900,6500);
+  const tdeeDays=Number(snapshot.energy?.daysWithEstimate)||0;
+  const foodDays=Number(snapshot.nutrition?.loggedDays)||0;
+  const bodyCount=Number(snapshot.body?.measurements)||0;
+  const sufficient=!!(kg&&tdee&&tdeeDays>=5&&foodDays>=5&&bodyCount>=2);
+  const rawStrategy=String(out.strategy||out.recommended_strategy||'').toLowerCase();
+  const strategy=rawStrategy.includes('recompos')?'recomposicion':rawStrategy.includes('defin')||rawStrategy.includes('grasa')?'definir':rawStrategy.includes('manten')?'mantener':rawStrategy.includes('musc')||rawStrategy.includes('ganan')?'musculo':goal;
+  let kcal=null,protein=null,fat=null,carbs=null;
+  let why='';
+  if(sufficient){
+    // TDEE is estimated, not measured. Moderate ranges; no automatic updates.
+    const factor=strategy==='definir'?0.88:strategy==='musculo'?1.05:strategy==='recomposicion'?0.98:1;
+    kcal=Math.round(tdee*factor/25)*25;
+    protein=Math.round(kg*(strategy==='definir'||strategy==='recomposicion'?1.8:1.6));
+    fat=Math.round(kcal*0.30/9);
+    carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4));
+    why='Estimación basada en '+tdeeDays+' días con gasto energético estimado, '+foodDays+' días de alimentación, '+bodyCount+' mediciones corporales y un peso de '+kg.toFixed(1)+' kg. El gasto calculado por la app puede diferir del real; revisa tendencias durante varias semanas.';
+    if(kcal<1200||kcal>5000||carbs<0){kcal=null;protein=null;fat=null;carbs=null;}
+  }
+  const valid=!!(kcal&&protein);
+  const fmt=v=>v==null?'—':String(v);
+  const card=(label,current,recommended,unit)=>'<div class="mh39-nutri-card"><small>'+label+'</small><b>'+fmt(recommended)+' '+unit+'</b><em>Actual: '+fmt(current)+' '+unit+'</em></div>';
+  const sugar=kcal?Math.round(kcal*0.10/4):null;
+  const waterGoal=mh39Finite(snapshot.recovery?.waterGoalMl,250,10000);
+  host.innerHTML='<div class="mh39-nutri-grid">'+
+    card('Calorías',kcalTarget(),kcal,'kcal/día')+
+    card('Proteínas',proteinTarget(),protein,'g/día')+
+    card('Grasas','no fijado',fat,'g/día')+
+    card('Hidratos','no fijado',carbs,'g/día')+
+    card('Azúcares libres (límite orientativo)','no fijado',sugar,'g/día')+
+    card('Fibra','no fijado','25–30','g/día')+
+    '</div>'+
+    '<p><b>Agua:</b> objetivo registrado '+(waterGoal?Math.round(waterGoal/1000*10)/10+' L/día':'no disponible')+'. Ajustar según sed, ejercicio, calor y situación médica.</p>'+
+    '<p><b>Motivo:</b> '+(valid?why:'No hay datos suficientes para calcular una recomendación personalizada con fiabilidad. Registra al menos 5 días de alimentación y gasto estimado, 2 mediciones de peso y comprueba tu perfil. No se proponen cifras nuevas por ahora.')+'</p>'+
+    '<p class="muted">El límite de azúcares se refiere a azúcares libres, no al azúcar natural de frutas enteras o leche. Fibra y azúcares son referencias generales, no prescripciones. Si existe una enfermedad que requiera dieta específica, consulta con un profesional.</p>';
+  if(valid){
+    mh39PendingTargets={kcal,protein,period:snapshot.period};
+    if(btn)btn.hidden=false;
+  }
+}
+function mh39ApplyTargets(){
+  const proposed=mh39PendingTargets;
+  const status=document.getElementById('mh39ApplyStatus');
+  if(!proposed){if(status)status.textContent='Primero realiza una evaluación con datos suficientes.';return;}
+  if(!confirm('¿Quieres cambiar tus objetivos guardados a '+proposed.kcal+' kcal y '+proposed.protein+' g de proteína al día? Tus registros anteriores no se borrarán.'))return;
+  const prev={kcal:kcalTarget(),protein:proteinTarget()};
+  try{
+    db.profile={...(db.profile||{}),kcalObjetivo:proposed.kcal,proteinaObjetivo:proposed.protein};
+    localStorage.setItem(KEY,JSON.stringify(db));
+    const kcalInput=document.getElementById('profileKcal'),proteinInput=document.getElementById('profileProtein');
+    if(kcalInput)kcalInput.value=proposed.kcal;
+    if(proteinInput)proteinInput.value=proposed.protein;
+    if(typeof renderProfile==='function')renderProfile();
+    if(status)status.textContent='Objetivos actualizados: '+proposed.kcal+' kcal y '+proposed.protein+' g de proteína. Los registros anteriores se conservan.';
+    mh39PendingTargets=null;
+    const btn=document.getElementById('mh39ApplyTargets');if(btn)btn.hidden=true;
+  }catch(e){
+    db.profile={...(db.profile||{}),kcalObjetivo:prev.kcal,proteinaObjetivo:prev.protein};
+    if(status)status.textContent='No se pudieron guardar los cambios: '+e.message;
+  }
+}
 
 // v22.3.09 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
 const LIFE_HABITS=[['movilidad','🧘','Un poco de movilidad'],['aireLibre','🌿','Salir al aire libre'],['pausa','☀️','Dedicarme una pausa']];
