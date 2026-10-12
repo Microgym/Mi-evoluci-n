@@ -3420,6 +3420,30 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .life-report-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.life-report-actions button{flex:1}
 .life-report-note{margin-top:10px!important;font-size:11px!important;color:#7a8f86!important}
 
+
+
+/* Micro Health 23 · Fase 1: navegación reversible, sin modificar datos */
+body.mh23-on nav{display:none!important}
+body.mh23-on{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
+#mh23-tabs{position:fixed;bottom:0;left:0;right:0;z-index:1001;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:#fff;border-top:1px solid #e3eeed;padding:9px 7px calc(9px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 22px #123c4010}
+#mh23-tabs button{background:transparent!important;color:#678083!important;border:0!important;border-radius:12px!important;box-shadow:none!important;min-width:0;padding:7px 1px!important;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:11px!important;font-weight:700}
+#mh23-tabs button span{font-size:21px;line-height:1.1}#mh23-tabs button.mh23-selected{background:#e9f7f3!important;color:#087d70!important}
+#mh23-sheet{position:fixed;z-index:1003;left:12px;right:12px;bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:480px;margin:auto;background:white;border:1px solid #d9e8e6;border-radius:20px;box-shadow:0 10px 40px #143d3d38;padding:18px}
+#mh23-sheet[hidden],#mh23-tabs[hidden]{display:none!important}
+#mh23-sheet h3{margin:0 0 8px;color:#0c514d}#mh23-sheet p{margin:0 0 12px;color:#65807d;font-size:13px}
+.mh23-sheet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.mh23-sheet-grid button{border:1px solid #dceae7!important;background:#f7fbfa!important;color:#155650!important;border-radius:13px!important;box-shadow:none!important;padding:15px 9px!important;font-weight:700!important}
+#mh23-dismiss{float:right;border:0!important;background:transparent!important;color:#637e7b!important;padding:0 4px!important;box-shadow:none!important;font-size:23px!important}
+#mh23-home-intro{margin:8px 0 16px;padding:18px;border:1px solid #dcece7;border-radius:20px;background:linear-gradient(135deg,#effbf7,#fff)}
+#mh23-home-intro h2{margin:5px 0;color:#11584d;font-size:22px}#mh23-home-intro p{color:#617b77;margin:4px 0 14px;font-size:13px}
+.mh23-home-actions{display:flex;gap:9px;flex-wrap:wrap}.mh23-home-actions button{background:#fff!important;border:1px solid #d3e8e0!important;color:#17695d!important;box-shadow:none!important;border-radius:12px!important;padding:10px 13px!important}
+#mh23-calorie{background:#fff;border:1px solid #e2ede9;border-radius:13px;padding:12px;margin:12px 0;font-size:13px;color:#536e68}
+#mh23-calorie strong{display:block;color:#0d6256;margin-bottom:3px}
+body.mh23-compact #inicio .life-habits,body.mh23-compact #inicio .life-recovery,body.mh23-compact #inicio .life-trends,body.mh23-compact #inicio .life-report{display:none!important}
+body.mh23-compact #inicio .home-card:not(.home-weight-card){display:none!important}
+body.mh23-compact #inicio .life-today-head{display:none!important}
+@media(min-width:850px){#mh23-tabs{max-width:660px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border:1px solid #e3eeed}}
+
 </style>
 
 </head>
@@ -3447,6 +3471,10 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 </header>
 <main>
 <section id="inicio" class="active" data-home-mockup="true">
+<div id="mh23-home-intro"><small style="font-weight:800;color:#188675">MICRO HEALTH · TU DÍA</small><h2>Tu bienestar, más claro</h2><p>Un resumen para actuar hoy. Tus registros y análisis completos siguen disponibles.</p>
+<div id="mh23-calorie"><strong>🔥 Balance calórico</strong>Consulta tus calorías ingeridas en Comidas. El déficit o superávit se mostrará cuando podamos calcular un gasto total fiable; no se inventan cifras.</div>
+<div class="mh23-home-actions"><button type="button" onclick="mh23Open('registrar')">＋ Registrar</button><button type="button" onclick="mh23Open('progreso')">↗ Ver progreso</button><button type="button" id="mh23-toggle" onclick="mh23ToggleHome()">Ver panel completo ↓</button></div></div>
+
 
 <!-- Micro Health 22.3.09 · resumen de estilo de vida, sin datos simulados -->
 <div class="life-today" aria-label="Mi día">
@@ -4547,6 +4575,17 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 <button data-sec="asistente"><span class="nav-ico nav-assistant" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 5.5c-2.4 0-4.5 2-4.5 4.5 0 1.5.7 2.8 1.8 3.6"></path><path d="M14.5 5.5c2.4 0 4.5 2 4.5 4.5 0 1.5-.7 2.8-1.8 3.6"></path><path d="M9 7.5c0-1.4 1.3-2.5 3-2.5s3 1.1 3 2.5v9c0 1.4-1.3 2.5-3 2.5s-3-1.1-3-2.5z"></path><path d="M8 10h1"></path><path d="M15 10h1"></path><path d="M8 14h1"></path><path d="M15 14h1"></path></svg></span><span class="nav-label">Coach</span></button>
 <button data-sec="datos"><span class="nav-ico nav-data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="nav-label">Datos</span></button>
 </nav>
+<div id="mh23-tabs" aria-label="Navegación principal Micro Health 23">
+<button type="button" data-mh23="inicio" class="mh23-selected"><span>⌂</span>Inicio</button>
+<button type="button" data-mh23="registrar"><span>⊕</span>Registrar</button>
+<button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
+<button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
+<button type="button" data-mh23="asistente"><span>✦</span>Coach</button>
+</div>
+<div id="mh23-sheet" role="dialog" aria-modal="false" aria-label="Accesos rápidos" hidden>
+<button type="button" id="mh23-dismiss" aria-label="Cerrar">×</button><h3 id="mh23-sheet-title"></h3><p id="mh23-sheet-desc"></p><div class="mh23-sheet-grid" id="mh23-sheet-actions"></div>
+</div>
+
 <script>
 const SEED=[{"fecha":"2026-06-26","peso":98.3,"imc":29,"grasa":26.5,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1864,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":26,"masaMagra":72.3,"pesoMuscular":64.7,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-06-27","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1862,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.4,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-26","peso":98.2,"imc":29,"grasa":26.4,"musculoPct":65.8,"humedad":53,"masaOsea":3.5,"bmr":1863,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.7,"grasaKg":25.9,"masaMagra":72.3,"pesoMuscular":64.6,"proteinaKg":16.9,"cintura":null},{"fecha":"2026-08-28","peso":97.8,"imc":28.9,"grasa":26.2,"musculoPct":65.7,"humedad":53,"masaOsea":3.5,"bmr":1861,"proteinaPct":17.2,"edadCuerpo":54,"visceral":12,"grasaSubcutanea":23.5,"grasaKg":25.6,"masaMagra":72.2,"pesoMuscular":64.3,"proteinaKg":16.8,"cintura":null},{"fecha":"2026-08-29","peso":96.0,"imc":28.4,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1854,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.5,"masaMagra":71.5,"pesoMuscular":62.8,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-08-30","peso":95.8,"imc":28.3,"grasa":25.5,"musculoPct":65.4,"humedad":54,"masaOsea":3.5,"bmr":1853,"proteinaPct":17.4,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.8,"grasaKg":24.4,"masaMagra":71.4,"pesoMuscular":62.7,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-02","peso":95.3,"imc":28.2,"grasa":25.2,"musculoPct":65.3,"humedad":54,"masaOsea":3.5,"bmr":1852,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.6,"grasaKg":24,"masaMagra":71.3,"pesoMuscular":62.2,"proteinaKg":16.7,"cintura":null},{"fecha":"2026-09-04","peso":94.9,"imc":28,"grasa":25.0,"musculoPct":65.2,"humedad":54,"masaOsea":3.4,"bmr":1850,"proteinaPct":17.5,"edadCuerpo":53,"visceral":11,"grasaSubcutanea":22.4,"grasaKg":23.7,"masaMagra":71.2,"pesoMuscular":61.9,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-05","peso":94.3,"imc":27.9,"grasa":24.8,"musculoPct":65.0,"humedad":54,"masaOsea":3.4,"bmr":1846,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.2,"grasaKg":23.4,"masaMagra":70.9,"pesoMuscular":61.3,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-08","peso":94.1,"imc":27.8,"grasa":24.6,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.6,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":22.0,"grasaKg":23.1,"masaMagra":71.0,"pesoMuscular":61.2,"proteinaKg":16.6,"cintura":null},{"fecha":"2026-09-10","peso":93.7,"imc":27.7,"grasa":24.4,"musculoPct":65.0,"humedad":55,"masaOsea":3.4,"bmr":1845,"proteinaPct":17.7,"edadCuerpo":52,"visceral":11,"grasaSubcutanea":21.9,"grasaKg":22.9,"masaMagra":70.8,"pesoMuscular":60.9,"proteinaKg":16.6,"cintura":null}];
 const KEY='miguel-evolucion-v4';
@@ -18582,4 +18621,27 @@ setTimeout(()=>{
 </script>
 
 <div class="volume-overlay" id="volumeOverlay" hidden role="presentation" onclick="if(event.target===this)closeVolumeSummary()"><section class="volume-dialog" role="dialog" aria-modal="true" aria-label="Resumen de kilos movidos"><div id="volumeSummaryContent"></div></section></div>
+
+<script>
+/* Micro Health 23 · fase 1: solo interfaz; se reutilizan secciones y funciones existentes */
+(function(){
+ const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
+ const groups={registrar:{title:'¿Qué quieres registrar?',desc:'Cada registro se guarda en su pantalla original.',actions:[['⚖️ Peso y medidas','peso'],['🍽️ Comidas y agua','comidas'],['🌙 Sueño y energía','sleep'],['🚶 Pasos y hábitos','steps']]},progreso:{title:'Tu progreso',desc:'Todos tus informes y gráficos, sin perder ningún dato.',actions:[['📈 Evolución de salud','evolucion'],['🏋️ Evolución de entreno','evolucionEntreno'],['📋 Informe semanal','report'],['🌿 Hábitos y descanso','habits']]}};
+ function select(section){let selected=({peso:'registrar',comidas:'registrar',evolucion:'progreso',evolucionEntreno:'progreso',datos:'inicio'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
+ function route(section){sheet.hidden=true; if(section==='sleep'||section==='steps'||section==='habits'||section==='report'){
+  goSection('inicio');document.body.classList.remove('mh23-compact');document.getElementById('mh23-toggle').textContent='Simplificar Inicio ↑';
+  let id=({sleep:'homeSleepEditor',steps:'homeStepsEditor',habits:'lifeHabitsItems',report:'lifeReportContent'})[section];
+  if(section==='sleep' && document.getElementById('homeSleepEditor')?.offsetParent===null && typeof toggleHomeSleepEditor==='function')toggleHomeSleepEditor();
+  if(section==='steps' && document.getElementById('homeStepsEditor')?.offsetParent===null && typeof toggleHomeStepsEditor==='function')toggleHomeStepsEditor();
+  setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'}),100);
+ }else{goSection(section);window.scrollTo({top:0,behavior:'smooth'});} select(section);}
+ window.mh23Open=function(which){if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.hidden=false;select(which)}else{route(which)}};
+ window.mh23ToggleHome=function(){const compact=document.body.classList.toggle('mh23-compact');document.getElementById('mh23-toggle').textContent=compact?'Ver panel completo ↓':'Simplificar Inicio ↑'};
+ tabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.mh23Open(b.dataset.mh23)));
+ document.getElementById('mh23-dismiss').addEventListener('click',()=>sheet.hidden=true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')sheet.hidden=true});
+ document.querySelectorAll('nav button[data-sec]').forEach(b=>b.addEventListener('click',()=>{sheet.hidden=true;select(b.dataset.sec)}));
+ document.body.classList.add('mh23-on','mh23-compact');
+})();
+</script>
 </body></html>
