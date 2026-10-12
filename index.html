@@ -3425,8 +3425,8 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 /* Micro Health 23 · Fase 1: navegación reversible, sin modificar datos */
 body.mh23-on nav{display:none!important}
 body.mh23-on{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
-#mh23-tabs{position:fixed;bottom:0;left:0;right:0;z-index:1001;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:#fff;border-top:1px solid #e3eeed;padding:9px 7px calc(9px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 22px #123c4010}
-#mh23-tabs button{background:transparent!important;color:#678083!important;border:0!important;border-radius:12px!important;box-shadow:none!important;min-width:0;padding:7px 1px!important;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:11px!important;font-weight:700}
+#mh23-tabs{position:fixed;bottom:0;left:0;right:0;z-index:1001;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;background:#fff;border-top:1px solid #e3eeed;padding:9px 4px calc(9px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 22px #123c4010}
+#mh23-tabs button{background:transparent!important;color:#678083!important;border:0!important;border-radius:12px!important;box-shadow:none!important;min-width:0;padding:7px 1px!important;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:10px!important;font-weight:700}
 #mh23-tabs button span{font-size:21px;line-height:1.1}#mh23-tabs button.mh23-selected{background:#e9f7f3!important;color:#087d70!important}
 #mh23-sheet{position:fixed;z-index:1003;left:12px;right:12px;bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:480px;margin:auto;background:white;border:1px solid #d9e8e6;border-radius:20px;box-shadow:0 10px 40px #143d3d38;padding:18px}
 #mh23-sheet[hidden],#mh23-tabs[hidden]{display:none!important}
@@ -3522,7 +3522,24 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
 #mh23ProgressDetail>div[id^="mh23Progress"]{scroll-margin-top:84px}
 #mh23ProgressDetail .life-recovery,#mh23ProgressDetail .life-trends,#mh23ProgressDetail .life-report{display:block!important;margin-bottom:16px}
 </style>
-</head>
+<style id="mh23-home-clean-v19">
+/* Inicio: 1 Peso actual; 2 Objetivo semanal; 3 Objetivos del perfil;
+   4 Próximos hitos; 5 Alertas y señales. Sin duplicar Mi día. */
+#inicio #mh23-home-intro,#inicio .life-today{display:none!important}
+body #inicio .home-card:not(.home-weight-card){display:none!important}
+body.mh23-compact #inicio .home-weight-card,
+body.mh23-compact #inicio .home-week-card,
+body.mh23-compact #inicio .mh23-home-goals-card,
+body.mh23-compact #inicio .home-milestone-card,
+body.mh23-compact #inicio .home-alert-card{display:grid!important}
+body.mh23-compact #inicio .mh23-home-goals-card,
+body.mh23-compact #inicio .home-milestone-card,
+body.mh23-compact #inicio .home-alert-card{display:block!important}
+#inicio .mh23-home-goals-card .data-goals3{margin-top:12px}
+#inicio .mh23-home-goals-card .data-goals3>*{max-width:100%}
+</style><style id="mh23-six-tabs-v20">
+@media(max-width:390px){#mh23-tabs{gap:0;padding-left:2px;padding-right:2px}#mh23-tabs button{font-size:9px!important;letter-spacing:-.2px}#mh23-tabs button span{font-size:19px}}
+</style></head>
 <body>
 <header class="mh-topbar">
   <div class="header-wrap">
@@ -3790,6 +3807,10 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
   <div id="dayTimeline" class="day-timeline home-timeline"></div>
 </div>
 
+<div class="home-card mh23-home-goals-card" id="mh23HomeGoalsCard">
+  <div class="home-card-heading"><div class="heading-left"><div class="home-square-icon target">◎</div><b>Objetivos de mi perfil</b></div></div>
+  <div class="data-goals3" id="mh23HomeGoalsView"><div class="muted">Cargando los objetivos guardados en Datos…</div></div>
+</div>
 <div class="home-card home-alert-card">
   <div class="home-card-heading"><div class="heading-left"><div class="home-square-icon alert"><svg viewBox="0 0 24 24"><path d="M6 16h12"></path><path d="M8 16V10a4 4 0 0 1 8 0v6"></path><path d="M10 19h4"></path></svg></div><b>Alertas y señales</b></div></div>
   <div id="healthAlerts" class="alert-stack home-alerts"></div>
@@ -4688,6 +4709,7 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
 <div id="mh23-tabs" aria-label="Navegación principal Micro Health 23">
 <button type="button" data-mh23="inicio" class="mh23-selected"><span>⌂</span>Inicio</button>
 <button type="button" data-mh23="miDia"><span>☀</span>Mi día</button>
+<button type="button" data-mh23="registrar"><span>⊕</span>Registrar</button>
 <button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
 <button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
 <button type="button" data-mh23="asistente"><span>✦</span>Coach</button>
@@ -18767,7 +18789,7 @@ setTimeout(()=>{
 /* Micro Health 23 · fase 1: solo interfaz; se reutilizan secciones y funciones existentes */
 (function(){
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
- const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario'],['🌿 Hábitos','habits','Revisa y marca tus hábitos del día']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
+ const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
  function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'inicio',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
  function route(section){sheet.hidden=true; if(['sleep','steps','habits'].includes(section)){window.mh23Open('miDia');if(section!=='habits')window.mh23DayEditor(section);else document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');return;} if(['report','trends','recovery'].includes(section)){
   document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
@@ -18844,4 +18866,28 @@ window.mh23TrainingJump=function(destination){
  move('.life-report','mh23ProgressReport');
 })();
 </script>
-</body></html>
+<script id="mh23-home-order-v19">
+(function(){
+  const init=()=>{
+    const home=document.getElementById('inicio');
+    const weight=home?.querySelector('.home-weight-card');
+    const week=home?.querySelector('.home-week-card');
+    const goals=document.getElementById('mh23HomeGoalsCard');
+    const milestone=home?.querySelector('.home-milestone-card');
+    const alerts=home?.querySelector('.home-alert-card');
+    if(!home||!weight||!week||!goals||!milestone||!alerts)return;
+    weight.after(week);week.after(goals);goals.after(milestone);milestone.after(alerts);
+    const source=document.getElementById('dataGoalsSummary');
+    const dest=document.getElementById('mh23HomeGoalsView');
+    if(!source||!dest)return;
+    const update=()=>{
+      const content=source.innerHTML;
+      dest.innerHTML=content.trim()?content:'<div class="muted">Configura tus objetivos desde Perfil y ajustes.</div>';
+    };
+    update();
+    new MutationObserver(update).observe(source,{childList:true,subtree:true,characterData:true,attributes:true});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script></body></html>
