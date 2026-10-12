@@ -1,9 +1,5 @@
-# Micro Health v22.3.28 — Consulta farmacológica oficial (fase 1)
+# Micro Health v22.3.29 — Corrección Consultar AEMPS
 
-Mi día → Mi medicación → Consultar en AEMPS en cada ficha, o buscador de CIMA bajo la lista.
+El botón «Consultar en AEMPS» de cada medicamento abre inmediatamente la página oficial CIMA en otra pestaña y, además, intenta cargar resultados dentro de Micro Health. De este modo hay una acción visible incluso si la API no está disponible o el navegador bloquea las peticiones. En CIMA se introduce el nombre para localizar el medicamento exacto.
 
-Busca por nombre directamente en la API pública CIMA de la AEMPS. El usuario confirma la presentación y abre secciones 4.1 (indicaciones), 4.8 (reacciones adversas) y 4.5 (interacciones) de la ficha técnica oficial, con enlaces al prospecto y ficha completa. Si el navegador bloquea la conexión o la API no responde, ofrece enlaces a CIMA. No hay claves privadas ni envíos de recetas a terceros.
-
-**Alcance real:** consulta de fuentes oficiales, NO es todavía IA generativa, OCR ni motor automático de interacciones entre medicamentos. Esas funciones requieren un backend seguro, configuración de proveedor, autorización del usuario y verificación farmacológica. No presentar esta versión como revisión médica personalizada.
-
-Mantiene la clave histórica miguel-evolucion-v4, la clave independiente micro-health-medicacion-v1 y las fotos de IndexedDB. No se migran ni borran datos. Exportar copias antes de publicar.
+La consulta integrada no constituye un análisis de IA ni una revisión personalizada de interacciones. Se mantienen las claves `miguel-evolucion-v4` y `micro-health-medicacion-v1`, los documentos y las fotografías. Antes de actualizar, exportar copias JSON general y de medicación.

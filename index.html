@@ -3667,7 +3667,7 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
   <h4 class="mh25-subhead">Mis medicamentos</h4><div id="mh25List"></div>
   <section id="mh28Official" class="mh28-panel" aria-label="Información oficial de medicamentos">
 <h4>🔎 Información oficial de medicamentos</h4>
-<p class="mh25-muted">Consulta la AEMPS/CIMA por nombre y confirma el producto exacto. La consulta se realiza al pulsar Buscar y envía solo el nombre buscado a CIMA.</p>
+<p class="mh25-muted">Consulta la AEMPS/CIMA por nombre y confirma el producto exacto. El botón de cada medicamento abre directamente la web oficial. La búsqueda integrada puede depender de la conexión del navegador.</p>
 <div class="mh28-search"><input id="mh28Query" placeholder="Nombre del medicamento" autocomplete="off" aria-label="Nombre del medicamento"><button type="button" id="mh28Search" class="mh25-primary">Buscar en CIMA</button></div>
 <div id="mh28Results" aria-live="polite"></div>
 <p class="mh28-warning">Información oficial, no análisis personalizado con IA. No se comprueban automáticamente las interacciones entre todos tus medicamentos. No modifiques dosis ni tratamientos sin consultar a tu médico o farmacéutico.</p>
@@ -19134,7 +19134,7 @@ function render(){
   box.append(el('strong',medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
   const actions=el('div',undefined,'mh25-actions');
   actions.append(button('Editar',()=>openForm(m)));
-  actions.append(button('🔎 Consultar en AEMPS',()=>window.mh28Analyze(m.name)));
+  actions.append(button('🔎 Consultar en AEMPS',()=>window.mh29OpenCima(m.name)));
   actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
   box.append(actions);list.append(box);renderDocs(m.id,box);
  }
@@ -19326,5 +19326,14 @@ async function search(){
 $('mh28Search').addEventListener('click',search);
 $('mh28Query').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search()}});
 window.mh28Analyze=function(name){$('mh28Query').value=String(name||'').slice(0,100);root.scrollIntoView({behavior:'smooth',block:'start'});search()};
+window.mh29OpenCima=function(name){
+ const q=String(name||'').trim().slice(0,100);
+ $('mh28Query').value=q;
+ root.scrollIntoView({behavior:'smooth',block:'start'});
+ // Open the official site synchronously from the click, so iOS popup blocking cannot swallow it.
+ const a=document.createElement('a');a.href='https://cima.aemps.es/cima/publico/lista.html';a.target='_blank';a.rel='noopener noreferrer';document.body.append(a);a.click();a.remove();
+ notice('Se ha abierto el buscador oficial CIMA en otra pestaña. Escribe allí el nombre del medicamento. También intentaré mostrar resultados aquí.');
+ if(q.length>=3)search();
+};
 })();
 </script></body></html>
