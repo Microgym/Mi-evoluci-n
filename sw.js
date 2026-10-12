@@ -1,4 +1,4 @@
-const CACHE='micro-health-v22-3-02';
+const CACHE='micro-health-v22-3-03';
 const CORE=['./','./index.html','./anatomia-diseno1-front.png','./anatomia-diseno1-back.png','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./favicon-32.png'];
 
 self.addEventListener('install',event=>{
