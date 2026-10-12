@@ -1,14 +1,9 @@
-# Micro Health v22.3.21 — Corrección de Inicio
+# Micro Health v22.3.22 — Registrar sueño y pasos
 
-Corrige una colisión entre reglas CSS de las versiones 22.3.16 y 22.3.19 que ocultaba las tarjetas del Inicio salvo el peso.
+Se corrige la presentación de los formularios originales de Sueño y Pasos desde Registrar y Mi día.
 
-Inicio debe mostrar, en este orden:
-1. Peso actual
-2. Objetivo de entrenamientos esta semana
-3. Objetivos de mi perfil (información del apartado Datos)
-4. Próximos hitos
-5. Alertas y señales
+Causa: la v22.3.17 mostraba las tarjetas de registro como `display:flex`, aunque sus componentes internos fueron diseñados para un contenedor de cuadrícula. En móviles, esto comprimía el formulario y podía dejarlo casi invisible.
 
-El resto permanece accesible en Mi día, Registrar, Entrenar y Progreso. No se han alterado datos ni la clave `miguel-evolucion-v4`.
+Corrección: tarjeta en bloque, formulario desplegado por defecto al pulsar, campos en una columna en móviles, anchura completa. Se siguen usando los mismos inputs y funciones originales de guardado. No hay duplicación de datos.
 
-Antes de publicar, exportar JSON; las fotos en IndexedDB requieren respaldo aparte.
+Se conserva la clave `miguel-evolucion-v4`. Exportar JSON antes de actualizar; las fotos de IndexedDB requieren respaldo aparte.
