@@ -13895,10 +13895,11 @@ function volumeFigure(side,muscles,gender='male'){
  ${mirror('M82 285 L102 286 L100 329 L83 330Z','Gemelos')}
  ${mirror('M83 334 L100 333 L98 367 L84 367Z','Gemelos')}
  `;
+ // v22.3.05: parejas [músculo, archivo] corregidas; antes el operador coma descartaba el músculo.
  // v22.3.04: capas derivadas de los píxeles de la propia ilustración; sin polígonos ni desplazamientos.
  // Si un músculo no tiene máscara anatómica verificable, permanece gris.
  if(!female){
-  const layers=side==='front'?[("Pectorales", "muscle-front-pectorales.png"), ("Deltoides", "muscle-front-deltoides.png"), ("Bíceps", "muscle-front-biceps.png"), ("Cuádriceps", "muscle-front-cuádriceps.png")]:[("Deltoides", "muscle-back-deltoides.png"), ("Dorsales", "muscle-back-dorsales.png"), ("Glúteos", "muscle-back-gluteos.png"), ("Isquiotibiales", "muscle-back-isquiotibiales.png")];
+  const layers=side==='front'?[["Pectorales", "muscle-front-pectorales.png"], ["Deltoides", "muscle-front-deltoides.png"], ["Bíceps", "muscle-front-biceps.png"], ["Cuádriceps", "muscle-front-cuádriceps.png"]]:[["Deltoides", "muscle-back-deltoides.png"], ["Dorsales", "muscle-back-dorsales.png"], ["Glúteos", "muscle-back-gluteos.png"], ["Isquiotibiales", "muscle-back-isquiotibiales.png"]];
   const base=`<img class="volume-layer-base" src="./muscle-${side}-base.webp" alt="Anatomía masculina, vista ${side==='front'?'frontal':'posterior'}" draggable="false">`;
   const highlights=layers.filter(([muscle])=>values[muscle]>0).map(([muscle,file])=>`<img class="volume-layer-color" src="./${file}" alt="" aria-hidden="true" draggable="false">`).join('');
   return `<div class="volume-anatomy-layers" role="img" aria-label="Vista ${side==='front'?'frontal':'posterior'}: músculos trabajados resaltados según la sesión">${base}${highlights}</div>`;
