@@ -1,7 +1,9 @@
-# Micro Health v22.3.18 — Inicio más limpio
+# Micro Health v22.3.20 — Registrar en menú general
 
-Se trasladan **los bloques originales** de Sueño y recuperación, Mi evolución y Mi informe semanal desde Inicio a una pantalla de detalle de Progreso. Las opciones de Progreso correspondientes abren directamente cada bloque en su nueva ubicación. No se duplican los componentes, ni se modifican sus cálculos o registros.
+La barra principal muestra seis accesos: Inicio, Mi día, Registrar, Entrenar, Progreso y Coach.
 
-La clave `miguel-evolucion-v4` no cambia. Antes de subir los archivos, exporta copia JSON. Las fotografías de IndexedDB requieren respaldo aparte.
+Registrar abre cuatro accesos a los registros existentes: Peso, Comidas y agua, Sueño y Pasos. Los hábitos siguen en Mi día, sin duplicarse en Registrar.
 
-Comprobar en móvil: Inicio sin los tres bloques; Progreso → Sueño y recuperación / Tendencias / Informe semanal con gráficos y controles funcionando. No se ha realizado una prueba visual en iPhone.
+Sin cambios en los datos ni en la clave de almacenamiento `miguel-evolucion-v4`. Se conserva la funcionalidad de Mi día y las secciones originales.
+
+Antes de subir a GitHub, exporta tu copia JSON. Las fotos almacenadas en IndexedDB requieren respaldo independiente.
