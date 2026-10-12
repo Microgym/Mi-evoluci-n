@@ -1,11 +1,9 @@
-# Micro Health v22.3.26 — Varias tomas y documentos
+# Micro Health v22.3.28 — Consulta farmacológica oficial (fase 1)
 
-- Cada medicamento puede tener varias horas al día. Cada toma se confirma, omite o deshace individualmente.
-- Se conservan las tomas y medicamentos creados en v22.3.25. Los registros antiguos de una sola toma siguen vinculados a su hora.
-- En la ficha del medicamento, botón **Añadir foto, receta o instrucciones**. Se aceptan imágenes y PDF de hasta 8 MB por archivo. Se pueden abrir y eliminar individualmente.
-- Los archivos se guardan en IndexedDB separado: `micro-health-medication-files-v1`.
-- La **Copia de medicación** ahora incluye los documentos adjuntos; puede ocupar bastante espacio. También acepta copias antiguas sin documentos.
-- Las notificaciones del iPhone siguen limitadas a cuando la app está abierta y visible. No confiar exclusivamente en ellas para medicación.
-- No se modifica `miguel-evolucion-v4` ni los registros o fotos de otros apartados.
+Mi día → Mi medicación → Consultar en AEMPS en cada ficha, o buscador de CIMA bajo la lista.
 
-Antes de actualizar, exporta copia JSON general y copia de medicación; fotos históricas de otros apartados requieren respaldo aparte.
+Busca por nombre directamente en la API pública CIMA de la AEMPS. El usuario confirma la presentación y abre secciones 4.1 (indicaciones), 4.8 (reacciones adversas) y 4.5 (interacciones) de la ficha técnica oficial, con enlaces al prospecto y ficha completa. Si el navegador bloquea la conexión o la API no responde, ofrece enlaces a CIMA. No hay claves privadas ni envíos de recetas a terceros.
+
+**Alcance real:** consulta de fuentes oficiales, NO es todavía IA generativa, OCR ni motor automático de interacciones entre medicamentos. Esas funciones requieren un backend seguro, configuración de proveedor, autorización del usuario y verificación farmacológica. No presentar esta versión como revisión médica personalizada.
+
+Mantiene la clave histórica miguel-evolucion-v4, la clave independiente micro-health-medicacion-v1 y las fotos de IndexedDB. No se migran ni borran datos. Exportar copias antes de publicar.

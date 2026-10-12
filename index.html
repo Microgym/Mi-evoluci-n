@@ -3595,6 +3595,32 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh25-medication .mh26-doc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;flex-wrap:wrap}
 #mh25-medication .mh26-doc-row a{font-size:13px;overflow-wrap:anywhere;color:#167c70}
 #mh25-medication .mh26-docs-form{font-size:13px}
+</style><style id="mh27-reminder-style">
+#mh27Reminder[hidden]{display:none!important}
+#mh27Reminder{position:fixed;bottom:calc(76px + env(safe-area-inset-bottom,0px));left:12px;right:12px;z-index:2147483000;max-width:480px;margin:0 auto;background:#fff;color:#183c34;border:2px solid #167c70;border-radius:17px;padding:14px;box-shadow:0 8px 32px #0004;font-family:inherit}
+#mh27Reminder .mh27-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+#mh27Reminder .mh27-title{font-size:15px;font-weight:800}
+#mh27Reminder .mh27-sub{font-size:13px;line-height:1.4;margin:5px 0 10px}
+#mh27Reminder .mh27-actions{display:flex;gap:7px;flex-wrap:wrap}
+#mh27Reminder button{border:1px solid #cbd9d2;background:#fff;color:#184b40;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer}
+#mh27Reminder button.mh27-primary{background:#167c70;color:white;border-color:#167c70}
+#mh27Reminder .mh27-close{padding:3px 7px;border:0;font-size:22px}
+@media(min-width:520px){#mh27Reminder{left:auto;right:20px;width:440px}}
+</style><style id="mh28-official-style">
+#mh28Official{margin-top:20px;padding:15px;border:1px solid #d6e6e0;border-radius:15px;background:#f7fbf9}
+#mh28Official h4{margin:0 0 8px}
+#mh28Official .mh28-search{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#mh28Official input{flex:1 1 175px;min-width:0;border:1px solid #cadbd4;border-radius:10px;padding:11px;font:inherit;background:#fff;color:#25342e}
+#mh28Official button{cursor:pointer;border:1px solid #c5d7cf;border-radius:10px;background:white;color:#19564c;padding:10px 12px;font:inherit;font-size:13px}
+#mh28Official button.mh25-primary{background:#167c70;color:white}
+#mh28Official .mh28-entry{padding:12px;background:#fff;border:1px solid #dbe7e1;border-radius:12px;margin:9px 0}
+#mh28Official .mh28-entry p{font-size:13px;margin:5px 0;color:#586f67}
+#mh28Official .mh28-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px}
+#mh28Official a{color:#076e63;text-decoration:underline;font-weight:600;font-size:13px}
+#mh28Official .mh28-warning{font-size:12px;line-height:1.5;color:#705b3d;margin-top:14px}
+#mh28Official .mh28-extract{white-space:pre-wrap;overflow-wrap:anywhere;max-height:290px;overflow-y:auto;background:#f6f8f7;padding:10px;border-radius:8px;font-size:13px;line-height:1.5}
+#mh28Official details{margin-top:9px}
+#mh28Official summary{cursor:pointer;font-weight:650;font-size:13px}
 </style></head>
 <body>
 <header class="mh-topbar">
@@ -3639,7 +3665,14 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
   <div class="mh25-toolbar"><button type="button" id="mh25EnableNotices">🔔 Activar avisos del dispositivo</button><button type="button" id="mh25Export">↓ Copia de medicación</button><button type="button" id="mh25ImportBtn">↑ Restaurar medicación</button><input type="file" id="mh25ImportFile" accept=".json,application/json" hidden></div>
   <div id="mh25Today"></div>
   <h4 class="mh25-subhead">Mis medicamentos</h4><div id="mh25List"></div>
-  <h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
+  <section id="mh28Official" class="mh28-panel" aria-label="Información oficial de medicamentos">
+<h4>🔎 Información oficial de medicamentos</h4>
+<p class="mh25-muted">Consulta la AEMPS/CIMA por nombre y confirma el producto exacto. La consulta se realiza al pulsar Buscar y envía solo el nombre buscado a CIMA.</p>
+<div class="mh28-search"><input id="mh28Query" placeholder="Nombre del medicamento" autocomplete="off" aria-label="Nombre del medicamento"><button type="button" id="mh28Search" class="mh25-primary">Buscar en CIMA</button></div>
+<div id="mh28Results" aria-live="polite"></div>
+<p class="mh28-warning">Información oficial, no análisis personalizado con IA. No se comprueban automáticamente las interacciones entre todos tus medicamentos. No modifiques dosis ni tratamientos sin consultar a tu médico o farmacéutico.</p>
+</section>
+<h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
   <p class="mh25-disclaimer">Esta agenda no modifica las pautas prescritas. Ante una dosis olvidada o dudas, consulta las instrucciones de tu profesional sanitario. Los avisos del dispositivo no están garantizados cuando la app está cerrada.</p>
   <form id="mh25Form" class="mh25-form" hidden>
     <h4 id="mh25FormTitle">Añadir medicamento</h4>
@@ -19074,7 +19107,7 @@ function setStatus(m,time,status){
  const date=today(),current=eventFor(m.id,date,time);
  if(current){current.status=status;current.at=new Date().toISOString()}
  else db.events.push({id:'e'+Date.now()+Math.random().toString(36).slice(2),medId:m.id,date,status,at:new Date().toISOString(),name:m.name,dose:m.dose,time});
- if(persist())render();
+ if(persist()){render();showReminder()}
 }
 function render(){
  const date=today(),t=nowTime();
@@ -19091,7 +19124,7 @@ function render(){
   const actions=el('div',undefined,'mh25-actions');
   if(!ev||ev.status!=='taken')actions.append(button('✓ Marcar tomado',()=>setStatus(m,time,'taken'),'mh25-primary'));
   if(!ev||ev.status!=='skipped')actions.append(button('Omitido',()=>setStatus(m,time,'skipped')));
-  if(ev)actions.append(button('Deshacer',()=>{db.events=db.events.filter(e=>e!==ev);if(persist())render()}));
+  if(ev)actions.append(button('Deshacer',()=>{db.events=db.events.filter(e=>e!==ev);if(persist()){render();showReminder()}}));
   box.append(actions);area.append(box);
  }
  const list=$('mh25List');list.replaceChildren();
@@ -19101,6 +19134,7 @@ function render(){
   box.append(el('strong',medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
   const actions=el('div',undefined,'mh25-actions');
   actions.append(button('Editar',()=>openForm(m)));
+  actions.append(button('🔎 Consultar en AEMPS',()=>window.mh28Analyze(m.name)));
   actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
   box.append(actions);list.append(box);renderDocs(m.id,box);
  }
@@ -19123,7 +19157,7 @@ $('mh25Form').addEventListener('submit',e=>{
  if(item.end&&item.end<item.start)return alert('La fecha de fin no puede ser anterior al inicio.');
  if(frequency==='custom'&&!days.length)return alert('Selecciona al menos un día.');
  if(id){const idx=db.medications.findIndex(m=>m.id===id);if(idx<0)return;db.medications[idx]=item}else db.medications.push(item);
- if(persist()){$('mh25Form').hidden=true;render();$('mh26Files').value=''}
+ if(persist()){$('mh25Form').hidden=true;render();showReminder();$('mh26Files').value=''}
 });
 $('mh25ImportBtn').addEventListener('click',()=>$('mh25ImportFile').click());
 const notice=$('mh25NotificationInfo');
@@ -19136,6 +19170,35 @@ $('mh25EnableNotices').addEventListener('click',async()=>{
  try{const result=await Notification.requestPermission();noticeInfo();if(result==='granted')alert('Avisos del dispositivo activados mientras la aplicación esté abierta.');else alert('No se han autorizado las notificaciones. Puedes seguir usando la agenda.')}catch(e){alert('No se pudieron activar las notificaciones.')}
 });
 const notified=new Set();
+// Aplazamientos temporales en esta sesión: nunca alteran el registro de tomas.
+const postponed=new Map();
+const reminder=el('aside',undefined);reminder.id='mh27Reminder';reminder.hidden=true;
+reminder.setAttribute('role','alertdialog');reminder.setAttribute('aria-label','Recordatorio de medicación');
+document.body.append(reminder);
+let activeReminder=null;
+function reminderKey(m,date,time){return date+'|'+m.id+'|'+time}
+function showReminder(){
+ if(document.visibilityState!=='visible'){reminder.hidden=true;activeReminder=null;return}
+ const date=today(),time=nowTime(),timestamp=Date.now();
+ // Si hay varias tomas pendientes, se muestran una a una.
+ const pending=db.medications.filter(m=>due(m,date)).flatMap(m=>timesOf(m).map(doseTime=>({m,doseTime})))
+  .filter(({m,doseTime})=>doseTime<=time&&!eventFor(m.id,date,doseTime)&&timestamp>=(postponed.get(reminderKey(m,date,doseTime))||0))
+  .sort((a,b)=>a.doseTime.localeCompare(b.doseTime));
+ if(!pending.length){reminder.hidden=true;activeReminder=null;return}
+ // Conservar la misma toma en pantalla para evitar saltos entre recordatorios.
+ const current=pending.find(({m,doseTime})=>reminderKey(m,date,doseTime)===activeReminder)||pending[0];
+ const {m,doseTime}=current,key=reminderKey(m,date,doseTime);
+ if(!reminder.hidden&&activeReminder===key)return;
+ activeReminder=key;reminder.replaceChildren();
+ const head=el('div',undefined,'mh27-head'),left=el('div');
+ left.append(el('div','💊 Tienes una toma pendiente','mh27-title'),el('div',doseTime+' · '+medLabel(m),'mh27-sub'));
+ head.append(left,button('×',()=>{postponed.set(key,Date.now()+10*60*1000);reminder.hidden=true;activeReminder=null;showReminder()},'mh27-close'));
+ const actions=el('div',undefined,'mh27-actions');
+ actions.append(button('✓ Ya lo he tomado',()=>{setStatus(m,doseTime,'taken');activeReminder=null;showReminder()},'mh27-primary'));
+ actions.append(button('Recordar en 10 min',()=>{postponed.set(key,Date.now()+10*60*1000);activeReminder=null;reminder.hidden=true;showReminder()}));
+ actions.append(button('Ver mis tomas',()=>{postponed.set(key,Date.now()+10*60*1000);activeReminder=null;reminder.hidden=true;const area=$('mh25Today');area?.scrollIntoView({behavior:'smooth',block:'center'})}));
+ reminder.append(head,actions);reminder.hidden=false;
+}
 function checkDue(){
  const date=today(),time=nowTime();
  for(const m of db.medications){
@@ -19149,8 +19212,9 @@ function checkDue(){
    }
   }
  }
+ showReminder();
 }
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){render();checkDue()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){render();checkDue()}else{reminder.hidden=true;activeReminder=null}});
 setInterval(()=>{render();checkDue()},60000);
 
 // Archivos de medicación aislados en IndexedDB: no se tocan las fotos existentes.
@@ -19203,6 +19267,64 @@ $('mh25ImportFile').addEventListener('change',async e=>{
  }catch(err){alert('No se pudo restaurar: '+err.message)}finally{e.target.value=''}
 });
 
-noticeInfo();render();
+noticeInfo();render();checkDue();
+})();
+</script><script id="mh28-official-script">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),root=$('mh28Official'),results=$('mh28Results');
+if(!root||!results)return;
+const base='https://cima.aemps.es/cima/rest/';
+function el(tag,txt,cls){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cls)n.className=cls;return n}
+function link(text,url){const a=el('a',text);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a}
+function clean(v){return String(v||'').replace(/\s+/g,' ').trim()}
+function extractHtml(html){const d=new DOMParser().parseFromString(String(html||''),'text/html');d.querySelectorAll('script,style,iframe,form').forEach(n=>n.remove());return clean(d.body?.textContent||'')}
+function sectionList(data){if(Array.isArray(data))return data; if(Array.isArray(data?.secciones))return data.secciones; if(Array.isArray(data?.resultados))return data.resultados;return []}
+function sectionCode(s){return String(s.seccion||s.codigo||s.id||s.numero||'')}
+function sectionText(s){return extractHtml(s.contenido||s.texto||s.html||s.descripcion||'')}
+function notice(msg){results.replaceChildren(el('p',msg,'mh25-muted'))}
+async function json(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),12000);try{const r=await fetch(url,{signal:c.signal,headers:{Accept:'application/json'},credentials:'omit'});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+function docs(reg){const links=el('div',undefined,'mh28-links');links.append(link('Prospecto oficial','https://cima.aemps.es/cima/dochtml/p/'+encodeURIComponent(reg)+'/Prospecto.html'),link('Ficha técnica oficial','https://cima.aemps.es/cima/dochtml/ft/'+encodeURIComponent(reg)+'/FichaTecnica.html'));return links}
+async function detail(item){
+ const reg=String(item.nregistro||'');if(!/^[0-9A-Za-z-]{3,30}$/.test(reg))return;
+ results.replaceChildren();const card=el('div',undefined,'mh28-entry');card.append(el('strong',clean(item.nombre)||'Medicamento identificado'),el('p','Registro AEMPS: '+reg));card.append(docs(reg));
+ card.append(el('p','Fuente: AEMPS/CIMA. Verifica el nombre, la concentración y la presentación con tu receta. La información de la ficha no es una valoración individual.'));
+ results.append(card);
+ const loading=el('p','Cargando apartados oficiales de la ficha técnica…','mh25-muted');card.append(loading);
+ try{
+  const data=await json(base+'docSegmentado/contenido/1?nregistro='+encodeURIComponent(reg));
+  loading.remove();const arr=sectionList(data);
+  const wanted=[['4.1','¿Para qué se utiliza? · Indicaciones autorizadas'],['4.8','Reacciones adversas descritas'],['4.5','Interacciones y precauciones de combinación']];
+  for(const [code,title] of wanted){
+   let entry=arr.find(x=>sectionCode(x)===code);
+   if(!entry)entry=arr.find(x=>sectionCode(x).startsWith(code+'.'));
+   const text=entry?sectionText(entry):'';
+   const details=el('details'),summary=el('summary',title);details.append(summary);
+   if(text)details.append(el('div',text.slice(0,15000),'mh28-extract'));
+   else details.append(el('p','No se ha podido extraer este apartado. Consulta la ficha técnica oficial mediante el enlace anterior.','mh25-muted'));
+   card.append(details);
+  }
+  card.append(el('p','El apartado 4.5 describe interacciones conocidas del medicamento seleccionado; no compara automáticamente tus tratamientos. Una ausencia de texto no significa ausencia de riesgo.','mh28-warning'));
+ }catch(err){loading.textContent='No se pudieron cargar los apartados aquí. Puedes consultar los documentos oficiales desde los enlaces anteriores.'}
+}
+async function search(){
+ const q=$('mh28Query').value.trim();if(q.length<3)return notice('Escribe al menos tres caracteres del nombre.');
+ notice('Buscando en la base oficial AEMPS/CIMA…');
+ try{
+  const data=await json(base+'medicamentos?nombre='+encodeURIComponent(q)+'&pagina=1');
+  const items=Array.isArray(data)?data:Array.isArray(data?.resultados)?data.resultados:[];
+  results.replaceChildren();
+  if(!items.length)return notice('No se encontraron resultados. Prueba con el nombre comercial o principio activo.');
+  results.append(el('p','Selecciona el medicamento exacto (hasta 15 resultados). Comprueba concentración y presentación.','mh25-muted'));
+  for(const item of items.slice(0,15)){
+   const reg=String(item.nregistro||'');if(!reg)continue;
+   const row=el('div',undefined,'mh28-entry');row.append(el('strong',clean(item.nombre)||'Medicamento'),el('p','Registro: '+reg));
+   const btn=el('button','Ver indicaciones, efectos e interacciones oficiales');btn.type='button';btn.addEventListener('click',()=>detail(item));row.append(btn);results.append(row);
+  }
+ }catch(err){results.replaceChildren(el('p','No se ha podido conectar directamente con CIMA desde este navegador. Puedes consultar la web oficial.','mh25-muted'),link('Abrir buscador CIMA','https://cima.aemps.es/cima/publico/lista.html'))}
+}
+$('mh28Search').addEventListener('click',search);
+$('mh28Query').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search()}});
+window.mh28Analyze=function(name){$('mh28Query').value=String(name||'').slice(0,100);root.scrollIntoView({behavior:'smooth',block:'start'});search()};
 })();
 </script></body></html>
