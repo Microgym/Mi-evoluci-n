@@ -3670,19 +3670,22 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><div class="mh23-day-buttons">
 <button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button><button type="button" onclick="document.getElementById('mh25-medication').scrollIntoView({behavior:'smooth',block:'start'})">💊 Medicación</button></div><div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
 <div class="mh23-day-group" id="mh25-medication">
-  <div class="mh25-med-head"><div><h3>💊 Mi medicación</h3><p>Organiza tus tomas y confirma únicamente lo que hayas tomado.</p></div><button type="button" class="mh25-primary" id="mh25AddMed">＋ Añadir</button></div>
+  <details id="mh35MedSection" class="mh35-med-section">
+    <summary class="mh35-med-top"><strong>💊 Mi medicación</strong><span class="mh35-open-label">Abrir</span></summary>
+    <div class="mh35-med-body">
+      <div class="mh25-med-head"><p>Organiza tus tomas y confirma únicamente lo que hayas tomado.</p><button type="button" class="mh25-primary" id="mh25AddMed">＋ Añadir</button></div>
   <div class="mh25-info" id="mh25NotificationInfo">Los recordatorios dentro de Micro Health funcionan mientras la aplicación está abierta.</div>
   <div class="mh25-toolbar"><button type="button" id="mh25EnableNotices">🔔 Activar avisos del dispositivo</button><button type="button" id="mh25Export">↓ Copia de medicación</button><button type="button" id="mh25ImportBtn">↑ Restaurar medicación</button><input type="file" id="mh25ImportFile" accept=".json,application/json" hidden></div>
-  <div id="mh25Today"></div>
-  <h4 class="mh25-subhead">Mis medicamentos</h4><div id="mh25List"></div>
-  <section id="mh28Official" class="mh28-panel" aria-label="Información oficial de medicamentos">
-<h4>🔎 Información oficial de medicamentos</h4>
+  <details class="mh35-subsection"><summary>Tomas de hoy</summary><div id="mh25Today"></div></details>
+  <details class="mh35-subsection"><summary>Mis medicamentos</summary><div id="mh25List"></div></details>
+  <details id="mh28Official" class="mh28-panel mh35-subsection" aria-label="Información oficial de medicamentos">
+<summary>🔎 Información oficial de medicamentos</summary>
 <p class="mh25-muted">Consulta la AEMPS/CIMA por nombre y confirma el producto exacto. El botón de cada medicamento abre directamente la web oficial. La búsqueda integrada puede depender de la conexión del navegador.</p>
 <div class="mh28-search"><input id="mh28Query" placeholder="Nombre del medicamento" autocomplete="off" aria-label="Nombre del medicamento"><button type="button" id="mh28Search" class="mh25-primary">Buscar en CIMA</button></div>
 <div id="mh28Results" aria-live="polite"></div>
 <p class="mh28-warning">Información oficial, no análisis personalizado con IA. No se comprueban automáticamente las interacciones entre todos tus medicamentos. No modifiques dosis ni tratamientos sin consultar a tu médico o farmacéutico.</p>
-</section>
-<h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
+</details>
+<details class="mh35-subsection"><summary>Historial reciente</summary><div id="mh25History"></div></details>
   <p class="mh25-disclaimer">Esta agenda no modifica las pautas prescritas. Ante una dosis olvidada o dudas, consulta las instrucciones de tu profesional sanitario. Los avisos del dispositivo no están garantizados cuando la app está cerrada.</p>
   <section id="mh32Review" hidden class="mh32-review" aria-live="polite"><h4>✨ Análisis orientativo con IA</h4><p id="mh32ReviewStatus"></p><div id="mh32ReviewBody"></div><button type="button" id="mh32ReviewClose">Cerrar análisis</button><p class="mh25-muted">La IA puede equivocarse. Las interacciones y contraindicaciones requieren revisión profesional, especialmente antes de cambiar un tratamiento. No modifiques la medicación por este análisis.</p></section>
 <section id="mh30Wizard" class="mh30-wizard" hidden aria-label="Alta guiada de medicamento">
@@ -3714,6 +3717,8 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     <p class="mh25-muted">Después de guardar, añade los archivos desde la ficha del medicamento.</p></div>
     <div class="mh25-form-actions"><button type="submit" class="mh25-primary">Guardar medicamento</button><button type="button" id="mh25Cancel">Cancelar</button></div>
   </form>
+    </div>
+  </details>
 </div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
@@ -19099,6 +19104,20 @@ window.mh23TrainingJump=function(destination){
 #mh25-medication details[open] .mh34-med-hint::after{content:'Ocultar detalles';font-size:12px}
 #mh25-medication .mh34-med-content{padding:0 14px 14px;border-top:1px solid #e0e8e5}
 #mh25-medication .mh34-med-content>p{margin:12px 0}
+</style>
+<style id="mh35-all-collapsed-style">
+#mh25-medication .mh35-med-top{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:10px 3px;touch-action:manipulation}
+#mh25-medication .mh35-med-top::-webkit-details-marker,#mh25-medication .mh35-subsection>summary::-webkit-details-marker{display:none}
+#mh25-medication .mh35-med-top strong{font-size:17px}
+#mh25-medication .mh35-open-label{color:#167c70;font-size:13px;font-weight:700}
+#mh25-medication .mh35-med-section[open]>.mh35-med-top .mh35-open-label{font-size:0}
+#mh25-medication .mh35-med-section[open]>.mh35-med-top .mh35-open-label::after{content:'Cerrar';font-size:13px}
+#mh25-medication .mh35-med-body{padding-top:10px}
+#mh25-medication .mh35-subsection{margin:12px 0;padding:10px 12px;border:1px solid #dbe7e2;border-radius:12px}
+#mh25-medication .mh35-subsection>summary{cursor:pointer;font-size:15px;font-weight:700;padding:5px 0;list-style:none}
+#mh25-medication .mh35-subsection>summary::after{content:'⌄';float:right;color:#167c70}
+#mh25-medication .mh35-subsection[open]>summary::after{content:'⌃'}
+#mh25-medication .mh35-subsection[open]>summary{margin-bottom:12px}
 </style>
 <script id="mh25-medication-script">
 (function(){
