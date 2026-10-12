@@ -1,3 +1,5 @@
-Micro Health v22.3.09 — Informe semanal local con navegación por semanas, comparaciones, observaciones y sugerencias basadas en registros; guardar TXT o copiar.
-Incluye todas las mejoras anteriores. Conserva la clave miguel-evolucion-v4.
-Antes de actualizar, exporta la copia JSON y sube todos los archivos del ZIP a la raíz del repositorio GitHub. No borres datos ni reinstales. Cloudflare no cambia.
+Micro Health v22.3.10 — Corrección de visibilidad de «Mi informe semanal».
+
+La regla global section{display:none} ocultaba el informe por usar <section>. Se sustituye solo su etiqueta por <div>; los cálculos y los datos se mantienen intactos.
+
+Antes de publicar: exportar copia JSON. Sustituir todos los archivos del ZIP en la raíz de GitHub. No borrar datos del navegador ni reinstalar. Cloudflare no cambia.
