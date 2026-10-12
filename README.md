@@ -1,7 +1,7 @@
-Micro Health v22.3.11 — primera integración de interfaz 23.0 (opción B).
+Micro Health v22.3.12 · Fase 2 Entrenar
 
-Navegación de cinco destinos y accesos a las ocho pantallas originales; Inicio compacto reversible con botón Ver panel completo. Balance calórico aún sin cálculo (se informa, no se simula).
+Nuevo centro de accesos en Entrenar: Entrenar ahora, Mis rutinas, Historial y Golf; accesos secundarios a próxima rutina, resumen semanal y estadísticas de golf. Se conservan los formularios, datos y funciones originales.
 
-NO se cambia KEY miguel-evolucion-v4, lógica de datos, IndexedDB, entrenamientos, golf, mapas, Coach ni Cloudflare.
+No se modifica la clave localStorage miguel-evolucion-v4 ni IndexedDB. Antes de actualizar, exportar copia JSON. Las fotos de progreso en IndexedDB requieren respaldo separado.
 
-Antes de publicar exportar JSON y conservar versión anterior. Las fotos IndexedDB no van en el JSON. Probar en PC e iPhone.
+Descomprime y sube el contenido de esta carpeta a la raíz del repositorio de GitHub Pages.
