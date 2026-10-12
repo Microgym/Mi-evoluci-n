@@ -1,5 +1,11 @@
-Micro Health v22.3.16 — Mi día
+# Micro Health v22.3.17 — Mi día sin duplicados
 
-Se trasladan los componentes originales de Inicio (registro, hábitos, resumen del día y pauta del día) y la orientación nutricional original de Comidas a Mi día. Se conserva la lógica y almacenamiento existentes. No se crean datos ni se altera la clave miguel-evolucion-v4.
+Corrección de la v22.3.16:
+- Se mantienen únicamente los cinco botones rápidos de registro visibles.
+- Las tarjetas originales de pasos y sueño permanecen ocultas hasta pulsar el botón correspondiente. Se abre entonces el formulario real, con botón para cerrarlo.
+- El bloque de accesos rápidos antiguo sigue en el DOM (oculto) para no romper los contadores ni la lógica existente.
+- Se mantienen los bloques originales de hábitos, resumen, orientación nutricional y pauta, en ese orden.
+- Sin cambios en la clave de almacenamiento `miguel-evolucion-v4` ni en los datos.
 
-Antes de publicar, exportar JSON. Las fotos IndexedDB necesitan copia aparte. Subir el CONTENIDO del ZIP a GitHub, no el ZIP en sí.
+Antes de publicar: exportar copia JSON. Las fotos de IndexedDB requieren respaldo independiente.
+Subir el contenido del ZIP a GitHub, no el ZIP sin descomprimir.
