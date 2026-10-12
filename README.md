@@ -1,4 +1,4 @@
-Micro Health v22.3.07 — Sueño y recuperación + calendario de hábitos de 7 días.
-Sube todos los archivos del ZIP a la raíz del repositorio GitHub Pages.
-Antes exporta la copia JSON. No borres datos locales ni reinstales la app. Cloudflare no cambia.
-Conserva KEY miguel-evolucion-v4 y todas las funcionalidades anteriores.
+Micro Health v22.3.08 — Mi evolución: análisis de 7/30/90 días de sueño, pasos, actividad, peso, hábitos y energía.
+Incluye todas las mejoras anteriores (Mi día, sueño, recuperación, calendario, figuras anatómicas y foto de perfil).
+Antes de actualizar, exporta tu copia JSON. Sube todos los archivos a la raíz de GitHub Pages. No borres datos ni reinstales. Cloudflare no cambia.
+Se conserva la clave miguel-evolucion-v4.

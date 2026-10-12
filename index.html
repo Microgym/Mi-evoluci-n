@@ -3332,7 +3332,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .volume-figures{align-items:flex-start;gap:8px}
 .volume-figure small{margin-top:6px}
 
-/* v22.3.07 · Mi día y hábitos, respetando las tarjetas originales */
+/* v22.3.08 · Mi día y hábitos, respetando las tarjetas originales */
 .life-today{background:#eff6f4;border:1px solid #d9e9e4;border-radius:22px;padding:18px;margin:0 0 16px;color:#1c3e36}
 .life-today-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
 .life-eyebrow{font-size:10px;letter-spacing:1.7px;color:#397f6c;font-weight:800}
@@ -3360,7 +3360,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 @media(min-width:700px){.life-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v22.3.07 · Calendario semanal y recuperación */
+/* v22.3.08 · Calendario semanal y recuperación */
 .life-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:11px}
 .life-week-day{display:flex;align-items:center;flex-direction:column;gap:5px;min-width:0}
 .life-week-day small{font-size:10px;color:#6d837b}
@@ -3384,6 +3384,28 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .life-sleep-col em{font-style:normal;font-size:9px;color:#6d837b;white-space:nowrap}
 .life-recovery-note{margin-top:11px;font-size:11px;line-height:1.5;color:#536d61}
 .life-recovery-action{margin-top:10px;width:100%;background:#edf7f2!important;color:#17674f!important;border:1px solid #c8e5d7!important;border-radius:10px!important;padding:9px!important;font-size:12px!important;font-weight:700!important}
+
+
+/* v22.3.08 · evolución personal: sin bibliotecas externas */
+.life-trends{margin-top:14px;padding:17px 14px;border:1px solid #dceae6;border-radius:20px;background:#fff;color:#183d36}
+.life-trends-head h3{margin:0 0 4px;font-size:18px;line-height:1.3;color:#173e37}
+.life-trends-head p{margin:0 0 12px;color:#657a74;font-size:12px;line-height:1.5}
+.life-trends-ranges{display:flex;gap:6px;padding:4px;border-radius:12px;background:#edf5f2;margin-bottom:13px}
+.life-trends-ranges button{flex:1;border:0;background:transparent;border-radius:9px;padding:9px 4px;font-size:12px;font-weight:700;color:#547269;cursor:pointer}
+.life-trends-ranges button.active{background:#fff;color:#157b65;box-shadow:0 1px 5px #173e371c}
+.life-trends-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.life-trend-stat{min-width:0;padding:11px;border:1px solid #e2ece8;border-radius:13px;background:#fafdfb}
+.life-trend-stat small{display:block;font-size:11px;color:#607a70;margin-bottom:5px}
+.life-trend-stat b{display:block;font-size:19px;line-height:1.25;color:#1a5e50;overflow-wrap:anywhere}
+.life-trend-stat span{display:block;font-size:10px;line-height:1.45;color:#688077;margin-top:4px}
+.life-trends-chart{margin-top:12px;padding:12px;border:1px solid #e2ece8;border-radius:14px}
+.life-trends-chart h4{font-size:13px;margin:0 0 2px;color:#284c43}
+.life-trends-chart p{font-size:11px;margin:0 0 9px;color:#789087}
+.life-trends-chart svg{width:100%;height:auto;display:block;overflow:visible}
+.life-trends-chart .life-trend-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#688077;margin-top:6px}
+.life-trends-insights{display:grid;gap:7px;margin-top:11px}
+.life-trend-insight{font-size:12px;line-height:1.5;color:#48675c;background:#f1f7f4;padding:10px 11px;border-radius:11px}
+.life-trends-disclaimer{font-size:10px;line-height:1.5;color:#82948d;margin:10px 2px 0}
 
 </style>
 
@@ -3413,7 +3435,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 <main>
 <section id="inicio" class="active" data-home-mockup="true">
 
-<!-- Micro Health 22.3.07 · resumen de estilo de vida, sin datos simulados -->
+<!-- Micro Health 22.3.08 · resumen de estilo de vida, sin datos simulados -->
 <div class="life-today" aria-label="Mi día">
   <div class="life-today-head"><div><span class="life-eyebrow">TU ESTILO DE VIDA</span><h2>Mi día</h2><p id="lifeTodaySubtitle">Tu actividad de hoy, en un vistazo</p></div><div class="life-today-mark" aria-hidden="true">♥</div></div>
   <div class="life-quick-grid">
@@ -3434,6 +3456,18 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
     <div class="life-sleep-bars" id="lifeSleepBars"></div>
     <div class="life-recovery-note" id="lifeRecoveryNote">Añade sueño para empezar a ver tendencias.</div>
     <button type="button" class="life-recovery-action" onclick="toggleHomeSleepEditor();document.getElementById('homeSleepEditor')?.scrollIntoView({behavior:'smooth',block:'center'})">Registrar sueño y energía ›</button>
+  </div>
+  <div class="life-trends" aria-label="Mi evolución y hábitos">
+    <div class="life-trends-head"><div><h3>📈 Mi evolución</h3><p>Cómo cambian tus registros y tus hábitos a lo largo del tiempo.</p></div></div>
+    <div class="life-trends-ranges" role="group" aria-label="Periodo de evolución">
+      <button type="button" data-trend-days="7" onclick="setLifeTrendsRange(7)">7 días</button>
+      <button type="button" data-trend-days="30" onclick="setLifeTrendsRange(30)">30 días</button>
+      <button type="button" data-trend-days="90" onclick="setLifeTrendsRange(90)">90 días</button>
+    </div>
+    <div id="lifeTrendsSummary" class="life-trends-summary" aria-live="polite"></div>
+    <div id="lifeTrendsChart" class="life-trends-chart"></div>
+    <div id="lifeTrendsInsights" class="life-trends-insights"></div>
+    <p class="life-trends-disclaimer">Solo se usan registros guardados. Las medias excluyen los días sin datos. Las comparaciones son descriptivas, no una evaluación médica.</p>
   </div>
 </div>
 
@@ -6809,7 +6843,7 @@ async function runCoachAnalysis(focus='week'){
 
 
 
-// v22.3.07 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
+// v22.3.08 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
 const LIFE_HABITS=[['movilidad','🧘','Un poco de movilidad'],['aireLibre','🌿','Salir al aire libre'],['pausa','☀️','Dedicarme una pausa']];
 function toggleLifeHabit(id){
   if(!LIFE_HABITS.some(h=>h[0]===id))return;
@@ -6820,6 +6854,7 @@ function toggleLifeHabit(id){
   db.habitsDaily[d]=row;
   localStorage.setItem(KEY,JSON.stringify(db));
   renderLifestyleToday();
+  renderLifeTrends();
 }
 function renderLifestyleToday(){
   if(!document.getElementById('lifeHabitsItems'))return;
@@ -6870,6 +6905,104 @@ function renderLifestyleToday(){
   renderLifeRecovery();
 }
 
+
+
+// v22.3.08 · análisis descriptivo con datos reales, sin crear nuevos registros.
+let lifeTrendsDays=30;
+function setLifeTrendsRange(days){
+  if(![7,30,90].includes(Number(days)))return;
+  lifeTrendsDays=Number(days);
+  renderLifeTrends();
+}
+function lifeTrendsRows(days,offset=0){
+  const end=addIsoDays(today(),-offset);
+  return Array.from({length:days},(_,i)=>addIsoDays(end,i-(days-1)));
+}
+function lifeTrendValid(value,min=0,max=Infinity){
+  if(value===null||value===undefined||value==='')return null;
+  const n=Number(value);return Number.isFinite(n)&&n>=min&&n<=max?n:null;
+}
+function lifeTrendAverage(rows,extract){
+  const nums=rows.map(extract).filter(n=>n!==null);
+  return {value:nums.length?nums.reduce((a,b)=>a+b,0)/nums.length:null,count:nums.length};
+}
+function lifeTrendTrainingDays(rows){
+  const dates=new Set(rows);
+  return new Set((db.entreno||[]).filter(r=>r&&!r.esResumenRutina&&dates.has(storedDateISO(r.fecha))).map(r=>storedDateISO(r.fecha))).size;
+}
+function lifeTrendWeight(rows){
+  const dates=new Set(rows);
+  const entries=(db.peso||[]).filter(r=>dates.has(storedDateISO(r.fecha))&&lifeTrendValid(r.peso,1,500)!==null).slice().sort((a,b)=>storedDateISO(a.fecha).localeCompare(storedDateISO(b.fecha)));
+  return entries.length>=2?{delta:Number(entries.at(-1).peso)-Number(entries[0].peso),count:entries.length}:null;
+}
+function lifeTrendHabitDays(rows){
+  let recorded=0,full=0;
+  rows.forEach(d=>{
+    const r=db.habitsDaily?.[d];
+    if(r&&LIFE_HABITS.some(h=>r[h[0]]!==undefined)){
+      recorded++;
+      if(LIFE_HABITS.every(h=>r[h[0]]===true))full++;
+    }
+  });
+  return {recorded,full};
+}
+function lifeTrendMetric(rows){
+  return {
+    sleep:lifeTrendAverage(rows,d=>lifeTrendValid(db.sleepDaily?.[d]?.hours,0,24)),
+    steps:lifeTrendAverage(rows,d=>lifeTrendValid(db.stepsDaily?.[d]?.steps,0,1000000)),
+    energy:lifeTrendAverage(rows,d=>lifeTrendValid(db.sleepDaily?.[d]?.energy,1,5)),
+    training:lifeTrendTrainingDays(rows),weight:lifeTrendWeight(rows),habits:lifeTrendHabitDays(rows)
+  };
+}
+function lifeTrendFmt(value,dec=1){return value===null?'—':Number(value).toLocaleString('es-ES',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+function lifeTrendCompare(a,b,unit,dec=1){
+  if(a===null||b===null)return 'Sin datos suficientes para comparar';
+  const delta=a-b;
+  return `${delta>0?'+':''}${lifeTrendFmt(delta,dec)} ${unit} respecto al periodo anterior`;
+}
+function renderLifeTrends(){
+  const summary=document.getElementById('lifeTrendsSummary');
+  const chart=document.getElementById('lifeTrendsChart');
+  const insights=document.getElementById('lifeTrendsInsights');
+  if(!summary||!chart||!insights)return;
+  const days=lifeTrendsDays;
+  document.querySelectorAll('[data-trend-days]').forEach(b=>{
+    const active=Number(b.dataset.trendDays)===days;
+    b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
+  });
+  const rows=lifeTrendsRows(days),prevRows=lifeTrendsRows(days,days);
+  const m=lifeTrendMetric(rows),prev=lifeTrendMetric(prevRows);
+  const stat=(label,value,detail)=>`<div class="life-trend-stat"><small>${label}</small><b>${value}</b><span>${detail}</span></div>`;
+  summary.innerHTML=[
+    stat('🌙 Sueño medio',m.sleep.value===null?'—':formatSleepHours(m.sleep.value),m.sleep.count?`${m.sleep.count} noches · ${lifeTrendCompare(m.sleep.value,prev.sleep.value,'h')}`:'Sin noches registradas'),
+    stat('🚶 Pasos medios',m.steps.value===null?'—':Math.round(m.steps.value).toLocaleString('es-ES'),m.steps.count?`${m.steps.count} días · ${lifeTrendCompare(m.steps.value,prev.steps.value,'pasos',0)}`:'Sin pasos registrados'),
+    stat('🏋️ Días de actividad',`${m.training} / ${days}`,`${lifeTrendCompare(m.training,prev.training,'días',0)}`),
+    stat('⚖️ Cambio de peso',m.weight?`${m.weight.delta>0?'+':''}${lifeTrendFmt(m.weight.delta)} kg`:'—',m.weight?`${m.weight.count} mediciones del periodo`:'Necesita 2 mediciones en el periodo'),
+    stat('🌿 Hábitos completos',`${m.habits.full} días`,`${m.habits.recorded} días con hábitos registrados de ${days}`),
+    stat('☀️ Energía media',m.energy.value===null?'—':`${lifeTrendFmt(m.energy.value)}/5`,m.energy.count?`${m.energy.count} valoraciones al despertar`:'Sin valoraciones registradas')
+  ].join('');
+  // Gráfico del peso: solo puntos registrados, nunca se interpolan días sin medición.
+  const dateSet=new Set(rows);
+  const points=(db.peso||[]).filter(r=>dateSet.has(storedDateISO(r.fecha))&&lifeTrendValid(r.peso,1,500)!==null)
+    .slice().sort((a,b)=>storedDateISO(a.fecha).localeCompare(storedDateISO(b.fecha)));
+  if(points.length<2){
+    chart.innerHTML='<h4>Tu tendencia de peso</h4><p>Necesitamos al menos dos mediciones en el periodo para dibujar la evolución.</p>';
+  }else{
+    const min=Math.min(...points.map(p=>Number(p.peso))),max=Math.max(...points.map(p=>Number(p.peso)));
+    const lo=min===max?min-0.5:min-0.4,hi=min===max?max+0.5:max+0.4;
+    const start=rows[0],end=rows.at(-1);
+    const dayIdx=d=>Math.round((new Date(d+'T12:00:00')-new Date(start+'T12:00:00'))/86400000);
+    const coords=points.map(p=>({x:24+dayIdx(storedDateISO(p.fecha))/(days-1)*272,y:93-(Number(p.peso)-lo)/(hi-lo)*70}));
+    const path=coords.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    chart.innerHTML=`<h4>Tu tendencia de peso</h4><p>${points.length} mediciones · ${fechaES(start)} a ${fechaES(end)}</p><svg viewBox="0 0 320 119" role="img" aria-label="Evolución del peso, desde ${lifeTrendFmt(Number(points[0].peso))} hasta ${lifeTrendFmt(Number(points.at(-1).peso))} kilogramos"><line x1="24" y1="94" x2="296" y2="94" stroke="#e3eee9"/><line x1="24" y1="22" x2="296" y2="22" stroke="#e3eee9"/><text x="0" y="25" font-size="10" fill="#70867b">${lifeTrendFmt(hi)}</text><text x="0" y="96" font-size="10" fill="#70867b">${lifeTrendFmt(lo)}</text><path d="${path}" fill="none" stroke="#16846c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${coords.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#16846c"/>`).join('')}<text x="24" y="112" font-size="10" fill="#70867b">${fechaES(start)}</text><text x="296" y="112" font-size="10" text-anchor="end" fill="#70867b">${fechaES(end)}</text></svg><div class="life-trend-legend">● Peso registrado · no se rellenan días sin datos</div>`;
+  }
+  const messages=[];
+  if(m.sleep.count>=3)messages.push(`🌙 Has registrado ${m.sleep.count} noches, con una media de ${formatSleepHours(m.sleep.value)}.`);
+  if(m.steps.count>=3)messages.push(`🚶 Tu media de movimiento es de ${Math.round(m.steps.value).toLocaleString('es-ES')} pasos en los ${m.steps.count} días registrados.`);
+  if(m.habits.recorded)messages.push(`🌿 Completaste los tres hábitos ${m.habits.full} de los ${m.habits.recorded} días en que los registraste.`);
+  if(!messages.length)messages.push('Empieza a registrar sueño, pasos o hábitos para obtener observaciones basadas en tus datos.');
+  insights.innerHTML=messages.map(msg=>`<div class="life-trend-insight">${msg}</div>`).join('');
+}
 
 function renderLifeRecovery(){
   const host=document.getElementById('lifeSleepBars');
@@ -16648,7 +16781,7 @@ function render(){
  }
  renderMilestones(last);
  chart('chartCintura',[{data:db.peso.filter(x=>x.cintura!=null).map(x=>({fecha:x.fecha,v:x.cintura}))}],{dec:1});
- renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayReview();renderRegisteredMeals();renderDayTimeline();renderHealthAlerts();renderHomeMockupExtras();renderLifestyleToday();try{renderHealthMockup();}catch(e){}try{renderTrainingEvolutionMockup();}catch(e){}try{renderDataMockup();}catch(e){}
+ renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayReview();renderRegisteredMeals();renderDayTimeline();renderHealthAlerts();renderHomeMockupExtras();renderLifestyleToday();renderLifeTrends();try{renderHealthMockup();}catch(e){}try{renderTrainingEvolutionMockup();}catch(e){}try{renderDataMockup();}catch(e){}
  if(db.peso.length>1){
  let a=db.peso[0],b=last;
  const fmt=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
