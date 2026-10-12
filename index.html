@@ -19088,7 +19088,19 @@ window.mh23TrainingJump=function(destination){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })();
-</script><script id="mh25-medication-script">
+</script><style id="mh34-medication-collapsible-style">
+#mh25-medication details.mh34-med-collapsible{padding:0;overflow:hidden}
+#mh25-medication .mh34-med-summary{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:13px 14px;cursor:pointer;list-style:none;touch-action:manipulation}
+#mh25-medication .mh34-med-summary::-webkit-details-marker{display:none}
+#mh25-medication .mh34-med-summary strong{flex:1 1 160px;font-size:15px}
+#mh25-medication .mh34-med-time{font-size:13px;color:#52625d}
+#mh25-medication .mh34-med-hint{font-size:12px;color:#14665c;white-space:nowrap}
+#mh25-medication details[open] .mh34-med-hint{font-size:0}
+#mh25-medication details[open] .mh34-med-hint::after{content:'Ocultar detalles';font-size:12px}
+#mh25-medication .mh34-med-content{padding:0 14px 14px;border-top:1px solid #e0e8e5}
+#mh25-medication .mh34-med-content>p{margin:12px 0}
+</style>
+<script id="mh25-medication-script">
 (function(){
 'use strict';
 const KEY='micro-health-medicacion-v1';
@@ -19153,15 +19165,23 @@ function render(){
  const list=$('mh25List');list.replaceChildren();
  if(!db.medications.length)list.append(el('p','Todavía no has añadido medicamentos.','mh25-empty'));
  for(const m of db.medications.slice().sort((a,b)=>Number(!!b.favorite)-Number(!!a.favorite)||m.name.localeCompare(b.name,'es')||timesOf(a)[0].localeCompare(timesOf(b)[0]))){
-  const box=el('div',undefined,'mh25-item');
-  box.append(el('strong',(m.favorite?'⭐ ':'')+medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
+  const box=el('details',undefined,'mh25-item mh34-med-collapsible');
+  const header=el('summary',undefined,'mh34-med-summary');
+  const title=el('strong',(m.favorite?'⭐ ':'')+medLabel(m));
+  const schedule=el('span',timesOf(m).join(' · '),'mh34-med-time');
+  const hint=el('span','Ver detalles','mh34-med-hint');
+  header.append(title,schedule,hint);
+  box.append(header);
+  const content=el('div',undefined,'mh34-med-content');
+  content.append(el('p',(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
+  if(m.notes)content.append(el('p',m.notes,'mh25-muted'));
   const actions=el('div',undefined,'mh25-actions');
   actions.append(button(m.favorite?'★ Quitar favorito':'☆ Guardar favorito',()=>{m.favorite=!m.favorite;if(persist())render()}));
   actions.append(button('Editar',()=>openForm(m)));
   actions.append(button('🔎 Consultar en AEMPS',()=>window.mh29OpenCima(m.name)));
   actions.append(button('✨ Análisis con IA',()=>window.mh32AnalyzeMed(m)));
   actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
-  box.append(actions);list.append(box);renderDocs(m.id,box);
+  content.append(actions);box.append(content);list.append(box);renderDocs(m.id,content);
  }
  const history=$('mh25History');history.replaceChildren();
  const entries=db.events.slice().sort((a,b)=>b.at.localeCompare(a.at)).slice(0,30);
