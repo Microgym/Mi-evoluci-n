@@ -3631,7 +3631,23 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh30Wizard .mh30-options{display:flex;gap:8px;flex-wrap:wrap}#mh30Wizard .mh30-options button{flex:1 1 120px}
 #mh30Preview img{max-width:100%;max-height:220px;border-radius:12px;object-fit:contain;display:block;margin-bottom:8px}
 #mh30DraftFields{white-space:pre-line;font-size:13px;line-height:1.65}
-</style><style id="mh32-style">#mh32Review{border:1px solid #c9ddd6;background:#f6faf8;border-radius:14px;padding:14px;margin:12px 0}#mh32Review[hidden]{display:none!important}#mh32Review h4,#mh32Review h5{margin:10px 0 5px}#mh32Review li{margin:5px 0}#mh32Review button{padding:10px;border:1px solid #9ac7b7;border-radius:10px;background:white;color:#145a4b}</style></head>
+</style><style id="mh32-style">#mh32Review{border:1px solid #c9ddd6;background:#f6faf8;border-radius:14px;padding:14px;margin:12px 0}#mh32Review[hidden]{display:none!important}#mh32Review h4,#mh32Review h5{margin:10px 0 5px}#mh32Review li{margin:5px 0}#mh32Review button{padding:10px;border:1px solid #9ac7b7;border-radius:10px;background:white;color:#145a4b}</style>
+<style id="mh40-backup-style">
+.mh40-backup-panel{border:1px solid #b4d4cf;border-radius:14px;margin:12px 0;background:#f4faf8;overflow:hidden}
+.mh40-backup-panel>summary{padding:15px 14px;cursor:pointer;font-size:15px;line-height:1.35;font-weight:750;color:#11564e;list-style:none}
+.mh40-backup-panel>summary::-webkit-details-marker{display:none}
+.mh40-backup-panel>summary::after{content:'⌄';float:right}
+.mh40-backup-panel[open]>summary::after{content:'⌃'}
+.mh40-backup-body{border-top:1px solid #cde3dc;padding:13px 14px}
+.mh40-backup-body>p{margin:0 0 13px;font-size:13px;line-height:1.6;color:#324b47}
+.mh40-backup-status{background:white;border:1px solid #dae9e5;border-radius:10px;white-space:pre-line;padding:12px;font-size:13px;line-height:1.6;color:#234c46;margin:0 0 12px}
+.mh40-backup-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.mh40-backup-actions button{cursor:pointer;border:1px solid #a8c7bf;background:white;border-radius:10px;padding:12px 13px;color:#185347;font-weight:700;font-size:13px;min-height:44px}
+.mh40-backup-actions .primary-small{background:#126e60;color:white;border-color:#126e60}
+.mh40-backup-actions button:disabled{opacity:.55;cursor:wait}
+.mh40-backup-body>.mh40-backup-note{font-size:12px;margin-bottom:0}
+</style>
+</head>
 <body>
 <header class="mh-topbar">
   <div class="header-wrap">
@@ -4826,7 +4842,22 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     <div class="pdf-report-note">El PDF incluye resumen del periodo, gráficos de evolución corporal con los umbrales de referencia de tu báscula, nutrición media, frecuencia de entrenamiento, evolución de fuerza, distribución muscular y próximos hitos. No incluye el detalle de cada entrenamiento.</div>
     <div id="pdfReportStatus" class="pdf-report-status"></div>
   </div>
-  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 0 1 .5-8A6 6 0 0 1 19 11a3 3 0 0 1-1 6H7Z"></path></svg></span><div><h3>Sincronización y copias de seguridad</h3><p>Gestiona tus datos</p></div></div></div><div class="data-actions3"><div class="data-action-button" onclick="exportData()"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m8 7 4-4 4 4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Exportar JSON</b><small>Descargar datos</small></div></div><div class="data-action-button" onclick="document.getElementById('importFile').click()"><span class="mock-icon blue"><svg viewBox="0 0 24 24"><path d="M12 15V3"></path><path d="m8 11 4 4 4-4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Importar JSON</b><small>Cargar datos</small></div></div><div class="data-action-button" onclick="document.getElementById('syncConfig')?.toggleAttribute('open')"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M20 7h-5V2"></path><path d="M20 7a8 8 0 1 0 1 7"></path></svg></span><div><b>Sincronizar</b><small id="dataSyncSummary">No configurado</small></div></div></div><input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"><details id="syncConfig" class="data-edit-details"><summary>Configurar sincronización PC ↔ iPhone</summary><div class="data-edit-body" id="syncCard"><label>URL del Worker de sincronización</label><input id="syncBackendUrl" type="url" placeholder="https://mi-evolucion-sync....workers.dev"><div class="sync-grid"><div><label>Código</label><input id="syncCode"></div><div><label>PIN</label><input id="syncPin" type="password"></div></div><div class="sync-actions"><button class="primary-small" onclick="saveSyncConnection()">Guardar conexión</button><button class="set-add" onclick="generateSyncCode()">Generar código</button><button class="set-add" onclick="testSyncBackend()">Probar conexión</button></div><div class="sync-actions"><button class="secondary" onclick="uploadSyncCopy()">⬆️ Subir copia</button><button class="secondary" onclick="downloadSyncCopy()">⬇️ Descargar copia</button><button id="restoreSyncBackupBtn" class="set-add" onclick="restorePreSyncBackup()" style="display:none">↩️ Restaurar copia anterior</button></div><div class="sync-meta"><div><small>Última subida</small><b id="syncLastUpload">—</b></div><div><small>Última descarga</small><b id="syncLastDownload">—</b></div></div><div id="syncStatus" class="sync-status">Configura la URL del Worker, un código y un PIN.</div></div></details></div>
+  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 0 1 .5-8A6 6 0 0 1 19 11a3 3 0 0 1-1 6H7Z"></path></svg></span><div><h3>Sincronización y copias de seguridad</h3><p>Gestiona tus datos</p></div></div></div>
+<details class="mh40-backup-panel" id="mh40BackupPanel">
+  <summary>🛡️ Copia de seguridad completa (incluye fotos y documentos)</summary>
+  <div class="mh40-backup-body">
+    <p>El JSON general y la sincronización actual <strong>no incluyen</strong> todas las fotos y documentos. Usa esta copia completa para guardar juntos los cuatro tipos de datos.</p>
+    <div id="mh40BackupStatus" class="mh40-backup-status" role="status" aria-live="polite">Pulsa «Comprobar datos» para revisar qué está guardado en este dispositivo.</div>
+    <div class="mh40-backup-actions">
+      <button type="button" id="mh40Check">🔍 Comprobar datos</button>
+      <button type="button" id="mh40Export" class="primary-small">⬇️ Crear copia completa</button>
+      <button type="button" id="mh40ImportBtn">⬆️ Restaurar copia completa</button>
+    </div>
+    <input id="mh40ImportFile" type="file" accept=".json,application/json" hidden>
+    <p class="mh40-backup-note">Guarda el archivo en «Archivos» o fuera del iPhone y verifica que existe. Contiene información privada de salud, fotos y documentos: <strong>no lo subas a GitHub ni lo compartas públicamente</strong>. La restauración requiere tu confirmación y no borra otras fotos o documentos ya guardados.</p>
+  </div>
+</details>
+<div class="data-actions3"><div class="data-action-button" onclick="exportData()"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m8 7 4-4 4 4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Exportar JSON</b><small>Solo datos generales (sin fotos ni medicación)</small></div></div><div class="data-action-button" onclick="document.getElementById('importFile').click()"><span class="mock-icon blue"><svg viewBox="0 0 24 24"><path d="M12 15V3"></path><path d="m8 11 4 4 4-4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Importar JSON</b><small>Solo datos generales</small></div></div><div class="data-action-button" onclick="document.getElementById('syncConfig')?.toggleAttribute('open')"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M20 7h-5V2"></path><path d="M20 7a8 8 0 1 0 1 7"></path></svg></span><div><b>Sincronizar</b><small id="dataSyncSummary">No configurado</small></div></div></div><input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"><details id="syncConfig" class="data-edit-details"><summary>Configurar sincronización PC ↔ iPhone</summary><div class="data-edit-body" id="syncCard"><label>URL del Worker de sincronización</label><input id="syncBackendUrl" type="url" placeholder="https://mi-evolucion-sync....workers.dev"><div class="sync-grid"><div><label>Código</label><input id="syncCode"></div><div><label>PIN</label><input id="syncPin" type="password"></div></div><div class="sync-actions"><button class="primary-small" onclick="saveSyncConnection()">Guardar conexión</button><button class="set-add" onclick="generateSyncCode()">Generar código</button><button class="set-add" onclick="testSyncBackend()">Probar conexión</button></div><div class="sync-actions"><button class="secondary" onclick="uploadSyncCopy()">⬆️ Subir copia</button><button class="secondary" onclick="downloadSyncCopy()">⬇️ Descargar copia</button><button id="restoreSyncBackupBtn" class="set-add" onclick="restorePreSyncBackup()" style="display:none">↩️ Restaurar copia anterior</button></div><div class="sync-meta"><div><small>Última subida</small><b id="syncLastUpload">—</b></div><div><small>Última descarga</small><b id="syncLastDownload">—</b></div></div><div id="syncStatus" class="sync-status">Configura la URL del Worker, un código y un PIN.</div></div></details></div>
 
   <div class="mock-panel reset-data-panel">
     <div class="mock-panel-head"><div class="mock-panel-title">
@@ -4835,7 +4866,7 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     </div></div>
     <div class="reset-data-warning"><b>Borrado completo del dispositivo</b><span>Elimina perfil, peso, comidas, entrenamientos, rutinas, pasos, sueño, ajustes locales y fotos de progreso. No borra una copia que ya hayas subido a un Worker de sincronización.</span></div>
     <div class="reset-data-actions">
-      <button type="button" class="set-add" onclick="exportData()">Exportar JSON antes</button>
+      <button type="button" class="set-add" onclick="document.getElementById('mh40BackupPanel').open=true;document.getElementById('mh40Export').click()">Crear copia completa antes</button>
       <button type="button" class="reset-data-button" onclick="resetMicroHealthData()">Borrar todo y empezar de cero</button>
     </div>
     <small class="muted">Para evitar borrados accidentales tendrás que confirmar y escribir <b>BORRAR</b>.</small>
@@ -17890,7 +17921,7 @@ async function clearProgressPhotosForReset(){
 async function resetMicroHealthData(){
   const first=confirm(
     'Esto borrará TODOS los datos de Micro Health guardados en este dispositivo: perfil, peso, comidas, entrenamientos, rutinas, pasos, sueño, ajustes y fotos de progreso.\n\n' +
-    'Esta acción no se puede deshacer desde la app. Si quieres conservar una copia, pulsa Cancelar y usa “Exportar JSON antes”.\n\n' +
+    'Esta acción no se puede deshacer desde la app. Si quieres conservar una copia, pulsa Cancelar y usa “Copia de seguridad completa”.\n\n' +
     '¿Quieres continuar?'
   );
   if(!first)return;
@@ -19712,6 +19743,145 @@ window.mh32AnalyzeMed=async function(m){
  finally{clearTimeout(timeout)}
 };
 $('mh32ReviewClose').addEventListener('click',()=>{root.hidden=true;$('mh32ReviewBody').replaceChildren()});
+})();
+</script>
+<script id="mh40-backup-script">
+(()=>{
+'use strict';
+const MAIN_KEY='miguel-evolucion-v4';
+const MED_KEY='micro-health-medicacion-v1';
+const PDB='mi-evolucion-progress-photos', PSTORE='photos';
+const DDB='micro-health-medication-files-v1', DSTORE='files';
+const $=id=>document.getElementById(id);
+const status=$('mh40BackupStatus'), check=$('mh40Check'), exportBtn=$('mh40Export'), importBtn=$('mh40ImportBtn'),fileInput=$('mh40ImportFile');
+if(!status||!check||!exportBtn||!importBtn||!fileInput)return;
+const setStatus=s=>{status.textContent=s};
+const getStorage=(key)=>{try{return localStorage.getItem(key)}catch(e){throw Error('No se puede acceder al almacenamiento: '+e.message)}};
+const safeParse=(raw,desc)=>{if(raw===null)return null;try{return JSON.parse(raw)}catch(e){throw Error('Los datos de '+desc+' no tienen formato JSON válido. No se ha exportado una copia incompleta.')}};
+const openDb=(name,store,progress)=>new Promise((resolve,reject)=>{
+ if(!window.indexedDB){reject(Error('Este navegador no permite acceder a las fotos y documentos de IndexedDB.'));return}
+ const req=indexedDB.open(name,1);
+ req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(store)){
+   if(progress){const st=req.result.createObjectStore(store,{keyPath:'id',autoIncrement:true});st.createIndex('fecha','fecha')}
+   else req.result.createObjectStore(store,{keyPath:'id'});
+ }};
+ req.onsuccess=()=>resolve(req.result);
+ req.onerror=()=>reject(req.error||Error('No se puede abrir '+name));
+ req.onblocked=()=>reject(Error('Cierra otras pestañas de Micro Health y vuelve a intentarlo.'));
+});
+const readStore=async(name,store,progress,justCount=false)=>{
+ const d=await openDb(name,store,progress);
+ try{return await new Promise((resolve,reject)=>{
+  const t=d.transaction(store,'readonly');const r=justCount?t.objectStore(store).count():t.objectStore(store).getAll();
+  r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||Error('Error al leer '+name));
+  t.onabort=()=>reject(t.error||Error('Lectura interrumpida de '+name));
+ })}finally{d.close()}
+};
+const writeStore=async(name,store,progress,rows)=>{
+ if(!rows.length)return;
+ const d=await openDb(name,store,progress);
+ try{await new Promise((resolve,reject)=>{
+  const t=d.transaction(store,'readwrite'),st=t.objectStore(store);
+  for(const x of rows)st.put(x);
+  t.oncomplete=()=>resolve();
+  t.onerror=()=>reject(t.error||Error('No se han guardado los archivos de '+name));
+  t.onabort=()=>reject(t.error||Error('Guardado cancelado en '+name));
+ })}finally{d.close()}
+};
+const blobToData=(blob)=>new Promise((resolve,reject)=>{
+ const reader=new FileReader();reader.onload=()=>resolve(reader.result);
+ reader.onerror=()=>reject(reader.error||Error('No se pudo leer un archivo adjunto'));
+ reader.readAsDataURL(blob)
+});
+const encodeRows=async(rows,description)=>{
+ const out=[];
+ for(let i=0;i<rows.length;i++){
+  const x=rows[i];if(!(x.blob instanceof Blob))throw Error(description+' '+(i+1)+' no tiene un archivo válido.');
+  const {blob,...rest}=x;
+  out.push({...rest,data:await blobToData(blob)});
+ }
+ return out;
+};
+const decodeRows=async(rows,description)=>{
+ if(!Array.isArray(rows)||rows.length>20000)throw Error('Listado incorrecto: '+description);
+ const out=[];
+ for(let i=0;i<rows.length;i++){
+  const item=rows[i];
+  if(!item||typeof item!=='object'||!(typeof item.id==='string'||Number.isSafeInteger(item.id))||typeof item.data!=='string'||!/^data:[^,]*;base64,/i.test(item.data))throw Error('Archivo inválido en '+description+' ('+(i+1)+')');
+  const {data,...rest}=item;
+  const blob=await (await fetch(data)).blob();
+  out.push({...rest,blob});
+ }
+ return out;
+};
+const download=(blob,name)=>{
+ const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
+};
+async function review(){
+ const main=safeParse(getStorage(MAIN_KEY),'datos generales');
+ const med=safeParse(getStorage(MED_KEY),'medicación');
+ const [photos,docs]=await Promise.all([readStore(PDB,PSTORE,true,true),readStore(DDB,DSTORE,false,true)]);
+ const saved=localStorage.getItem('mh40-full-backup-generated-v1');
+ return {main,med,photos,docs,saved};
+}
+check.addEventListener('click',async()=>{
+ check.disabled=true;setStatus('Comprobando los cuatro almacenamientos…');
+ try{
+  const r=await review();
+  setStatus('Datos generales: '+(r.main?'disponibles':'sin registros')+'\nMedicación: '+(r.med&&Array.isArray(r.med.medications)?r.med.medications.length+' medicamentos':'sin registros')+'\nFotos de progreso: '+r.photos+'\nDocumentos de medicación: '+r.docs+'\nÚltima copia completa preparada: '+(r.saved?new Date(r.saved).toLocaleString('es-ES'):'no consta')+'\n\nLa fecha solo indica que se preparó la descarga; comprueba que el archivo está guardado fuera de la app.');
+ }catch(e){setStatus('⚠️ No se ha podido comprobar todo: '+e.message)}finally{check.disabled=false}
+});
+exportBtn.addEventListener('click',async()=>{
+ exportBtn.disabled=true;setStatus('Preparando copia de registros, fotos y documentos… No cierres la aplicación.');
+ try{
+  const main=safeParse(getStorage(MAIN_KEY),'datos generales');
+  const medication=safeParse(getStorage(MED_KEY),'medicación')||{version:1,medications:[],events:[]};
+  if(!main)throw Error('Aún no hay datos generales guardados.');
+  if(!Array.isArray(medication.medications)||!Array.isArray(medication.events))throw Error('La agenda de medicación está incompleta.');
+  const [photoRows,docRows]=await Promise.all([readStore(PDB,PSTORE,true),readStore(DDB,DSTORE,false)]);
+  const totalMB=[...photoRows,...docRows].reduce((n,x)=>n+(x.blob instanceof Blob?x.blob.size:0),0)/1048576;
+  if(totalMB>100&&!confirm('Las fotos y documentos ocupan alrededor de '+totalMB.toFixed(0)+' MB. El archivo completo puede ser grande y el iPhone necesitará memoria adicional. ¿Intentar exportarlo?'))return;
+  const photos=await encodeRows(photoRows,'Foto');
+  const documents=await encodeRows(docRows,'Documento');
+  const payload={app:'Micro Health',type:'micro-health-full-backup',format:1,exportedAt:new Date().toISOString(),general:main,medication,progressPhotos:photos,medicationDocuments:documents};
+  const file=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  const day=new Date().toISOString().slice(0,10);
+  download(file,'MicroHealth_Copia_Completa_'+day+'.json');
+  try{localStorage.setItem('mh40-full-backup-generated-v1',payload.exportedAt)}catch(_){}
+  setStatus('✓ Descarga preparada: '+(file.size/1048576).toFixed(1)+' MB\nIncluye: datos generales, '+medication.medications.length+' medicamentos, '+photos.length+' fotos y '+documents.length+' documentos.\nIMPORTANTE: confirma que el archivo está realmente guardado en «Archivos» o en otra ubicación segura.');
+ }catch(e){setStatus('⚠️ No se pudo preparar una copia completa: '+e.message+'\nNo se ha cambiado ningún dato.')}finally{exportBtn.disabled=false}
+});
+importBtn.addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',async()=>{
+ const f=fileInput.files&&fileInput.files[0];if(!f)return;
+ importBtn.disabled=true;
+ try{
+  if(f.size>400*1048576)throw Error('La copia supera 400 MB. Utiliza un dispositivo con más memoria o conserva el archivo para una restauración asistida.');
+  setStatus('Comprobando formato y archivos de la copia antes de modificar nada…');
+  const b=JSON.parse((await f.text()).replace(/^\uFEFF/,''));
+  if(b.type!=='micro-health-full-backup'||b.format!==1||!b.general||typeof b.general!=='object'||Array.isArray(b.general)||!b.medication||!Array.isArray(b.medication.medications)||!Array.isArray(b.medication.events))throw Error('No es una copia completa válida de Micro Health.');
+  if(!Array.isArray(b.progressPhotos)||!Array.isArray(b.medicationDocuments))throw Error('A la copia le faltan fotos o documentos, aunque las listas estén vacías.');
+  const [photos,docs]=await Promise.all([decodeRows(b.progressPhotos,'fotos'),decodeRows(b.medicationDocuments,'documentos')]);
+  if(!confirm('¿Restaurar esta copia completa del '+(b.exportedAt||'fecha no indicada')+'?\n\nSUSTITUIRÁ tus datos generales y agenda actuales. Añadirá o actualizará las fotos y documentos de la copia, sin borrar otros archivos.\n\nSi tienes registros más recientes, exporta una copia antes de continuar.'))return;
+  setStatus('Guardando fotos y documentos… No cierres la aplicación.');
+  // File writes are transactional per store; the main localStorage keys are committed last.
+  await writeStore(PDB,PSTORE,true,photos);
+  await writeStore(DDB,DSTORE,false,docs);
+  const oldGeneral=getStorage(MAIN_KEY),oldMedication=getStorage(MED_KEY);
+  try{
+   localStorage.setItem(MAIN_KEY,JSON.stringify(b.general));
+   localStorage.setItem(MED_KEY,JSON.stringify(b.medication));
+  }catch(e){
+   try{if(oldGeneral===null)localStorage.removeItem(MAIN_KEY);else localStorage.setItem(MAIN_KEY,oldGeneral)}catch(_){}
+   try{if(oldMedication===null)localStorage.removeItem(MED_KEY);else localStorage.setItem(MED_KEY,oldMedication)}catch(_){}
+   throw Error('No se pudieron guardar los registros principales. Revisa el espacio disponible.');
+  }
+  setStatus('✓ Copia restaurada. Actualizando la aplicación…');
+  alert('Restauración completada. La aplicación se actualizará para leer los datos recuperados.');
+  location.reload();
+ }catch(e){setStatus('⚠️ Restauración incompleta o cancelada: '+e.message+'\nSi se guardaron fotos antes de un error, se han conservado; los datos principales no se han sobrescrito sin completar todos los archivos.')}finally{importBtn.disabled=false;fileInput.value=''}
+});
 })();
 </script>
 </body></html>
