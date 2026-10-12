@@ -1,11 +1,7 @@
-# Micro Health v22.3.17 — Mi día sin duplicados
+# Micro Health v22.3.18 — Inicio más limpio
 
-Corrección de la v22.3.16:
-- Se mantienen únicamente los cinco botones rápidos de registro visibles.
-- Las tarjetas originales de pasos y sueño permanecen ocultas hasta pulsar el botón correspondiente. Se abre entonces el formulario real, con botón para cerrarlo.
-- El bloque de accesos rápidos antiguo sigue en el DOM (oculto) para no romper los contadores ni la lógica existente.
-- Se mantienen los bloques originales de hábitos, resumen, orientación nutricional y pauta, en ese orden.
-- Sin cambios en la clave de almacenamiento `miguel-evolucion-v4` ni en los datos.
+Se trasladan **los bloques originales** de Sueño y recuperación, Mi evolución y Mi informe semanal desde Inicio a una pantalla de detalle de Progreso. Las opciones de Progreso correspondientes abren directamente cada bloque en su nueva ubicación. No se duplican los componentes, ni se modifican sus cálculos o registros.
 
-Antes de publicar: exportar copia JSON. Las fotos de IndexedDB requieren respaldo independiente.
-Subir el contenido del ZIP a GitHub, no el ZIP sin descomprimir.
+La clave `miguel-evolucion-v4` no cambia. Antes de subir los archivos, exporta copia JSON. Las fotografías de IndexedDB requieren respaldo aparte.
+
+Comprobar en móvil: Inicio sin los tres bloques; Progreso → Sueño y recuperación / Tendencias / Informe semanal con gráficos y controles funcionando. No se ha realizado una prueba visual en iPhone.
