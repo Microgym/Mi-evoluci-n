@@ -3693,6 +3693,7 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 <label>Nombre (opcional si adjuntas una imagen)<input id="mh30NameInput" maxlength="100" placeholder="Nombre del medicamento"></label>
 <div class="mh30-options"><button type="button" id="mh30Analyze" class="mh25-primary">✨ Identificar con IA</button><button type="button" id="mh30Manual">Continuar manualmente</button><button type="button" id="mh30Cancel">Cancelar</button></div>
 <div id="mh30Status" role="status" aria-live="polite" class="mh25-muted"></div>
+<label class="mh33-favorite-label"><input type="checkbox" id="mh33Favorite" style="width:auto"> ⭐ Guardar como favorito</label>
 <div id="mh30Draft" hidden><h4>Propuesta de la IA · Revisar antes de guardar</h4><div id="mh30DraftFields"></div><button type="button" id="mh30Apply" class="mh25-primary">Revisar ficha y horarios</button></div>
 <p class="mh25-disclaimer">La fotografía solo se enviará al servicio de IA cuando pulses «Identificar con IA» y confirmes el envío. No se guardará ningún medicamento sin tu confirmación. La IA no debe establecer dosis ni horarios.</p>
 </section>
@@ -18034,7 +18035,7 @@ function restorePreSyncBackup(){
 const AI_BACKEND_KEY='mi-evolucion-ai-backend-v2';
 const AI_BACKEND_DEFAULT='https://mi-evolucion-foof-ai.miguel-ferrer.workers.dev';
 
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');render();toggleTrainingFields();previewCalories();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>r.update()).catch(()=>{});render();toggleTrainingFields();previewCalories();
 
 document.addEventListener('DOMContentLoaded',()=>{
  enableGlobalDateTyping();
@@ -19151,10 +19152,11 @@ function render(){
  }
  const list=$('mh25List');list.replaceChildren();
  if(!db.medications.length)list.append(el('p','Todavía no has añadido medicamentos.','mh25-empty'));
- for(const m of db.medications.slice().sort((a,b)=>timesOf(a)[0].localeCompare(timesOf(b)[0]))){
+ for(const m of db.medications.slice().sort((a,b)=>Number(!!b.favorite)-Number(!!a.favorite)||m.name.localeCompare(b.name,'es')||timesOf(a)[0].localeCompare(timesOf(b)[0]))){
   const box=el('div',undefined,'mh25-item');
-  box.append(el('strong',medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
+  box.append(el('strong',(m.favorite?'⭐ ':'')+medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
   const actions=el('div',undefined,'mh25-actions');
+  actions.append(button(m.favorite?'★ Quitar favorito':'☆ Guardar favorito',()=>{m.favorite=!m.favorite;if(persist())render()}));
   actions.append(button('Editar',()=>openForm(m)));
   actions.append(button('🔎 Consultar en AEMPS',()=>window.mh29OpenCima(m.name)));
   actions.append(button('✨ Análisis con IA',()=>window.mh32AnalyzeMed(m)));
@@ -19167,6 +19169,7 @@ function render(){
  for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
 }
 window.mh32MedicationList=()=>db.medications.map(m=>({name:m.name,dose:m.dose}));
+window.mh33SetFavorite=(id,flag)=>{const m=db.medications.find(x=>x.id===id);if(m){m.favorite=!!flag;if(persist())render()}};
 $('mh25AddMed').addEventListener('click',()=>{if(typeof window.mh30OpenWizard==='function')window.mh30OpenWizard();else openForm(null)});
 document.addEventListener('mh30-open-manual',()=>openForm(null));
 $('mh26AddTime').addEventListener('click',()=>timeInput('12:00'));
@@ -19177,7 +19180,7 @@ $('mh25Form').addEventListener('submit',e=>{
  const id=$('mh25Id').value,frequency=$('mh25Frequency').value;
  const days=Array.from($('mh25Weekdays').querySelectorAll('input:checked')).map(x=>Number(x.value));
  const times=[...new Set(timesFromForm())].sort();
- const item={id:id||'m'+Date.now()+Math.random().toString(36).slice(2),name:$('mh25Name').value.trim(),dose:$('mh25Dose').value.trim(),time:times[0],times,frequency,days,start:$('mh25Start').value,end:$('mh25End').value,notes:$('mh25Notes').value.trim()};
+ const item={id:id||'m'+Date.now()+Math.random().toString(36).slice(2),name:$('mh25Name').value.trim(),dose:$('mh25Dose').value.trim(),time:times[0],times,frequency,days,start:$('mh25Start').value,end:$('mh25End').value,notes:$('mh25Notes').value.trim(),favorite:id?!!db.medications.find(m=>m.id===id)?.favorite:false};
  if(!item.name||!item.dose||!item.times.length||!item.start)return alert('Completa los campos obligatorios.');
  if(item.end&&item.end<item.start)return alert('La fecha de fin no puede ser anterior al inicio.');
  if(frequency==='custom'&&!days.length)return alert('Selecciona al menos un día.');
@@ -19370,7 +19373,7 @@ const wizard=$('mh30Wizard');if(!wizard)return;
 let photo=null,previewUrl=null,draft=null;
 const status=t=>$('mh30Status').textContent=t;
 function clearPreview(){if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;photo=null;$('mh30Preview').hidden=true;$('mh30CameraInput').value='';$('mh30ImageInput').value=''}
-function reset(){clearPreview();draft=null;$('mh30Draft').hidden=true;$('mh30NameInput').value='';status('')}
+function reset(){$('mh33Favorite').checked=false;clearPreview();draft=null;$('mh30Draft').hidden=true;$('mh30NameInput').value='';status('')}
 function open(){reset();wizard.hidden=false;$('mh25Form').hidden=true;wizard.scrollIntoView({behavior:'smooth',block:'start'})}
 window.mh30OpenWizard=open;
 $('mh30Cancel').addEventListener('click',()=>{wizard.hidden=true;reset()});
@@ -19387,7 +19390,7 @@ for(const id of ['mh30CameraInput','mh30ImageInput'])$(id).addEventListener('cha
 function dataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('No se pudo leer la imagen.'));r.readAsDataURL(file)})}
 function safeText(v,max=150){return typeof v==='string'?v.trim().slice(0,max):''}
 function showDraft(d){
- draft=d;$('mh30DraftFields').textContent='Nombre: '+(d.name||'Sin identificar')+'\nPrincipio activo: '+(d.activeIngredient||'No identificado')+'\nConcentración/presentación: '+(d.strength||'No identificada')+'\nInformación de receta: '+(d.prescriptionText||'No extraída')+'\n\nLa dosis y los horarios deben confirmarse manualmente.';
+ draft=d;$('mh30DraftFields').textContent='Nombre: '+(d.name||'Sin identificar')+'\nPrincipio activo: '+(d.activeIngredient||'No identificado')+'\nConcentración/presentación: '+(d.strength||'No identificada')+'\n\n¿PARA QUÉ SIRVE?\n'+(d.uses?.length?d.uses.map(x=>'• '+x).join('\n'):'No se han podido confirmar usos habituales.')+'\n\nPRECAUCIONES GENERALES\n'+(d.precautions?.length?d.precautions.map(x=>'• '+x).join('\n'):'Consulta el prospecto y a tu farmacéutico.')+'\n\nInformación de receta (solo si aparece): '+(d.prescriptionText||'No es necesaria para explicar los usos habituales.')+'\n\nInformación orientativa de IA, no verificada con AEMPS. La dosis y los horarios deben confirmarse manualmente.';
  $('mh30Draft').hidden=false;
 }
 $('mh30Analyze').addEventListener('click',async()=>{
@@ -19404,7 +19407,7 @@ $('mh30Analyze').addEventListener('click',async()=>{
   if(response.status===404||response.status===405)throw Error('El Worker del Coach aún no dispone de análisis de medicamentos. Hay que añadir /analyze-medication al Worker. Puedes continuar manualmente.');
   if(!response.ok)throw Error(safeText(obj.error||raw,240)||'Error HTTP '+response.status);
   const d=obj.result||obj;
-  const parsed={name:safeText(d.name||d.nombre),activeIngredient:safeText(d.activeIngredient||d.principioActivo),strength:safeText(d.strength||d.concentracion),prescriptionText:safeText(d.prescriptionText||d.indicaciones,300)};
+  const parsed={name:safeText(d.name||d.nombre),activeIngredient:safeText(d.activeIngredient||d.principioActivo),strength:safeText(d.strength||d.concentracion),prescriptionText:safeText(d.prescriptionText||d.indicaciones,300),uses:Array.isArray(d.uses)?d.uses.slice(0,5).map(x=>safeText(x,300)).filter(Boolean):[],precautions:Array.isArray(d.precautions)?d.precautions.slice(0,5).map(x=>safeText(x,300)).filter(Boolean):[]};
   if(!parsed.name)throw Error('La IA no identificó el medicamento con suficiente claridad. Completa la ficha manualmente.');
   showDraft(parsed);status('Revisa el nombre y la concentración. Ninguna dosis ni horario se aplicará automáticamente.');
  }catch(e){status('No se pudo identificar con IA: '+(e.name==='AbortError'?'Tiempo de espera agotado.':e.message)+ ' Puedes continuar manualmente.')}
@@ -19412,6 +19415,7 @@ $('mh30Analyze').addEventListener('click',async()=>{
 });
 function manual(useDraft){
  document.dispatchEvent(new Event('mh30-open-manual'));
+ window.mh33PendingFavorite=$('mh33Favorite').checked;
  if(useDraft&&draft){$('mh25Name').value=draft.name;$('mh25Notes').value='';}
  else if($('mh30NameInput').value.trim())$('mh25Name').value=$('mh30NameInput').value.trim();
  wizard.hidden=true;
@@ -19423,6 +19427,8 @@ function manual(useDraft){
 $('mh30Manual').addEventListener('click',()=>manual(false));
 $('mh30Apply').addEventListener('click',()=>manual(true));
 window.mh30OnSaved=async id=>{
+ if(window.mh33PendingFavorite&&typeof window.mh33SetFavorite==='function')window.mh33SetFavorite(id,true);
+ window.mh33PendingFavorite=false;
  const file=window.mh30PendingPhoto;window.mh30PendingPhoto=null;
  if(!file)return;
  try{if(typeof window.mh30SaveImage==='function')await window.mh30SaveImage(id,file);else alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
