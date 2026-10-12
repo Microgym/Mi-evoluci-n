@@ -3632,6 +3632,27 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh30Preview img{max-width:100%;max-height:220px;border-radius:12px;object-fit:contain;display:block;margin-bottom:8px}
 #mh30DraftFields{white-space:pre-line;font-size:13px;line-height:1.65}
 </style><style id="mh32-style">#mh32Review{border:1px solid #c9ddd6;background:#f6faf8;border-radius:14px;padding:14px;margin:12px 0}#mh32Review[hidden]{display:none!important}#mh32Review h4,#mh32Review h5{margin:10px 0 5px}#mh32Review li{margin:5px 0}#mh32Review button{padding:10px;border:1px solid #9ac7b7;border-radius:10px;background:white;color:#145a4b}</style>
+<style id="mh42-unified-day-style">
+/* v22.3.42: una única portada, Mi día; el Inicio antiguo queda dentro de un acordeón */
+#mh23-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#miDia #mh41-dashboard{margin:6px 0 17px}
+#miDia #mh41-dashboard .mh41-head{align-items:center}
+#miDia #mh41-dashboard .mh41-head h2{font-size:24px}
+#miDia #mh41-dashboard .mh41-summary{display:grid!important}
+#miDia #mh41-dashboard .mh41-foot{display:block!important}
+#miDia #mh41-dashboard .mh41-actions{display:none!important}
+#miDia #mh42-detail-toggle{border:1px solid #acd0c3!important;border-radius:11px!important;background:#fff!important;color:#145d50!important;padding:9px 10px!important;font-size:12px!important;min-height:42px;font-weight:750!important;flex:0 0 auto}
+#miDia .mh42-fullpanel{margin:16px 0 25px;border:1px solid #d2e6df;border-radius:16px;background:#fff;padding:10px 14px;overflow:hidden}
+#miDia .mh42-fullpanel>summary{cursor:pointer;font-size:14px;font-weight:800;color:#176252;list-style:none;padding:6px 0;touch-action:manipulation}
+#miDia .mh42-fullpanel>summary::-webkit-details-marker{display:none}
+#miDia .mh42-fullpanel>summary::after{content:'⌄';float:right}
+#miDia .mh42-fullpanel[open]>summary::after{content:'⌃'}
+#miDia .mh42-full-hint{font-size:12px;color:#58726c;margin:12px 0}
+#miDia #mh42-legacy-host{min-width:0;max-width:100%}
+#miDia #mh42-legacy-host #inicio{display:block!important;padding:0;margin:0}
+#miDia #mh42-legacy-host #inicio .home-card{max-width:100%;min-width:0}
+@media(max-width:370px){#miDia #mh41-dashboard .mh41-head{flex-wrap:wrap}#miDia #mh42-detail-toggle{width:100%}}
+</style>
 <style id="mh41-daily-simplify-style">
 #mh41-dashboard{margin:8px 0 17px;padding:16px;border-radius:21px;background:linear-gradient(140deg,#eaf8f2,#fff 72%);border:1px solid #d7e8e1;color:#154b44}
 #mh41-dashboard .mh41-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
@@ -3713,8 +3734,18 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
   <div id="mh23ProgressTrends"></div>
   <div id="mh23ProgressReport"></div>
 </section>
-<section id="miDia" aria-label="Mi día">
-<div class="mh23-day-head"><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tus registros y recomendaciones de hoy, en un solo lugar.</p></div>
+<section id="miDia" class="active" aria-label="Mi día">
+<div id="mh41-dashboard" aria-label="Inicio simplificado">
+ <div class="mh41-head"><div><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tu resumen y tus registros, todo en un lugar.</p></div><button type="button" id="mh42-detail-toggle" onclick="mh42ToggleFullPanel()">Ver detalles ↓</button></div>
+ <div id="mh41-summary" class="mh41-summary" aria-live="polite">
+  <button type="button" class="mh41-stat" onclick="goSection('peso')"><span>⚖️ Peso</span><strong id="mh41-weight">—</strong><small>Ver registros</small></button>
+  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🔥 Calorías</span><strong id="mh41-calories">—</strong><small>Consumidas hoy</small></button>
+  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🥚 Proteínas</span><strong id="mh41-protein">—</strong><small>Registradas hoy</small></button>
+  <button type="button" class="mh41-stat" onclick="mh23DayEditor('sleep')"><span>🌙 Sueño</span><strong id="mh41-sleep">—</strong><small>Último registro de hoy</small></button>
+ </div>
+<p class="mh41-foot">Las cifras proceden de tus registros; «—» indica que todavía no hay un valor disponible.</p>
+</div>
+
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><p class="mh41-reg-hint">Elige un registro; se abre el formulario habitual y se conservan tus datos.</p><div class="mh23-day-buttons mh41-register-main">
 <button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="goSection('entreno')">🏋️ Entrenamiento</button></div>
 <details class="mh41-more-register"><summary>Otros registros y herramientas</summary><div class="mh23-day-buttons mh41-register-extra"><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="mh41OpenMedication()">💊 Medicación</button></div></details>
@@ -3774,24 +3805,9 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
 <div class="mh23-day-group" id="mh23-day-guidance"><h3>💡 Pautas del día</h3></div>
+<details id="mh42-fullpanel" class="mh42-fullpanel"><summary>📊 Panel completo y datos adicionales</summary><p class="mh42-full-hint">Las tarjetas originales se mantienen aquí, sin repetirlas en el inicio.</p><div id="mh42-legacy-host"></div></details>
 </section>
-<section id="inicio" class="active" data-home-mockup="true">
-<div id="mh41-dashboard" aria-label="Inicio simplificado">
- <div class="mh41-head"><div><small>MICRO HEALTH · HOY</small><h2>☀️ Tu día, de un vistazo</h2><p>Lo importante primero. Todos los detalles siguen disponibles.</p></div><button type="button" id="mh41-detail-toggle" onclick="mh41ToggleDetail()">Ver todo ↓</button></div>
- <div id="mh41-summary" class="mh41-summary" aria-live="polite">
-  <button type="button" class="mh41-stat" onclick="goSection('peso')"><span>⚖️ Peso</span><strong id="mh41-weight">—</strong><small>Ver registros</small></button>
-  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🔥 Calorías</span><strong id="mh41-calories">—</strong><small>Consumidas hoy</small></button>
-  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🥚 Proteínas</span><strong id="mh41-protein">—</strong><small>Registradas hoy</small></button>
-  <button type="button" class="mh41-stat" onclick="mh23DayEditor('sleep')"><span>🌙 Sueño</span><strong id="mh41-sleep">—</strong><small>Último registro de hoy</small></button>
- </div>
- <div class="mh41-actions" aria-label="Accesos rápidos">
-  <button type="button" onclick="goSection('comidas')">＋ Comida</button>
-  <button type="button" onclick="goSection('peso')">＋ Peso</button>
-  <button type="button" onclick="goSection('entreno')">🏋️ Entrenar</button>
-  <button type="button" onclick="mh23Open('miDia')">☀️ Registrar más</button>
- </div>
- <p class="mh41-foot">Las cifras proceden de tus registros; «—» indica que todavía no hay un valor disponible.</p>
-</div>
+<section id="inicio" data-home-mockup="true">
 <div id="mh23-home-intro"><small style="font-weight:800;color:#188675">MICRO HEALTH · TU DÍA</small><h2>Tu bienestar, más claro</h2><p>Un resumen para actuar hoy. Tus registros y análisis completos siguen disponibles.</p>
 <div id="mh23-calorie"><strong>🔥 Balance calórico</strong>Consulta tus calorías ingeridas en Comidas. El déficit o superávit se mostrará cuando podamos calcular un gasto total fiable; no se inventan cifras.</div>
 <div class="mh23-home-actions"><button type="button" onclick="mh23Open('miDia')">☀ Mi día</button><button type="button" onclick="mh23Open('progreso')">↗ Ver progreso</button><button type="button" id="mh23-toggle" onclick="mh23ToggleHome()">Ver panel completo ↓</button></div></div>
@@ -4965,7 +4981,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 
 </main>
 <nav>
-<button data-sec="inicio" class="active"><span class="nav-ico nav-home" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5"></path><path d="M6 10v9h12v-9"></path><path d="M10 19v-5h4v5"></path></svg></span><span class="nav-label">Inicio</span></button>
+<button data-sec="miDia" class="active"><span class="nav-ico nav-home" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5"></path><path d="M6 10v9h12v-9"></path><path d="M10 19v-5h4v5"></path></svg></span><span class="nav-label">Inicio</span></button>
 <button data-sec="peso"><span class="nav-ico nav-weight" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></span><span class="nav-label">Peso</span></button>
 <button data-sec="comidas"><span class="nav-ico nav-food" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3v7"></path><path d="M9 3v7"></path><path d="M6 7h3"></path><path d="M7.5 10v11"></path><path d="M16 3c1.8 2.2 1.8 5.8 0 8"></path><path d="M16 11v10"></path></svg></span><span class="nav-label">Comidas</span></button>
 <button data-sec="entreno"><span class="nav-ico nav-workout" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span class="nav-label">Entreno</span></button>
@@ -4975,8 +4991,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <button data-sec="datos"><span class="nav-ico nav-data" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9"></path><path d="M16 7h4"></path><path d="M11 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path><path d="M4 17h4"></path><path d="M11 17h9"></path><path d="M8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"></path></svg></span><span class="nav-label">Datos</span></button>
 </nav>
 <div id="mh23-tabs" aria-label="Navegación principal Micro Health 23">
-<button type="button" data-mh23="inicio" class="mh23-selected"><span>⌂</span>Inicio</button>
-<button type="button" data-mh23="miDia"><span>☀</span>Mi día</button>
+<button type="button" data-mh23="miDia" class="mh23-selected"><span>☀</span>Mi día</button>
 <button type="button" data-mh23="registrar"><span>⊕</span>Registrar</button>
 <button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
 <button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
@@ -17249,6 +17264,10 @@ function renderMilestones(last){
 }
 
 function goSection(sec){
+  if(sec==='inicio'||sec==='miDia'){
+    if(typeof window.mh23Open==='function')window.mh23Open('miDia');
+    return;
+  }
   const btn=[...document.querySelectorAll('nav button')].find(b=>b.dataset.sec===sec);
   if(btn)btn.click();
 }
@@ -19278,7 +19297,7 @@ setTimeout(()=>{
 (function(){
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
  const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
- function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'inicio',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
+ function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'miDia',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
  function route(section){sheet.hidden=true; if(['sleep','steps','habits'].includes(section)){window.mh23Open('miDia');if(section!=='habits')window.mh23DayEditor(section);else document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');return;} if(['report','trends','recovery'].includes(section)){
   document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
   document.getElementById('mh23ProgressDetail').classList.add('active');
@@ -19286,7 +19305,7 @@ setTimeout(()=>{
   const id=({report:'mh23ProgressReport',trends:'mh23ProgressTrends',recovery:'mh23ProgressRecovery'})[section];
   setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}),100);
  }else{goSection(section);window.scrollTo({top:0,behavior:'smooth'});} select(section);}
- window.mh23Open=function(which){if(which==='miDia'){sheet.hidden=true;document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));document.getElementById('miDia').classList.add('active');document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));if(typeof setFoodViewToday==='function')try{setFoodViewToday()}catch(e){console.warn('Nutrición',e)}select('miDia');window.scrollTo({top:0,behavior:'smooth'});return;}if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'||which==='progreso'){b.className=which==='progreso'?'mh23-progress-choice':'mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.classList.toggle('mh23-progress-sheet',which==='progreso');sheet.hidden=false;select(which)}else{route(which)}};
+ window.mh23Open=function(which){if(which==='inicio')which='miDia';if(which==='miDia'){sheet.hidden=true;document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));document.getElementById('miDia').classList.add('active');document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));if(typeof setFoodViewToday==='function')try{setFoodViewToday()}catch(e){console.warn('Nutrición',e)}select('miDia');window.scrollTo({top:0,behavior:'smooth'});return;}if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'||which==='progreso'){b.className=which==='progreso'?'mh23-progress-choice':'mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.classList.toggle('mh23-progress-sheet',which==='progreso');sheet.hidden=false;select(which)}else{route(which)}};
  window.mh23ToggleHome=function(){const compact=document.body.classList.toggle('mh23-compact');document.getElementById('mh23-toggle').textContent=compact?'Ver panel completo ↓':'Simplificar Inicio ↑'};
  tabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.mh23Open(b.dataset.mh23)));
  document.getElementById('mh23-dismiss').addEventListener('click',()=>sheet.hidden=true);
@@ -19971,6 +19990,32 @@ fileInput.addEventListener('change',async()=>{
   else install();
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
   window.addEventListener('pageshow',refresh);
+})();
+</script>
+<script id="mh42-unified-day-script">
+(function(){
+  'use strict';
+  const panel=document.getElementById('mh42-fullpanel');
+  const host=document.getElementById('mh42-legacy-host');
+  const legacy=document.getElementById('inicio');
+  if(!panel||!host||!legacy)return;
+  // Move existing nodes rather than cloning: IDs, listeners, documents and state remain shared.
+  host.appendChild(legacy);
+  legacy.classList.add('active');
+  function sync(){
+    document.body.classList.toggle('mh23-compact',!panel.open);
+    const button=document.getElementById('mh42-detail-toggle');
+    if(button){button.textContent=panel.open?'Ocultar detalles ↑':'Ver detalles ↓';button.setAttribute('aria-expanded',String(panel.open))}
+  }
+  panel.addEventListener('toggle',sync);
+  window.mh42ToggleFullPanel=function(){panel.open=!panel.open;sync();if(panel.open)requestAnimationFrame(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}))};
+  const prevOpen=window.mh23Open;
+  if(typeof prevOpen==='function')window.mh23Open=function(section){
+    if(section==='inicio')section='miDia';
+    if(section!=='miDia'&&panel.open){panel.open=false;sync()}
+    return prevOpen(section);
+  };
+  sync();
 })();
 </script>
 </body></html>
