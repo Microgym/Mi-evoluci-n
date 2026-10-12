@@ -3506,6 +3506,13 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
 body.mh23-compact #inicio .life-today{display:none!important}
 body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card){display:none!important}
 </style>
+<style id="mh23-day-clean-v17">
+/* Las acciones de registro solo aparecen una vez. Los formularios se abren bajo demanda. */
+#mh23-day-legacy{display:none!important}
+#miDia #mh23-day-editors>.mh23-editor-card{display:none!important}
+#miDia #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:flex!important}
+#miDia .mh23-close-editor{display:block;width:100%;margin:0 0 10px!important;background:#eaf5f0!important;color:#176554!important;border:1px solid #cde5d9!important;border-radius:11px!important;padding:9px 12px!important;text-align:center;font-weight:750}
+</style>
 </head>
 <body>
 <header class="mh-topbar">
@@ -3533,7 +3540,7 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
 <section id="miDia" aria-label="Mi día">
 <div class="mh23-day-head"><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tus registros y recomendaciones de hoy, en un solo lugar.</p></div>
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><div class="mh23-day-buttons">
-<button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button></div><div id="mh23-day-editors"></div></div>
+<button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button></div><div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
@@ -18778,14 +18785,32 @@ window.mh23TrainingJump=function(destination){
 /* v22.3.16: mover nodos reales, conservando IDs, funciones y almacenamiento */
 (function(){
  const place=(selector,destination)=>{const node=document.querySelector(selector),host=document.getElementById(destination);if(node&&host)host.appendChild(node);else console.warn('Mi día: falta bloque',selector)};
- place('#inicio .life-quick-grid','mh23-day-register');
+ place('#inicio .life-quick-grid','mh23-day-legacy');
  place('#inicio .home-steps-card:not(.home-sleep-card)','mh23-day-editors');
  place('#inicio .home-sleep-card','mh23-day-editors');
+ // Las tarjetas de pasos y sueño se conservan íntegras, pero solo se ven al editar.
+ document.querySelectorAll('#mh23-day-editors > .home-steps-card').forEach(card=>{
+   card.classList.add('mh23-editor-card');
+   const close=document.createElement('button');
+   close.type='button';close.className='mh23-close-editor';close.textContent='✕ Cerrar registro';
+   close.addEventListener('click',()=>{card.classList.remove('mh23-editor-visible');});
+   card.insertBefore(close,card.firstChild);
+ });
  place('#inicio .life-habits','mh23-day-habits');
  place('#inicio .day-review-card','mh23-day-summary');
  place('#comidas #nutritionGuidance','mh23-day-nutrition');
  place('#inicio .home-timeline-card','mh23-day-guidance');
- window.mh23DayEditor=function(which){window.mh23Open('miDia');const sleep=which==='sleep',id=sleep?'homeSleepEditor':'homeStepsEditor',el=document.getElementById(id);if(el&&!el.classList.contains('open')){const fn=sleep?window.toggleHomeSleepEditor:window.toggleHomeStepsEditor;if(typeof fn==='function')fn();}setTimeout(()=>el?.scrollIntoView({behavior:'smooth',block:'center'}),70);};
+ window.mh23DayEditor=function(which){
+ window.mh23Open('miDia');
+ const sleep=which==='sleep',id=sleep?'homeSleepEditor':'homeStepsEditor',el=document.getElementById(id);
+ const card=el?.closest('.mh23-editor-card');
+ document.querySelectorAll('#mh23-day-editors > .mh23-editor-card').forEach(c=>c.classList.toggle('mh23-editor-visible',c===card));
+ if(el&&!el.classList.contains('open')){
+  const fn=sleep?window.toggleHomeSleepEditor:window.toggleHomeStepsEditor;
+  if(typeof fn==='function')fn();
+ }
+ setTimeout(()=>card?.scrollIntoView({behavior:'smooth',block:'start'}),70);
+};
 })();
 </script>
 </body></html>
