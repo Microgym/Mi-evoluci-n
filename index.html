@@ -3621,6 +3621,16 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh28Official .mh28-extract{white-space:pre-wrap;overflow-wrap:anywhere;max-height:290px;overflow-y:auto;background:#f6f8f7;padding:10px;border-radius:8px;font-size:13px;line-height:1.5}
 #mh28Official details{margin-top:9px}
 #mh28Official summary{cursor:pointer;font-weight:650;font-size:13px}
+</style><style id="mh30-wizard-style">
+#mh30Wizard{border:1px solid #cbded6;border-radius:15px;background:#f5faf8;padding:15px;margin:14px 0;display:grid;gap:12px}
+#mh30Wizard[hidden],#mh30Preview[hidden],#mh30Draft[hidden]{display:none!important}
+#mh30Wizard h4{margin:0}#mh30Wizard label{display:grid;gap:5px;font-size:13px;font-weight:650}
+#mh30Wizard input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccd9d4;border-radius:10px;font:inherit}
+#mh30Wizard button{border:1px solid #b9d0c8;background:#fff;border-radius:10px;padding:11px;font:inherit;font-size:13px;font-weight:650;color:#165d53}
+#mh30Wizard button.mh25-primary{background:#167c70;border-color:#167c70;color:white}
+#mh30Wizard .mh30-options{display:flex;gap:8px;flex-wrap:wrap}#mh30Wizard .mh30-options button{flex:1 1 120px}
+#mh30Preview img{max-width:100%;max-height:220px;border-radius:12px;object-fit:contain;display:block;margin-bottom:8px}
+#mh30DraftFields{white-space:pre-line;font-size:13px;line-height:1.65}
 </style></head>
 <body>
 <header class="mh-topbar">
@@ -3674,7 +3684,18 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 </section>
 <h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
   <p class="mh25-disclaimer">Esta agenda no modifica las pautas prescritas. Ante una dosis olvidada o dudas, consulta las instrucciones de tu profesional sanitario. Los avisos del dispositivo no están garantizados cuando la app está cerrada.</p>
-  <form id="mh25Form" class="mh25-form" hidden>
+  <section id="mh30Wizard" class="mh30-wizard" hidden aria-label="Alta guiada de medicamento">
+<h4>💊 Añadir medicamento</h4><p class="mh25-muted">Haz una foto de la caja o receta, o escribe el nombre. La IA puede proponer datos, pero tú debes confirmar la pauta prescrita.</p>
+<div class="mh30-options"><button type="button" class="mh25-primary" id="mh30TakePhoto">📷 Hacer foto</button><button type="button" id="mh30ChoosePhoto">🖼️ Elegir imagen</button><button type="button" id="mh30TypeName">⌨️ Escribir nombre</button></div>
+<input type="file" id="mh30CameraInput" accept="image/*" capture="environment" hidden><input type="file" id="mh30ImageInput" accept="image/*" hidden>
+<div id="mh30Preview" hidden><img id="mh30PreviewImg" alt="Fotografía seleccionada"><button type="button" id="mh30RemovePhoto">× Quitar fotografía</button></div>
+<label>Nombre (opcional si adjuntas una imagen)<input id="mh30NameInput" maxlength="100" placeholder="Nombre del medicamento"></label>
+<div class="mh30-options"><button type="button" id="mh30Analyze" class="mh25-primary">✨ Identificar con IA</button><button type="button" id="mh30Manual">Continuar manualmente</button><button type="button" id="mh30Cancel">Cancelar</button></div>
+<div id="mh30Status" role="status" aria-live="polite" class="mh25-muted"></div>
+<div id="mh30Draft" hidden><h4>Propuesta de la IA · Revisar antes de guardar</h4><div id="mh30DraftFields"></div><button type="button" id="mh30Apply" class="mh25-primary">Revisar ficha y horarios</button></div>
+<p class="mh25-disclaimer">La fotografía solo se enviará al servicio de IA cuando pulses «Identificar con IA» y confirmes el envío. No se guardará ningún medicamento sin tu confirmación. La IA no debe establecer dosis ni horarios.</p>
+</section>
+<form id="mh25Form" class="mh25-form" hidden>
     <h4 id="mh25FormTitle">Añadir medicamento</h4>
     <input type="hidden" id="mh25Id">
     <label>Nombre del medicamento <input id="mh25Name" maxlength="100" required autocomplete="off" placeholder="Nombre indicado en tu receta"></label>
@@ -19143,7 +19164,8 @@ function render(){
  if(!entries.length)history.append(el('p','Aún no hay tomas confirmadas.','mh25-empty'));
  for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
 }
-$('mh25AddMed').addEventListener('click',()=>openForm(null));
+$('mh25AddMed').addEventListener('click',()=>{if(typeof window.mh30OpenWizard==='function')window.mh30OpenWizard();else openForm(null)});
+document.addEventListener('mh30-open-manual',()=>openForm(null));
 $('mh26AddTime').addEventListener('click',()=>timeInput('12:00'));
 $('mh25Cancel').addEventListener('click',()=>{$('mh25Form').hidden=true});
 $('mh25Frequency').addEventListener('change',toggleDays);
@@ -19157,7 +19179,7 @@ $('mh25Form').addEventListener('submit',e=>{
  if(item.end&&item.end<item.start)return alert('La fecha de fin no puede ser anterior al inicio.');
  if(frequency==='custom'&&!days.length)return alert('Selecciona al menos un día.');
  if(id){const idx=db.medications.findIndex(m=>m.id===id);if(idx<0)return;db.medications[idx]=item}else db.medications.push(item);
- if(persist()){$('mh25Form').hidden=true;render();showReminder();$('mh26Files').value=''}
+ if(persist()){$('mh25Form').hidden=true;render();showReminder();$('mh26Files').value='';if(typeof window.mh30OnSaved==='function')window.mh30OnSaved(item.id)}
 });
 $('mh25ImportBtn').addEventListener('click',()=>$('mh25ImportFile').click());
 const notice=$('mh25NotificationInfo');
@@ -19242,6 +19264,7 @@ $('mh26Files').addEventListener('change',async e=>{
  e.target.value='';e.target.dataset.medId='';render();
 });
 // La copia JSON incluye documentos; compatible con copias anteriores sin adjuntos.
+window.mh30SaveImage=async(medId,file)=>{if(!medId||!file)return;await docOperation('put',{id:'doc'+Date.now()+Math.random().toString(36).slice(2),medId,name:safeName(file.name||'Foto de medicamento.jpg'),type:file.type||'image/jpeg',created:new Date().toISOString(),blob:file});render()};
 const readDataUrl=blob=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)});
 const dataUrlBlob=async url=>(await fetch(url)).blob();
 $('mh25Export').addEventListener('click',async()=>{
@@ -19334,6 +19357,73 @@ window.mh29OpenCima=function(name){
  const a=document.createElement('a');a.href='https://cima.aemps.es/cima/publico/lista.html';a.target='_blank';a.rel='noopener noreferrer';document.body.append(a);a.click();a.remove();
  notice('Se ha abierto el buscador oficial CIMA en otra pestaña. Escribe allí el nombre del medicamento. También intentaré mostrar resultados aquí.');
  if(q.length>=3)search();
+};
+})();
+</script><script id="mh30-medication-photo-first">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const wizard=$('mh30Wizard');if(!wizard)return;
+let photo=null,previewUrl=null,draft=null;
+const status=t=>$('mh30Status').textContent=t;
+function clearPreview(){if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;photo=null;$('mh30Preview').hidden=true;$('mh30CameraInput').value='';$('mh30ImageInput').value=''}
+function reset(){clearPreview();draft=null;$('mh30Draft').hidden=true;$('mh30NameInput').value='';status('')}
+function open(){reset();wizard.hidden=false;$('mh25Form').hidden=true;wizard.scrollIntoView({behavior:'smooth',block:'start'})}
+window.mh30OpenWizard=()=>{window.mh30PendingPhoto=null;open()};
+$('mh30Cancel').addEventListener('click',()=>{wizard.hidden=true;reset();window.mh30PendingPhoto=null});
+$('mh30TakePhoto').addEventListener('click',()=>$('mh30CameraInput').click());
+$('mh30ChoosePhoto').addEventListener('click',()=>$('mh30ImageInput').click());
+$('mh30TypeName').addEventListener('click',()=>{$('mh30NameInput').focus();status('Introduce el nombre y pulsa Identificar con IA, o continúa manualmente.')});
+$('mh30RemovePhoto').addEventListener('click',()=>{clearPreview();status('Fotografía retirada.')});
+for(const id of ['mh30CameraInput','mh30ImageInput'])$(id).addEventListener('change',e=>{
+ const f=e.target.files?.[0];if(!f)return;
+ if(!f.type.startsWith('image/')){status('Selecciona una imagen de la caja o receta.');return}
+ if(f.size>8*1024*1024){status('La imagen supera 8 MB. Elige una foto más pequeña.');return}
+ clearPreview();photo=f;previewUrl=URL.createObjectURL(f);$('mh30PreviewImg').src=previewUrl;$('mh30Preview').hidden=false;draft=null;$('mh30Draft').hidden=true;status('Imagen lista. Puedes identificarla con IA o completar la ficha manualmente.');
+});
+function dataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('No se pudo leer la imagen.'));r.readAsDataURL(file)})}
+function safeText(v,max=150){return typeof v==='string'?v.trim().slice(0,max):''}
+function showDraft(d){
+ draft=d;$('mh30DraftFields').textContent='Nombre: '+(d.name||'Sin identificar')+'\nPrincipio activo: '+(d.activeIngredient||'No identificado')+'\nConcentración/presentación: '+(d.strength||'No identificada')+'\nInformación de receta: '+(d.prescriptionText||'No extraída')+'\n\nLa dosis y los horarios deben confirmarse manualmente.';
+ $('mh30Draft').hidden=false;
+}
+$('mh30Analyze').addEventListener('click',async()=>{
+ const name=$('mh30NameInput').value.trim();
+ if(!photo&&name.length<3){status('Haz una foto o escribe al menos 3 caracteres.');return}
+ if(!confirm('¿Enviar '+(photo?'esta fotografía y el nombre':'el nombre')+' al servicio de IA configurado en Micro Health para identificar el medicamento? No se guardará automáticamente.'))return;
+ const btn=$('mh30Analyze');btn.disabled=true;status('Consultando la IA…');$('mh30Draft').hidden=true;
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
+ try{
+  if(typeof getAiBackendUrl!=='function')throw Error('No se encontró la conexión de IA de Micro Health.');
+  const payload={mode:photo?'image':'text',name,task:'identify-medication',language:'es',imageDataUrl:photo?await dataUrl(photo):undefined};
+  const response=await fetch(getAiBackendUrl()+'/analyze-medication',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload),signal:controller.signal});
+  const raw=await response.text();let obj={};try{obj=JSON.parse(raw)}catch{}
+  if(response.status===404||response.status===405)throw Error('El Worker del Coach aún no dispone de análisis de medicamentos. Hay que añadir /analyze-medication al Worker. Puedes continuar manualmente.');
+  if(!response.ok)throw Error(safeText(obj.error||raw,240)||'Error HTTP '+response.status);
+  const d=obj.result||obj;
+  const parsed={name:safeText(d.name||d.nombre),activeIngredient:safeText(d.activeIngredient||d.principioActivo),strength:safeText(d.strength||d.concentracion),prescriptionText:safeText(d.prescriptionText||d.indicaciones,300)};
+  if(!parsed.name)throw Error('La IA no identificó el medicamento con suficiente claridad. Completa la ficha manualmente.');
+  showDraft(parsed);status('Revisa el nombre y la concentración. Ninguna dosis ni horario se aplicará automáticamente.');
+ }catch(e){status('No se pudo identificar con IA: '+(e.name==='AbortError'?'Tiempo de espera agotado.':e.message)+ ' Puedes continuar manualmente.')}
+ finally{clearTimeout(timer);btn.disabled=false}
+});
+function manual(useDraft){
+ document.dispatchEvent(new Event('mh30-open-manual'));
+ if(useDraft&&draft){$('mh25Name').value=draft.name;$('mh25Notes').value='';}
+ else if($('mh30NameInput').value.trim())$('mh25Name').value=$('mh30NameInput').value.trim();
+ wizard.hidden=true;
+ // Save the selected photograph only after the user confirms the medication form.
+ window.mh30PendingPhoto=photo||null;photo=null;
+ if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;
+ $('mh25Form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('mh30Manual').addEventListener('click',()=>manual(false));
+$('mh30Apply').addEventListener('click',()=>manual(true));
+window.mh30OnSaved=async id=>{
+ const file=window.mh30PendingPhoto;window.mh30PendingPhoto=null;
+ if(!file)return;
+ try{if(typeof window.mh30SaveImage==='function')await window.mh30SaveImage(id,file);else alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
+ catch(e){alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
 };
 })();
 </script></body></html>
