@@ -1,10 +1,11 @@
-# Micro Health v22.3.35 — Toda la medicación plegada
+# Micro Health v22.3.36 — Coach simplificado
 
-- La sección completa «Mi medicación» aparece cerrada por defecto.
-- Al abrirla, «Tomas de hoy», «Mis medicamentos», «Información oficial» e «Historial reciente» siguen cerrados hasta tocarlos.
-- Cada medicamento individual también sigue plegado por defecto.
-- «Añadir» y los formularios siguen disponibles dentro de la sección abierta.
-- No cambia el almacenamiento `miguel-evolucion-v4`, `micro-health-medicacion-v1` ni IndexedDB.
-- Caché del service worker renovada.
-- Antes de publicar, exportar copia JSON general y copia JSON de medicación. Respaldar fotos de IndexedDB por separado si procede.
-- Subir el contenido del ZIP a la raíz del repositorio, sin publicar automáticamente.
+- Chat principal con tres preguntas rápidas: Cómo voy, Qué hago hoy y Plan semanal.
+- Otras preguntas y opciones PDF del chat quedan plegadas.
+- Evaluación IA: 7 días, 4 semanas, 3 meses o intervalo de fechas personalizado.
+- Se filtran los registros del intervalo seleccionado y se compara con el intervalo inmediatamente anterior.
+- Resultado principal visible y análisis detallado plegado.
+- La evaluación requiere que el Worker IA ya tenga disponible `/coach`.
+- No se modifican las claves de almacenamiento `miguel-evolucion-v4`, `micro-health-medicacion-v1` ni IndexedDB.
+- Antes de subir a GitHub, exporta los JSON de datos y medicación; las fotos pueden necesitar respaldo aparte.
+- El ZIP no se ha publicado automáticamente.

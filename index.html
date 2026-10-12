@@ -4706,6 +4706,20 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 </section>
 
 
+<style id="mh36-coach-simple-style">
+#asistente .mh36-more{margin:10px 0;border:1px solid #dce7e4;border-radius:12px;padding:10px 12px}
+#asistente .mh36-more>summary{cursor:pointer;font-weight:650;color:#176d65}
+#asistente .mh36-more .assistant-chat-quick{margin-top:12px}
+#asistente .mh36-main-quick{display:flex;flex-wrap:wrap;gap:8px}
+#asistente .mh36-period{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+#asistente .mh36-period>label{font-weight:650}
+#asistente .mh36-period select,#asistente .mh36-dates input{min-height:42px;border-radius:9px;border:1px solid #c8d8d3;padding:8px;background:var(--card,#fff);color:inherit}
+#asistente .mh36-dates:not([hidden]){display:flex;flex-wrap:wrap;gap:10px;width:100%}
+#asistente .mh36-dates label{display:flex;align-items:center;gap:8px}
+#asistente .mh36-result-details{margin-top:14px}
+#asistente .mh36-result-details>summary{cursor:pointer;padding:12px 8px;border:1px solid #dce7e4;border-radius:10px;font-weight:700;color:#176d65}
+#asistente .mh36-result-details[open]>summary{margin-bottom:12px}
+</style>
 <section id="asistente" class="mock-page">
   <div class="mock-page-title"><h2>Coach 360º</h2><p>Tu coach de salud, nutrición y entrenamiento con IA</p></div>
 
@@ -4714,18 +4728,12 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
       <div class="assistant-bot" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="11" y="18" width="42" height="31" rx="14"></rect><path d="M32 18V10"></path><circle cx="32" cy="8" r="3"></circle><path d="M21 32c2-4 6-4 8 0"></path><path d="M35 32c2-4 6-4 8 0"></path><path d="M27 42c3 2 7 2 10 0"></path></svg></div>
       <div><h3>¿En qué quieres que te ayude hoy?</h3><p>Puedo conversar contigo usando peso, nutrición, pasos, entrenamientos, rutinas y gimnasios guardados.</p></div>
     </div>
-    <div class="assistant-quick">
-      <button type="button" onclick="askAssistantQuick('¿Cómo voy con la pérdida de grasa esta semana?')"><span class="mock-icon orange"><svg viewBox="0 0 24 24"><path d="M12 3s5 5 5 9a5 5 0 1 1-10 0c0-4 5-9 5-9Z"></path></svg></span><span>Perder grasa</span></button>
-      <button type="button" onclick="askAssistantQuick('¿Cómo está evolucionando mi fuerza y qué debería priorizar para ganar músculo?')"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span>Ganar músculo</span></button>
-      <button type="button" onclick="askAssistantQuick('Con mis datos actuales, ¿mantendrías o ajustarías mis calorías? Explícame por qué.')"><span class="mock-icon blue"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 4-5"></path></svg></span><span>Ajustar calorías</span></button>
-      <button type="button" onclick="askAssistantQuick('Hazme un plan sencillo y medible para los próximos 7 días.')"><span class="mock-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M8 3v4"></path><path d="M16 3v4"></path><path d="M3 10h18"></path></svg></span><span>Plan semanal</span></button>
-    </div>
   </div>
 
   <div class="mock-panel assistant-chat-panel">
     <div class="assistant-chat-head">
       <div><h3>Habla con tu Coach</h3><small>Responde usando tus datos actuales de Micro Health</small></div>
-      <div class="coach-pdf-actions"><button type="button" onclick="exportCoachPdf('last')">PDF última consulta</button><button type="button" onclick="exportCoachPdf('conversation')">PDF conversación</button><button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button></div>
+      <details class="mh36-more"><summary>Opciones del chat</summary><div class="coach-pdf-actions"><button type="button" onclick="exportCoachPdf('last')">PDF última consulta</button><button type="button" onclick="exportCoachPdf('conversation')">PDF conversación</button><button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button></div></details>
     </div>
     <div id="coachRoutineImportPanel" class="mock-panel" style="margin:10px 0;display:none;border:2px solid #167e72;padding:14px;border-radius:14px" aria-live="polite">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><strong>🏋️ Crear rutina del Coach</strong><button type="button" class="secondary" onclick="coachRoutineHidePanel()">✕ Cerrar</button></div>
@@ -4733,12 +4741,20 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
       <div id="coachRoutinePreview" style="margin-top:12px" hidden></div>
     </div>
     <div id="assistantChatFeed" class="assistant-chat-feed"></div>
-    <div class="assistant-chat-quick">
+    <div class="assistant-chat-quick mh36-main-quick">
       <button type="button" onclick="askAssistantQuick('¿Cómo voy esta semana?')">¿Cómo voy?</button>
+      <button type="button" onclick="askAssistantQuick('¿Qué debería hacer hoy para acercarme a mi objetivo?')">¿Qué hago hoy?</button>
+      <button type="button" onclick="askAssistantQuick('Hazme un plan sencillo y medible para los próximos 7 días.')">Plan semanal</button>
+    </div>
+    <details class="mh36-more"><summary>Más preguntas y herramientas</summary>
+      <div class="assistant-chat-quick">
       <button type="button" onclick="askAssistantQuick('Analiza mi último entrenamiento y dime qué destacarías.')">Último entreno</button>
       <button type="button" onclick="askAssistantQuick('¿Estoy llegando bien a proteína?')">Proteína</button>
-      <button type="button" onclick="askAssistantQuick('¿Qué debería hacer hoy para acercarme a mi objetivo?')">Qué hago hoy</button><button type="button" onclick="askAssistantQuick('Evalúa mi estrategia actual con todos mis datos. No des por bueno mi objetivo declarado: dime si seguirías definiendo, harías recomposición, mantenimiento o ganancia muscular, y por qué.')">Evaluar estrategia</button><button type="button" onclick="askAssistantQuick('Hazme un plan de alimentación para mañana adaptado a mi objetivo, actividad, entrenamiento, evolución y preferencias. Indica alimentos, cantidades y totales nutricionales aproximados.')">Dieta de mañana</button><button type="button" onclick="askAssistantQuick('Con lo que ya he comido hoy y mi actividad, dime exactamente qué comería en lo que queda del día para cuadrar energía, proteína, fibra, grasas e hidratos.')">Completar hoy</button>
-    </div>
+      <button type="button" onclick="askAssistantQuick('Evalúa mi estrategia actual con todos mis datos. ¿Seguirías definiendo, harías recomposición, mantenimiento o ganancia muscular?')">Estrategia</button>
+      <button type="button" onclick="askAssistantQuick('Hazme un plan de alimentación para mañana adaptado a mis datos y preferencias.')">Dieta de mañana</button>
+      <button type="button" onclick="askAssistantQuick('Con lo que he comido hoy, dime cómo completar mi alimentación de hoy.')">Completar hoy</button>
+      </div>
+    </details>
     <div class="assistant-chat-compose">
       <textarea id="assistantChatInput" placeholder="Ej. ¿Sigo definiendo o me conviene ganar músculo? Hazme la dieta de mañana. ¿Qué ceno hoy?" onkeydown="assistantChatKeydown(event)"></textarea>
       <button id="assistantChatSend" type="button" class="assistant-chat-send" onclick="sendAssistantMessage()">Enviar</button>
@@ -4748,11 +4764,16 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
   </div>
 
   <div class="mock-panel assistant-analysis">
-    <div class="assistant-chatlike"><div class="assistant-avatar"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 0 1 8 0v5a4 4 0 0 1-8 0Z"></path><path d="M12 5V3"></path><circle cx="12" cy="2.5" r="1"></circle></svg></div><div class="assistant-bubble">También puedes pedir un análisis estructurado de tus últimas 4 semanas.</div></div>
+    <div class="assistant-chatlike"><div class="assistant-avatar"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 0 1 8 0v5a4 4 0 0 1-8 0Z"></path><path d="M12 5V3"></path><circle cx="12" cy="2.5" r="1"></circle></svg></div><div class="assistant-bubble">Evalúa tu evolución en el período que elijas.</div></div>
     <div id="coachLocalSummary" class="coach-summary"></div>
-    <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar últimas 4 semanas</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
+    <div class="mh36-period">
+      <label for="mh36Period">Período de evaluación</label>
+      <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="custom">Elegir fechas</option></select>
+      <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start"></label><label>Hasta <input type="date" id="mh36End"></label></div>
+    </div>
+    <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
-    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Estrategia</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><div class="coach-section"><h3>Situación actual</h3><div id="coachSituation"></div></div><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></div>
+    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Estrategia</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
     <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
   </div>
 </section>
@@ -6386,10 +6407,11 @@ function coachContract(){
   };
 }
 
-function buildCoachSnapshot(days=28){
-  const end=today();
-  const start=isoDaysAgo(days-1);
-  const mid=isoDaysAgo(Math.floor(days/2));
+function buildCoachSnapshot(days=28,range=null){
+  const end=range?.end||today();
+  const start=range?.start||isoDaysAgo(days-1);
+  days=Math.max(1,Math.round((new Date(end+"T12:00:00")-new Date(start+"T12:00:00"))/86400000)+1);
+  const mid=addIsoDays(start,Math.floor(days/2));
   const previousEnd=addIsoDays(start,-1);
   const previousStart=addIsoDays(previousEnd,-(days-1));
 
@@ -7136,12 +7158,40 @@ function exportCoachPdf(mode='last'){
   }catch(e){console.error(e);if(status)status.textContent='No se pudo generar el PDF: '+(e?.message||e);else alert(e?.message||e)}
 }
 
+function mh36PeriodChanged(){
+  const select=document.getElementById('mh36Period');
+  const dates=document.getElementById('mh36Dates');
+  if(dates)dates.hidden=select?.value!=='custom';
+  const todayIso=today();
+  for(const id of ['mh36Start','mh36End']){const input=document.getElementById(id);if(input)input.max=todayIso;}
+  const end=document.getElementById('mh36End'),start=document.getElementById('mh36Start');
+  if(end&&!end.value)end.value=todayIso;
+  if(start&&!start.value)start.value=isoDaysAgo(27);
+}
+function mh36SelectedRange(){
+  const mode=document.getElementById('mh36Period')?.value||'28';
+  if(mode!=='custom'){
+    const days=Number(mode)||28;
+    return {start:isoDaysAgo(days-1),end:today()};
+  }
+  const start=document.getElementById('mh36Start')?.value;
+  const end=document.getElementById('mh36End')?.value;
+  const iso=/^\d{4}-\d{2}-\d{2}$/;
+  if(!iso.test(start||'')||!iso.test(end||''))throw Error('Elige ambas fechas.');
+  if(start>end)throw Error('La fecha de inicio debe ser anterior o igual a la de fin.');
+  if(end>today())throw Error('No se pueden analizar fechas futuras.');
+  const days=Math.round((new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000)+1;
+  if(days>3650)throw Error('Elige un período de hasta 10 años.');
+  return {start,end};
+}
 async function runCoachAnalysis(focus='week'){
   const status=document.getElementById('coachStatus');
   const resultBox=document.getElementById('coachResult');
-  if(status)status.textContent='Analizando tus últimas 4 semanas…';
+  let range;
+  try{range=mh36SelectedRange();}catch(e){if(status)status.textContent=e.message;return;}
+  if(status)status.textContent='Analizando del '+range.start+' al '+range.end+'…';
 
-  const snapshot=buildCoachSnapshot(28);
+  const snapshot=buildCoachSnapshot(28,range);
   const base=getAiBackendUrl();
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),45000);
@@ -7198,7 +7248,7 @@ async function runCoachAnalysis(focus='week'){
     }
 
     if(resultBox)resultBox.classList.add('show');
-    if(status)status.textContent='Análisis actualizado ahora.';
+    if(status)status.textContent='Análisis actualizado: '+range.start+' a '+range.end+'.';
   }catch(e){
     if(status)status.textContent='No se pudo obtener el análisis: '+(e?.name==='AbortError'?'tiempo de espera agotado':(e?.message||e));
   }finally{
