@@ -3631,7 +3631,7 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh30Wizard .mh30-options{display:flex;gap:8px;flex-wrap:wrap}#mh30Wizard .mh30-options button{flex:1 1 120px}
 #mh30Preview img{max-width:100%;max-height:220px;border-radius:12px;object-fit:contain;display:block;margin-bottom:8px}
 #mh30DraftFields{white-space:pre-line;font-size:13px;line-height:1.65}
-</style></head>
+</style><style id="mh32-style">#mh32Review{border:1px solid #c9ddd6;background:#f6faf8;border-radius:14px;padding:14px;margin:12px 0}#mh32Review[hidden]{display:none!important}#mh32Review h4,#mh32Review h5{margin:10px 0 5px}#mh32Review li{margin:5px 0}#mh32Review button{padding:10px;border:1px solid #9ac7b7;border-radius:10px;background:white;color:#145a4b}</style></head>
 <body>
 <header class="mh-topbar">
   <div class="header-wrap">
@@ -3684,7 +3684,8 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 </section>
 <h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
   <p class="mh25-disclaimer">Esta agenda no modifica las pautas prescritas. Ante una dosis olvidada o dudas, consulta las instrucciones de tu profesional sanitario. Los avisos del dispositivo no están garantizados cuando la app está cerrada.</p>
-  <section id="mh30Wizard" class="mh30-wizard" hidden aria-label="Alta guiada de medicamento">
+  <section id="mh32Review" hidden class="mh32-review" aria-live="polite"><h4>✨ Análisis orientativo con IA</h4><p id="mh32ReviewStatus"></p><div id="mh32ReviewBody"></div><button type="button" id="mh32ReviewClose">Cerrar análisis</button><p class="mh25-muted">La IA puede equivocarse. Las interacciones y contraindicaciones requieren revisión profesional, especialmente antes de cambiar un tratamiento. No modifiques la medicación por este análisis.</p></section>
+<section id="mh30Wizard" class="mh30-wizard" hidden aria-label="Alta guiada de medicamento">
 <h4>💊 Añadir medicamento</h4><p class="mh25-muted">Haz una foto de la caja o receta, o escribe el nombre. La IA puede proponer datos, pero tú debes confirmar la pauta prescrita.</p>
 <div class="mh30-options"><button type="button" class="mh25-primary" id="mh30TakePhoto">📷 Hacer foto</button><button type="button" id="mh30ChoosePhoto">🖼️ Elegir imagen</button><button type="button" id="mh30TypeName">⌨️ Escribir nombre</button></div>
 <input type="file" id="mh30CameraInput" accept="image/*" capture="environment" hidden><input type="file" id="mh30ImageInput" accept="image/*" hidden>
@@ -19156,6 +19157,7 @@ function render(){
   const actions=el('div',undefined,'mh25-actions');
   actions.append(button('Editar',()=>openForm(m)));
   actions.append(button('🔎 Consultar en AEMPS',()=>window.mh29OpenCima(m.name)));
+  actions.append(button('✨ Análisis con IA',()=>window.mh32AnalyzeMed(m)));
   actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
   box.append(actions);list.append(box);renderDocs(m.id,box);
  }
@@ -19164,6 +19166,7 @@ function render(){
  if(!entries.length)history.append(el('p','Aún no hay tomas confirmadas.','mh25-empty'));
  for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
 }
+window.mh32MedicationList=()=>db.medications.map(m=>({name:m.name,dose:m.dose}));
 $('mh25AddMed').addEventListener('click',()=>{if(typeof window.mh30OpenWizard==='function')window.mh30OpenWizard();else openForm(null)});
 document.addEventListener('mh30-open-manual',()=>openForm(null));
 $('mh26AddTime').addEventListener('click',()=>timeInput('12:00'));
@@ -19425,6 +19428,42 @@ window.mh30OnSaved=async id=>{
  try{if(typeof window.mh30SaveImage==='function')await window.mh30SaveImage(id,file);else alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
  catch(e){alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
 };
+})();
+</script>
+<script id="mh32-medication-review">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const root=$('mh32Review');if(!root)return;
+const clean=(x,max=2000)=>typeof x==='string'?x.slice(0,max):'';
+const lines=(title,arr)=>{
+ const group=document.createElement('div'),h=document.createElement('h5');h.textContent=title;group.append(h);
+ const ul=document.createElement('ul');
+ for(const x of (Array.isArray(arr)?arr:[]).slice(0,12)){const li=document.createElement('li');li.textContent=clean(x,500);ul.append(li)}
+ if(!ul.children.length){const p=document.createElement('p');p.textContent='Sin información suficiente para determinarlo.';group.append(p)}else group.append(ul);
+ return group;
+};
+window.mh32AnalyzeMed=async function(m){
+ if(!m?.name)return;
+ const all=typeof window.mh32MedicationList==='function'?window.mh32MedicationList():[];
+ if(!confirm('¿Enviar al servicio de IA los nombres y dosis de los medicamentos registrados para analizar «'+m.name+'» y posibles interacciones? No se enviarán las fotografías ni el historial de tomas.'))return;
+ root.hidden=false;root.scrollIntoView({behavior:'smooth',block:'start'});
+ $('mh32ReviewBody').replaceChildren();$('mh32ReviewStatus').textContent='Analizando medicamentos…';
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),45000);
+ try{
+  const response=await fetch(getAiBackendUrl()+'/medication-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({medication:{name:m.name,dose:m.dose},medications:all}),signal:controller.signal,cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(clean(data.error||('Error HTTP '+response.status),300));
+  const d=data.result||{};const body=$('mh32ReviewBody');
+  const h=document.createElement('h4');h.textContent=clean(d.name||m.name,140);body.append(h);
+  const summary=document.createElement('p');summary.textContent=clean(d.summary||'No se obtuvo un resumen.',1800);body.append(summary);
+  body.append(lines('Usos habituales',d.uses),lines('Precauciones y efectos adversos',d.precautions),lines('Posibles interacciones por verificar',d.interactions),lines('Preguntas para médico o farmacéutico',d.questions));
+  const caveat=document.createElement('p');caveat.textContent='Fuente: respuesta de IA, no validación clínica ni comprobación exhaustiva. Contrasta con AEMPS y un profesional.';body.append(caveat);
+  $('mh32ReviewStatus').textContent='Análisis recibido. Revisa las advertencias.';
+ }catch(e){$('mh32ReviewStatus').textContent='No se pudo analizar: '+(e.name==='AbortError'?'La consulta tardó demasiado.':e.message)}
+ finally{clearTimeout(timeout)}
+};
+$('mh32ReviewClose').addEventListener('click',()=>{root.hidden=true;$('mh32ReviewBody').replaceChildren()});
 })();
 </script>
 </body></html>
