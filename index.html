@@ -3440,7 +3440,7 @@ body.mh23-on{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!importa
 #mh23-calorie{background:#fff;border:1px solid #e2ede9;border-radius:13px;padding:12px;margin:12px 0;font-size:13px;color:#536e68}
 #mh23-calorie strong{display:block;color:#0d6256;margin-bottom:3px}
 body.mh23-compact #inicio .life-habits,body.mh23-compact #inicio .life-recovery,body.mh23-compact #inicio .life-trends,body.mh23-compact #inicio .life-report{display:none!important}
-body.mh23-compact #inicio .home-card:not(.home-weight-card){display:none!important}
+
 body.mh23-compact #inicio .life-today-head{display:none!important}
 @media(min-width:850px){#mh23-tabs{max-width:660px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border:1px solid #e3eeed}}
 
@@ -3504,7 +3504,7 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
 #miDia .mh23-day-buttons button:last-child{grid-column:1/-1}
 #miDia .life-habits{margin:0}#miDia .home-card{margin:0 0 12px}#miDia .nutrition-guidance{margin:0}#miDia .home-timeline-card{margin-bottom:0}
 body.mh23-compact #inicio .life-today{display:none!important}
-body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card){display:none!important}
+
 </style>
 <style id="mh23-day-clean-v17">
 /* Las acciones de registro solo aparecen una vez. Los formularios se abren bajo demanda. */
@@ -3522,19 +3522,19 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
 #mh23ProgressDetail>div[id^="mh23Progress"]{scroll-margin-top:84px}
 #mh23ProgressDetail .life-recovery,#mh23ProgressDetail .life-trends,#mh23ProgressDetail .life-report{display:block!important;margin-bottom:16px}
 </style>
-<style id="mh23-home-clean-v19">
-/* Inicio: 1 Peso actual; 2 Objetivo semanal; 3 Objetivos del perfil;
-   4 Próximos hitos; 5 Alertas y señales. Sin duplicar Mi día. */
-#inicio #mh23-home-intro,#inicio .life-today{display:none!important}
-body #inicio .home-card:not(.home-weight-card){display:none!important}
-body.mh23-compact #inicio .home-weight-card,
-body.mh23-compact #inicio .home-week-card,
-body.mh23-compact #inicio .mh23-home-goals-card,
-body.mh23-compact #inicio .home-milestone-card,
-body.mh23-compact #inicio .home-alert-card{display:grid!important}
-body.mh23-compact #inicio .mh23-home-goals-card,
-body.mh23-compact #inicio .home-milestone-card,
-body.mh23-compact #inicio .home-alert-card{display:block!important}
+<style id="mh23-home-clean-v21">
+/* Inicio: cinco tarjetas visibles, resto oculto. Sin conflicto de especificidad. */
+#inicio #mh23-home-intro,
+#inicio .life-today{display:none!important}
+body.mh23-compact #inicio .home-card{display:none!important}
+body.mh23-compact #inicio .home-card.home-weight-card,
+body.mh23-compact #inicio .home-card.home-week-card,
+body.mh23-compact #inicio .home-card.mh23-home-goals-card,
+body.mh23-compact #inicio .home-card.home-milestone-card,
+body.mh23-compact #inicio .home-card.home-alert-card{display:grid!important}
+body.mh23-compact #inicio .home-card.mh23-home-goals-card,
+body.mh23-compact #inicio .home-card.home-milestone-card,
+body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #inicio .mh23-home-goals-card .data-goals3{margin-top:12px}
 #inicio .mh23-home-goals-card .data-goals3>*{max-width:100%}
 </style><style id="mh23-six-tabs-v20">
