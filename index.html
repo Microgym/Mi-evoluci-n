@@ -3632,6 +3632,38 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh30Preview img{max-width:100%;max-height:220px;border-radius:12px;object-fit:contain;display:block;margin-bottom:8px}
 #mh30DraftFields{white-space:pre-line;font-size:13px;line-height:1.65}
 </style><style id="mh32-style">#mh32Review{border:1px solid #c9ddd6;background:#f6faf8;border-radius:14px;padding:14px;margin:12px 0}#mh32Review[hidden]{display:none!important}#mh32Review h4,#mh32Review h5{margin:10px 0 5px}#mh32Review li{margin:5px 0}#mh32Review button{padding:10px;border:1px solid #9ac7b7;border-radius:10px;background:white;color:#145a4b}</style>
+<style id="mh41-daily-simplify-style">
+#mh41-dashboard{margin:8px 0 17px;padding:16px;border-radius:21px;background:linear-gradient(140deg,#eaf8f2,#fff 72%);border:1px solid #d7e8e1;color:#154b44}
+#mh41-dashboard .mh41-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+#mh41-dashboard .mh41-head small{color:#167969;letter-spacing:.045em;font-size:10px;font-weight:850}
+#mh41-dashboard .mh41-head h2{font-size:23px;line-height:1.12;margin:5px 0 7px;color:#14584d}
+#mh41-dashboard .mh41-head p{margin:0 0 11px;font-size:12px;line-height:1.5;color:#536c65}
+#mh41-detail-toggle{flex:0 0 auto;border-radius:12px!important;border:1px solid #a9d4c4!important;background:#fff!important;color:#165d50!important;font-weight:750!important;font-size:12px!important;padding:9px 10px!important;min-height:39px}
+#mh41-dashboard .mh41-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#mh41-dashboard .mh41-stat{text-align:left;min-width:0;display:flex;flex-direction:column;gap:4px;border:1px solid #dce9e4!important;border-radius:15px!important;background:#fff!important;padding:12px!important;box-shadow:none!important;min-height:103px;color:#284e48!important}
+#mh41-dashboard .mh41-stat span{font-size:12px;font-weight:800}
+#mh41-dashboard .mh41-stat strong{font-size:20px;color:#174b43;font-weight:850;overflow-wrap:anywhere}
+#mh41-dashboard .mh41-stat small{color:#668079;font-size:11px}
+#mh41-dashboard .mh41-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+#mh41-dashboard .mh41-actions button{background:#165f52!important;color:#fff!important;border:1px solid #165f52!important;padding:11px 7px!important;border-radius:12px!important;min-height:44px;font-size:13px!important;font-weight:750;box-shadow:none!important}
+#mh41-dashboard .mh41-actions button:nth-child(4){color:#165f52!important;background:#fff!important;border-color:#b7d7c8!important}
+#mh41-dashboard .mh41-foot{margin:10px 0 0;color:#617a73;font-size:11px;line-height:1.4}
+body:not(.mh23-compact) #mh41-dashboard{padding:11px 14px}
+body:not(.mh23-compact) #mh41-dashboard .mh41-summary,
+body:not(.mh23-compact) #mh41-dashboard .mh41-actions,
+body:not(.mh23-compact) #mh41-dashboard .mh41-foot{display:none}
+body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
+#miDia .mh41-reg-hint{margin:-4px 0 11px;color:#667f78;font-size:12px}
+#miDia .mh41-more-register{border:1px solid #dcebe3;border-radius:14px;padding:8px 11px;margin:2px 0 13px;background:#fff}
+#miDia .mh41-more-register>summary{font-size:13px;font-weight:800;color:#196456;cursor:pointer;list-style:none;padding:8px 2px}
+#miDia .mh41-more-register>summary::-webkit-details-marker{display:none}
+#miDia .mh41-more-register>summary::after{content:'⌄';float:right}
+#miDia .mh41-more-register[open]>summary::after{content:'⌃'}
+#miDia .mh41-register-extra{margin:8px 0 2px}
+#miDia .mh41-register-extra button:last-child{grid-column:auto!important}
+@media(min-width:650px){#mh41-dashboard .mh41-summary{grid-template-columns:repeat(4,minmax(0,1fr))}#mh41-dashboard .mh41-actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:360px){#mh41-dashboard{padding:13px}#mh41-dashboard .mh41-head h2{font-size:20px}#mh41-detail-toggle{font-size:11px!important;padding:8px!important}}
+</style>
 <style id="mh40-backup-style">
 .mh40-backup-panel{border:1px solid #b4d4cf;border-radius:14px;margin:12px 0;background:#f4faf8;overflow:hidden}
 .mh40-backup-panel>summary{padding:15px 14px;cursor:pointer;font-size:15px;line-height:1.35;font-weight:750;color:#11564e;list-style:none}
@@ -3683,8 +3715,10 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 </section>
 <section id="miDia" aria-label="Mi día">
 <div class="mh23-day-head"><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tus registros y recomendaciones de hoy, en un solo lugar.</p></div>
-<div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><div class="mh23-day-buttons">
-<button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button><button type="button" onclick="document.getElementById('mh25-medication').scrollIntoView({behavior:'smooth',block:'start'})">💊 Medicación</button></div><div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
+<div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><p class="mh41-reg-hint">Elige un registro; se abre el formulario habitual y se conservan tus datos.</p><div class="mh23-day-buttons mh41-register-main">
+<button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="goSection('entreno')">🏋️ Entrenamiento</button></div>
+<details class="mh41-more-register"><summary>Otros registros y herramientas</summary><div class="mh23-day-buttons mh41-register-extra"><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="mh41OpenMedication()">💊 Medicación</button></div></details>
+<div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
 <div class="mh23-day-group" id="mh25-medication">
   <details id="mh35MedSection" class="mh35-med-section">
     <summary class="mh35-med-top"><strong>💊 Mi medicación</strong><span class="mh35-open-label">Abrir</span></summary>
@@ -3742,6 +3776,22 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 <div class="mh23-day-group" id="mh23-day-guidance"><h3>💡 Pautas del día</h3></div>
 </section>
 <section id="inicio" class="active" data-home-mockup="true">
+<div id="mh41-dashboard" aria-label="Inicio simplificado">
+ <div class="mh41-head"><div><small>MICRO HEALTH · HOY</small><h2>☀️ Tu día, de un vistazo</h2><p>Lo importante primero. Todos los detalles siguen disponibles.</p></div><button type="button" id="mh41-detail-toggle" onclick="mh41ToggleDetail()">Ver todo ↓</button></div>
+ <div id="mh41-summary" class="mh41-summary" aria-live="polite">
+  <button type="button" class="mh41-stat" onclick="goSection('peso')"><span>⚖️ Peso</span><strong id="mh41-weight">—</strong><small>Ver registros</small></button>
+  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🔥 Calorías</span><strong id="mh41-calories">—</strong><small>Consumidas hoy</small></button>
+  <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🥚 Proteínas</span><strong id="mh41-protein">—</strong><small>Registradas hoy</small></button>
+  <button type="button" class="mh41-stat" onclick="mh23DayEditor('sleep')"><span>🌙 Sueño</span><strong id="mh41-sleep">—</strong><small>Último registro de hoy</small></button>
+ </div>
+ <div class="mh41-actions" aria-label="Accesos rápidos">
+  <button type="button" onclick="goSection('comidas')">＋ Comida</button>
+  <button type="button" onclick="goSection('peso')">＋ Peso</button>
+  <button type="button" onclick="goSection('entreno')">🏋️ Entrenar</button>
+  <button type="button" onclick="mh23Open('miDia')">☀️ Registrar más</button>
+ </div>
+ <p class="mh41-foot">Las cifras proceden de tus registros; «—» indica que todavía no hay un valor disponible.</p>
+</div>
 <div id="mh23-home-intro"><small style="font-weight:800;color:#188675">MICRO HEALTH · TU DÍA</small><h2>Tu bienestar, más claro</h2><p>Un resumen para actuar hoy. Tus registros y análisis completos siguen disponibles.</p>
 <div id="mh23-calorie"><strong>🔥 Balance calórico</strong>Consulta tus calorías ingeridas en Comidas. El déficit o superávit se mostrará cuando podamos calcular un gasto total fiable; no se inventan cifras.</div>
 <div class="mh23-home-actions"><button type="button" onclick="mh23Open('miDia')">☀ Mi día</button><button type="button" onclick="mh23Open('progreso')">↗ Ver progreso</button><button type="button" id="mh23-toggle" onclick="mh23ToggleHome()">Ver panel completo ↓</button></div></div>
@@ -19882,6 +19932,45 @@ fileInput.addEventListener('change',async()=>{
   location.reload();
  }catch(e){setStatus('⚠️ Restauración incompleta o cancelada: '+e.message+'\nSi se guardaron fotos antes de un error, se han conservado; los datos principales no se han sobrescrito sin completar todos los archivos.')}finally{importBtn.disabled=false;fileInput.value=''}
 });
+})();
+</script>
+<script id="mh41-daily-simplify-script">
+(function(){
+  'use strict';
+  const mapping=[['mPeso','mh41-weight'],['dayReviewFood','mh41-calories'],['dayReviewProtein','mh41-protein'],['homeSleepHours','mh41-sleep']];
+  function refresh(){
+    for(const [source,target] of mapping){
+      const el=document.getElementById(source),out=document.getElementById(target);
+      if(!out)return;
+      const value=(el?.textContent||'').trim();
+      out.textContent=value&&value!=='Sin registrar'?value:'—';
+    }
+    const toggle=document.getElementById('mh41-detail-toggle');
+    if(toggle)toggle.textContent=document.body.classList.contains('mh23-compact')?'Panel completo ↓':'Vista sencilla ↑';
+  }
+  window.mh41ToggleDetail=function(){
+    if(typeof window.mh23ToggleHome==='function')window.mh23ToggleHome();
+    else document.body.classList.toggle('mh23-compact');
+    refresh();
+  };
+  window.mh41OpenMedication=function(){
+    if(typeof window.mh23Open==='function')window.mh23Open('miDia');
+    const section=document.getElementById('mh35MedSection');
+    if(section)section.open=true;
+    requestAnimationFrame(()=>document.getElementById('mh25-medication')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  };
+  const obs=new MutationObserver(refresh);
+  function install(){
+    for(const [source] of mapping){
+      const el=document.getElementById(source);
+      if(el)obs.observe(el,{childList:true,subtree:true,characterData:true});
+    }
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+  window.addEventListener('pageshow',refresh);
 })();
 </script>
 </body></html>
