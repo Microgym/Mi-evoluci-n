@@ -1,9 +1,14 @@
-# Micro Health v22.3.20 — Registrar en menú general
+# Micro Health v22.3.21 — Corrección de Inicio
 
-La barra principal muestra seis accesos: Inicio, Mi día, Registrar, Entrenar, Progreso y Coach.
+Corrige una colisión entre reglas CSS de las versiones 22.3.16 y 22.3.19 que ocultaba las tarjetas del Inicio salvo el peso.
 
-Registrar abre cuatro accesos a los registros existentes: Peso, Comidas y agua, Sueño y Pasos. Los hábitos siguen en Mi día, sin duplicarse en Registrar.
+Inicio debe mostrar, en este orden:
+1. Peso actual
+2. Objetivo de entrenamientos esta semana
+3. Objetivos de mi perfil (información del apartado Datos)
+4. Próximos hitos
+5. Alertas y señales
 
-Sin cambios en los datos ni en la clave de almacenamiento `miguel-evolucion-v4`. Se conserva la funcionalidad de Mi día y las secciones originales.
+El resto permanece accesible en Mi día, Registrar, Entrenar y Progreso. No se han alterado datos ni la clave `miguel-evolucion-v4`.
 
-Antes de subir a GitHub, exporta tu copia JSON. Las fotos almacenadas en IndexedDB requieren respaldo independiente.
+Antes de publicar, exportar JSON; las fotos en IndexedDB requieren respaldo aparte.
