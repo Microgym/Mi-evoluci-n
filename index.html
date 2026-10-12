@@ -3331,6 +3331,34 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .volume-figure{min-width:0;flex:1;width:calc(50% - 5px)}
 .volume-figures{align-items:flex-start;gap:8px}
 .volume-figure small{margin-top:6px}
+
+/* v22.3.06 · Mi día y hábitos, respetando las tarjetas originales */
+.life-today{background:#eff6f4;border:1px solid #d9e9e4;border-radius:22px;padding:18px;margin:0 0 16px;color:#1c3e36}
+.life-today-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+.life-eyebrow{font-size:10px;letter-spacing:1.7px;color:#397f6c;font-weight:800}
+.life-today-head h2{font-size:27px;line-height:1.1;margin:4px 0 5px;color:#153e35}
+.life-today-head p{margin:0;color:#678078;font-size:12px}
+.life-today-mark{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;background:#fff;color:#19846c;font-size:26px}
+.life-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.life-quick{min-width:0;min-height:104px;background:#fff!important;border:1px solid #e2ebe8!important;border-radius:15px!important;padding:12px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;text-align:left!important;gap:5px!important;box-shadow:none!important;color:#20453c!important;cursor:pointer}
+.life-quick:focus-visible,.life-habit:focus-visible{outline:3px solid #39a88b;outline-offset:2px}
+.life-quick-label{font-size:12px;color:#59736b;font-weight:650}
+.life-quick strong{font-size:20px;line-height:1.2;color:#163d33;overflow-wrap:anywhere}
+.life-quick small{font-size:11px;color:#70877e}
+.life-habits{margin-top:12px;background:#fff;border:1px solid #e2ebe8;border-radius:16px;padding:13px}
+.life-habits-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.life-habits-head>div{display:flex;flex-direction:column;gap:2px}
+.life-habits-head b{font-size:14px;color:#1a4439}
+.life-habits-head span{font-size:11px;color:#74877e}
+.life-habits-head>strong{font-size:13px;background:#e9f5ef;color:#187a61;padding:7px 9px;border-radius:10px}
+.life-habit-items{display:grid;gap:7px}
+.life-habit{width:100%;display:flex;align-items:center;gap:10px;background:#f8fbfa;border:1px solid #e7eeeb;border-radius:12px;padding:10px 12px;text-align:left;color:#31534a;cursor:pointer;font:inherit;font-size:13px}
+.life-habit-check{width:22px;height:22px;border-radius:7px;border:1.5px solid #b5cfc5;display:grid;place-items:center;flex:0 0 22px;background:#fff;color:transparent;font-weight:800}
+.life-habit[aria-pressed="true"]{background:#edf8f3;border-color:#a4d9c4}
+.life-habit[aria-pressed="true"] .life-habit-check{background:#18856b;color:#fff;border-color:#18856b}
+.life-habits-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;margin-top:11px;font-size:10px;color:#82958d}
+@media(min-width:700px){.life-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
 </style>
 
 </head>
@@ -3358,6 +3386,23 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 </header>
 <main>
 <section id="inicio" class="active" data-home-mockup="true">
+
+<!-- Micro Health 22.3.06 · resumen de estilo de vida, sin datos simulados -->
+<div class="life-today" aria-label="Mi día">
+  <div class="life-today-head"><div><span class="life-eyebrow">TU ESTILO DE VIDA</span><h2>Mi día</h2><p id="lifeTodaySubtitle">Tu actividad de hoy, en un vistazo</p></div><div class="life-today-mark" aria-hidden="true">♥</div></div>
+  <div class="life-quick-grid">
+    <button type="button" class="life-quick" onclick="goSection('entreno')"><span class="life-quick-label">🏋️ Entrenamiento</span><strong id="lifeWorkoutValue">—</strong><small id="lifeWorkoutSub">Ver entrenamientos</small></button>
+    <button type="button" class="life-quick" onclick="toggleHomeSleepEditor();document.getElementById('homeSleepEditor')?.scrollIntoView({behavior:'smooth',block:'center'})"><span class="life-quick-label">🌙 Sueño</span><strong id="lifeSleepValue">—</strong><small id="lifeSleepSub">Registrar descanso</small></button>
+    <button type="button" class="life-quick" onclick="toggleHomeStepsEditor();document.getElementById('homeStepsEditor')?.scrollIntoView({behavior:'smooth',block:'center'})"><span class="life-quick-label">🚶 Movimiento</span><strong id="lifeStepsValue">—</strong><small id="lifeStepsSub">Registrar pasos</small></button>
+    <button type="button" class="life-quick" onclick="goSection('comidas')"><span class="life-quick-label">🍽️ Alimentación</span><strong>Mis comidas</strong><small>Ver y registrar</small></button>
+  </div>
+  <div class="life-habits">
+    <div class="life-habits-head"><div><b>Mis pequeños hábitos</b><span>Marca lo que hayas hecho hoy</span></div><strong id="lifeHabitsCount">0/3</strong></div>
+    <div class="life-habit-items" id="lifeHabitsItems"></div>
+    <div class="life-habits-foot"><span id="lifeHabitsWeek">Sin registros anteriores</span><span>Se guarda en este dispositivo</span></div>
+  </div>
+</div>
+
 
 <div class="home-card home-weight-card">
   <div class="home-weight-icon"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></div>
@@ -6723,6 +6768,55 @@ async function runCoachAnalysis(focus='week'){
 }
 
 
+
+
+// v22.3.06 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
+const LIFE_HABITS=[['movilidad','🧘','Un poco de movilidad'],['aireLibre','🌿','Salir al aire libre'],['pausa','☀️','Dedicarme una pausa']];
+function toggleLifeHabit(id){
+  if(!LIFE_HABITS.some(h=>h[0]===id))return;
+  const d=today();
+  if(!db.habitsDaily||typeof db.habitsDaily!=='object')db.habitsDaily={};
+  const row=db.habitsDaily[d]||{};
+  row[id]=!row[id];
+  db.habitsDaily[d]=row;
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderLifestyleToday();
+}
+function renderLifestyleToday(){
+  if(!document.getElementById('lifeHabitsItems'))return;
+  const d=today();
+  const sleep=db.sleepDaily?.[d];
+  const sleepHours=Number(sleep?.hours);
+  const hasSleep=sleep?.hours!==undefined&&sleep?.hours!==null&&Number.isFinite(sleepHours);
+  const sleepEl=document.getElementById('lifeSleepValue');
+  if(sleepEl)sleepEl.textContent=hasSleep?formatSleepHours(sleepHours):'Sin registrar';
+  const sleepSub=document.getElementById('lifeSleepSub');
+  if(sleepSub)sleepSub.textContent=hasSleep?(sleep.quality||'Descanso registrado'):'Registrar descanso';
+  const step=db.stepsDaily?.[d];
+  const stepEl=document.getElementById('lifeStepsValue');
+  if(stepEl)stepEl.textContent=step&&Number.isFinite(Number(step.steps))?Math.round(Number(step.steps)).toLocaleString('es-ES')+' pasos':'Sin registrar';
+  const stepSub=document.getElementById('lifeStepsSub');
+  if(stepSub)stepSub.textContent=step?'Pasos de hoy':'Registrar pasos';
+  const count=(db.entreno||[]).filter(x=>x&&x.fecha===d).length;
+  const wEl=document.getElementById('lifeWorkoutValue');
+  if(wEl)wEl.textContent=count?`${count} registro${count===1?'':'s'}`:'Sin registrar';
+  const wSub=document.getElementById('lifeWorkoutSub');
+  if(wSub)wSub.textContent=count?'Actividad registrada hoy':'Ver entrenamientos';
+  const todayHabits=db.habitsDaily?.[d]||{};
+  const checked=LIFE_HABITS.filter(h=>todayHabits[h[0]]).length;
+  const host=document.getElementById('lifeHabitsItems');
+  host.innerHTML=LIFE_HABITS.map(([id,emoji,name])=>`<button type="button" class="life-habit" aria-pressed="${!!todayHabits[id]}" onclick="toggleLifeHabit('${id}')"><span class="life-habit-check" aria-hidden="true">✓</span><span>${emoji} ${name}</span></button>`).join('');
+  document.getElementById('lifeHabitsCount').textContent=`${checked}/${LIFE_HABITS.length}`;
+  let recorded=0,completed=0;
+  for(let i=1;i<=7;i++){
+    const day=db.habitsDaily?.[addIsoDays(d,-i)];
+    if(day&&LIFE_HABITS.some(h=>day[h[0]]!==undefined)){
+      recorded++;
+      if(LIFE_HABITS.every(h=>day[h[0]]===true))completed++;
+    }
+  }
+  document.getElementById('lifeHabitsWeek').textContent=recorded?`${completed} días con los 3 hábitos · últimos 7 días`:'Aún no hay historial de hábitos';
+}
 
 function toggleHomeDayReviewDetails(){
   document.getElementById('homeDayReviewMore')?.classList.toggle('open');
@@ -16462,7 +16556,7 @@ function render(){
  }
  renderMilestones(last);
  chart('chartCintura',[{data:db.peso.filter(x=>x.cintura!=null).map(x=>({fecha:x.fecha,v:x.cintura}))}],{dec:1});
- renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayReview();renderRegisteredMeals();renderDayTimeline();renderHealthAlerts();renderHomeMockupExtras();try{renderHealthMockup();}catch(e){}try{renderTrainingEvolutionMockup();}catch(e){}try{renderDataMockup();}catch(e){}
+ renderWeightHistory();renderBodyStatus();renderRecentWorkouts();smartHomeStatus();renderWeeklyWorkoutGoal();renderCoachLocalSummary();renderDayReview();renderRegisteredMeals();renderDayTimeline();renderHealthAlerts();renderHomeMockupExtras();renderLifestyleToday();try{renderHealthMockup();}catch(e){}try{renderTrainingEvolutionMockup();}catch(e){}try{renderDataMockup();}catch(e){}
  if(db.peso.length>1){
  let a=db.peso[0],b=last;
  const fmt=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
