@@ -1,17 +1,16 @@
-# Micro Health v22.3.41 — Inicio y registro diario más sencillos
+# Micro Health v22.3.42 — Inicio integrado en Mi día
 
-## Mejoras
-- Nuevo panel compacto de Inicio con peso, calorías, proteínas y sueño, reutilizando las cifras reales que ya muestra la aplicación. Sin cálculos ni valores inventados.
-- Cuatro accesos directos: registrar comida, registrar peso, entrenamiento y «Registrar más».
-- Botón «Panel completo» para acceder a todas las tarjetas y métricas anteriores (no se elimina ninguna).
-- En «Mi día», los cuatro registros más habituales están a primera vista; pasos y medicación permanecen disponibles en «Otros registros y herramientas».
-- Al elegir «Medicación» se abre su apartado general, pero se mantienen plegadas las tarjetas individuales.
-- No modifica las claves `miguel-evolucion-v4`, `micro-health-medicacion-v1`, ni fotos y documentos en IndexedDB; todos los formularios, cálculos y registros existentes se mantienen.
-- Service Worker actualizado al caché v22.3.41; se preservan todos los recursos incorporados en v22.3.40.
+## Cambios
+- Una única portada «☀️ Mi día» en la navegación principal. Se elimina la pestaña duplicada «Inicio».
+- La vista compacta de peso, calorías, proteínas y sueño se muestra arriba de «Mi día» y utiliza los mismos valores reales de v22.3.41.
+- Los botones de registros rápidos se mantienen en «＋ Registrar datos de hoy»: comida, peso, sueño y entrenamiento. «Otros registros y herramientas» sigue plegado.
+- Las tarjetas antiguas de Inicio siguen disponibles sin duplicarse dentro del desplegable «📊 Panel completo y datos adicionales».
+- Medicación, historial y demás bloques de Mi día siguen con sus desplegables anteriores.
+- Los accesos al Inicio antiguo redirigen a «Mi día». El resto de navegación no cambia.
+- No se cambian las claves `miguel-evolucion-v4` ni `micro-health-medicacion-v1`, ni IndexedDB de fotos/documentos. Sin migraciones ni cambios de datos.
+- Service Worker: cache nueva `micro-health-v22-3-42`.
 
-## Publicación
-1. En la versión actual exportar copia completa y las copias JSON general y medicación. Guardarlas de forma privada, nunca en GitHub.
-2. Descomprimir y subir el contenido de este ZIP a la raíz de la rama `main` de GitHub Pages, conservando el resto del repositorio.
-3. Comprobar en Safari/iPhone los accesos rápidos, los valores del resumen y el botón de vista completa.
-
-No se han actualizado GitHub ni Cloudflare automáticamente. No se han probado registros reales del usuario.
+## Instalación y seguridad
+1. Antes de publicar, exportar copia completa y copias JSON general y de medicación, guardadas fuera de GitHub.
+2. Descomprimir y subir los archivos a la raíz del repositorio GitHub Pages (`main`). No se publica automáticamente.
+3. Comprobar en Safari/iPhone Mi día, sus botones de registro, Panel completo, medicamentos, navegación y que los datos anteriores se visualicen correctamente.
