@@ -1,9 +1,12 @@
-# Micro Health v22.3.31 — Corrección del alta por foto
+# Micro Health v22.3.32 + Worker v7.3 — IA para medicación
 
-Se corrige un error de integración de v22.3.30: el código de la nueva pantalla se había insertado accidentalmente dentro del HTML de impresión del informe de entrenamiento y no se ejecutaba como script de la aplicación. Ahora la pantalla «Añadir medicamento» se inicia correctamente desde Mi día → Mi medicación → Añadir.
+**Se requieren dos publicaciones independientes:**
 
-Incluye cámara, galería, nombre escrito, vista previa, quitar foto y continuar manualmente; tras confirmar el alta, la imagen se guarda con los documentos del medicamento.
+1. **Cloudflare:** copia el contenido de `MicroHealth_Cloudflare_Worker_v7.3_Medicacion.js` en el **mismo Worker** del Coach (Edit code → Deploy). Conserva el secreto `OPENAI_API_KEY`, las variables y la URL actuales. Antes de reemplazar, exporta una copia del código actual. Este Worker se ha construido sobre la copia local **v7.2 Comidas**; si el Worker en producción contiene cambios posteriores, fusiona la ruta nueva en vez de reemplazarlo entero.
+2. **GitHub Pages:** sube todos los archivos del ZIP `MicroHealth_v22.3.32_GitHub.zip` a la raíz del repositorio, en la rama `main`. No borres datos del navegador.
 
-**Pendiente:** «Identificar con IA» requiere habilitar la ruta POST /analyze-medication en el Worker del Coach. Si no existe, se indica el error y se permite continuar manualmente. No se afirma que la identificación automática ya funcione.
+**Prueba:** en Mi día → Mi medicación → Añadir, haz una foto y pulsa «Identificar con IA»; revisa la propuesta y confirma dosis y horarios manualmente. Para un medicamento ya guardado, pulsa «✨ Análisis con IA». La revisión solo envía nombre y dosis de los medicamentos registrados, previa confirmación. La foto se envía al Worker solo cuando lo autorizas.
 
-No se cambian las claves `miguel-evolucion-v4` ni `micro-health-medicacion-v1`. Antes de actualizar, exportar copias JSON general y de medicación. Las fotografías históricas requieren su propio respaldo.
+**Limitaciones:** no se ha ejecutado una llamada real a la API ni se ha desplegado el Worker. Las respuestas son orientativas y pueden contener errores. No son una comprobación certificada de interacciones ni sustituyen la valoración médica o farmacéutica. La app no modifica automáticamente pautas.
+
+**Datos:** se conservan las claves `miguel-evolucion-v4` y `micro-health-medicacion-v1`, IndexedDB y el historial. Antes de actualizar, exporta copias JSON general y de medicación (incluye documentos). Las fotografías de progreso pueden requerir un respaldo separado.
