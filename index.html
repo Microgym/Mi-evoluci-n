@@ -3485,6 +3485,14 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
 
 </style>
 
+<style>
+/* v22.3.15 — accesos directos al historial en Progreso */
+#evoTrainingFullHistory .training-history-category{margin-top:14px}
+#evoTrainingFullHistory .history-item{scroll-margin-top:90px}
+#evoTrainingRecent .mh23-recent-direct{width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit;border:0;border-bottom:1px solid var(--line,#e6e9e8);background:transparent;display:flex;align-items:center;gap:10px;padding:12px 3px}
+#evoTrainingRecent .mh23-recent-direct:focus-visible{outline:2px solid #168b7c;outline-offset:2px;border-radius:8px}
+#evoTrainingRecent .mh23-recent-direct > span:first-child{flex:1;min-width:0}
+</style>
 </head>
 <body>
 <header class="mh-topbar">
@@ -4610,7 +4618,11 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
     </div>
     <div id="evoStrengthChart" class="mock-chart"></div>
   </div>
-  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg></span><div><h3>Historial reciente</h3><p>Tus últimos entrenamientos</p></div></div></div><div id="evoTrainingRecent" class="recent-list"></div></div>
+  <div class="mock-panel" id="evoTrainingFullHistory">
+    <div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg></span><div><h3>Historial completo</h3><p>Todos tus entrenamientos, agrupados y plegados. Toca uno para ver sus detalles.</p></div></div></div>
+    <div id="evoTrainingAllItems"></div>
+  </div>
+  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg></span><div><h3>Historial reciente</h3><p>Toca un entrenamiento para abrir exactamente ese registro arriba</p></div></div></div><div id="evoTrainingRecent" class="recent-list"></div></div>
   <details id="trainingAdvanced" class="data-edit-details"><summary>Ver análisis completo de entrenamiento</summary><div class="data-edit-body"><div id="activitySummary"></div><div id="exerciseMap"></div><label>Ejercicio</label><select id="strengthExercise"></select><div id="chartFuerza" class="chart"></div><div id="strengthTable"></div><div id="recentWorkouts"></div></div></details>
 </section>
 
@@ -5586,26 +5598,57 @@ function renderStrengthMockChart(selectedName=null){
  const pts=[...sessions.values()].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
  chartDataToNode('evoStrengthChart',pts,{dec:1});
 }
+/* v22.3.15: historial completo visible en Progreso; cada entrada permanece plegada. */
+function jumpToProgressWorkout(fecha,hora,kind,id){
+  renderTrainingHistoryActions('evoTrainingAllItems');
+  const host=document.getElementById('evoTrainingAllItems');
+  if(!host)return;
+  let target=null;
+  if(kind==='routine' && id){
+    target=[...host.querySelectorAll('[data-routine-key]')].find(el=>el.dataset.routineKey==='sid:'+id)||null;
+  }
+  if(!target && kind==='manual' && id!=='' && Number.isInteger(Number(id))){
+    target=host.querySelector('[data-training-index="'+Number(id)+'"]');
+  }
+  if(!target){
+    target=[...host.querySelectorAll('[data-training-date]')].find(el=>el.dataset.trainingDate===fecha && (!hora||el.dataset.trainingHour===hora))||null;
+  }
+  if(!target){
+    const label=document.getElementById('evoTrainingFullHistory');
+    label?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  if(target.tagName==='DETAILS')target.open=true;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    target.scrollIntoView({behavior:'smooth',block:'center'});
+    target.classList.add('history-jump-highlight');
+    setTimeout(()=>target.classList.remove('history-jump-highlight'),2200);
+  }));
+}
 function renderTrainingRecentMock(){
   const h=document.getElementById('evoTrainingRecent');
   if(!h)return;
-  const range=periodDateRange(trainingMockDays,today());
+  renderTrainingHistoryActions('evoTrainingAllItems');
+  // Recientes de TODO el historial, no solo del periodo del gráfico.
   const dates=[];
-  for(let d=range.start; d<=range.end; d=addIsoDays(d,1)){
-    const x=mockTrainingSessionsForDay(d);
-    x.sessions.forEach(s=>dates.push({fecha:d,...s}));
-  }
-  const sessions=dates
-    .sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(b.hora||'').localeCompare(a.hora||''))
-    .slice(0,5);
-
+  const days=new Set([...(db.entreno||[]).map(r=>storedDateISO(r?.fecha)),...(db.rutinaSesiones||[]).map(r=>storedDateISO(r?.fecha))]);
+  [...days].filter(Boolean).forEach(d=>{
+    mockTrainingSessionsForDay(d).sessions.forEach(s=>dates.push({fecha:d,...s}));
+  });
+  const sessions=dates.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(b.hora||'').localeCompare(a.hora||'')).slice(0,5);
   h.innerHTML=sessions.length
-    ? sessions.map(s=>`<div class="recent-row" onclick="document.querySelector('nav button[data-sec=entreno]')?.click()">
-        <div><b>${s.name||'Entrenamiento'}</b><small>${fechaES(s.fecha)}${s.hora?' · '+s.hora:''}</small></div>
+    ? sessions.map(s=>{
+      const date=String(s.fecha||'').replace(/[^0-9-]/g,'');
+      const hour=String(s.hora||'').replace(/[^0-9:]/g,'');
+      const kind=s.kind==='routine'?'routine':'manual';
+      const id=String(s.id||'').replace(/[^a-zA-Z0-9_:-]/g,'');
+      return `<button type="button" class="recent-row mh23-recent-direct" onclick="jumpToProgressWorkout('${date}','${hour}','${kind}','${id}')">
+        <span><b>${escapeMealText(s.name||'Entrenamiento')}</b><small>${fechaES(s.fecha)}${s.hora?' · '+escapeMealText(s.hora):''}</small></span>
         <span class="recent-meta">◷ ${Math.round(Number(s.mins)||0)} min</span>
         <span class="recent-meta">🔥 ${Math.round(Number(s.kcal)||0)} kcal</span><span>›</span>
-      </div>`).join('')
-    : `<div class="empty">No hay entrenamientos entre ${fechaES(range.start)} y ${fechaES(range.end)}.</div>`;
+      </button>`;
+    }).join('')
+    : '<div class="empty">Todavía no hay entrenamientos registrados.</div>';
 }
 function renderDataMockup(){const p=profile();const s=document.getElementById('dataProfileSummary');if(s)s.innerHTML=`<div class="data-summary-cell"><small>Nombre</small><b>${p.nombre||'—'}</b></div><div class="data-summary-cell"><small>Edad</small><b>${p.edad?p.edad+' años':'—'}</b></div><div class="data-summary-cell"><small>Altura</small><b>${p.alturaCm?p.alturaCm+' cm':'—'}</b></div><div class="data-summary-cell"><small>Sexo</small><b>${p.sexo||'—'}</b></div>`;const g=document.getElementById('dataGoalsSummary');if(g)g.innerHTML=`<div class="data-goal-cell"><small>Calorías</small><b>${kcalTarget().toLocaleString('es-ES')} kcal</b><div class="mini-progress"><i style="width:70%"></i></div></div><div class="data-goal-cell"><small>Proteína</small><b>${proteinTarget()} g</b><div class="mini-progress"><i style="width:70%"></i></div></div><div class="data-goal-cell"><small>Pasos</small><b>${Number(p.pasosDia||0).toLocaleString('es-ES')}</b><div class="mini-progress"><i style="width:70%"></i></div></div>`;const w=weeklyWorkoutSessions();const target=Number(p.fuerzaDias)||0;const pct=target?Math.round(w.count/target*100):0;document.getElementById('dataWorkoutGoalText').textContent=`${w.count} de ${target||'—'}`;document.getElementById('dataWorkoutGoalSub').textContent='entrenamientos esta semana';document.getElementById('dataWorkoutGoalPct').textContent=(target?pct:0)+'%';document.getElementById('dataWorkoutGoalBar').style.width=Math.min(100,pct)+'%';const sync=document.getElementById('dataSyncSummary');if(sync)sync.textContent=localStorage.getItem(SYNC_URL_KEY)?'Configurado':'No configurado';const ai=document.getElementById('dataAiUrl');if(ai)ai.textContent=getAiBackendUrl();}
 
@@ -15010,8 +15053,8 @@ function updateRoutineHistoryGym(key,newGym){
  },30);
 }
 
-function renderTrainingHistoryActions(){
- const el=document.getElementById('trainingHistoryActions');
+function renderTrainingHistoryActions(targetId='trainingHistoryActions'){
+ const el=document.getElementById(targetId);
  if(!el)return;
 
  const all=db.entreno||[];
