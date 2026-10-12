@@ -3332,7 +3332,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .volume-figures{align-items:flex-start;gap:8px}
 .volume-figure small{margin-top:6px}
 
-/* v22.3.08 · Mi día y hábitos, respetando las tarjetas originales */
+/* v22.3.09 · Mi día y hábitos, respetando las tarjetas originales */
 .life-today{background:#eff6f4;border:1px solid #d9e9e4;border-radius:22px;padding:18px;margin:0 0 16px;color:#1c3e36}
 .life-today-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
 .life-eyebrow{font-size:10px;letter-spacing:1.7px;color:#397f6c;font-weight:800}
@@ -3360,7 +3360,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 @media(min-width:700px){.life-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v22.3.08 · Calendario semanal y recuperación */
+/* v22.3.09 · Calendario semanal y recuperación */
 .life-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:11px}
 .life-week-day{display:flex;align-items:center;flex-direction:column;gap:5px;min-width:0}
 .life-week-day small{font-size:10px;color:#6d837b}
@@ -3386,7 +3386,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .life-recovery-action{margin-top:10px;width:100%;background:#edf7f2!important;color:#17674f!important;border:1px solid #c8e5d7!important;border-radius:10px!important;padding:9px!important;font-size:12px!important;font-weight:700!important}
 
 
-/* v22.3.08 · evolución personal: sin bibliotecas externas */
+/* v22.3.09 · evolución personal: sin bibliotecas externas */
 .life-trends{margin-top:14px;padding:17px 14px;border:1px solid #dceae6;border-radius:20px;background:#fff;color:#183d36}
 .life-trends-head h3{margin:0 0 4px;font-size:18px;line-height:1.3;color:#173e37}
 .life-trends-head p{margin:0 0 12px;color:#657a74;font-size:12px;line-height:1.5}
@@ -3406,6 +3406,19 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .life-trends-insights{display:grid;gap:7px;margin-top:11px}
 .life-trend-insight{font-size:12px;line-height:1.5;color:#48675c;background:#f1f7f4;padding:10px 11px;border-radius:11px}
 .life-trends-disclaimer{font-size:10px;line-height:1.5;color:#82948d;margin:10px 2px 0}
+
+
+/* v22.3.09 · informe semanal privado */
+.life-report{margin-top:14px;background:#fff;border:1px solid #dcebe5;border-radius:19px;padding:16px;color:#173e37;box-shadow:0 5px 18px #0a5b4110}
+.life-report h3{margin:0 0 5px;font-size:19px;color:#174d40}.life-report p{margin:0;color:#607c71;font-size:13px;line-height:1.5}
+.life-report-nav{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:14px 0 12px}
+.life-report-nav button,.life-report-actions button{background:#eff7f3;color:#176c57;border:1px solid #d5e9df;border-radius:11px;padding:9px 12px;font-weight:700;cursor:pointer;font-size:13px}
+.life-report-nav button:disabled{opacity:.35;cursor:default}.life-report-period{font-size:12px;text-align:center;font-weight:700;line-height:1.45;flex:1}
+.life-report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.life-report-metric{background:#f4f9f6;border-radius:12px;padding:11px;min-width:0}.life-report-metric small{display:block;font-size:11px;color:#648276}.life-report-metric b{display:block;margin:5px 0;font-size:18px;color:#174d40}.life-report-metric span{display:block;font-size:11px;color:#648276;line-height:1.4}
+.life-report-block{border-top:1px solid #e5eee9;padding-top:11px;margin-top:11px}.life-report-block h4{font-size:14px;margin:0 0 8px;color:#214d41}.life-report-line{font-size:13px;line-height:1.55;margin:0 0 7px;color:#405f54}
+.life-report-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.life-report-actions button{flex:1}
+.life-report-note{margin-top:10px!important;font-size:11px!important;color:#7a8f86!important}
 
 </style>
 
@@ -3435,7 +3448,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 <main>
 <section id="inicio" class="active" data-home-mockup="true">
 
-<!-- Micro Health 22.3.08 · resumen de estilo de vida, sin datos simulados -->
+<!-- Micro Health 22.3.09 · resumen de estilo de vida, sin datos simulados -->
 <div class="life-today" aria-label="Mi día">
   <div class="life-today-head"><div><span class="life-eyebrow">TU ESTILO DE VIDA</span><h2>Mi día</h2><p id="lifeTodaySubtitle">Tu actividad de hoy, en un vistazo</p></div><div class="life-today-mark" aria-hidden="true">♥</div></div>
   <div class="life-quick-grid">
@@ -3469,6 +3482,14 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
     <div id="lifeTrendsInsights" class="life-trends-insights"></div>
     <p class="life-trends-disclaimer">Solo se usan registros guardados. Las medias excluyen los días sin datos. Las comparaciones son descriptivas, no una evaluación médica.</p>
   </div>
+
+  <section class="life-report" aria-label="Mi informe semanal">
+    <div><h3>📋 Mi informe semanal</h3><p>Un resumen de tu actividad, descanso y hábitos, elaborado con tus registros reales.</p></div>
+    <div class="life-report-nav"><button type="button" onclick="moveLifeReportWeek(-1)" aria-label="Semana anterior">‹ Anterior</button><div class="life-report-period" id="lifeReportPeriod">—</div><button type="button" id="lifeReportNext" onclick="moveLifeReportWeek(1)" aria-label="Semana siguiente">Siguiente ›</button></div>
+    <div id="lifeReportContent" aria-live="polite"></div>
+    <div class="life-report-actions"><button type="button" onclick="downloadLifeReport()">↓ Guardar informe TXT</button><button type="button" onclick="copyLifeReport()">Copiar resumen</button></div>
+    <p class="life-report-note" id="lifeReportStatus">Análisis local y descriptivo. No se envía información a servicios externos.</p>
+  </section>
 </div>
 
 
@@ -6843,7 +6864,7 @@ async function runCoachAnalysis(focus='week'){
 
 
 
-// v22.3.08 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
+// v22.3.09 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
 const LIFE_HABITS=[['movilidad','🧘','Un poco de movilidad'],['aireLibre','🌿','Salir al aire libre'],['pausa','☀️','Dedicarme una pausa']];
 function toggleLifeHabit(id){
   if(!LIFE_HABITS.some(h=>h[0]===id))return;
@@ -6907,7 +6928,7 @@ function renderLifestyleToday(){
 
 
 
-// v22.3.08 · análisis descriptivo con datos reales, sin crear nuevos registros.
+// v22.3.09 · análisis descriptivo con datos reales, sin crear nuevos registros.
 let lifeTrendsDays=30;
 function setLifeTrendsRange(days){
   if(![7,30,90].includes(Number(days)))return;
@@ -7002,6 +7023,80 @@ function renderLifeTrends(){
   if(m.habits.recorded)messages.push(`🌿 Completaste los tres hábitos ${m.habits.full} de los ${m.habits.recorded} días en que los registraste.`);
   if(!messages.length)messages.push('Empieza a registrar sueño, pasos o hábitos para obtener observaciones basadas en tus datos.');
   insights.innerHTML=messages.map(msg=>`<div class="life-trend-insight">${msg}</div>`).join('');
+  renderWeeklyLifeReport();
+}
+
+
+// v22.3.09 · informe semanal local, calculado sin servicios externos.
+let lifeReportWeekOffset=0;
+let lifeReportPlainText='';
+function moveLifeReportWeek(delta){
+  lifeReportWeekOffset=Math.min(0,Math.max(-260,lifeReportWeekOffset+delta));
+  renderWeeklyLifeReport();
+}
+function lifeReportMetricText(value,unit=''){return value===null?'Sin datos':`${value}${unit}`;}
+function buildWeeklyLifeReport(){
+  const monday=addIsoDays(startOfWeekISO(today()),lifeReportWeekOffset*7);
+  const dates=Array.from({length:7},(_,i)=>addIsoDays(monday,i));
+  const previous=dates.map(d=>addIsoDays(d,-7));
+  const end=dates[6];
+  const m=lifeTrendMetric(dates),prev=lifeTrendMetric(previous);
+  const countSleep=m.sleep.count,countSteps=m.steps.count,countEnergy=m.energy.count;
+  const fmt=(n,dec=1)=>lifeTrendFmt(n,dec);
+  const compare=(now,was,unit,dec=1)=>now!==null&&was!==null?`${now-was>0?'+':''}${fmt(now-was,dec)} ${unit} vs. semana anterior`:'Sin comparación disponible';
+  const weightDates=new Set(dates);
+  const weights=(db.peso||[]).filter(r=>weightDates.has(storedDateISO(r.fecha))&&lifeTrendValid(r.peso,1,500)!==null).slice().sort((a,b)=>storedDateISO(a.fecha).localeCompare(storedDateISO(b.fecha)));
+  const latestWeight=weights.length?Number(weights.at(-1).peso):null;
+  const p=profile();
+  const goal=lifeTrendValid(p.fuerzaDias,1,14);
+  const stats=[
+    ['🏋️ Entrenamiento',`${m.training} días`,`${prev.training} días la semana anterior${goal!==null?' · objetivo '+goal:''}`],
+    ['🌙 Sueño',countSleep?formatSleepHours(m.sleep.value):'Sin datos',`${countSleep}/7 noches · ${compare(m.sleep.value,prev.sleep.value,'h')}`],
+    ['🚶 Pasos',countSteps?`${Math.round(m.steps.value).toLocaleString('es-ES')}/día`:'Sin datos',`${countSteps}/7 días · ${compare(m.steps.value,prev.steps.value,'pasos',0)}`],
+    ['🌿 Hábitos',`${m.habits.full} días completos`,`${m.habits.recorded}/7 días con registro`],
+    ['☀️ Energía',countEnergy?`${fmt(m.energy.value)}/5`:'Sin datos',`${countEnergy}/7 valoraciones`],
+    ['⚖️ Peso',latestWeight===null?'Sin mediciones':`${fmt(latestWeight)} kg`,weights.length>=2?`Cambio registrado: ${m.weight.delta>0?'+':''}${fmt(m.weight.delta)} kg`:`${weights.length} medición/es esta semana`]
+  ];
+  const observations=[],actions=[];
+  if(m.training>prev.training)observations.push(`Entrenaste ${m.training-prev.training} día(s) más que la semana anterior.`);
+  else if(m.training<prev.training)observations.push(`Registraste ${prev.training-m.training} día(s) menos de entrenamiento que la semana anterior.`);
+  else observations.push(`Registraste ${m.training} día(s) de entrenamiento, igual que la semana anterior.`);
+  if(countSleep>=3){
+    observations.push(`Tu media de sueño fue ${formatSleepHours(m.sleep.value)} en ${countSleep} noches registradas.`);
+    if(prev.sleep.count>=3)observations.push(`La media de sueño ${m.sleep.value>=prev.sleep.value?'subió':'bajó'} ${fmt(Math.abs(m.sleep.value-prev.sleep.value))} horas frente a la semana anterior.`);
+    if(m.sleep.value<7)actions.push('Revisa tus horarios de descanso si te gustaría dormir más; el dato es orientativo, no una evaluación clínica.');
+  }else actions.push('Registra el sueño en más noches para que el informe pueda mostrar una tendencia fiable.');
+  if(goal!==null&&m.training<goal)actions.push(`Tu objetivo es ${goal} entrenamientos semanales y has registrado ${m.training}; revisa si quieres ajustar tu planificación.`);
+  if(m.habits.recorded>=2)observations.push(`Completaste los tres hábitos ${m.habits.full} de los ${m.habits.recorded} días con registro.`);
+  else actions.push('Marca tus pequeños hábitos cuando los realices para ver tu constancia semanal.');
+  if(countSteps>=3)observations.push(`La media de pasos fue ${Math.round(m.steps.value).toLocaleString('es-ES')} en ${countSteps} días registrados.`);
+  else actions.push('Si registras tus pasos varios días, podrás comparar mejor tu actividad cotidiana.');
+  if(countEnergy>=3)observations.push(`Tu energía media al despertar fue ${fmt(m.energy.value)}/5 (${countEnergy} valoraciones).`);
+  if(weights.length>=2)observations.push(`Entre la primera y la última medición semanal, tu peso varió ${m.weight.delta>0?'+':''}${fmt(m.weight.delta)} kg.`);
+  if(!actions.length)actions.push('Continúa registrando con regularidad y revisa tus objetivos según cómo te encuentres.');
+  const title=`Semana del ${fechaES(monday)} al ${fechaES(end)}`;
+  const text=[`MICRO HEALTH · INFORME SEMANAL`,title,'','TUS DATOS',...stats.map(s=>`${s[0]}: ${s[1]} (${s[2]})`),'','LO QUE MUESTRAN TUS REGISTROS',...observations.map(x=>'- '+x),'','IDEAS PARA LA PRÓXIMA SEMANA',...actions.map(x=>'- '+x),'','Nota: los días sin registros no cuentan como cero. Las observaciones no son diagnósticos ni recomendaciones médicas. Informe calculado localmente.'].join('\n');
+  return {title,stats,observations,actions,text};
+}
+function renderWeeklyLifeReport(){
+  const host=document.getElementById('lifeReportContent');if(!host)return;
+  const r=buildWeeklyLifeReport();lifeReportPlainText=r.text;
+  const period=document.getElementById('lifeReportPeriod');if(period)period.textContent=r.title;
+  const next=document.getElementById('lifeReportNext');if(next)next.disabled=lifeReportWeekOffset>=0;
+  const escape=typeof volumeEscape==='function'?volumeEscape:(v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+  host.innerHTML=`<div class="life-report-grid">${r.stats.map(s=>`<div class="life-report-metric"><small>${escape(s[0])}</small><b>${escape(s[1])}</b><span>${escape(s[2])}</span></div>`).join('')}</div><div class="life-report-block"><h4>🔎 Lo que muestran tus registros</h4>${r.observations.map(x=>`<div class="life-report-line">• ${escape(x)}</div>`).join('')}</div><div class="life-report-block"><h4>🎯 Ideas para la próxima semana</h4>${r.actions.map(x=>`<div class="life-report-line">• ${escape(x)}</div>`).join('')}</div>`;
+}
+function downloadLifeReport(){
+  renderWeeklyLifeReport();
+  const blob=new Blob(['\uFEFF'+lifeReportPlainText],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`micro-health-informe-${addIsoDays(startOfWeekISO(today()),lifeReportWeekOffset*7)}.txt`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+async function copyLifeReport(){
+  renderWeeklyLifeReport();const status=document.getElementById('lifeReportStatus');
+  try{await navigator.clipboard.writeText(lifeReportPlainText);if(status)status.textContent='Resumen copiado al portapapeles.';}
+  catch(e){if(status)status.textContent='No se pudo copiar. Usa «Guardar informe TXT».';}
 }
 
 function renderLifeRecovery(){
