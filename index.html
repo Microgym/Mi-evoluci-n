@@ -3323,6 +3323,14 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .volume-anatomy-real .volume-muscle-overlay{opacity:1;mix-blend-mode:multiply}
 .volume-anatomy-real .muscle-tint{mix-blend-mode:multiply;stroke:none}
 .volume-legend{line-height:1.45}
+
+/* v22.3.04 — mapa anatómico con capas de píxeles alineadas, sin polígonos flotantes */
+.volume-anatomy-layers{position:relative;width:100%;aspect-ratio:527 / 1164;overflow:hidden;background:#fff;isolation:isolate}
+.volume-anatomy-layers img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.volume-anatomy-layers .volume-layer-color{z-index:1}
+.volume-figure{min-width:0;flex:1;width:calc(50% - 5px)}
+.volume-figures{align-items:flex-start;gap:8px}
+.volume-figure small{margin-top:6px}
 </style>
 
 </head>
@@ -13887,37 +13895,13 @@ function volumeFigure(side,muscles,gender='male'){
  ${mirror('M82 285 L102 286 L100 329 L83 330Z','Gemelos')}
  ${mirror('M83 334 L100 333 L98 367 L84 367Z','Gemelos')}
  `;
- // La ilustración original elegida (diseño 1) es la base anatómica. Las capas musculares se colorean según los ejercicios.
- // La versión femenina conserva el mapa vectorial hasta disponer de la ilustración femenina equivalente.
+ // v22.3.04: capas derivadas de los píxeles de la propia ilustración; sin polígonos ni desplazamientos.
+ // Si un músculo no tiene máscara anatómica verificable, permanece gris.
  if(!female){
-  const asset=side==='front'?'./anatomia-diseno1-front.png':'./anatomia-diseno1-back.png';
-  // Las máscaras están dibujadas en las coordenadas nativas de cada lámina (192/205 × 527).
-  // No se estiran las figuras ni se utilizan los polígonos del esquema anterior.
-  const shapes=side==='front'?[
-   ['Pectorales','M57 104 Q73 94 94 99 L94 151 Q80 155 64 146 Q56 135 57 104Z M99 99 Q120 94 137 104 Q140 135 131 146 Q115 155 99 151Z'],
-   ['Deltoides','M45 89 Q34 94 31 108 Q27 126 34 141 L51 135 Q60 114 59 99Z M146 99 Q160 91 169 108 Q175 126 166 141 L149 135Z'],
-   ['Bíceps','M31 146 Q40 143 50 146 L46 191 Q38 199 27 186Z M156 146 Q166 143 174 146 L177 186 Q165 199 157 191Z'],
-   ['Abdominales','M79 159 Q88 155 94 158 L94 211 Q83 216 78 207Z M99 158 Q109 155 117 159 L117 207 Q110 216 99 211Z'],
-   ['Oblicuos','M63 151 L76 161 L78 209 L66 225 Q61 193 63 151Z M132 161 L145 151 Q147 193 141 225 L129 209Z'],
-   ['Cuádriceps','M52 273 Q62 259 82 274 Q84 303 76 353 Q70 372 62 375 Q51 342 49 308Z M111 274 Q131 259 141 273 L144 308 Q142 342 130 375 Q122 372 116 353 Q108 303 111 274Z'],
-   ['Aductores','M84 278 L95 274 L94 330 L83 351Z M99 274 L110 278 L112 351 L99 330Z'],
-   ['Gemelos','M51 392 Q65 388 75 394 L74 444 L62 463 L55 443Z M120 394 Q133 388 143 392 L139 443 L132 463 L120 444Z']
-  ]:[
-   ['Trapecios','M77 58 Q91 76 103 84 Q117 76 129 58 L149 89 Q132 111 104 143 Q78 111 58 89Z'],
-   ['Deltoides','M54 86 Q36 89 28 112 L33 142 L51 139 L68 103Z M141 103 L157 86 Q175 89 181 112 L175 142 L156 139Z'],
-   ['Tríceps','M29 145 L49 147 L47 193 Q39 204 26 186Z M159 147 L178 145 L182 186 Q169 204 161 193Z'],
-   ['Dorsales','M65 135 Q81 148 102 160 L102 231 Q82 219 67 197Z M106 160 Q127 148 143 135 L141 197 Q125 219 106 231Z'],
-   ['Lumbares','M82 219 L102 235 L102 262 L84 250Z M106 235 L126 219 L124 250 L106 262Z'],
-   ['Glúteos','M61 265 Q81 260 103 273 L103 323 Q87 338 65 320Z M106 273 Q128 260 148 265 L144 320 Q122 338 106 323Z'],
-   ['Isquiotibiales','M66 331 Q82 337 99 333 L99 389 Q82 406 70 394Z M109 333 Q126 337 143 331 L139 394 Q126 406 109 389Z'],
-   ['Gemelos','M72 406 Q83 402 97 409 L92 465 L79 476 L73 451Z M111 409 Q125 402 136 406 L135 451 L129 476 L116 465Z']
-  ];
-  const w=side==='front'?192:205;
-  const overlays=shapes.filter(([m])=>values[m]>0).map(([m,d])=>`<path class="muscle-tint" d="${d}" fill="${color(m)}" fill-opacity=".56"><title>${volumeEscape(m)}: ${volumeNumber(values[m])} kg</title></path>`).join('');
-  return `<svg class="volume-anatomy volume-anatomy-real" viewBox="0 0 ${w} 527" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomía diseño 1 ${side==='front'?'frontal':'posterior'}; músculos trabajados coloreados">
-   <image href="${asset}" x="0" y="0" width="${w}" height="527" preserveAspectRatio="xMidYMid meet"/>
-   <g class="volume-muscle-overlay">${overlays}</g>
-  </svg>`;
+  const layers=side==='front'?[("Pectorales", "muscle-front-pectorales.png"), ("Deltoides", "muscle-front-deltoides.png"), ("Bíceps", "muscle-front-biceps.png"), ("Cuádriceps", "muscle-front-cuádriceps.png")]:[("Deltoides", "muscle-back-deltoides.png"), ("Dorsales", "muscle-back-dorsales.png"), ("Glúteos", "muscle-back-gluteos.png"), ("Isquiotibiales", "muscle-back-isquiotibiales.png")];
+  const base=`<img class="volume-layer-base" src="./muscle-${side}-base.webp" alt="Anatomía masculina, vista ${side==='front'?'frontal':'posterior'}" draggable="false">`;
+  const highlights=layers.filter(([muscle])=>values[muscle]>0).map(([muscle,file])=>`<img class="volume-layer-color" src="./${file}" alt="" aria-hidden="true" draggable="false">`).join('');
+  return `<div class="volume-anatomy-layers" role="img" aria-label="Vista ${side==='front'?'frontal':'posterior'}: músculos trabajados resaltados según la sesión">${base}${highlights}</div>`;
  }
  // Las zonas genéricas se señalan en la leyenda, no se colorean como si se conociera un músculo específico.
  return `<svg class="volume-anatomy" viewBox="0 0 220 405" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa anatómico ${side==='front'?'frontal':'posterior'} detallado">
@@ -13937,7 +13921,7 @@ function closeVolumeSummary(){const el=document.getElementById('volumeOverlay');
 function openVolumeSummary(rows,meta={}){
  const overlay=document.getElementById('volumeOverlay'),content=document.getElementById('volumeSummaryContent');if(!overlay||!content)return;
  const a=volumeAnalysis(rows);const max=a.groups.length?a.groups[0][1]:1;
- const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const isFemale=gender.includes('mujer')||gender.includes('female')||gender==='f'||gender==='femenino';const label=isFemale?'Figura femenina vectorial':'Ilustración anatómica diseño 1';
+ const gender=String(db.profile?.sexo||db.profile?.sex||db.sexo||'').toLowerCase();const isFemale=gender.includes('mujer')||gender.includes('female')||gender==='f'||gender==='femenino';const label=isFemale?'Figura femenina vectorial':'Ilustración anatómica detallada';
  const bars=a.groups.map(([zone,kg])=>`<div class="volume-bar-row"><b>${zone}</b><span>${volumeNumber(kg)} kg</span><div class="volume-track"><div class="volume-fill" style="width:${100*kg/max}%;background:${VOLUME_COLORS[zone]||VOLUME_COLORS.Otro}"></div></div></div>`).join('');
  const table=a.details.map(r=>`<tr><td>${volumeEscape(r.ej||'Ejercicio')}</td><td>${Array.isArray(r.sets)?r.sets.length:(r.series||'—')}</td><td>${volumeNumber(r.volumenKg)} kg</td></tr>`).join('');
  const gym=meta.gym||rows?.[0]?.gym||'';const date=meta.fecha||rows?.[0]?.fecha||'';
