@@ -3748,7 +3748,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><p class="mh41-reg-hint">Elige un registro; se abre el formulario habitual y se conservan tus datos.</p><div class="mh23-day-buttons mh41-register-main">
 <button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="goSection('entreno')">🏋️ Entrenamiento</button></div>
-<details class="mh41-more-register"><summary>Otros registros y herramientas</summary><div class="mh23-day-buttons mh41-register-extra"><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="mh41OpenMedication()">💊 Medicación</button></div></details>
+<details class="mh41-more-register"><summary>Otros registros y herramientas</summary><div class="mh23-day-buttons mh41-register-extra"><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button></div></details>
 <div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
 <div class="mh23-day-group" id="mh25-medication">
   <details id="mh35MedSection" class="mh35-med-section">
@@ -3816,8 +3816,8 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <section id="mh43-editor-page" aria-label="Registrar sueño o pasos">
  <div class="mh43-page-head"><button type="button" onclick="mh23Open('registrar')">← Registrar</button><h2 id="mh43-editor-title">Registrar datos</h2><p>Los formularios de siempre, en el menú Registrar.</p></div>
 </section>
-<section id="mh43-medication-page" aria-label="Registrar medicamentos">
- <div class="mh43-page-head"><button type="button" onclick="mh23Open('registrar')">← Registrar</button><h2>💊 Registrar medicamentos</h2><p>Gestiona tus medicamentos y las tomas registradas.</p></div>
+<section id="mh43-medication-page" aria-label="Farmacia: medicamentos y tomas">
+ <div class="mh43-page-head"><button type="button" onclick="mh23Open('miDia')">← Mi día</button><h2>💊 Farmacia</h2><p>Todos tus medicamentos, tomas, documentos, consultas y avisos en un solo lugar.</p></div>
  <button type="button" class="mh43-med-add" onclick="mh43AddMedication()">＋ Añadir medicamento</button>
 </section>
 <section id="inicio" data-home-mockup="true">
@@ -5006,6 +5006,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <div id="mh23-tabs" aria-label="Navegación principal Micro Health 23">
 <button type="button" data-mh23="miDia" class="mh23-selected"><span>☀</span>Mi día</button>
 <button type="button" data-mh23="registrar"><span>⊕</span>Registrar</button>
+<button type="button" data-mh23="farmacia"><span>💊</span>Farmacia</button>
 <button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
 <button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
 <button type="button" data-mh23="asistente"><span>✦</span>Coach</button>
@@ -19309,16 +19310,16 @@ setTimeout(()=>{
 /* Micro Health 23 · fase 1: solo interfaz; se reutilizan secciones y funciones existentes */
 (function(){
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
- const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario'],['💊 Registrar medicamentos','medicacion','Añade medicamentos y gestiona las tomas']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
+ const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
  function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'miDia',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
- function route(section){sheet.hidden=true; if(section==='medicacion'){window.mh43OpenMedication();select('registrar');return;} if(['sleep','steps','habits'].includes(section)){if(section==='habits'){window.mh23Open('miDia');document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');}else{window.mh23DayEditor(section);select('registrar');}return;} if(['report','trends','recovery'].includes(section)){
+ function route(section){sheet.hidden=true; if(section==='medicacion'||section==='farmacia'){window.mh43OpenMedication();select('farmacia');return;} if(['sleep','steps','habits'].includes(section)){if(section==='habits'){window.mh23Open('miDia');document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');}else{window.mh23DayEditor(section);select('registrar');}return;} if(['report','trends','recovery'].includes(section)){
   document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
   document.getElementById('mh23ProgressDetail').classList.add('active');
   document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));
   const id=({report:'mh23ProgressReport',trends:'mh23ProgressTrends',recovery:'mh23ProgressRecovery'})[section];
   setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}),100);
  }else{goSection(section);window.scrollTo({top:0,behavior:'smooth'});} select(section);}
- window.mh23Open=function(which){if(which==='inicio')which='miDia';if(which==='miDia'){sheet.hidden=true;document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));document.getElementById('miDia').classList.add('active');document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));if(typeof setFoodViewToday==='function')try{setFoodViewToday()}catch(e){console.warn('Nutrición',e)}select('miDia');window.scrollTo({top:0,behavior:'smooth'});return;}if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'||which==='progreso'){b.className=which==='progreso'?'mh23-progress-choice':'mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.classList.toggle('mh23-progress-sheet',which==='progreso');sheet.hidden=false;select(which)}else{route(which)}};
+ window.mh23Open=function(which){if(which==='inicio')which='miDia';if(which==='farmacia'){route('farmacia');return;}if(which==='miDia'){sheet.hidden=true;document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));document.getElementById('miDia').classList.add('active');document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));if(typeof setFoodViewToday==='function')try{setFoodViewToday()}catch(e){console.warn('Nutrición',e)}select('miDia');window.scrollTo({top:0,behavior:'smooth'});return;}if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'||which==='progreso'){b.className=which==='progreso'?'mh23-progress-choice':'mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.classList.toggle('mh23-progress-sheet',which==='progreso');sheet.hidden=false;select(which)}else{route(which)}};
  window.mh23ToggleHome=function(){const compact=document.body.classList.toggle('mh23-compact');document.getElementById('mh23-toggle').textContent=compact?'Ver panel completo ↓':'Simplificar Inicio ↑'};
  tabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.mh23Open(b.dataset.mh23)));
  document.getElementById('mh23-dismiss').addEventListener('click',()=>sheet.hidden=true);
@@ -20073,6 +20074,14 @@ fileInput.addEventListener('change',async()=>{
 @media(max-width:460px){#mh43-editor-page #mh23-day-editors .steps-today-grid{grid-template-columns:1fr!important}}
 @media(max-width:400px){#miDia #mh43-goals .home-weight-card{gap:8px!important;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr) 20px!important}#miDia #mh43-goals .home-big{font-size:26px!important}#miDia #mh43-goals .home-goal-number{font-size:22px!important}#miDia #mh43-goals .home-week-card{grid-template-columns:32px minmax(0,1fr) 58px 16px!important;gap:8px!important}#miDia #mh43-goals .home-ring{width:56px;height:56px}#miDia #mh43-goals .home-ring::before{inset:7px}}
 </style>
+<style id="mh44-pharmacy-nav-style">
+/* v22.3.44: seis accesos principales, sin duplicación de medicación en Registrar. */
+#mh23-tabs{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+#mh23-tabs button{white-space:nowrap;overflow:hidden;text-overflow:clip}
+@media(max-width:390px){#mh23-tabs button{font-size:9px!important;letter-spacing:-.3px;padding-inline:0!important}#mh23-tabs button span{font-size:19px}}
+#mh43-medication-page>.mh43-page-head{background:linear-gradient(135deg,#e9f8f1,#fff)}
+#mh43-medication-page .mh43-med-add{margin:0 0 13px}
+</style>
 <script id="mh43-day-rearrange-script">
 (function(){
   'use strict';
@@ -20099,7 +20108,7 @@ fileInput.addEventListener('change',async()=>{
     document.querySelectorAll('main > section').forEach(el=>el.classList.remove('active'));
     page.classList.add('active');
     document.querySelectorAll('nav button[data-sec]').forEach(el=>el.classList.remove('active'));
-    document.querySelectorAll('#mh23-tabs button').forEach(el=>el.classList.toggle('mh23-selected',el.dataset.mh23==='registrar'));
+    document.querySelectorAll('#mh23-tabs button').forEach(el=>el.classList.toggle('mh23-selected',el.dataset.mh23===(which==='medicacion'?'farmacia':'registrar')));
     window.scrollTo({top:0,behavior:'smooth'});
   }
   window.mh43OpenMedication=function(){
@@ -20114,7 +20123,7 @@ fileInput.addEventListener('change',async()=>{
     const add=document.getElementById('mh25AddMed');if(add)add.click();
     requestAnimationFrame(()=>document.getElementById('mh30Wizard')?.scrollIntoView({behavior:'smooth',block:'start'}));
   };
-  // All existing medication links now open Registrar, never return to Mi día.
+  // Todos los accesos a medicación abren Farmacia, sin duplicar ni mover los registros.
   window.mh41OpenMedication=window.mh43OpenMedication;
   const oldDayEditor=window.mh23DayEditor;
   if(typeof oldDayEditor==='function')window.mh23DayEditor=function(which){
@@ -20124,7 +20133,7 @@ fileInput.addEventListener('change',async()=>{
   };
   const oldOpen=window.mh23Open;
   if(typeof oldOpen==='function')window.mh23Open=function(which){
-    if(which==='medicacion'){window.mh43OpenMedication();return;}
+    if(which==='medicacion'||which==='farmacia'){window.mh43OpenMedication();return;}
     return oldOpen(which);
   };
   function renderTodayWorkout(){
