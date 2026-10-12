@@ -4706,6 +4706,12 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 </section>
 
 
+<style id="mh38-coach-style">#asistente .mh38-coach-note{font-size:13px;color:#496862;line-height:1.45;padding:8px 10px;border-left:3px solid #198576;margin:10px 0}</style><style id="mh37-coach-goal-style">
+#asistente .mh37-goal-focus{border:1px solid #cce1dc;border-radius:14px;padding:12px 14px;background:#f4faf8;margin-bottom:12px}
+#asistente .mh37-goal-focus h3{margin:0 0 8px;color:#175b54}
+#asistente .mh37-goal-focus p{margin:7px 0;line-height:1.5}
+#asistente .mh37-goal-focus small{display:block;margin-top:10px;color:#566d69}
+</style>
 <style id="mh36-coach-simple-style">
 #asistente .mh36-more{margin:10px 0;border:1px solid #dce7e4;border-radius:12px;padding:10px 12px}
 #asistente .mh36-more>summary{cursor:pointer;font-weight:650;color:#176d65}
@@ -4773,7 +4779,7 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     </div>
     <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
-    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Estrategia</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
+    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Mi objetivo (elegido por mí)</small><b id="mh38DeclaredGoal">—</b></div><div class="coach-decision"><small>Estrategia sugerida (Coach)</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><p class="mh38-coach-note">Tu objetivo lo decides tú. La estrategia es una propuesta del Coach, no cambia automáticamente calorías, proteínas ni rutinas.</p><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
     <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
   </div>
 </section>
@@ -6340,11 +6346,47 @@ function coachGoalLabel(v){
   return ({coach:'Que el Coach proponga la estrategia',definir:'Definir / perder grasa',recomposicion:'Recomposición corporal',musculo:'Ganar músculo',mantener:'Mantener'})[v]||'Que el Coach proponga la estrategia';
 }
 
+function coachGoalGuidance(v){
+  const guides={
+    musculo:{
+      focus:'Ganar músculo',
+      nutrition:'Priorizar proteína suficiente y energía para rendir y recuperarte. Revisar la tendencia del peso, sin asumir que debes subir calorías automáticamente.',
+      training:'Dar prioridad a fuerza progresiva, volumen tolerable y recuperación; comprobar evolución de cargas y repeticiones.',
+      evaluation:'Valorar fuerza, constancia, recuperación y cambios de composición corporal durante varias semanas.'
+    },
+    definir:{
+      focus:'Definir / perder grasa',
+      nutrition:'Priorizar adherencia, proteína y saciedad; revisar tendencia de peso y cintura sin proponer recortes bruscos.',
+      training:'Conservar la fuerza y la masa muscular; adaptar actividad y descanso según la recuperación.',
+      evaluation:'Valorar tendencia de peso, cintura, fuerza y adherencia, no solo el peso de un día.'
+    },
+    recomposicion:{
+      focus:'Recomposición corporal',
+      nutrition:'Priorizar proteína, regularidad y energía suficiente para entrenar; evitar cambios calóricos automáticos.',
+      training:'Buscar progresión en fuerza y buena recuperación.',
+      evaluation:'Observar conjuntamente cintura, composición corporal, fuerza y constancia.'
+    },
+    mantener:{
+      focus:'Mantener',
+      nutrition:'Priorizar estabilidad, calidad alimentaria y hábitos sostenibles.',
+      training:'Mantener fuerza, movilidad, actividad y recuperación.',
+      evaluation:'Valorar estabilidad del peso, rendimiento y bienestar a medio plazo.'
+    },
+    coach:{
+      focus:'Objetivo por decidir con el Coach',
+      nutrition:'Revisar tendencias y preferencias antes de recomendar una estrategia.',
+      training:'Adaptar entrenamiento a los datos disponibles y a la recuperación.',
+      evaluation:'Comparar varias semanas de datos antes de proponer un objetivo.'
+    }
+  };
+  return guides[v]||guides.coach;
+}
 function coachNutritionPreferences(){
   const p=profile()||{};
   return {
     declaredGoal:p.objetivoCoach||'coach',
     declaredGoalLabel:coachGoalLabel(p.objetivoCoach||'coach'),
+    goalGuidance:coachGoalGuidance(p.objetivoCoach||'coach'),
     mealsPerDay:Number(p.comidasDia)||null,
     dietStyle:String(p.estiloDieta||''),
     preferredFoods:String(p.alimentosPreferidos||''),
@@ -6395,6 +6437,7 @@ function coachContract(){
     role:'Coach 360º de fitness, nutrición, composición corporal, actividad y recuperación',
     rules:[
       'El objetivo declarado por el usuario es una preferencia, no una orden. Contrástalo con los datos y recomienda definir, recomposición, mantenimiento o ganancia muscular según las tendencias.',
+      'Utiliza goal.goalGuidance y nutritionPreferences.goalGuidance para orientar las recomendaciones y la evaluación al objetivo actual. Si propones otro, explica por qué y pide confirmación; no modifiques objetivos de kcal, proteína, peso ni rutinas guardadas.',
       'No cambies una estrategia importante por una sola medición BIA o un solo día. Prioriza tendencias de varias semanas, cintura, peso, grasa, fuerza, adherencia, actividad y recuperación.',
       'Distingue claramente datos registrados, estimaciones y recomendaciones. No inventes registros que no existan.',
       'Cuando el usuario pida una dieta o qué comer, propón alimentos concretos y cantidades, distribuidos por comidas, con kcal, proteína, hidratos, grasas y fibra aproximados y total del plan. Considera azúcares libres cuando sea relevante.',
@@ -6480,9 +6523,9 @@ function buildCoachSnapshot(days=28,range=null){
     period:{start,end,days,previousStart,previousEnd},
     profile:{name:String(p.nombre||''),age:Number(p.edad)||null,sex:String(p.sexo||''),heightCm:Number(p.alturaCm)||null,weightGoalKg:weightGoal()},
     goal:{
-      declared:p.objetivoCoach||'coach',declaredLabel:coachGoalLabel(p.objetivoCoach||'coach'),
+      declared:p.objetivoCoach||'coach',declaredLabel:coachGoalLabel(p.objetivoCoach||'coach'),goalGuidance:coachGoalGuidance(p.objetivoCoach||'coach'),
       calories:calorieTarget,protein:proteinGoal,workoutsPerWeek:Number(p.fuerzaDias)||null,stepsPerDay:Number(p.pasosDia)||null,
-      instruction:'Evalúa si el objetivo declarado es adecuado; puedes recomendar una estrategia diferente si las tendencias lo justifican.'
+      instruction:'Distingue SIEMPRE el objetivo declarado por el usuario de la estrategia que recomiendas. El objetivo declarado nunca se cambia por una recomendación. Si recomiendas una estrategia distinta, justifica el porqué usando registros concretos del período (peso, cintura, fuerza, adherencia) y expresa incertidumbre si faltan datos. Devuelve strategy_rationale explicando esos motivos; si faltan datos, indica que no hay evidencia suficiente. Los objetivos numéricos guardados de calorías, proteínas y entrenamiento no se modifican automáticamente: cualquier cambio es solo una propuesta que requiere decisión del usuario.'
     },
     nutritionPreferences:coachNutritionPreferences(),personalContext:assistantPersonalContext(),
     body:{
@@ -6537,7 +6580,16 @@ function renderCoachLocalSummary(){
   if(s.activity.stepDays<7)dataWarnings.push('pocos días de pasos');
   if(s.strength.trackedExercises<1)dataWarnings.push('pocos ejercicios comparables');
 
+  const declared=profile()?.objetivoCoach||'coach';
+  const guidance=coachGoalGuidance(declared);
   host.innerHTML=`
+    <div class="coach-local-section mh37-goal-focus">
+      <h3>🎯 Objetivo actual: ${guidance.focus}</h3>
+      <p><b>Alimentación:</b> ${guidance.nutrition}</p>
+      <p><b>Entrenamiento:</b> ${guidance.training}</p>
+      <p><b>En la evaluación:</b> ${guidance.evaluation}</p>
+      <small>Orientación general. Cambiar el objetivo no modifica automáticamente tus calorías, proteínas, rutinas ni registros.</small>
+    </div>
     <div class="coach-local-section">
       <h3>Tendencia corporal</h3>
       <div class="kpiLine"><span>Peso · ritmo semanal</span><b>${formatCoachNum(w,2,' kg/sem')}</b></div>
@@ -7117,7 +7169,10 @@ function mhPdfBuildCoachDocument(doc){
   if(doc.type==='evaluation'){
     const r=doc.result||{};
     section('Decisión del Coach');
-    para(`Estrategia: ${r.strategy||r.recommended_strategy||'—'}`,10,navy,true);
+    para(`Objetivo elegido por el usuario: ${doc.declaredGoalLabel||'No indicado'}`,10,navy,true);
+    para(`Estrategia recomendada por el Coach: ${r.strategy||r.recommended_strategy||'No especificada'}`,10,navy,true);
+    para('La estrategia es una sugerencia, no un cambio de objetivo ni una autorización para modificar metas.',8.8,muted);
+    if(!String(r.strategy_rationale||r.strategy_reason||'').trim())para('Justificación: el Coach no ha aportado datos suficientes para fundamentar la estrategia.',9,muted);
     const ca={maintain:'Mantener',increase:'Subir',decrease:'Bajar'}[r.calorie_action]||r.calorie_action||'—';
     para(`Calorías: ${ca}${r.calorie_target?' · '+Math.round(Number(r.calorie_target))+' kcal/día':''}`,9.5);
     para(`Proteína: ${r.protein_target?Math.round(Number(r.protein_target))+' g/día':'—'} · Entrenamientos: ${r.workout_target?Math.round(Number(r.workout_target))+'/semana':'—'}`,9.5);
@@ -7145,7 +7200,7 @@ function exportCoachPdf(mode='last'){
       const ev=db.lastCoachEvaluation;
       if(!ev?.result){throw new Error('Primero genera una evaluación con “Analizar últimas 4 semanas”.')}
       stamp=Number(ev.createdAt)||Date.now();
-      doc={type:'evaluation',title:'Evaluación Coach 360º',subtitle:'Valoración estructurada de estrategia, nutrición, entrenamiento y recuperación.',headerRight:'Evaluación',consultedAt:coachPdfDateTime(stamp),dataThrough:coachPdfDataDate(ev.dataThrough),profileName:p.nombre||'',result:ev.result};
+      doc={type:'evaluation',title:'Evaluación Coach 360º',subtitle:'Valoración estructurada de estrategia, nutrición, entrenamiento y recuperación.',headerRight:'Evaluación',consultedAt:coachPdfDateTime(stamp),dataThrough:coachPdfDataDate(ev.dataThrough),profileName:p.nombre||'',declaredGoalLabel:coachGoalLabel(p.objetivoCoach||'coach'),result:ev.result};
     }else{
       const messages=mode==='conversation'?assistantChatRows():coachPdfLatestPair();
       if(!messages.length)throw new Error('Todavía no hay conversación para exportar.');
@@ -7228,7 +7283,10 @@ async function runCoachAnalysis(focus='week'){
     if(recovery)recovery.innerHTML=safeCoachText(out.recovery||out.recovery_activity||'Se han enviado sueño, agua, pasos y balance energético al Coach cuando existen registros.');
 
     const strategyDecision=document.getElementById('coachStrategyDecision');
-    if(strategyDecision)strategyDecision.textContent=String(out.strategy||out.recommended_strategy||'Revisar en chat');
+    const declaredGoalNode=document.getElementById('mh38DeclaredGoal');
+    if(declaredGoalNode)declaredGoalNode.textContent=coachGoalLabel(profile()?.objetivoCoach||'coach');
+    if(strategyDecision)strategyDecision.textContent=String(out.strategy||out.recommended_strategy||'Sin estrategia justificada');
+    if(strategyRationale && !String(out.strategy_rationale||out.strategy_reason||'').trim())strategyRationale.textContent='El Coach no ha aportado motivos verificables suficientes para justificar esta estrategia. No se modifica tu objetivo.';
     const kcalDecision=document.getElementById('coachCalorieDecision');
     const proteinDecision=document.getElementById('coachProteinDecision');
     const workoutDecision=document.getElementById('coachWorkoutDecision');
