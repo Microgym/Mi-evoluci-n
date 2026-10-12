@@ -3736,7 +3736,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 </section>
 <section id="miDia" class="active" aria-label="Mi día">
 <div id="mh41-dashboard" aria-label="Inicio simplificado">
- <div class="mh41-head"><div><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tu resumen y tus registros, todo en un lugar.</p></div><button type="button" id="mh42-detail-toggle" onclick="mh42ToggleFullPanel()">Ver detalles ↓</button></div>
+ <div class="mh41-head"><div><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tu peso, objetivos, hábitos y evolución de hoy.</p></div><button type="button" id="mh42-detail-toggle" onclick="mh42ToggleFullPanel()">Ver detalles ↓</button></div>
  <div id="mh41-summary" class="mh41-summary" aria-live="polite">
   <button type="button" class="mh41-stat" onclick="goSection('peso')"><span>⚖️ Peso</span><strong id="mh41-weight">—</strong><small>Ver registros</small></button>
   <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🔥 Calorías</span><strong id="mh41-calories">—</strong><small>Consumidas hoy</small></button>
@@ -3801,11 +3801,24 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
     </div>
   </details>
 </div>
+<div class="mh23-day-group" id="mh43-goals"><h3>⚖️ Mi peso y mis objetivos</h3></div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
-<div class="mh23-day-group" id="mh23-day-guidance"><h3>💡 Pautas del día</h3></div>
+<div class="mh23-day-group" id="mh43-workout-today">
+  <h3>🏋️ Entrenamiento realizado hoy</h3>
+  <div class="mh43-workout-card" aria-live="polite"><strong id="mh43-workout-type">Sin entrenamiento registrado</strong><p id="mh43-workout-detail">Aquí aparecerá el tipo de ejercicio que hayas registrado hoy.</p></div>
+</div>
+<div class="mh23-day-group" id="mh43-milestones"><h3>🎯 Próximos hitos</h3></div>
+<div class="mh23-day-group" id="mh43-alerts"><h3>🔔 Alertas y señales</h3></div>
 <details id="mh42-fullpanel" class="mh42-fullpanel"><summary>📊 Panel completo y datos adicionales</summary><p class="mh42-full-hint">Las tarjetas originales se mantienen aquí, sin repetirlas en el inicio.</p><div id="mh42-legacy-host"></div></details>
+</section>
+<section id="mh43-editor-page" aria-label="Registrar sueño o pasos">
+ <div class="mh43-page-head"><button type="button" onclick="mh23Open('registrar')">← Registrar</button><h2 id="mh43-editor-title">Registrar datos</h2><p>Los formularios de siempre, en el menú Registrar.</p></div>
+</section>
+<section id="mh43-medication-page" aria-label="Registrar medicamentos">
+ <div class="mh43-page-head"><button type="button" onclick="mh23Open('registrar')">← Registrar</button><h2>💊 Registrar medicamentos</h2><p>Gestiona tus medicamentos y las tomas registradas.</p></div>
+ <button type="button" class="mh43-med-add" onclick="mh43AddMedication()">＋ Añadir medicamento</button>
 </section>
 <section id="inicio" data-home-mockup="true">
 <div id="mh23-home-intro"><small style="font-weight:800;color:#188675">MICRO HEALTH · TU DÍA</small><h2>Tu bienestar, más claro</h2><p>Un resumen para actuar hoy. Tus registros y análisis completos siguen disponibles.</p>
@@ -19296,9 +19309,9 @@ setTimeout(()=>{
 /* Micro Health 23 · fase 1: solo interfaz; se reutilizan secciones y funciones existentes */
 (function(){
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
- const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
+ const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario'],['💊 Registrar medicamentos','medicacion','Añade medicamentos y gestiona las tomas']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
  function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'miDia',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
- function route(section){sheet.hidden=true; if(['sleep','steps','habits'].includes(section)){window.mh23Open('miDia');if(section!=='habits')window.mh23DayEditor(section);else document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');return;} if(['report','trends','recovery'].includes(section)){
+ function route(section){sheet.hidden=true; if(section==='medicacion'){window.mh43OpenMedication();select('registrar');return;} if(['sleep','steps','habits'].includes(section)){if(section==='habits'){window.mh23Open('miDia');document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');}else{window.mh23DayEditor(section);select('registrar');}return;} if(['report','trends','recovery'].includes(section)){
   document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
   document.getElementById('mh23ProgressDetail').classList.add('active');
   document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));
@@ -19347,7 +19360,7 @@ window.mh23TrainingJump=function(destination){
  place('#inicio .life-habits','mh23-day-habits');
  place('#inicio .day-review-card','mh23-day-summary');
  place('#comidas #nutritionGuidance','mh23-day-nutrition');
- place('#inicio .home-timeline-card','mh23-day-guidance');
+ // Pauta del día eliminada de la portada; permanece oculta en el panel antiguo para compatibilidad.
  window.mh23DayEditor=function(which){
  window.mh23Open('miDia');
  const sleep=which==='sleep',id=sleep?'homeSleepEditor':'homeStepsEditor',el=document.getElementById(id);
@@ -20016,6 +20029,128 @@ fileInput.addEventListener('change',async()=>{
     return prevOpen(section);
   };
   sync();
+})();
+</script>
+<style id="mh43-day-order-style">
+/* v22.3.43: Mi día informativo; todas las acciones se registran desde el menú inferior. */
+#miDia #mh41-dashboard{padding:0 0 4px!important;margin:0 0 12px!important}
+#miDia #mh41-dashboard .mh41-head{padding-bottom:0}
+#miDia #mh41-dashboard .mh41-summary,#miDia #mh41-dashboard .mh41-foot,
+#miDia #mh42-detail-toggle,#miDia #mh23-day-register,#miDia #mh42-fullpanel{display:none!important}
+#miDia .mh23-day-group>h3{margin:0 0 10px;font-weight:800;letter-spacing:-.015em}
+#miDia #mh43-goals .home-card,#miDia #mh43-milestones .home-card,#miDia #mh43-alerts .home-card{max-width:100%;margin:0 0 11px!important}
+#miDia #mh43-goals .home-card:last-child{margin-bottom:0!important}
+#miDia #mh43-goals .home-weight-card{display:grid!important}
+#miDia #mh43-goals .home-week-card{display:grid!important}
+#miDia #mh43-goals .mh23-home-goals-card{display:block!important}
+#miDia #mh43-milestones .home-milestone-card,#miDia #mh43-alerts .home-alert-card{display:block!important}
+#miDia #mh43-goals .home-card-heading,#miDia #mh43-milestones .home-card-heading,#miDia #mh43-alerts .home-card-heading{margin-bottom:9px}
+#miDia #mh43-goals .home-card-heading .heading-left>b,#miDia #mh43-milestones .home-card-heading .heading-left>b,#miDia #mh43-alerts .home-card-heading .heading-left>b{font-size:15px}
+#miDia #mh43-goals .home-card{box-sizing:border-box;min-width:0}
+#miDia #mh43-workout-today{margin-bottom:15px}
+#miDia .mh43-workout-card{padding:15px 16px;border:1px solid #d8e8df;border-radius:15px;background:#fff;box-shadow:0 2px 12px #143f3510}
+#miDia .mh43-workout-card>strong{font-size:17px;color:#16564c;display:block;margin-bottom:5px}
+#miDia .mh43-workout-card>p{color:#5e7770;font-size:13px;margin:0;line-height:1.5;overflow-wrap:anywhere}
+#miDia #mh43-alerts{margin-bottom:25px}
+#mh43-editor-page,#mh43-medication-page{padding:8px 0 30px}
+.mh43-page-head{padding:17px;border-radius:18px;background:#eefaF4;border:1px solid #d6ebdf;margin:5px 0 16px}
+.mh43-page-head>button{background:white!important;border:1px solid #bcded0!important;border-radius:10px!important;color:#155d50!important;padding:9px 12px!important;font-weight:700}
+.mh43-page-head h2{font-size:22px;color:#165648;margin:12px 0 4px}
+.mh43-page-head p{font-size:13px;color:#55766a;margin:0}
+#mh43-editor-page #mh23-day-register>h3,#mh43-editor-page #mh23-day-register>.mh41-reg-hint,
+#mh43-editor-page #mh23-day-register>.mh41-register-main,#mh43-editor-page #mh23-day-register>.mh41-more-register{display:none!important}
+#mh43-editor-page #mh23-day-editors>.mh23-editor-card{display:none!important}
+#mh43-editor-page #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:block!important;position:relative;min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;padding:15px!important;margin:12px 0!important;overflow:visible!important}
+#mh43-editor-page #mh23-day-editors .mh23-close-editor{display:block;width:100%;margin:0 0 12px!important;background:#eaf5f0!important;color:#176554!important;border:1px solid #cde5d9!important;border-radius:11px!important;padding:10px 12px!important;text-align:center;font-weight:750}
+#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.home-expand-area{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;clear:both;margin-top:14px!important}
+#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.home-step-kcal,#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.sleep-summary-side,#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.home-chevron{display:none!important}
+#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.home-steps-main{display:inline-block;vertical-align:middle;width:calc(100% - 75px);min-width:0}
+#mh43-editor-page #mh23-day-editors .mh23-editor-visible>.home-square-icon{display:inline-flex;vertical-align:middle;margin-right:9px}
+#mh43-editor-page #mh23-day-editors .steps-today-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important}
+#mh43-editor-page #mh23-day-editors input,#mh43-editor-page #mh23-day-editors select{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#mh43-medication-page #mh25-medication{margin:14px 0 0}
+#mh43-medication-page .mh43-med-add{display:block;width:100%;padding:12px!important;border-radius:12px!important;background:#177b63!important;color:#fff!important;font-weight:800;border:0!important}
+@media(max-width:460px){#mh43-editor-page #mh23-day-editors .steps-today-grid{grid-template-columns:1fr!important}}
+@media(max-width:400px){#miDia #mh43-goals .home-weight-card{gap:8px!important;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr) 20px!important}#miDia #mh43-goals .home-big{font-size:26px!important}#miDia #mh43-goals .home-goal-number{font-size:22px!important}#miDia #mh43-goals .home-week-card{grid-template-columns:32px minmax(0,1fr) 58px 16px!important;gap:8px!important}#miDia #mh43-goals .home-ring{width:56px;height:56px}#miDia #mh43-goals .home-ring::before{inset:7px}}
+</style>
+<script id="mh43-day-rearrange-script">
+(function(){
+  'use strict';
+  const move=(selector,container)=>{
+    const node=document.querySelector(selector),host=document.getElementById(container);
+    if(!node||!host){console.warn('Mi día: bloque no encontrado',selector,container);return false;}
+    host.appendChild(node);return true;
+  };
+  // Move authentic live cards; never clone or duplicate stored data, IDs or event listeners.
+  move('#inicio .home-weight-card','mh43-goals');
+  move('#inicio .home-week-card','mh43-goals');
+  move('#mh23HomeGoalsCard','mh43-goals');
+  move('#inicio .home-milestone-card','mh43-milestones');
+  move('#inicio .home-alert-card','mh43-alerts');
+  move('#mh23-day-register','mh43-editor-page');
+  move('#mh25-medication','mh43-medication-page');
+  const legacyTimeline=document.querySelector('#inicio .home-timeline-card');
+  if(legacyTimeline)legacyTimeline.hidden=true;
+
+  function showPage(which){
+    const page=document.getElementById(which==='medicacion'?'mh43-medication-page':'mh43-editor-page');
+    if(!page)return;
+    const sheet=document.getElementById('mh23-sheet');if(sheet)sheet.hidden=true;
+    document.querySelectorAll('main > section').forEach(el=>el.classList.remove('active'));
+    page.classList.add('active');
+    document.querySelectorAll('nav button[data-sec]').forEach(el=>el.classList.remove('active'));
+    document.querySelectorAll('#mh23-tabs button').forEach(el=>el.classList.toggle('mh23-selected',el.dataset.mh23==='registrar'));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  window.mh43OpenMedication=function(){
+    showPage('medicacion');
+    // Keep the medication catalogue and details closed by default, as requested.
+    const d=document.getElementById('mh35MedSection');if(d)d.open=false;
+    document.querySelectorAll('#mh25-medication details.mh35-subsection,#mh25-medication details.mh34-med-collapsible').forEach(el=>el.open=false);
+  };
+  window.mh43AddMedication=function(){
+    showPage('medicacion');
+    const d=document.getElementById('mh35MedSection');if(d)d.open=true;
+    const add=document.getElementById('mh25AddMed');if(add)add.click();
+    requestAnimationFrame(()=>document.getElementById('mh30Wizard')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  };
+  // All existing medication links now open Registrar, never return to Mi día.
+  window.mh41OpenMedication=window.mh43OpenMedication;
+  const oldDayEditor=window.mh23DayEditor;
+  if(typeof oldDayEditor==='function')window.mh23DayEditor=function(which){
+    oldDayEditor(which); // preserves existing save/validation logic and field initialization
+    showPage('editor');
+    const h=document.getElementById('mh43-editor-title');if(h)h.textContent=which==='sleep'?'🌙 Registrar sueño y energía':'🚶 Registrar pasos';
+  };
+  const oldOpen=window.mh23Open;
+  if(typeof oldOpen==='function')window.mh23Open=function(which){
+    if(which==='medicacion'){window.mh43OpenMedication();return;}
+    return oldOpen(which);
+  };
+  function renderTodayWorkout(){
+    if(typeof db==='undefined')return;
+    const d=typeof today==='function'?today():new Date().toISOString().slice(0,10);
+    const rows=(Array.isArray(db.entreno)?db.entreno:[]).filter(r=>r&&r.fecha===d);
+    const sessions=(Array.isArray(db.rutinaSesiones)?db.rutinaSesiones:[]).filter(r=>r&&r.fecha===d&&r.finalizada);
+    const kind=document.getElementById('mh43-workout-type'),detail=document.getElementById('mh43-workout-detail');
+    if(!kind||!detail)return;
+    if(!rows.length&&!sessions.length){kind.textContent='Sin entrenamiento registrado';detail.textContent='Cuando registres una sesión en Entrenar, aparecerá aquí el tipo de entrenamiento realizado.';return;}
+    const types=[];const samples=[];
+    for(const row of rows){
+      const type=String(row.tipo||'').toLowerCase();
+      const label=type==='fuerza'?'Fuerza':type==='cardio'?'Cardio':type==='golf'?'Golf':type==='movilidad'?'Movilidad':type==='funcional'?'Funcional':type?type.charAt(0).toUpperCase()+type.slice(1):'Entrenamiento';
+      if(!types.includes(label))types.push(label);
+      const exercise=String(row.ej||'').trim();if(exercise&&!samples.includes(exercise))samples.push(exercise);
+    }
+    for(const session of sessions){if(!types.includes('Fuerza'))types.push('Fuerza');const name=String(session.nombre||'').trim();if(name&&!samples.includes(name))samples.push(name)}
+    kind.textContent=types.join(' · ');
+    detail.textContent=(samples.length?samples.slice(0,3).join(' · ')+(samples.length>3?' · y otros':''):'Actividad registrada')+' · '+(sessions.length||rows.length)+' registro'+((sessions.length||rows.length)===1?'':'s')+' hoy';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',renderTodayWorkout,{once:true});else renderTodayWorkout();
+  const workoutSource=document.getElementById('lifeWorkoutValue');
+  if(workoutSource)new MutationObserver(renderTodayWorkout).observe(workoutSource,{childList:true,subtree:true,characterData:true});
+  window.addEventListener('pageshow',renderTodayWorkout);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderTodayWorkout()});
 })();
 </script>
 </body></html>

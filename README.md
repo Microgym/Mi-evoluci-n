@@ -1,16 +1,22 @@
-# Micro Health v22.3.42 — Inicio integrado en Mi día
+# Micro Health v22.3.43 — Mi día a tu medida
 
-## Cambios
-- Una única portada «☀️ Mi día» en la navegación principal. Se elimina la pestaña duplicada «Inicio».
-- La vista compacta de peso, calorías, proteínas y sueño se muestra arriba de «Mi día» y utiliza los mismos valores reales de v22.3.41.
-- Los botones de registros rápidos se mantienen en «＋ Registrar datos de hoy»: comida, peso, sueño y entrenamiento. «Otros registros y herramientas» sigue plegado.
-- Las tarjetas antiguas de Inicio siguen disponibles sin duplicarse dentro del desplegable «📊 Panel completo y datos adicionales».
-- Medicación, historial y demás bloques de Mi día siguen con sus desplegables anteriores.
-- Los accesos al Inicio antiguo redirigen a «Mi día». El resto de navegación no cambia.
-- No se cambian las claves `miguel-evolucion-v4` ni `micro-health-medicacion-v1`, ni IndexedDB de fotos/documentos. Sin migraciones ni cambios de datos.
-- Service Worker: cache nueva `micro-health-v22-3-42`.
+## Mi día, nuevo orden
+1. Mi peso y mis objetivos (peso, número semanal de entrenamientos y objetivos del perfil)
+2. Mis pequeños hábitos
+3. Resumen del día (tarjeta original)
+4. Orientación nutricional (tarjeta original)
+5. Entrenamiento realizado hoy (tipos y ejercicios desde los entrenamientos registrados)
+6. Próximos hitos
+7. Alertas y señales
 
-## Instalación y seguridad
-1. Antes de publicar, exportar copia completa y copias JSON general y de medicación, guardadas fuera de GitHub.
-2. Descomprimir y subir los archivos a la raíz del repositorio GitHub Pages (`main`). No se publica automáticamente.
-3. Comprobar en Safari/iPhone Mi día, sus botones de registro, Panel completo, medicamentos, navegación y que los datos anteriores se visualicen correctamente.
+La vista duplicada de resumen de v22.3.42 ya no se muestra. Se retira «Registrar datos de hoy» de Mi día y también «Pauta del día». Las tarjetas de objetivos, resumen, nutrición, hitos y alertas son las mismas originales, reubicadas, no copiadas.
+
+## Registrar
+En la pestaña «Registrar» aparecen Peso y medidas, Comidas y agua, Sueño y energía, Pasos y **Registrar medicamentos**. Los formularios de sueño y pasos ahora se muestran en una pantalla de registro independiente de Mi día. Se conservan los medicamentos, documentos, historial, favoritos y la presentación plegada por defecto; al entrar en Registrar medicamentos la sección está cerrada y hay un botón para añadir directamente.
+
+## Seguridad y publicación
+- Sin migración de `miguel-evolucion-v4` ni `micro-health-medicacion-v1`; documentos y fotos permanecen en IndexedDB.
+- Antes de instalar, exporta copia general, copia de medicación y, si es posible, copia completa con fotos/documentos.
+- Nueva versión de caché `micro-health-v22-3-43`.
+- Descomprimir y subir los archivos a la raíz de GitHub Pages; no se ha publicado nada automáticamente.
+- Los cambios visuales de Safari/iPhone deben comprobarse en el dispositivo.
