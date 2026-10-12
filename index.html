@@ -3559,7 +3559,35 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 .mh23-dish-photo-thumb{position:relative;width:86px;min-width:86px;height:86px}
 .meal-dish-preview .mh23-dish-photo-thumb img{display:block;width:86px;height:86px;object-fit:cover;border-radius:12px}
 .mh23-dish-photo-remove{position:absolute;right:2px;top:2px;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:50%;background:#273344;color:#fff;font-size:22px;line-height:1;box-shadow:0 1px 5px #0005;cursor:pointer}
-</style><style id="mh24-pdf-export-style">#volumeSummaryContent .mh24-pdf-export{background:#117e71!important;color:white!important;font-weight:700!important;border:0!important;border-radius:10px!important;padding:12px 17px!important}</style></head>
+</style><style id="mh24-pdf-export-style">#volumeSummaryContent .mh24-pdf-export{background:#117e71!important;color:white!important;font-weight:700!important;border:0!important;border-radius:10px!important;padding:12px 17px!important}</style><style id="mh25-medication-style">
+#mh25-medication{scroll-margin-top:80px}
+#mh25-medication .mh25-med-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#mh25-medication h3,#mh25-medication h4{margin:0}
+#mh25-medication .mh25-med-head p{margin:4px 0 0;color:var(--muted,#657482);font-size:13px}
+#mh25-medication button{cursor:pointer;border-radius:11px;border:1px solid #d3dedb;padding:10px 12px;background:#fff;color:#194f48;font:inherit;font-size:13px;font-weight:650}
+#mh25-medication button.mh25-primary{background:#167c70;color:#fff;border-color:#167c70}
+#mh25-medication .mh25-info{padding:12px;margin:12px 0;border-radius:12px;background:#f0f7f5;color:#23584f;font-size:13px}
+#mh25-medication .mh25-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#mh25-medication .mh25-item{background:#fff;border:1px solid #e0e8e5;border-radius:14px;padding:12px;margin:9px 0;overflow-wrap:anywhere}
+#mh25-medication .mh25-itemtop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#mh25-medication .mh25-itemtop strong{font-size:15px}
+#mh25-medication .mh25-muted{color:#60736d;font-size:12px;margin:4px 0}
+#mh25-medication .mh25-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+#mh25-medication .mh25-status{font-size:12px;font-weight:750;padding:5px 8px;border-radius:9px;background:#e9f1ee;white-space:nowrap}
+#mh25-medication .mh25-subhead{margin-top:22px}
+#mh25-medication .mh25-empty{font-size:13px;color:#65736f;padding:12px 0}
+#mh25-medication .mh25-disclaimer{font-size:12px;line-height:1.5;color:#64746f;margin-top:18px}
+#mh25-medication .mh25-form{background:#f6faf8;border:1px solid #cfddd7;border-radius:15px;padding:14px;margin:18px 0}
+#mh25-medication .mh25-form:not([hidden]){display:grid;gap:12px}
+#mh25-medication .mh25-form[hidden]{display:none!important}
+#mh25-medication .mh25-form label{display:grid;gap:5px;font-size:13px;font-weight:650}
+#mh25-medication .mh25-form input:not([type=checkbox]),#mh25-medication .mh25-form select,#mh25-medication .mh25-form textarea{width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd9d2;border-radius:9px;font:inherit;background:#fff;color:#25342e}
+#mh25-medication .mh25-form fieldset{border:1px solid #d2ddd8;border-radius:10px}
+#mh25-medication .mh25-days{display:flex;gap:10px;flex-wrap:wrap}
+#mh25-medication .mh25-days label{display:flex;align-items:center;gap:4px}
+#mh25-medication .mh25-form-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:420px){#mh25-medication .mh25-toolbar button{flex:1 1 100%}#mh25-medication .mh25-med-head button{flex-shrink:0}}
+</style></head>
 <body>
 <header class="mh-topbar">
   <div class="header-wrap">
@@ -3596,7 +3624,29 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 <section id="miDia" aria-label="Mi día">
 <div class="mh23-day-head"><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tus registros y recomendaciones de hoy, en un solo lugar.</p></div>
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><div class="mh23-day-buttons">
-<button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button></div><div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
+<button type="button" onclick="goSection('peso')">⚖️ Peso</button><button type="button" onclick="goSection('comidas')">🍽️ Comidas y agua</button><button type="button" onclick="mh23DayEditor('sleep')">🌙 Sueño</button><button type="button" onclick="mh23DayEditor('steps')">🚶 Pasos</button><button type="button" onclick="goSection('entreno')">🏋️ Entreno</button><button type="button" onclick="document.getElementById('mh25-medication').scrollIntoView({behavior:'smooth',block:'start'})">💊 Medicación</button></div><div id="mh23-day-legacy" hidden></div><div id="mh23-day-editors"></div></div>
+<div class="mh23-day-group" id="mh25-medication">
+  <div class="mh25-med-head"><div><h3>💊 Mi medicación</h3><p>Organiza tus tomas y confirma únicamente lo que hayas tomado.</p></div><button type="button" class="mh25-primary" id="mh25AddMed">＋ Añadir</button></div>
+  <div class="mh25-info" id="mh25NotificationInfo">Los recordatorios dentro de Micro Health funcionan mientras la aplicación está abierta.</div>
+  <div class="mh25-toolbar"><button type="button" id="mh25EnableNotices">🔔 Activar avisos del dispositivo</button><button type="button" id="mh25Export">↓ Copia de medicación</button><button type="button" id="mh25ImportBtn">↑ Restaurar medicación</button><input type="file" id="mh25ImportFile" accept=".json,application/json" hidden></div>
+  <div id="mh25Today"></div>
+  <h4 class="mh25-subhead">Mis medicamentos</h4><div id="mh25List"></div>
+  <h4 class="mh25-subhead">Historial reciente</h4><div id="mh25History"></div>
+  <p class="mh25-disclaimer">Esta agenda no modifica las pautas prescritas. Ante una dosis olvidada o dudas, consulta las instrucciones de tu profesional sanitario. Los avisos del dispositivo no están garantizados cuando la app está cerrada.</p>
+  <form id="mh25Form" class="mh25-form" hidden>
+    <h4 id="mh25FormTitle">Añadir medicamento</h4>
+    <input type="hidden" id="mh25Id">
+    <label>Nombre del medicamento <input id="mh25Name" maxlength="100" required autocomplete="off" placeholder="Nombre indicado en tu receta"></label>
+    <label>Dosis prescrita <input id="mh25Dose" maxlength="100" required placeholder="Ej.: 1 comprimido de 10 mg"></label>
+    <label>Hora de la toma <input id="mh25Time" type="time" required></label>
+    <label>Frecuencia <select id="mh25Frequency"><option value="daily">Todos los días</option><option value="weekdays">De lunes a viernes</option><option value="custom">Días seleccionados</option></select></label>
+    <fieldset id="mh25Weekdays" hidden><legend>Días de la semana</legend><div class="mh25-days"><label><input type="checkbox" value="1">L</label><label><input type="checkbox" value="2">M</label><label><input type="checkbox" value="3">X</label><label><input type="checkbox" value="4">J</label><label><input type="checkbox" value="5">V</label><label><input type="checkbox" value="6">S</label><label><input type="checkbox" value="0">D</label></div></fieldset>
+    <label>Desde <input id="mh25Start" type="date" required></label>
+    <label>Hasta (opcional) <input id="mh25End" type="date"></label>
+    <label>Indicaciones de tu receta (opcional) <textarea id="mh25Notes" rows="2" maxlength="300" placeholder="Ej.: con el desayuno"></textarea></label>
+    <div class="mh25-form-actions"><button type="submit" class="mh25-primary">Guardar medicamento</button><button type="button" id="mh25Cancel">Cancelar</button></div>
+  </form>
+</div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
@@ -18969,5 +19019,136 @@ window.mh23TrainingJump=function(destination){
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
+})();
+</script><script id="mh25-medication-script">
+(function(){
+'use strict';
+const KEY='micro-health-medicacion-v1';
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const nowTime=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const empty=()=>({version:1,medications:[],events:[]});
+let db=empty();
+try{const raw=localStorage.getItem(KEY);if(raw){const obj=JSON.parse(raw);if(Array.isArray(obj.medications)&&Array.isArray(obj.events))db={version:1,medications:obj.medications,events:obj.events}}}catch(e){console.warn('No se pudo cargar Mi medicación',e)}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){alert('No se ha podido guardar. Comprueba el espacio disponible en el dispositivo.');return false}}
+function el(tag,txt,cls){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cls)n.className=cls;return n}
+function button(txt,fn,cls){const n=el('button',txt,cls);n.type='button';n.addEventListener('click',fn);return n}
+function eventFor(id,date){return db.events.find(e=>e.medId===id&&e.date===date)}
+function due(m,date){if(m.start>date||(m.end&&m.end<date))return false;const day=new Date(date+'T12:00:00').getDay();return m.frequency==='daily'||(m.frequency==='weekdays'&&day>=1&&day<=5)||(m.frequency==='custom'&&m.days.includes(day))}
+function fmt(date){if(!date)return '';const [y,m,d]=date.split('-');return d+'/'+m+'/'+y}
+function medLabel(m){return m.name+' · '+m.dose}
+function openForm(m){
+ $('mh25Form').hidden=false;
+ $('mh25FormTitle').textContent=m?'Editar medicamento':'Añadir medicamento';
+ $('mh25Id').value=m?.id||'';
+ $('mh25Name').value=m?.name||'';
+ $('mh25Dose').value=m?.dose||'';
+ $('mh25Time').value=m?.time||'08:00';
+ $('mh25Frequency').value=m?.frequency||'daily';
+ $('mh25Start').value=m?.start||today();
+ $('mh25End').value=m?.end||'';
+ $('mh25Notes').value=m?.notes||'';
+ $('mh25Weekdays').querySelectorAll('input').forEach(x=>x.checked=!!m?.days?.includes(Number(x.value)));
+ toggleDays();
+ $('mh25Form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function toggleDays(){$('mh25Weekdays').hidden=$('mh25Frequency').value!=='custom'}
+function setStatus(m,status){
+ const date=today(),current=eventFor(m.id,date);
+ if(current){current.status=status;current.at=new Date().toISOString()}
+ else db.events.push({id:'e'+Date.now()+Math.random().toString(36).slice(2),medId:m.id,date,status,at:new Date().toISOString(),name:m.name,dose:m.dose,time:m.time});
+ if(persist())render();
+}
+function render(){
+ const date=today(),t=nowTime();
+ const dueList=db.medications.filter(m=>due(m,date)).sort((a,b)=>a.time.localeCompare(b.time));
+ const area=$('mh25Today');area.replaceChildren();
+ area.append(el('h4','Tomas de hoy · '+fmt(date)));
+ if(!dueList.length)area.append(el('p','No hay tomas programadas para hoy.','mh25-empty'));
+ for(const m of dueList){
+  const ev=eventFor(m.id,date),box=el('div',undefined,'mh25-item'),top=el('div',undefined,'mh25-itemtop'),left=el('div');
+  left.append(el('strong',m.time+' · '+medLabel(m)));
+  if(m.notes)left.append(el('div',m.notes,'mh25-muted'));
+  top.append(left,el('span',ev?(ev.status==='taken'?'✓ Tomado':'Omitido'):(m.time<t?'Pendiente':'Previsto'),'mh25-status'));
+  box.append(top);
+  const actions=el('div',undefined,'mh25-actions');
+  if(!ev||ev.status!=='taken')actions.append(button('✓ Marcar tomado',()=>setStatus(m,'taken'),'mh25-primary'));
+  if(!ev||ev.status!=='skipped')actions.append(button('Omitido',()=>setStatus(m,'skipped')));
+  if(ev)actions.append(button('Deshacer',()=>{db.events=db.events.filter(e=>e!==ev);if(persist())render()}));
+  box.append(actions);area.append(box);
+ }
+ const list=$('mh25List');list.replaceChildren();
+ if(!db.medications.length)list.append(el('p','Todavía no has añadido medicamentos.','mh25-empty'));
+ for(const m of db.medications.slice().sort((a,b)=>a.time.localeCompare(b.time))){
+  const box=el('div',undefined,'mh25-item');
+  box.append(el('strong',medLabel(m)),el('p',m.time+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
+  const actions=el('div',undefined,'mh25-actions');
+  actions.append(button('Editar',()=>openForm(m)));
+  actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
+  box.append(actions);list.append(box);
+ }
+ const history=$('mh25History');history.replaceChildren();
+ const entries=db.events.slice().sort((a,b)=>b.at.localeCompare(a.at)).slice(0,30);
+ if(!entries.length)history.append(el('p','Aún no hay tomas confirmadas.','mh25-empty'));
+ for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
+}
+$('mh25AddMed').addEventListener('click',()=>openForm(null));
+$('mh25Cancel').addEventListener('click',()=>{$('mh25Form').hidden=true});
+$('mh25Frequency').addEventListener('change',toggleDays);
+$('mh25Form').addEventListener('submit',e=>{
+ e.preventDefault();
+ const id=$('mh25Id').value,frequency=$('mh25Frequency').value;
+ const days=Array.from($('mh25Weekdays').querySelectorAll('input:checked')).map(x=>Number(x.value));
+ const item={id:id||'m'+Date.now()+Math.random().toString(36).slice(2),name:$('mh25Name').value.trim(),dose:$('mh25Dose').value.trim(),time:$('mh25Time').value,frequency,days,start:$('mh25Start').value,end:$('mh25End').value,notes:$('mh25Notes').value.trim()};
+ if(!item.name||!item.dose||!item.time||!item.start)return alert('Completa los campos obligatorios.');
+ if(item.end&&item.end<item.start)return alert('La fecha de fin no puede ser anterior al inicio.');
+ if(frequency==='custom'&&!days.length)return alert('Selecciona al menos un día.');
+ if(id){const idx=db.medications.findIndex(m=>m.id===id);if(idx<0)return;db.medications[idx]=item}else db.medications.push(item);
+ if(persist()){$('mh25Form').hidden=true;render()}
+});
+$('mh25Export').addEventListener('click',()=>{
+ const blob=new Blob([JSON.stringify({app:'Micro Health',type:'medication-backup',exportedAt:new Date().toISOString(),...db},null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='micro-health-medicacion-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
+});
+$('mh25ImportBtn').addEventListener('click',()=>$('mh25ImportFile').click());
+$('mh25ImportFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>2e6)throw Error('El archivo es demasiado grande.');
+  const obj=JSON.parse(await file.text());
+  if(obj.type!=='medication-backup'||!Array.isArray(obj.medications)||!Array.isArray(obj.events))throw Error('No es una copia válida de Mi medicación.');
+  if(!confirm('¿Restaurar esta copia de medicación? Sustituirá únicamente los medicamentos y tomas de este apartado, no tus demás datos.'))return;
+  const valid=obj.medications.every(m=>typeof m.id==='string'&&typeof m.name==='string'&&typeof m.time==='string'&&Array.isArray(m.days))&&obj.events.every(x=>typeof x.medId==='string'&&typeof x.date==='string');
+  if(!valid)throw Error('La copia tiene datos incompletos.');
+  const backup=db;db={version:1,medications:obj.medications,events:obj.events};
+  if(!persist())db=backup;render();
+ }catch(err){alert('No se pudo restaurar: '+err.message)}
+ finally{e.target.value=''}
+});
+const notice=$('mh25NotificationInfo');
+function noticeInfo(){
+ if(!('Notification' in window)){notice.textContent='Avisos dentro de la aplicación disponibles. Este navegador no admite notificaciones locales.';return}
+ notice.textContent=Notification.permission==='granted'?'Avisos activados mientras Micro Health esté abierta. En iPhone, para recibir avisos con la app cerrada haría falta un servicio de notificaciones push, aún no incluido.':'Los recordatorios funcionan dentro de Micro Health mientras está abierta. Los avisos con la aplicación cerrada no están disponibles en esta versión.';
+}
+$('mh25EnableNotices').addEventListener('click',async()=>{
+ if(!('Notification' in window))return alert('Este navegador no admite notificaciones locales.');
+ try{const result=await Notification.requestPermission();noticeInfo();if(result==='granted')alert('Avisos del dispositivo activados mientras la aplicación esté abierta.');else alert('No se han autorizado las notificaciones. Puedes seguir usando la agenda.')}catch(e){alert('No se pudieron activar las notificaciones.')}
+});
+const notified=new Set();
+function checkDue(){
+ const date=today(),time=nowTime();
+ for(const m of db.medications){
+  if(!due(m,date)||m.time>time||eventFor(m.id,date))continue;
+  const key=date+'|'+m.id;if(notified.has(key))continue;
+  notified.add(key);
+  if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){
+   try{new Notification('Micro Health · Medicación',{body:'Toma programada: '+medLabel(m),tag:'mh25-'+key})}catch(e){}
+  }
+ }
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){render();checkDue()}});
+setInterval(()=>{render();checkDue()},60000);
+noticeInfo();render();
 })();
 </script></body></html>
