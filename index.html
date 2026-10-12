@@ -3510,7 +3510,7 @@ body.mh23-compact #inicio .life-today{display:none!important}
 /* Las acciones de registro solo aparecen una vez. Los formularios se abren bajo demanda. */
 #mh23-day-legacy{display:none!important}
 #miDia #mh23-day-editors>.mh23-editor-card{display:none!important}
-#miDia #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:flex!important}
+#miDia #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:block!important}
 #miDia .mh23-close-editor{display:block;width:100%;margin:0 0 10px!important;background:#eaf5f0!important;color:#176554!important;border:1px solid #cde5d9!important;border-radius:11px!important;padding:9px 12px!important;text-align:center;font-weight:750}
 </style>
 <style id="mh23-progress-move-v318">
@@ -3539,6 +3539,21 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #inicio .mh23-home-goals-card .data-goals3>*{max-width:100%}
 </style><style id="mh23-six-tabs-v20">
 @media(max-width:390px){#mh23-tabs{gap:0;padding-left:2px;padding-right:2px}#mh23-tabs button{font-size:9px!important;letter-spacing:-.2px}#mh23-tabs button span{font-size:19px}}
+</style><style id="mh23-register-mobile-fix-v322">
+/* Originales de sueño/pasos: tarjeta vertical, formulario completo y legible. */
+#miDia #mh23-day-editors{min-width:0;width:100%}
+#miDia #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;overflow:visible!important;padding:15px!important;margin:10px 0 16px!important}
+#miDia #mh23-day-editors .mh23-editor-visible>.home-square-icon{display:inline-flex;vertical-align:middle;margin-right:9px}
+#miDia #mh23-day-editors .mh23-editor-visible>.home-steps-main{display:inline-block;vertical-align:middle;width:calc(100% - 75px);min-width:0}
+#miDia #mh23-day-editors .mh23-editor-visible>.home-step-kcal,
+#miDia #mh23-day-editors .mh23-editor-visible>.sleep-summary-side,
+#miDia #mh23-day-editors .mh23-editor-visible>.home-chevron{display:none!important}
+#miDia #mh23-day-editors .mh23-editor-visible>.home-expand-area{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;clear:both;grid-column:auto!important;margin-top:14px!important}
+#miDia #mh23-day-editors .steps-today-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important}
+#miDia #mh23-day-editors .steps-today-grid>div{min-width:0!important}
+#miDia #mh23-day-editors input,#miDia #mh23-day-editors select{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#miDia #mh23-day-editors .sleep-import-box{max-width:100%;box-sizing:border-box}
+@media(max-width:460px){#miDia #mh23-day-editors .steps-today-grid{grid-template-columns:1fr!important}}
 </style></head>
 <body>
 <header class="mh-topbar">
@@ -18846,10 +18861,9 @@ window.mh23TrainingJump=function(destination){
  const sleep=which==='sleep',id=sleep?'homeSleepEditor':'homeStepsEditor',el=document.getElementById(id);
  const card=el?.closest('.mh23-editor-card');
  document.querySelectorAll('#mh23-day-editors > .mh23-editor-card').forEach(c=>c.classList.toggle('mh23-editor-visible',c===card));
- if(el&&!el.classList.contains('open')){
-  const fn=sleep?window.toggleHomeSleepEditor:window.toggleHomeStepsEditor;
-  if(typeof fn==='function')fn();
- }
+ if(el)el.classList.add('open');
+ if(sleep&&typeof window.loadDailySleep==='function')window.loadDailySleep();
+ if(!sleep&&typeof window.loadDailySteps==='function')window.loadDailySteps();
  setTimeout(()=>card?.scrollIntoView({behavior:'smooth',block:'start'}),70);
 };
 })();
