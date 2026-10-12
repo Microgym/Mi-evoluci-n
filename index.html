@@ -3554,7 +3554,12 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #miDia #mh23-day-editors input,#miDia #mh23-day-editors select{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #miDia #mh23-day-editors .sleep-import-box{max-width:100%;box-sizing:border-box}
 @media(max-width:460px){#miDia #mh23-day-editors .steps-today-grid{grid-template-columns:1fr!important}}
-</style></head>
+</style><style id="mh23-food-photo-remove-v23">
+.meal-dish-preview .meal-dish-preview-grid{display:flex;gap:10px;flex-wrap:wrap}
+.mh23-dish-photo-thumb{position:relative;width:86px;min-width:86px;height:86px}
+.meal-dish-preview .mh23-dish-photo-thumb img{display:block;width:86px;height:86px;object-fit:cover;border-radius:12px}
+.mh23-dish-photo-remove{position:absolute;right:2px;top:2px;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:50%;background:#273344;color:#fff;font-size:22px;line-height:1;box-shadow:0 1px 5px #0005;cursor:pointer}
+</style><style id="mh24-pdf-export-style">#volumeSummaryContent .mh24-pdf-export{background:#117e71!important;color:white!important;font-weight:700!important;border:0!important;border-radius:10px!important;padding:12px 17px!important}</style></head>
 <body>
 <header class="mh-topbar">
   <div class="header-wrap">
@@ -9648,6 +9653,24 @@ function chooseDishPhoto(tipo,id,input){
   input.value='';
 }
 
+function dishPhotoThumbs(tipo,id,urls){
+  return urls.map((u,i)=>`<div class="mh23-dish-photo-thumb">
+    <img src="${u}" alt="Foto ${i+1} del mismo plato o producto">
+    <button type="button" class="mh23-dish-photo-remove" onclick="removeDishPhoto('${tipo}','${id}',${i})" aria-label="Eliminar foto ${i+1}" title="Eliminar esta foto">×</button>
+  </div>`).join('');
+}
+function removeDishPhoto(tipo,id,index){
+  const key=dishPhotoKey(tipo,id),photo=pendingDishPhotos[key];
+  if(!photo||!Array.isArray(photo.files)||index<0||index>=photo.files.length)return;
+  const removed=photo.objectUrls?.[index];
+  if(removed)try{URL.revokeObjectURL(removed)}catch(e){}
+  photo.files.splice(index,1);
+  photo.objectUrls.splice(index,1);
+  if(!photo.files.length)delete pendingDishPhotos[key];
+  renderDishPhotoPreview(tipo,id);
+  const count=photo.files.length;
+  setDishStatus(tipo,id,count?`${count} foto${count===1?'':'s'} preparada${count===1?'':'s'} para analizar.`:'Foto eliminada. Puedes elegir otra cuando quieras.','');
+}
 function renderDishPhotoPreview(tipo,id){
   const photo=pendingDishPhotos[dishPhotoKey(tipo,id)];
   const box=document.getElementById(`dishPhotoPreview_${tipo}_${id}`);
@@ -9655,7 +9678,9 @@ function renderDishPhotoPreview(tipo,id){
   if(!box||!grid)return;
   const urls=photo?.objectUrls||[];
   box.classList.toggle('show',!!urls.length);
-  grid.innerHTML=urls.map((u,i)=>`<img src="${u}" alt="Foto ${i+1} del mismo plato o producto">`).join('');
+  grid.innerHTML=dishPhotoThumbs(tipo,id,urls);
+  const note=box.querySelector('.muted');
+  if(note)note.textContent=urls.length?`${urls.length} foto${urls.length===1?'':'s'} del mismo plato/producto. La IA analizará únicamente las fotos que mantengas.`:'Las fotos se usan solo para analizar este plato con IA.';
 }
 
 function setDishStatus(tipo,id,msg,kind=''){
@@ -9848,7 +9873,7 @@ function renderMealDishCard(tipo,dish,index,total){
       </div>
 
       <div id="dishPhotoPreview_${tipo}_${dish.id}" class="meal-dish-preview ${urls.length?'show':''}">
-        <div id="dishPhotoGrid_${tipo}_${dish.id}" class="meal-dish-preview-grid">${urls.map((u,i)=>`<img src="${u}" alt="Foto ${i+1} del mismo plato o producto">`).join('')}</div>
+        <div id="dishPhotoGrid_${tipo}_${dish.id}" class="meal-dish-preview-grid">${dishPhotoThumbs(tipo,dish.id,urls)}</div>
         <div class="muted">${urls.length?`${urls.length} foto${urls.length===1?'':'s'} del mismo plato/producto. La IA las analizará conjuntamente.`:'Las fotos se usan solo para analizar este plato con IA.'}</div>
       </div>
 
@@ -14549,6 +14574,47 @@ function volumeFigure(side,muscles,gender='male'){
  <path d="${silhouette}" fill="url(#vol-shade-${side})" opacity=".5" pointer-events="none"/>
  </svg>`;
 }
+function exportVolumeSummaryPDF(){
+ const source=document.getElementById('volumeSummaryContent');
+ if(!source)return;
+ // Abrir en el gesto del usuario: compatible con el bloqueo de ventanas emergentes de iOS.
+ const printWindow=window.open('','_blank');
+ if(!printWindow){alert('No se ha podido abrir el informe. Permite las ventanas emergentes para esta página e inténtalo de nuevo.');return;}
+ const content=source.cloneNode(true);
+ content.querySelectorAll('.volume-footer,.volume-head button,.mh24-pdf-export').forEach(el=>el.remove());
+ // Las rutas de imágenes deben ser absolutas en la nueva ventana about:blank.
+ content.querySelectorAll('img').forEach(img=>{
+   const src=img.getAttribute('src');
+   if(src && !/^(data:|blob:|https?:)/i.test(src))img.src=new URL(src,location.href).href;
+ });
+ const style=`
+ @page{size:A4;margin:13mm}
+ *{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#172b39;background:#fff;margin:0;font-size:11px}
+ .pdf-banner{border-bottom:3px solid #168879;padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:end}
+ .pdf-banner strong{font-size:21px;color:#116a60}.pdf-banner small{color:#586976}
+ .volume-head h2{font-size:17px;margin:0 0 5px}.volume-head{margin-bottom:12px}
+ .volume-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+ .volume-stat{border:1px solid #d7e4e4;border-radius:9px;padding:10px}.volume-stat small{display:block;color:#586976}.volume-stat b{font-size:18px}
+ .volume-columns{display:grid;grid-template-columns:1fr 1fr;gap:13px;align-items:start}
+ .volume-panel{border:1px solid #d7e4e4;border-radius:9px;padding:10px;min-width:0;break-inside:avoid-page}
+ h3{font-size:13px;margin:2px 0 10px}.volume-bar-row{display:grid;grid-template-columns:1fr auto;gap:4px;margin:0 0 9px}
+ .volume-track{grid-column:1/-1;height:7px;background:#edf2f3;border-radius:5px;overflow:hidden}.volume-fill{height:100%}
+ .volume-table{width:100%;border-collapse:collapse;font-size:10px}.volume-table th,.volume-table td{text-align:left;padding:6px 3px;border-bottom:1px solid #e0e9e9}
+ .volume-figures{display:flex;gap:8px;justify-content:space-evenly;align-items:start}.volume-figure{width:48%;text-align:center}
+ .volume-figure small{display:block;margin-top:5px}.volume-anatomy-layers{position:relative;width:100%;aspect-ratio:220/405;max-height:245px;overflow:hidden}
+ .volume-anatomy-layers img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+ .volume-anatomy{width:100%;max-height:245px}.volume-legend,.volume-note{font-size:9px;color:#5a6b74;line-height:1.5}
+ .volume-note{margin-top:12px}.volume-panel div[style]{font-size:10px}
+ img{-webkit-print-color-adjust:exact;print-color-adjust:exact}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ @media(max-width:560px){.volume-columns{grid-template-columns:1fr 1fr}}
+ @media print{.pdf-actions{display:none!important}}
+ `;
+ const heading=source.querySelector('.volume-head h2')?.textContent||'Resumen de entrenamiento';
+ printWindow.document.open();
+ printWindow.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+volumeEscape(heading)+' · Micro Health</title><style>'+style+'</style></head><body><div class="pdf-banner"><strong>Micro Health</strong><small>Informe de entrenamiento</small></div>'+content.innerHTML+'<div class="pdf-actions" style="margin-top:20px;text-align:center"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:10px;background:#168879;color:white;font-weight:700;font-size:15px">Guardar o compartir como PDF</button><p style="font-size:12px;color:#586976">En iPhone, utiliza Compartir desde la vista de impresión para guardar o enviar el PDF.</p></div></body></html>');
+ printWindow.document.close();
+ printWindow.focus();
+}
 function closeVolumeSummary(){const el=document.getElementById('volumeOverlay');if(el)el.hidden=true;document.body.classList.remove('volume-summary-open');}
 function openVolumeSummary(rows,meta={}){
  const overlay=document.getElementById('volumeOverlay'),content=document.getElementById('volumeSummaryContent');if(!overlay||!content)return;
@@ -14562,7 +14628,7 @@ function openVolumeSummary(rows,meta={}){
  <div class="volume-columns"><div><section class="volume-panel"><h3>Kilos movidos por músculo</h3>${bars||'<p>No hay series con kilos y repeticiones registrados.</p>'}</section><section class="volume-panel" style="margin-top:12px"><h3>Detalle por ejercicio</h3><table class="volume-table"><thead><tr><th>Ejercicio</th><th>Series</th><th>Volumen</th></tr></thead><tbody>${table}</tbody></table></section></div>
  <section class="volume-panel"><h3>Mapa muscular detallado</h3><p class="volume-legend">Mapa anatómico del diseño 1. Se destacan solo los músculos principales identificados en cada ejercicio.</p><div class="volume-figures"><div class="volume-figure">${volumeFigure('front',a.muscles,isFemale?'female':'male')}<small>Vista frontal</small></div><div class="volume-figure">${volumeFigure('back',a.muscles,isFemale?'female':'male')}<small>Vista posterior</small></div></div><div class="volume-legend">${label} anatómica · zonas identificadas coloreadas; gris = sin trabajo identificado. Las zonas generales no se colorean como músculos concretos. El mapa es orientativo.</div><h3 style="margin-top:16px">Kilos por músculo principal</h3><div style="margin-top:12px">${a.muscles.map(([z,kg])=>`<div style="margin:5px 0"><span style="color:${VOLUME_MUSCLE_COLORS[z]||VOLUME_COLORS.Otro}">●</span> ${z}: <b>${volumeNumber(kg)} kg</b> (${a.total?Math.round(100*kg/a.total):0} %)</div>`).join('')}</div></section></div>
  <p class="volume-note">Volumen externo = suma de kg × repeticiones de cada serie. Cada ejercicio se asigna a un solo músculo principal estimado para evitar duplicaciones; los músculos secundarios también participan, pero no se suman como kilos adicionales. Si el ejercicio es ambiguo, se indica zona general. No mide la fuerza real soportada por cada músculo. Las series con peso corporal sin carga externa no suman kilos.</p>
- <div class="volume-footer"><button onclick="closeVolumeSummary()">Volver a Entreno</button><button onclick="closeVolumeSummary()">✓ Aceptar</button></div>`;
+ <div class="volume-footer"><button class="mh24-pdf-export" onclick="exportVolumeSummaryPDF()">📄 Exportar PDF</button><button onclick="closeVolumeSummary()">Volver a Entreno</button><button onclick="closeVolumeSummary()">✓ Aceptar</button></div>`;
  overlay.hidden=false;document.body.classList.add('volume-summary-open');
 }
 function openVolumeRoutineHistory(key){const rows=(db.entreno||[]).filter(r=>routineGroupKey(r)===key&&!r.esResumenRutina);if(!rows.length)return;openVolumeSummary(rows,{nombre:rows[0].rutinaNombre||'Rutina',fecha:rows[0].fecha,gym:rows[0].gym});}
