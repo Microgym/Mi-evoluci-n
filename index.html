@@ -19369,8 +19369,8 @@ const status=t=>$('mh30Status').textContent=t;
 function clearPreview(){if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;photo=null;$('mh30Preview').hidden=true;$('mh30CameraInput').value='';$('mh30ImageInput').value=''}
 function reset(){clearPreview();draft=null;$('mh30Draft').hidden=true;$('mh30NameInput').value='';status('')}
 function open(){reset();wizard.hidden=false;$('mh25Form').hidden=true;wizard.scrollIntoView({behavior:'smooth',block:'start'})}
-window.mh30OpenWizard=()=>{window.mh30PendingPhoto=null;open()};
-$('mh30Cancel').addEventListener('click',()=>{wizard.hidden=true;reset();window.mh30PendingPhoto=null});
+window.mh30OpenWizard=open;
+$('mh30Cancel').addEventListener('click',()=>{wizard.hidden=true;reset()});
 $('mh30TakePhoto').addEventListener('click',()=>$('mh30CameraInput').click());
 $('mh30ChoosePhoto').addEventListener('click',()=>$('mh30ImageInput').click());
 $('mh30TypeName').addEventListener('click',()=>{$('mh30NameInput').focus();status('Introduce el nombre y pulsa Identificar con IA, o continúa manualmente.')});
@@ -19426,4 +19426,5 @@ window.mh30OnSaved=async id=>{
  catch(e){alert('Medicamento guardado, pero no se pudo adjuntar la fotografía. Añádela desde la ficha.')}
 };
 })();
-</script></body></html>
+</script>
+</body></html>

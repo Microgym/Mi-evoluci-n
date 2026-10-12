@@ -1,7 +1,9 @@
-# Micro Health v22.3.30 — Alta por foto
+# Micro Health v22.3.31 — Corrección del alta por foto
 
-En Mi día → Mi medicación → Añadir: hacer foto, elegir imagen o escribir nombre. «Identificar con IA» solicita consentimiento y llama al Worker configurado del Coach mediante `POST /analyze-medication`. **Esta ruta aún debe añadirse al Worker**: el ZIP de GitHub Pages por sí solo no habilita la identificación. Si la ruta no existe se muestra el error y puedes continuar manualmente.
+Se corrige un error de integración de v22.3.30: el código de la nueva pantalla se había insertado accidentalmente dentro del HTML de impresión del informe de entrenamiento y no se ejecutaba como script de la aplicación. Ahora la pantalla «Añadir medicamento» se inicia correctamente desde Mi día → Mi medicación → Añadir.
 
-Contrato esperado: JSON `{ "result": {"name":"...", "activeIngredient":"...", "strength":"...", "prescriptionText":"..."} }`. La IA solo propone identificación; dosis y horarios siempre se confirman manualmente. La imagen se adjunta a los documentos del medicamento una vez guardado.
+Incluye cámara, galería, nombre escrito, vista previa, quitar foto y continuar manualmente; tras confirmar el alta, la imagen se guarda con los documentos del medicamento.
 
-Sin cambios en `miguel-evolucion-v4` o `micro-health-medicacion-v1`, ni en el historial de tomas y documentos. Antes de publicar, exporta copias JSON general y de medicación. No se publica ni se configura el Worker automáticamente.
+**Pendiente:** «Identificar con IA» requiere habilitar la ruta POST /analyze-medication en el Worker del Coach. Si no existe, se indica el error y se permite continuar manualmente. No se afirma que la identificación automática ya funcione.
+
+No se cambian las claves `miguel-evolucion-v4` ni `micro-health-medicacion-v1`. Antes de actualizar, exportar copias JSON general y de medicación. Las fotografías históricas requieren su propio respaldo.
