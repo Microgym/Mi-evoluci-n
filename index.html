@@ -3444,6 +3444,24 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card){display:none!importa
 body.mh23-compact #inicio .life-today-head{display:none!important}
 @media(min-width:850px){#mh23-tabs{max-width:660px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border:1px solid #e3eeed}}
 
+
+/* Micro Health 23 fase 2: centro de entrenamiento, solo presentación */
+.mh23-training-hub{border:1px solid #d8eae5;border-radius:20px;background:linear-gradient(135deg,#effaf6 0%,#fff 65%);padding:17px;margin:14px 0 20px;box-shadow:0 7px 20px #123c4010}
+.mh23-training-hub-head small{font-size:11px;font-weight:850;color:#168471;letter-spacing:.04em}
+.mh23-training-hub-head h3{font-size:22px;color:#12544c;margin:5px 0}
+.mh23-training-hub-head p{font-size:13px;color:#66807b;margin:0 0 15px;line-height:1.45}
+.mh23-training-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#entreno .mh23-training-action{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;min-width:0;min-height:123px;padding:14px!important;border:1px solid #d6e8e3!important;border-radius:16px!important;background:white!important;color:#165a52!important;box-shadow:0 3px 12px #153e4010!important}
+#entreno .mh23-training-action strong{font-size:15px;line-height:1.25}
+#entreno .mh23-training-action small{font-size:11px;line-height:1.35;color:#64807b;font-weight:500}
+#entreno .mh23-training-action.mh23-training-primary{background:#e1f5ee!important;border-color:#a9ddca!important}
+.mh23-training-symbol{font-size:23px;line-height:1.15}
+.mh23-training-secondary{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+#entreno .mh23-training-secondary button{background:#fff!important;border:1px solid #d3e8df!important;border-radius:12px!important;color:#266a5e!important;font-size:12px!important;padding:10px!important;box-shadow:none!important}
+/* Evita duplicar los accesos de golf y registrar: permanecen en el DOM y se accede desde el panel */
+#entreno>.golf-quick-access,#entreno>.golf-evo-shortcut,#entreno>.training-launch{display:none!important}
+@media(max-width:360px){#entreno .mh23-training-action{padding:11px!important;min-height:118px}#entreno .mh23-training-action strong{font-size:14px}}
+
 </style>
 
 </head>
@@ -3941,6 +3959,17 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
 <div class="training-screen-head">
   <div class="training-screen-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div>
   <div><h2>Entrenamiento</h2><div class="muted">Registra sesiones, progresa en fuerza y organiza tus rutinas.</div></div>
+</div>
+<!-- Micro Health 23 · fase 2: entrada simplificada a Entrenar, sin alterar los registros -->
+<div class="mh23-training-hub" aria-label="Accesos de entrenamiento">
+  <div class="mh23-training-hub-head"><div><small>MICRO HEALTH · ENTRENAR</small><h3>¿Qué quieres hacer?</h3><p>Elige una acción. Tus rutinas, sesiones y estadísticas siguen donde estaban.</p></div></div>
+  <div class="mh23-training-quick-grid">
+    <button type="button" class="mh23-training-action mh23-training-primary" onclick="openTrainingEditor()"><span class="mh23-training-symbol">＋</span><strong>Entrenar ahora</strong><small>Registrar fuerza, cardio o deporte</small></button>
+    <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('routines')"><span class="mh23-training-symbol">🏋️</span><strong>Mis rutinas</strong><small>Elegir, crear o editar</small></button>
+    <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('history')"><span class="mh23-training-symbol">📋</span><strong>Historial</strong><small>Consultar o corregir sesiones</small></button>
+    <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('golf')"><span class="mh23-training-symbol">⛳</span><strong>Golf</strong><small>Jugar y ver evolución</small></button>
+  </div>
+  <div class="mh23-training-secondary"><button type="button" onclick="mh23TrainingJump('next')">⭐ Próxima rutina</button><button type="button" onclick="mh23TrainingJump('week')">📅 Resumen semanal</button><button type="button" onclick="mh23TrainingJump('golfstats')">📈 Estadísticas de golf</button></div>
 </div>
 <!-- v22.2.86 · Acceso directo a Golf sin pasar por los pasos de registro general -->
 <div class="golf-quick-access">
@@ -18643,5 +18672,20 @@ setTimeout(()=>{
  document.querySelectorAll('nav button[data-sec]').forEach(b=>b.addEventListener('click',()=>{sheet.hidden=true;select(b.dataset.sec)}));
  document.body.classList.add('mh23-on','mh23-compact');
 })();
+</script>
+
+<script>
+/* Fase 2: abre únicamente componentes ya existentes; no modifica almacenamiento */
+window.mh23TrainingJump=function(destination){
+  if(destination==='golf'){if(typeof openGolfQuickPlay==='function')openGolfQuickPlay();return;}
+  if(destination==='golfstats'){if(typeof openGolfEvolution==='function')openGolfEvolution();return;}
+  const selectors={routines:'#entreno details.training-fold:has(#routineList)',history:'#trainingHistoryDetails',next:'#trainingNextRoutineFold',week:'#trainingWeekFold'};
+  let target=null;
+  if(destination==='routines')target=document.getElementById('routineList')?.closest('details.training-fold');
+  else target=document.querySelector(selectors[destination]);
+  if(!target)return;
+  target.open=true;
+  requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));
+};
 </script>
 </body></html>

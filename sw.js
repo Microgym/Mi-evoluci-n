@@ -1,4 +1,4 @@
-const CACHE='micro-health-v22-3-11';
+const CACHE='micro-health-v22-3-12';
 const CORE=['./','./index.html','./anatomia-diseno1-front.png','./anatomia-diseno1-back.png','./muscle-front-base.webp','./muscle-back-base.webp','./muscle-front-pectorales.png','./muscle-front-deltoides.png','./muscle-front-biceps.png','./muscle-front-cuádriceps.png','./muscle-back-deltoides.png','./muscle-back-dorsales.png','./muscle-back-gluteos.png','./muscle-back-isquiotibiales.png','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./favicon-32.png'];
 
 self.addEventListener('install',event=>{
