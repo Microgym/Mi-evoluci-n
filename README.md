@@ -1,9 +1,13 @@
-Micro Health v22.3.13 — Fase 2B: Registrar
+# Micro Health v22.3.14 — Fase Progreso
 
 Actualización completa para GitHub Pages.
 
-Cambios: acceso Registrar reorganizado con 5 opciones y descripciones: Peso y medidas, Comidas y agua, Sueño y energía, Pasos, Hábitos. Cada opción abre la función existente. No se crean registros duplicados ni se cambia el almacenamiento.
+- Progreso organizado en cinco tarjetas: Salud y peso, Entrenamiento, Tendencias, Informe semanal, Sueño y recuperación.
+- Reutiliza las pantallas y los cálculos existentes; no se crean registros duplicados.
+- Los informes y tendencias abren el Inicio completo y desplazan hasta el panel correspondiente.
+- Se mantienen todos los registros, el mapa muscular, el golf, el Coach y la clave local `miguel-evolucion-v4`.
+- Caché del service worker actualizada.
 
-Protección: clave miguel-evolucion-v4 sin cambios. IndexedDB y mapa muscular sin modificar.
+**Antes de actualizar:** exporta el JSON. Las fotos de progreso almacenadas en IndexedDB requieren copia independiente. No borres los datos del navegador ni reinstales la PWA.
 
-Antes de actualizar: exportar JSON y proteger fotos de progreso aparte. Subir contenido del ZIP (no la carpeta contenedora) al repositorio. Verificar en iPhone/PC todos los accesos y guardado de datos.
+**Verificación pendiente:** pruebas de uso en PC y iPhone.
