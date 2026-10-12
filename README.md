@@ -1,4 +1,4 @@
-Micro Health v22.3.06 — Mi día y hábitos diarios.
-
-Conserva la clave miguel-evolucion-v4, datos locales, fotografías y todas las funciones anteriores.
-Antes de actualizar exporta una copia de seguridad JSON. Sube todos los archivos del ZIP a la raíz del repositorio de GitHub, sustituyendo los existentes. No borres datos del navegador ni reinstales la PWA. Cloudflare no cambia.
+Micro Health v22.3.07 — Sueño y recuperación + calendario de hábitos de 7 días.
+Sube todos los archivos del ZIP a la raíz del repositorio GitHub Pages.
+Antes exporta la copia JSON. No borres datos locales ni reinstales la app. Cloudflare no cambia.
+Conserva KEY miguel-evolucion-v4 y todas las funcionalidades anteriores.

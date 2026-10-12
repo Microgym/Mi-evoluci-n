@@ -3332,7 +3332,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .volume-figures{align-items:flex-start;gap:8px}
 .volume-figure small{margin-top:6px}
 
-/* v22.3.06 · Mi día y hábitos, respetando las tarjetas originales */
+/* v22.3.07 · Mi día y hábitos, respetando las tarjetas originales */
 .life-today{background:#eff6f4;border:1px solid #d9e9e4;border-radius:22px;padding:18px;margin:0 0 16px;color:#1c3e36}
 .life-today-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
 .life-eyebrow{font-size:10px;letter-spacing:1.7px;color:#397f6c;font-weight:800}
@@ -3358,6 +3358,32 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 .life-habit[aria-pressed="true"] .life-habit-check{background:#18856b;color:#fff;border-color:#18856b}
 .life-habits-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;margin-top:11px;font-size:10px;color:#82958d}
 @media(min-width:700px){.life-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+
+/* v22.3.07 · Calendario semanal y recuperación */
+.life-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:11px}
+.life-week-day{display:flex;align-items:center;flex-direction:column;gap:5px;min-width:0}
+.life-week-day small{font-size:10px;color:#6d837b}
+.life-week-dot{width:100%;height:30px;max-width:38px;border-radius:10px;display:grid;place-items:center;background:#f1f5f3;color:#879b93;font-size:13px;border:1px solid #e5eeea}
+.life-week-dot.done{background:#dff5e9;border-color:#a2d7bb;color:#137759;font-weight:800}
+.life-week-dot.partial{background:#fdf4df;border-color:#ead8aa;color:#8a681c;font-weight:800}
+.life-week-dot.today{outline:2px solid #298f75;outline-offset:1px}
+.life-week-legend{font-size:10px;color:#75877f;margin-top:8px}
+.life-recovery{margin-top:12px;padding:14px;background:#fff;border:1px solid #e2ebe8;border-radius:16px}
+.life-recovery h3{margin:0;color:#174638;font-size:15px}
+.life-recovery p{margin:4px 0 10px;font-size:11px;color:#72877e}
+.life-recovery-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.life-recovery-stat{background:#f5faf7;border-radius:12px;padding:10px;min-width:0}
+.life-recovery-stat small{display:block;color:#647e72;font-size:10px}
+.life-recovery-stat b{display:block;font-size:18px;color:#1b5542;margin-top:3px}
+.life-sleep-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end;margin-top:13px}
+.life-sleep-col{display:flex;align-items:center;flex-direction:column;gap:5px;min-width:0}
+.life-sleep-col .life-sleep-track{height:64px;width:100%;max-width:32px;border-radius:8px;background:#edf3ef;display:flex;align-items:flex-end;overflow:hidden}
+.life-sleep-fill{width:100%;background:#4c9c85;border-radius:7px 7px 0 0}
+.life-sleep-col small{font-size:10px;color:#6d837b}
+.life-sleep-col em{font-style:normal;font-size:9px;color:#6d837b;white-space:nowrap}
+.life-recovery-note{margin-top:11px;font-size:11px;line-height:1.5;color:#536d61}
+.life-recovery-action{margin-top:10px;width:100%;background:#edf7f2!important;color:#17674f!important;border:1px solid #c8e5d7!important;border-radius:10px!important;padding:9px!important;font-size:12px!important;font-weight:700!important}
 
 </style>
 
@@ -3387,7 +3413,7 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
 <main>
 <section id="inicio" class="active" data-home-mockup="true">
 
-<!-- Micro Health 22.3.06 · resumen de estilo de vida, sin datos simulados -->
+<!-- Micro Health 22.3.07 · resumen de estilo de vida, sin datos simulados -->
 <div class="life-today" aria-label="Mi día">
   <div class="life-today-head"><div><span class="life-eyebrow">TU ESTILO DE VIDA</span><h2>Mi día</h2><p id="lifeTodaySubtitle">Tu actividad de hoy, en un vistazo</p></div><div class="life-today-mark" aria-hidden="true">♥</div></div>
   <div class="life-quick-grid">
@@ -3399,7 +3425,15 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
   <div class="life-habits">
     <div class="life-habits-head"><div><b>Mis pequeños hábitos</b><span>Marca lo que hayas hecho hoy</span></div><strong id="lifeHabitsCount">0/3</strong></div>
     <div class="life-habit-items" id="lifeHabitsItems"></div>
-    <div class="life-habits-foot"><span id="lifeHabitsWeek">Sin registros anteriores</span><span>Se guarda en este dispositivo</span></div>
+    <div class="life-week" id="lifeHabitsCalendar" aria-label="Hábitos de los últimos siete días"></div><div class="life-week-legend">✓ Tres hábitos · número: hábitos completados · — sin marcar</div><div class="life-habits-foot"><span id="lifeHabitsWeek">Sin registros anteriores</span><span>Se guarda en este dispositivo</span></div>
+  </div>
+  <div class="life-recovery" aria-label="Sueño y recuperación">
+    <h3>🌙 Sueño y recuperación</h3>
+    <p>Tu descanso de los últimos 7 días y cómo te sientes al despertar.</p>
+    <div class="life-recovery-stats"><div class="life-recovery-stat"><small>Media registrada</small><b id="lifeRecoveryAverage">—</b></div><div class="life-recovery-stat"><small>Energía al despertar</small><b id="lifeRecoveryEnergy">Sin registrar</b></div></div>
+    <div class="life-sleep-bars" id="lifeSleepBars"></div>
+    <div class="life-recovery-note" id="lifeRecoveryNote">Añade sueño para empezar a ver tendencias.</div>
+    <button type="button" class="life-recovery-action" onclick="toggleHomeSleepEditor();document.getElementById('homeSleepEditor')?.scrollIntoView({behavior:'smooth',block:'center'})">Registrar sueño y energía ›</button>
   </div>
 </div>
 
@@ -3530,6 +3564,11 @@ button.home-avatar{padding:0;border:0;overflow:hidden;flex:none;cursor:pointer;p
         <label>Puntuación (0–100)</label>
         <input id="dailySleepScore" type="number" min="0" max="100" step="1" placeholder="Ej. 84">
       </div>
+    </div>
+
+    <div class="steps-today-grid" style="margin-top:10px">
+      <div><label>Energía al despertar (1–5)</label><select id="dailySleepEnergy"><option value="">Sin valorar</option><option value="1">1 · Muy baja</option><option value="2">2 · Baja</option><option value="3">3 · Normal</option><option value="4">4 · Buena</option><option value="5">5 · Muy buena</option></select></div>
+      <div><label>Sensación de recuperación (1–5)</label><select id="dailySleepRecovery"><option value="">Sin valorar</option><option value="1">1 · Muy cansado</option><option value="2">2 · Cansado</option><option value="3">3 · Normal</option><option value="4">4 · Recuperado</option><option value="5">5 · Muy recuperado</option></select></div>
     </div>
 
     <div class="sleep-import-box">
@@ -6770,7 +6809,7 @@ async function runCoachAnalysis(focus='week'){
 
 
 
-// v22.3.06 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
+// v22.3.07 · hábitos cotidianos. Persisten dentro de la misma clave de datos histórica.
 const LIFE_HABITS=[['movilidad','🧘','Un poco de movilidad'],['aireLibre','🌿','Salir al aire libre'],['pausa','☀️','Dedicarme una pausa']];
 function toggleLifeHabit(id){
   if(!LIFE_HABITS.some(h=>h[0]===id))return;
@@ -6816,6 +6855,55 @@ function renderLifestyleToday(){
     }
   }
   document.getElementById('lifeHabitsWeek').textContent=recorded?`${completed} días con los 3 hábitos · últimos 7 días`:'Aún no hay historial de hábitos';
+  const calendar=document.getElementById('lifeHabitsCalendar');
+  if(calendar){
+    const names=['D','L','M','X','J','V','S'];
+    calendar.innerHTML=Array.from({length:7},(_,i)=>{
+      const date=addIsoDays(d,i-6);
+      const row=db.habitsDaily?.[date]||{};
+      const n=LIFE_HABITS.filter(h=>row[h[0]]===true).length;
+      const done=n===LIFE_HABITS.length;
+      const label=names[new Date(date+'T12:00:00').getDay()];
+      return `<div class="life-week-day" title="${fechaES(date)}: ${n} de 3 hábitos"><small>${label}</small><span class="life-week-dot ${done?'done':n?'partial':''} ${date===d?'today':''}">${done?'✓':n||'—'}</span></div>`;
+    }).join('');
+  }
+  renderLifeRecovery();
+}
+
+
+function renderLifeRecovery(){
+  const host=document.getElementById('lifeSleepBars');
+  if(!host)return;
+  const d=today();
+  const rows=Array.from({length:7},(_,i)=>{
+    const date=addIsoDays(d,i-6),rec=db.sleepDaily?.[date];
+    const hours=rec?.hours==null||rec.hours===''?null:Number(rec.hours);
+    return {date,rec,hours:hours!=null&&Number.isFinite(hours)&&hours>=0&&hours<=24?hours:null};
+  });
+  const valid=rows.filter(r=>r.hours!==null);
+  const average=valid.length?valid.reduce((n,r)=>n+r.hours,0)/valid.length:null;
+  const avgEl=document.getElementById('lifeRecoveryAverage');
+  if(avgEl)avgEl.textContent=average===null?'—':formatSleepHours(average);
+  const energy=Number(db.sleepDaily?.[d]?.energy);
+  const energyEl=document.getElementById('lifeRecoveryEnergy');
+  if(energyEl)energyEl.textContent=energy>=1&&energy<=5?`${energy}/5`:'Sin registrar';
+  const dayNames=['D','L','M','X','J','V','S'];
+  host.innerHTML=rows.map(r=>{
+    const h=r.hours;
+    const height=h===null?0:Math.max(3,Math.min(100,h/10*100));
+    const label=dayNames[new Date(r.date+'T12:00:00').getDay()];
+    return `<div class="life-sleep-col" title="${fechaES(r.date)}: ${h===null?'Sin registrar':formatSleepHours(h)}"><em>${h===null?'—':(Math.round(h*10)/10).toLocaleString('es-ES')+' h'}</em><div class="life-sleep-track"><div class="life-sleep-fill" style="height:${height}%"></div></div><small>${label}</small></div>`;
+  }).join('');
+  const note=document.getElementById('lifeRecoveryNote');
+  if(note){
+    const rated=rows.filter(r=>r.rec?.energy!=null&&r.rec.energy!==''&&Number(r.rec.energy)>=1&&Number(r.rec.energy)<=5);
+    const recov=rows.filter(r=>r.rec?.recovery!=null&&r.rec.recovery!==''&&Number(r.rec.recovery)>=1&&Number(r.rec.recovery)<=5);
+    const bits=[];
+    bits.push(valid.length?`${valid.length} de 7 días con sueño registrado.`:'Todavía no hay noches registradas en estos 7 días.');
+    if(rated.length)bits.push(`Energía media: ${(rated.reduce((a,r)=>a+Number(r.rec.energy),0)/rated.length).toFixed(1).replace('.',',')}/5 (${rated.length} días).`);
+    if(recov.length)bits.push(`Recuperación percibida: ${(recov.reduce((a,r)=>a+Number(r.rec.recovery),0)/recov.length).toFixed(1).replace('.',',')}/5 (${recov.length} días).`);
+    note.textContent=bits.join(' ');
+  }
 }
 
 function toggleHomeDayReviewDetails(){
@@ -7621,6 +7709,8 @@ function loadDailySleep(){
   input.value=rec&&Number.isFinite(Number(rec.hours))?Number(rec.hours):'';
   const q=document.getElementById('dailySleepQuality'); if(q)q.value=rec?.quality||'';
   const s=document.getElementById('dailySleepScore'); if(s)s.value=Number.isFinite(Number(rec?.score))?Number(rec.score):'';
+  const en=document.getElementById('dailySleepEnergy'); if(en)en.value=rec?.energy>=1&&rec?.energy<=5?String(rec.energy):'';
+  const re=document.getElementById('dailySleepRecovery'); if(re)re.value=rec?.recovery>=1&&rec?.recovery<=5?String(rec.recovery):'';
   previewDailySleep();
   renderSleepHistoryMini();
 }
@@ -7640,6 +7730,8 @@ function saveDailySleep(){
     hours:Number(hours.toFixed(2)),
     quality:(document.getElementById('dailySleepQuality')?.value||'').trim(),
     score,
+    energy:document.getElementById('dailySleepEnergy')?.value?Number(document.getElementById('dailySleepEnergy').value):null,
+    recovery:document.getElementById('dailySleepRecovery')?.value?Number(document.getElementById('dailySleepRecovery').value):null,
     source:prev.source||'manual',
     updatedAt:new Date().toISOString()
   };
