@@ -3513,6 +3513,15 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
 #miDia #mh23-day-editors>.mh23-editor-card.mh23-editor-visible{display:flex!important}
 #miDia .mh23-close-editor{display:block;width:100%;margin:0 0 10px!important;background:#eaf5f0!important;color:#176554!important;border:1px solid #cde5d9!important;border-radius:11px!important;padding:9px 12px!important;text-align:center;font-weight:750}
 </style>
+<style id="mh23-progress-move-v318">
+#mh23ProgressDetail{padding-bottom:24px}
+.mh23-progress-detail-head{background:#eef8f3;border:1px solid #d7eae1;border-radius:18px;padding:15px;margin:12px 0 16px}
+.mh23-progress-detail-head button{border:1px solid #cde6db;border-radius:11px;background:#fff;color:#176554;padding:9px 12px;font-weight:750}
+.mh23-progress-detail-head h2{margin:12px 0 5px;color:#195d50;font-size:24px}
+.mh23-progress-detail-head p{margin:0;color:#647d74;font-size:13px}
+#mh23ProgressDetail>div[id^="mh23Progress"]{scroll-margin-top:84px}
+#mh23ProgressDetail .life-recovery,#mh23ProgressDetail .life-trends,#mh23ProgressDetail .life-report{display:block!important;margin-bottom:16px}
+</style>
 </head>
 <body>
 <header class="mh-topbar">
@@ -3537,6 +3546,16 @@ body.mh23-compact #inicio .home-card:not(.home-weight-card):not(.home-week-card)
   </div>
 </header>
 <main>
+<section id="mh23ProgressDetail" aria-label="Detalle de Progreso">
+  <div class="mh23-progress-detail-head">
+    <button type="button" onclick="mh23Open('progreso')">← Progreso</button>
+    <h2>📊 Mi progreso</h2>
+    <p>Tu descanso, evolución e informes con todos los datos registrados.</p>
+  </div>
+  <div id="mh23ProgressRecovery"></div>
+  <div id="mh23ProgressTrends"></div>
+  <div id="mh23ProgressReport"></div>
+</section>
 <section id="miDia" aria-label="Mi día">
 <div class="mh23-day-head"><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tus registros y recomendaciones de hoy, en un solo lugar.</p></div>
 <div class="mh23-day-group" id="mh23-day-register"><h3>＋ Registrar datos de hoy</h3><div class="mh23-day-buttons">
@@ -18750,12 +18769,12 @@ setTimeout(()=>{
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
  const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario'],['🌿 Hábitos','habits','Revisa y marca tus hábitos del día']]},progreso:{title:'Progreso · Tu evolución',desc:'Elige qué quieres analizar. Cada apartado utiliza tus registros reales y conserva los gráficos existentes.',actions:[['📈 Salud y peso','evolucion','Peso, medidas y evolución corporal'],['🏋️ Entrenamiento','evolucionEntreno','Actividad, fuerza y mapa muscular'],['📊 Tendencias 7 · 30 · 90 días','trends','Sueño, pasos, hábitos y actividad'],['📋 Informe semanal','report','Resumen y comparación entre semanas'],['🌙 Sueño y recuperación','recovery','Descanso y energía registrados']]}};
  function select(section){let selected=({miDia:'miDia',peso:'miDia',comidas:'miDia',evolucion:'progreso',evolucionEntreno:'progreso',datos:'inicio',report:'progreso',trends:'progreso',recovery:'progreso'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
- function route(section){sheet.hidden=true; if(['sleep','steps','habits'].includes(section)){window.mh23Open('miDia');if(section!=='habits')window.mh23DayEditor(section);else document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');return;} if(section==='sleep'||section==='steps'||section==='habits'||section==='report'||section==='trends'||section==='recovery'){
-  goSection('inicio');document.body.classList.remove('mh23-compact');document.getElementById('mh23-toggle').textContent='Simplificar Inicio ↑';
-  let id=({sleep:'homeSleepEditor',steps:'homeStepsEditor',habits:'lifeHabitsItems',report:'lifeReportContent',trends:'lifeTrendsSummary',recovery:'lifeRecoveryAverage'})[section];
-  if(section==='sleep' && document.getElementById('homeSleepEditor')?.offsetParent===null && typeof toggleHomeSleepEditor==='function')toggleHomeSleepEditor();
-  if(section==='steps' && document.getElementById('homeStepsEditor')?.offsetParent===null && typeof toggleHomeStepsEditor==='function')toggleHomeStepsEditor();
-  setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'}),100);
+ function route(section){sheet.hidden=true; if(['sleep','steps','habits'].includes(section)){window.mh23Open('miDia');if(section!=='habits')window.mh23DayEditor(section);else document.getElementById('mh23-day-habits')?.scrollIntoView({behavior:'smooth',block:'start'});select('miDia');return;} if(['report','trends','recovery'].includes(section)){
+  document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('mh23ProgressDetail').classList.add('active');
+  document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));
+  const id=({report:'mh23ProgressReport',trends:'mh23ProgressTrends',recovery:'mh23ProgressRecovery'})[section];
+  setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}),100);
  }else{goSection(section);window.scrollTo({top:0,behavior:'smooth'});} select(section);}
  window.mh23Open=function(which){if(which==='miDia'){sheet.hidden=true;document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));document.getElementById('miDia').classList.add('active');document.querySelectorAll('nav button[data-sec]').forEach(b=>b.classList.remove('active'));if(typeof setFoodViewToday==='function')try{setFoodViewToday()}catch(e){console.warn('Nutrición',e)}select('miDia');window.scrollTo({top:0,behavior:'smooth'});return;}if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'||which==='progreso'){b.className=which==='progreso'?'mh23-progress-choice':'mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.classList.toggle('mh23-progress-sheet',which==='progreso');sheet.hidden=false;select(which)}else{route(which)}};
  window.mh23ToggleHome=function(){const compact=document.body.classList.toggle('mh23-compact');document.getElementById('mh23-toggle').textContent=compact?'Ver panel completo ↓':'Simplificar Inicio ↑'};
@@ -18811,6 +18830,18 @@ window.mh23TrainingJump=function(destination){
  }
  setTimeout(()=>card?.scrollIntoView({behavior:'smooth',block:'start'}),70);
 };
+})();
+</script>
+<script id="mh23-progress-move-script-v318">
+(function(){
+ const move=(selector,target)=>{
+  const el=document.querySelector('#inicio '+selector),host=document.getElementById(target);
+  if(el&&host)host.appendChild(el);
+  else console.warn('Progreso: no se pudo trasladar',selector,target);
+ };
+ move('.life-recovery','mh23ProgressRecovery');
+ move('.life-trends','mh23ProgressTrends');
+ move('.life-report','mh23ProgressReport');
 })();
 </script>
 </body></html>
