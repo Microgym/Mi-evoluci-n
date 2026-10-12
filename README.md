@@ -1,11 +1,11 @@
-# Micro Health v22.3.25 — Mi medicación (primera versión)
+# Micro Health v22.3.26 — Varias tomas y documentos
 
-**Dónde:** Mi día → Mi medicación. También hay acceso rápido al final de Registrar datos de hoy.
+- Cada medicamento puede tener varias horas al día. Cada toma se confirma, omite o deshace individualmente.
+- Se conservan las tomas y medicamentos creados en v22.3.25. Los registros antiguos de una sola toma siguen vinculados a su hora.
+- En la ficha del medicamento, botón **Añadir foto, receta o instrucciones**. Se aceptan imágenes y PDF de hasta 8 MB por archivo. Se pueden abrir y eliminar individualmente.
+- Los archivos se guardan en IndexedDB separado: `micro-health-medication-files-v1`.
+- La **Copia de medicación** ahora incluye los documentos adjuntos; puede ocupar bastante espacio. También acepta copias antiguas sin documentos.
+- Las notificaciones del iPhone siguen limitadas a cuando la app está abierta y visible. No confiar exclusivamente en ellas para medicación.
+- No se modifica `miguel-evolucion-v4` ni los registros o fotos de otros apartados.
 
-Permite registrar medicamentos, dosis según receta, horarios, frecuencia diaria, lunes a viernes o días personalizados, fechas de inicio/fin e indicaciones. Cada toma de hoy se puede confirmar como Tomado, Omitido o deshacer. Historial reciente de confirmaciones. Edición y eliminación de medicamentos con confirmación.
-
-**Recordatorios:** avisos dentro de la app mientras está abierta; botón para pedir permiso de notificaciones del dispositivo. Las notificaciones del dispositivo funcionan únicamente mientras la app está abierta y visible. **NO** hay avisos push con la aplicación cerrada en esta versión: para ello hace falta infraestructura push adicional, incluida la configuración de iOS como web app instalada. No utilizar como único recordatorio de medicación.
-
-**Datos y copias:** el apartado se guarda en una clave local independiente `micro-health-medicacion-v1` para no tocar el estado histórico `miguel-evolucion-v4`. El JSON general de Micro Health no incluye automáticamente estos datos nuevos: utiliza **Copia de medicación** y **Restaurar medicación** dentro de Mi medicación. Las fotos IndexedDB siguen requiriendo respaldo separado. No borres los datos del navegador.
-
-Antes de publicar, exporta el JSON general y, si ya usas medicación, también su copia JSON.
+Antes de actualizar, exporta copia JSON general y copia de medicación; fotos históricas de otros apartados requieren respaldo aparte.

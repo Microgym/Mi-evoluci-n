@@ -3587,6 +3587,14 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
 #mh25-medication .mh25-days label{display:flex;align-items:center;gap:4px}
 #mh25-medication .mh25-form-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:420px){#mh25-medication .mh25-toolbar button{flex:1 1 100%}#mh25-medication .mh25-med-head button{flex-shrink:0}}
+</style><style id="mh26-medication">
+#mh25-medication .mh26-times{display:grid;gap:8px}
+#mh25-medication .mh26-time-row{display:flex;align-items:center;gap:8px}
+#mh25-medication .mh26-time-row input{flex:1;min-width:0}
+#mh25-medication .mh26-docs{margin-top:12px;padding-top:10px;border-top:1px solid #e0e8e5}
+#mh25-medication .mh26-doc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;flex-wrap:wrap}
+#mh25-medication .mh26-doc-row a{font-size:13px;overflow-wrap:anywhere;color:#167c70}
+#mh25-medication .mh26-docs-form{font-size:13px}
 </style></head>
 <body>
 <header class="mh-topbar">
@@ -3638,12 +3646,16 @@ body.mh23-compact #inicio .home-card.home-alert-card{display:block!important}
     <input type="hidden" id="mh25Id">
     <label>Nombre del medicamento <input id="mh25Name" maxlength="100" required autocomplete="off" placeholder="Nombre indicado en tu receta"></label>
     <label>Dosis prescrita <input id="mh25Dose" maxlength="100" required placeholder="Ej.: 1 comprimido de 10 mg"></label>
-    <label>Hora de la toma <input id="mh25Time" type="time" required></label>
+    <label>Horarios de las tomas (puedes añadir varios)</label>
+    <div id="mh26Times" class="mh26-times"></div><button type="button" id="mh26AddTime">＋ Añadir otra toma</button>
     <label>Frecuencia <select id="mh25Frequency"><option value="daily">Todos los días</option><option value="weekdays">De lunes a viernes</option><option value="custom">Días seleccionados</option></select></label>
     <fieldset id="mh25Weekdays" hidden><legend>Días de la semana</legend><div class="mh25-days"><label><input type="checkbox" value="1">L</label><label><input type="checkbox" value="2">M</label><label><input type="checkbox" value="3">X</label><label><input type="checkbox" value="4">J</label><label><input type="checkbox" value="5">V</label><label><input type="checkbox" value="6">S</label><label><input type="checkbox" value="0">D</label></div></fieldset>
     <label>Desde <input id="mh25Start" type="date" required></label>
     <label>Hasta (opcional) <input id="mh25End" type="date"></label>
     <label>Indicaciones de tu receta (opcional) <textarea id="mh25Notes" rows="2" maxlength="300" placeholder="Ej.: con el desayuno"></textarea></label>
+    <div class="mh26-docs-form"><b>Fotos y documentos del medicamento</b><p class="mh25-muted">Caja, receta o instrucciones. Imágenes o PDF de hasta 8 MB cada uno. Se guardan en este dispositivo.</p>
+    <input type="file" id="mh26Files" accept="image/*,application/pdf" multiple hidden>
+    <p class="mh25-muted">Después de guardar, añade los archivos desde la ficha del medicamento.</p></div>
     <div class="mh25-form-actions"><button type="submit" class="mh25-primary">Guardar medicamento</button><button type="button" id="mh25Cancel">Cancelar</button></div>
   </form>
 </div>
@@ -19034,7 +19046,11 @@ try{const raw=localStorage.getItem(KEY);if(raw){const obj=JSON.parse(raw);if(Arr
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){alert('No se ha podido guardar. Comprueba el espacio disponible en el dispositivo.');return false}}
 function el(tag,txt,cls){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cls)n.className=cls;return n}
 function button(txt,fn,cls){const n=el('button',txt,cls);n.type='button';n.addEventListener('click',fn);return n}
-function eventFor(id,date){return db.events.find(e=>e.medId===id&&e.date===date)}
+function timesOf(m){return Array.isArray(m.times)&&m.times.length?m.times:[m.time||'08:00']}
+function eventFor(id,date,time){return db.events.find(e=>e.medId===id&&e.date===date&&(e.time===time||(!e.time&&time==='08:00')))}
+function timeInput(value){const row=el('div',undefined,'mh26-time-row'),input=el('input');input.type='time';input.required=true;input.value=value||'08:00';row.append(input,button('× Quitar',()=>{if($('mh26Times').children.length>1)row.remove();else alert('Debe haber al menos una toma.')}));$('mh26Times').append(row)}
+function timesFromForm(){return [...$('mh26Times').querySelectorAll('input')].map(x=>x.value).filter(Boolean)}
+
 function due(m,date){if(m.start>date||(m.end&&m.end<date))return false;const day=new Date(date+'T12:00:00').getDay();return m.frequency==='daily'||(m.frequency==='weekdays'&&day>=1&&day<=5)||(m.frequency==='custom'&&m.days.includes(day))}
 function fmt(date){if(!date)return '';const [y,m,d]=date.split('-');return d+'/'+m+'/'+y}
 function medLabel(m){return m.name+' · '+m.dose}
@@ -19044,7 +19060,7 @@ function openForm(m){
  $('mh25Id').value=m?.id||'';
  $('mh25Name').value=m?.name||'';
  $('mh25Dose').value=m?.dose||'';
- $('mh25Time').value=m?.time||'08:00';
+ $('mh26Times').replaceChildren();timesOf(m||{time:'08:00'}).forEach(timeInput);
  $('mh25Frequency').value=m?.frequency||'daily';
  $('mh25Start').value=m?.start||today();
  $('mh25End').value=m?.end||'';
@@ -19054,39 +19070,39 @@ function openForm(m){
  $('mh25Form').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function toggleDays(){$('mh25Weekdays').hidden=$('mh25Frequency').value!=='custom'}
-function setStatus(m,status){
- const date=today(),current=eventFor(m.id,date);
+function setStatus(m,time,status){
+ const date=today(),current=eventFor(m.id,date,time);
  if(current){current.status=status;current.at=new Date().toISOString()}
- else db.events.push({id:'e'+Date.now()+Math.random().toString(36).slice(2),medId:m.id,date,status,at:new Date().toISOString(),name:m.name,dose:m.dose,time:m.time});
+ else db.events.push({id:'e'+Date.now()+Math.random().toString(36).slice(2),medId:m.id,date,status,at:new Date().toISOString(),name:m.name,dose:m.dose,time});
  if(persist())render();
 }
 function render(){
  const date=today(),t=nowTime();
- const dueList=db.medications.filter(m=>due(m,date)).sort((a,b)=>a.time.localeCompare(b.time));
+ const dueList=db.medications.filter(m=>due(m,date)).flatMap(m=>timesOf(m).map(time=>({m,time}))).sort((a,b)=>a.time.localeCompare(b.time));
  const area=$('mh25Today');area.replaceChildren();
  area.append(el('h4','Tomas de hoy · '+fmt(date)));
  if(!dueList.length)area.append(el('p','No hay tomas programadas para hoy.','mh25-empty'));
- for(const m of dueList){
-  const ev=eventFor(m.id,date),box=el('div',undefined,'mh25-item'),top=el('div',undefined,'mh25-itemtop'),left=el('div');
-  left.append(el('strong',m.time+' · '+medLabel(m)));
+ for(const {m,time} of dueList){
+  const ev=eventFor(m.id,date,time),box=el('div',undefined,'mh25-item'),top=el('div',undefined,'mh25-itemtop'),left=el('div');
+  left.append(el('strong',time+' · '+medLabel(m)));
   if(m.notes)left.append(el('div',m.notes,'mh25-muted'));
-  top.append(left,el('span',ev?(ev.status==='taken'?'✓ Tomado':'Omitido'):(m.time<t?'Pendiente':'Previsto'),'mh25-status'));
+  top.append(left,el('span',ev?(ev.status==='taken'?'✓ Tomado':'Omitido'):(time<t?'Pendiente':'Previsto'),'mh25-status'));
   box.append(top);
   const actions=el('div',undefined,'mh25-actions');
-  if(!ev||ev.status!=='taken')actions.append(button('✓ Marcar tomado',()=>setStatus(m,'taken'),'mh25-primary'));
-  if(!ev||ev.status!=='skipped')actions.append(button('Omitido',()=>setStatus(m,'skipped')));
+  if(!ev||ev.status!=='taken')actions.append(button('✓ Marcar tomado',()=>setStatus(m,time,'taken'),'mh25-primary'));
+  if(!ev||ev.status!=='skipped')actions.append(button('Omitido',()=>setStatus(m,time,'skipped')));
   if(ev)actions.append(button('Deshacer',()=>{db.events=db.events.filter(e=>e!==ev);if(persist())render()}));
   box.append(actions);area.append(box);
  }
  const list=$('mh25List');list.replaceChildren();
  if(!db.medications.length)list.append(el('p','Todavía no has añadido medicamentos.','mh25-empty'));
- for(const m of db.medications.slice().sort((a,b)=>a.time.localeCompare(b.time))){
+ for(const m of db.medications.slice().sort((a,b)=>timesOf(a)[0].localeCompare(timesOf(b)[0]))){
   const box=el('div',undefined,'mh25-item');
-  box.append(el('strong',medLabel(m)),el('p',m.time+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
+  box.append(el('strong',medLabel(m)),el('p',timesOf(m).join(' · ')+' · '+(m.frequency==='daily'?'Todos los días':m.frequency==='weekdays'?'Lunes a viernes':'Días seleccionados')+' · Desde '+fmt(m.start)+(m.end?' hasta '+fmt(m.end):''),'mh25-muted'));
   const actions=el('div',undefined,'mh25-actions');
   actions.append(button('Editar',()=>openForm(m)));
   actions.append(button('Eliminar',()=>{if(confirm('¿Eliminar este medicamento de la agenda? Se conservará el historial de tomas.')){db.medications=db.medications.filter(x=>x.id!==m.id);if(persist())render()}}));
-  box.append(actions);list.append(box);
+  box.append(actions);list.append(box);renderDocs(m.id,box);
  }
  const history=$('mh25History');history.replaceChildren();
  const entries=db.events.slice().sort((a,b)=>b.at.localeCompare(a.at)).slice(0,30);
@@ -19094,38 +19110,22 @@ function render(){
  for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
 }
 $('mh25AddMed').addEventListener('click',()=>openForm(null));
+$('mh26AddTime').addEventListener('click',()=>timeInput('12:00'));
 $('mh25Cancel').addEventListener('click',()=>{$('mh25Form').hidden=true});
 $('mh25Frequency').addEventListener('change',toggleDays);
 $('mh25Form').addEventListener('submit',e=>{
  e.preventDefault();
  const id=$('mh25Id').value,frequency=$('mh25Frequency').value;
  const days=Array.from($('mh25Weekdays').querySelectorAll('input:checked')).map(x=>Number(x.value));
- const item={id:id||'m'+Date.now()+Math.random().toString(36).slice(2),name:$('mh25Name').value.trim(),dose:$('mh25Dose').value.trim(),time:$('mh25Time').value,frequency,days,start:$('mh25Start').value,end:$('mh25End').value,notes:$('mh25Notes').value.trim()};
- if(!item.name||!item.dose||!item.time||!item.start)return alert('Completa los campos obligatorios.');
+ const times=[...new Set(timesFromForm())].sort();
+ const item={id:id||'m'+Date.now()+Math.random().toString(36).slice(2),name:$('mh25Name').value.trim(),dose:$('mh25Dose').value.trim(),time:times[0],times,frequency,days,start:$('mh25Start').value,end:$('mh25End').value,notes:$('mh25Notes').value.trim()};
+ if(!item.name||!item.dose||!item.times.length||!item.start)return alert('Completa los campos obligatorios.');
  if(item.end&&item.end<item.start)return alert('La fecha de fin no puede ser anterior al inicio.');
  if(frequency==='custom'&&!days.length)return alert('Selecciona al menos un día.');
  if(id){const idx=db.medications.findIndex(m=>m.id===id);if(idx<0)return;db.medications[idx]=item}else db.medications.push(item);
- if(persist()){$('mh25Form').hidden=true;render()}
-});
-$('mh25Export').addEventListener('click',()=>{
- const blob=new Blob([JSON.stringify({app:'Micro Health',type:'medication-backup',exportedAt:new Date().toISOString(),...db},null,2)],{type:'application/json'});
- const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='micro-health-medicacion-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
+ if(persist()){$('mh25Form').hidden=true;render();$('mh26Files').value=''}
 });
 $('mh25ImportBtn').addEventListener('click',()=>$('mh25ImportFile').click());
-$('mh25ImportFile').addEventListener('change',async e=>{
- const file=e.target.files?.[0];if(!file)return;
- try{
-  if(file.size>2e6)throw Error('El archivo es demasiado grande.');
-  const obj=JSON.parse(await file.text());
-  if(obj.type!=='medication-backup'||!Array.isArray(obj.medications)||!Array.isArray(obj.events))throw Error('No es una copia válida de Mi medicación.');
-  if(!confirm('¿Restaurar esta copia de medicación? Sustituirá únicamente los medicamentos y tomas de este apartado, no tus demás datos.'))return;
-  const valid=obj.medications.every(m=>typeof m.id==='string'&&typeof m.name==='string'&&typeof m.time==='string'&&Array.isArray(m.days))&&obj.events.every(x=>typeof x.medId==='string'&&typeof x.date==='string');
-  if(!valid)throw Error('La copia tiene datos incompletos.');
-  const backup=db;db={version:1,medications:obj.medications,events:obj.events};
-  if(!persist())db=backup;render();
- }catch(err){alert('No se pudo restaurar: '+err.message)}
- finally{e.target.value=''}
-});
 const notice=$('mh25NotificationInfo');
 function noticeInfo(){
  if(!('Notification' in window)){notice.textContent='Avisos dentro de la aplicación disponibles. Este navegador no admite notificaciones locales.';return}
@@ -19139,16 +19139,70 @@ const notified=new Set();
 function checkDue(){
  const date=today(),time=nowTime();
  for(const m of db.medications){
-  if(!due(m,date)||m.time>time||eventFor(m.id,date))continue;
-  const key=date+'|'+m.id;if(notified.has(key))continue;
-  notified.add(key);
-  if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){
-   try{new Notification('Micro Health · Medicación',{body:'Toma programada: '+medLabel(m),tag:'mh25-'+key})}catch(e){}
+  if(!due(m,date))continue;
+  for(const doseTime of timesOf(m)){
+   if(doseTime>time||eventFor(m.id,date,doseTime))continue;
+   const key=date+'|'+m.id+'|'+doseTime;if(notified.has(key))continue;
+   notified.add(key);
+   if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){
+    try{new Notification('Micro Health · Medicación',{body:doseTime+' · '+medLabel(m),tag:'mh26-'+key})}catch(e){}
+   }
   }
  }
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){render();checkDue()}});
 setInterval(()=>{render();checkDue()},60000);
+
+// Archivos de medicación aislados en IndexedDB: no se tocan las fotos existentes.
+const DOC_DB='micro-health-medication-files-v1',DOC_STORE='files';
+function openDocDb(){return new Promise((resolve,reject)=>{if(!window.indexedDB)return reject(Error('IndexedDB no disponible'));const r=indexedDB.open(DOC_DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(DOC_STORE))r.result.createObjectStore(DOC_STORE,{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function docOperation(mode,value){const database=await openDocDb();return new Promise((resolve,reject)=>{const tx=database.transaction(DOC_STORE,mode==='list'?'readonly':'readwrite'),store=tx.objectStore(DOC_STORE);let req;if(mode==='list')req=store.getAll();if(mode==='put')req=store.put(value);if(mode==='delete')req=store.delete(value);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);tx.oncomplete=()=>database.close();tx.onerror=()=>database.close()})}
+const safeName=n=>String(n||'documento').slice(0,100);
+async function renderDocs(id,container){
+ const docs=el('div',undefined,'mh26-docs'),heading=el('div','Documentos adjuntos','mh25-muted');docs.append(heading);
+ const add=button('📎 Añadir foto, receta o instrucciones',()=>{$('mh26Files').dataset.medId=id;$('mh26Files').click()});docs.append(add);
+ container.append(docs);
+ try{const all=await docOperation('list');if(!docs.isConnected)return;for(const doc of all.filter(x=>x.medId===id)){
+  const line=el('div',undefined,'mh26-doc-row');const link=el('a',doc.name);link.href=URL.createObjectURL(doc.blob);link.target='_blank';link.rel='noopener';link.download=doc.name;
+  link.addEventListener('click',()=>setTimeout(()=>URL.revokeObjectURL(link.href),60000),{once:true});line.append(link,button('Eliminar',async()=>{if(!confirm('¿Eliminar este archivo adjunto?'))return;try{await docOperation('delete',doc.id);render()}catch(e){alert('No se pudo eliminar el archivo.')}}));docs.append(line)
+ }}catch(e){docs.append(el('p','No se pueden abrir los documentos en este navegador.','mh25-muted'))}
+}
+$('mh26Files').addEventListener('change',async e=>{
+ const id=e.target.dataset.medId||$('mh25Id').value;
+ if(!id){alert('Guarda primero el medicamento. Después podrás adjuntar sus documentos desde la ficha.');e.target.value='';return}
+ const files=[...e.target.files];
+ for(const file of files){if(!file.type.startsWith('image/')&&file.type!=='application/pdf'){alert('Solo se admiten imágenes y PDF.');continue}
+  if(file.size>8*1024*1024){alert('El archivo '+file.name+' supera 8 MB.');continue}
+  try{await docOperation('put',{id:'doc'+Date.now()+Math.random().toString(36).slice(2),medId:id,name:safeName(file.name),type:file.type,blob:file,created:new Date().toISOString()})}catch(err){alert('No se pudo guardar '+file.name+'. Comprueba el espacio disponible.')}
+ }
+ e.target.value='';e.target.dataset.medId='';render();
+});
+// La copia JSON incluye documentos; compatible con copias anteriores sin adjuntos.
+const readDataUrl=blob=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)});
+const dataUrlBlob=async url=>(await fetch(url)).blob();
+$('mh25Export').addEventListener('click',async()=>{
+ try{
+  const docs=await docOperation('list');const attachments=[];
+  for(const doc of docs)attachments.push({id:doc.id,medId:doc.medId,name:doc.name,type:doc.type,created:doc.created,data:await readDataUrl(doc.blob)});
+  const blob=new Blob([JSON.stringify({app:'Micro Health',type:'medication-backup',exportedAt:new Date().toISOString(),...db,attachments},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='micro-health-medicacion-y-documentos-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000)
+ }catch(e){alert('No se pudo crear la copia completa. Comprueba el almacenamiento del navegador.')}
+});
+$('mh25ImportFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>60*1024*1024)throw Error('El archivo supera 60 MB.');
+  const obj=JSON.parse(await file.text());
+  if(obj.type!=='medication-backup'||!Array.isArray(obj.medications)||!Array.isArray(obj.events))throw Error('Copia no válida.');
+  if(!obj.medications.every(m=>typeof m.id==='string'&&typeof m.name==='string'&&(typeof m.time==='string'||Array.isArray(m.times))&&Array.isArray(m.days)))throw Error('Medicamentos incompletos.');
+  if(!confirm('¿Restaurar esta copia? Sustituirá la agenda de medicación y añadirá los documentos incluidos. No afecta a los demás datos de Micro Health.'))return;
+  const backup=db;db={version:1,medications:obj.medications,events:obj.events};if(!persist()){db=backup;return}
+  let failed=0;
+  for(const doc of obj.attachments||[]){try{if(typeof doc.data!=='string'||!doc.data.startsWith('data:')||!doc.medId||!doc.id)throw Error('Documento inválido');await docOperation('put',{id:doc.id,medId:doc.medId,name:safeName(doc.name),type:doc.type,created:doc.created,blob:await dataUrlBlob(doc.data)})}catch(err){failed++}}
+  render();alert(failed?'Agenda restaurada, pero '+failed+' documentos no se pudieron guardar.':'Medicación y documentos restaurados.')
+ }catch(err){alert('No se pudo restaurar: '+err.message)}finally{e.target.value=''}
+});
+
 noticeInfo();render();
 })();
 </script></body></html>
