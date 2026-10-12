@@ -3445,6 +3445,17 @@ body.mh23-compact #inicio .life-today-head{display:none!important}
 @media(min-width:850px){#mh23-tabs{max-width:660px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border:1px solid #e3eeed}}
 
 
+/* Micro Health 23 fase 2B: Registrar simplificado; solo navegación y presentación */
+#mh23-sheet.mh23-register-sheet{border-radius:22px;padding:20px 17px 17px;background:linear-gradient(165deg,#f0faf6,#fff 35%);max-height:min(76vh,660px);overflow-y:auto;overscroll-behavior:contain}
+#mh23-sheet.mh23-register-sheet h3{font-size:21px;margin-bottom:5px}
+#mh23-sheet.mh23-register-sheet p{line-height:1.45;margin-bottom:15px}
+#mh23-sheet.mh23-register-sheet .mh23-sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#mh23-sheet.mh23-register-sheet .mh23-register-choice{display:flex;flex-direction:column;align-items:flex-start;text-align:left;justify-content:flex-start;gap:8px;min-height:108px;background:#fff!important;border:1px solid #d7e9e2!important;padding:14px 12px!important;border-radius:16px!important}
+#mh23-sheet.mh23-register-sheet .mh23-register-choice strong{font-size:14px;color:#125b51;line-height:1.25}
+#mh23-sheet.mh23-register-sheet .mh23-register-choice small{font-size:11px;line-height:1.4;color:#6c827d;font-weight:500}
+#mh23-sheet.mh23-register-sheet .mh23-register-choice:last-child{grid-column:1/-1;min-height:72px}
+@media(max-width:360px){#mh23-sheet.mh23-register-sheet .mh23-register-choice{padding:11px!important;min-height:105px}}
+
 /* Micro Health 23 fase 2: centro de entrenamiento, solo presentación */
 .mh23-training-hub{border:1px solid #d8eae5;border-radius:20px;background:linear-gradient(135deg,#effaf6 0%,#fff 65%);padding:17px;margin:14px 0 20px;box-shadow:0 7px 20px #123c4010}
 .mh23-training-hub-head small{font-size:11px;font-weight:850;color:#168471;letter-spacing:.04em}
@@ -18655,7 +18666,7 @@ setTimeout(()=>{
 /* Micro Health 23 · fase 1: solo interfaz; se reutilizan secciones y funciones existentes */
 (function(){
  const tabs=document.getElementById('mh23-tabs'),sheet=document.getElementById('mh23-sheet');
- const groups={registrar:{title:'¿Qué quieres registrar?',desc:'Cada registro se guarda en su pantalla original.',actions:[['⚖️ Peso y medidas','peso'],['🍽️ Comidas y agua','comidas'],['🌙 Sueño y energía','sleep'],['🚶 Pasos y hábitos','steps']]},progreso:{title:'Tu progreso',desc:'Todos tus informes y gráficos, sin perder ningún dato.',actions:[['📈 Evolución de salud','evolucion'],['🏋️ Evolución de entreno','evolucionEntreno'],['📋 Informe semanal','report'],['🌿 Hábitos y descanso','habits']]}};
+ const groups={registrar:{title:'Registrar · Tu día',desc:'Elige qué quieres añadir. Cada botón abre tu registro habitual y conserva todo tu historial.',actions:[['⚖️ Peso y medidas','peso','Actualiza tu peso y tus medidas'],['🍽️ Comidas y agua','comidas','Añade alimentos, calorías y agua'],['🌙 Sueño y energía','sleep','Horas de descanso y cómo te encuentras'],['🚶 Pasos','steps','Anota tu movimiento diario'],['🌿 Hábitos','habits','Revisa y marca tus hábitos del día']]},progreso:{title:'Tu progreso',desc:'Todos tus informes y gráficos, sin perder ningún dato.',actions:[['📈 Evolución de salud','evolucion'],['🏋️ Evolución de entreno','evolucionEntreno'],['📋 Informe semanal','report'],['🌿 Hábitos y descanso','habits']]}};
  function select(section){let selected=({peso:'registrar',comidas:'registrar',evolucion:'progreso',evolucionEntreno:'progreso',datos:'inicio'})[section]||section;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('mh23-selected',b.dataset.mh23===selected));}
  function route(section){sheet.hidden=true; if(section==='sleep'||section==='steps'||section==='habits'||section==='report'){
   goSection('inicio');document.body.classList.remove('mh23-compact');document.getElementById('mh23-toggle').textContent='Simplificar Inicio ↑';
@@ -18664,7 +18675,7 @@ setTimeout(()=>{
   if(section==='steps' && document.getElementById('homeStepsEditor')?.offsetParent===null && typeof toggleHomeStepsEditor==='function')toggleHomeStepsEditor();
   setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'}),100);
  }else{goSection(section);window.scrollTo({top:0,behavior:'smooth'});} select(section);}
- window.mh23Open=function(which){if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.hidden=false;select(which)}else{route(which)}};
+ window.mh23Open=function(which){if(groups[which]){const g=groups[which];document.getElementById('mh23-sheet-title').textContent=g.title;document.getElementById('mh23-sheet-desc').textContent=g.desc;const area=document.getElementById('mh23-sheet-actions');area.replaceChildren();g.actions.forEach(([label,sec,desc])=>{const b=document.createElement('button');b.type='button';if(which==='registrar'){b.className='mh23-register-choice';const title=document.createElement('strong');title.textContent=label;const subtitle=document.createElement('small');subtitle.textContent=desc||'';b.append(title,subtitle)}else{b.textContent=label}b.addEventListener('click',()=>route(sec));area.appendChild(b)});sheet.classList.toggle('mh23-register-sheet',which==='registrar');sheet.hidden=false;select(which)}else{route(which)}};
  window.mh23ToggleHome=function(){const compact=document.body.classList.toggle('mh23-compact');document.getElementById('mh23-toggle').textContent=compact?'Ver panel completo ↓':'Simplificar Inicio ↑'};
  tabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>window.mh23Open(b.dataset.mh23)));
  document.getElementById('mh23-dismiss').addEventListener('click',()=>sheet.hidden=true);
