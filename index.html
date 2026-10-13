@@ -3840,7 +3840,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
  <div class="mh43-page-head"><button type="button" onclick="mh23Open('miDia')">← Mi día</button><h2>💊 Farmacia</h2><p>Todos tus medicamentos, tomas, documentos, consultas y avisos en un solo lugar.</p></div>
 <div class="mh47-next-dose" id="mh47-pharmacy-dose" aria-live="polite"></div>
 <div id="mh47-pharmacy-appointment" aria-live="polite"></div>
-<section id="mh52-pharmacy-reports" class="mh52-panel" aria-label="Calendario e informes de Farmacia">
+<div id="mh52-pharmacy-reports" class="mh52-panel" aria-label="Calendario e informes de Farmacia">
 <details><summary>📅 Calendario de medicación y visitas médicas</summary>
 <div class="mh52-controls"><label>Mes <input type="month" id="mh52-month"></label></div><div id="mh52-calendar" aria-live="polite"></div><div id="mh52-calendar-day" aria-live="polite"></div>
 </details>
@@ -3849,7 +3849,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <div class="mh52-controls"><label>Desde <input id="mh52-start" type="date"></label><label>Hasta <input id="mh52-end" type="date"></label></div>
 <button type="button" id="mh52-make-pdf" class="mh52-primary">Preparar informe para PDF</button><p id="mh52-report-error" role="status"></p>
 <small>Se abrirá un informe imprimible. En iPhone puedes usar Compartir desde la vista de impresión para guardar el PDF.</small>
-</details></section>
+</details></div>
 <details class="mh47-appointments"><summary>📅 Mis citas médicas · Añadir y gestionar</summary>
 <form id="mh47-appointment-form" class="mh47-form">
 <input type="hidden" id="mh47-appointment-id">
