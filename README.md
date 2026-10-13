@@ -1,9 +1,6 @@
-# Micro Health v22.3.52 — Calendario y PDF de Farmacia
+# Micro Health v22.3.53 — Corrección de Farmacia
 
-- Farmacia incorpora calendario mensual de tomas programadas y visitas médicas guardadas, con detalle al tocar cada día.
-- Informe imprimible/PDF por intervalo de fechas (máximo 366 días) con medicamentos, estado de tomas y citas médicas.
-- «Programada» significa sin confirmación; una cita «Registrada» no confirma asistencia.
-- Los informes se generan localmente, sin enviar datos a servidores.
-- No modifica claves ni registros existentes. Mantiene las claves `micro-health-medicacion-v1`, `micro-health-citas-medicas-v1` y `miguel-evolucion-v4`.
-- Antes de publicar exporta copia completa; no se publica automáticamente.
-- En Safari, guardar PDF mediante impresión/Compartir; puede ser necesario permitir ventanas emergentes.
+- Se corrige la invisibilidad del calendario de medicación y visitas médicas y del informe PDF entre fechas en Farmacia.
+- Causa: el contenedor heredaba una regla global CSS `section { display:none }`. Se sustituye exclusivamente ese contenedor por un `div`, conservando sus controles y el código existente.
+- Se mantienen los medicamentos, las tomas, las citas médicas y las claves de almacenamiento sin cambios.
+- Antes de publicar, realizar una copia de seguridad completa. No borrar ni reinstalar la aplicación.
