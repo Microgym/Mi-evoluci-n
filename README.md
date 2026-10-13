@@ -1,9 +1,9 @@
-# Micro Health v22.3.51 — Reparación de carga de datos
+# Micro Health v22.3.52 — Calendario y PDF de Farmacia
 
-Corrige un error de v22.3.50: el bloque de acceso a la rutina aparecía dentro de una plantilla JavaScript para el PDF del entrenamiento. El bloque se ha situado fuera de esa plantilla y ahora la sintaxis de los scripts se ha comprobado con Node.
-
-Conserva las funciones de v22.3.49 y la tarjeta de rutina de hoy de v22.3.50. Sin cambios en claves de almacenamiento, datos locales, fotos o medicación.
-
-**Protección de datos:** no desinstalar la app ni borrar los datos del navegador. Una actualización de código no garantiza recuperar datos si ya se borraron; comprobar tras instalar. Realizar copia de seguridad cuando el sistema vuelva a cargar correctamente.
-
-No se ha probado con los datos reales de Safari/iPhone ni publicado automáticamente.
+- Farmacia incorpora calendario mensual de tomas programadas y visitas médicas guardadas, con detalle al tocar cada día.
+- Informe imprimible/PDF por intervalo de fechas (máximo 366 días) con medicamentos, estado de tomas y citas médicas.
+- «Programada» significa sin confirmación; una cita «Registrada» no confirma asistencia.
+- Los informes se generan localmente, sin enviar datos a servidores.
+- No modifica claves ni registros existentes. Mantiene las claves `micro-health-medicacion-v1`, `micro-health-citas-medicas-v1` y `miguel-evolucion-v4`.
+- Antes de publicar exporta copia completa; no se publica automáticamente.
+- En Safari, guardar PDF mediante impresión/Compartir; puede ser necesario permitir ventanas emergentes.
