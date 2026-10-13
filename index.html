@@ -19575,6 +19575,17 @@ function render(){
  if(!entries.length)history.append(el('p','Aún no hay tomas confirmadas.','mh25-empty'));
  for(const e of entries)history.append(el('div',fmt(e.date)+' · '+e.time+' · '+e.name+' · '+e.dose+' — '+(e.status==='taken'?'Tomado':'Omitido'),'mh25-item mh25-muted'));
 }
+// La tarjeta de próxima toma usa el mismo estado y registro que «Tomas de hoy».
+window.mh49RecordPendingDose=function(id,date,time,status){
+ if(date!==today())return {ok:false,message:'Solo puedes confirmar u omitir tomas del día de hoy.'};
+ if(status!=='taken'&&status!=='skipped')return {ok:false,message:'Acción no válida.'};
+ const m=db.medications.find(x=>x.id===id);
+ if(!m||!due(m,date)||!timesOf(m).includes(time))return {ok:false,message:'Esta toma ya no está programada. Actualiza Farmacia.'};
+ const ev=eventFor(id,date,time);
+ if(ev&&(ev.status==='taken'||ev.status==='skipped'))return {ok:false,message:'La toma ya está registrada.'};
+ setStatus(m,time,status);
+ return {ok:eventFor(id,date,time)?.status===status,message:'No se ha podido confirmar el guardado. Revisa el almacenamiento.'};
+};
 window.mh32MedicationList=()=>db.medications.map(m=>({name:m.name,dose:m.dose}));
 window.mh33SetFavorite=(id,flag)=>{const m=db.medications.find(x=>x.id===id);if(m){m.favorite=!!flag;if(persist())render()}};
 $('mh25AddMed').addEventListener('click',()=>{if(typeof window.mh30OpenWizard==='function')window.mh30OpenWizard();else openForm(null)});
@@ -20241,6 +20252,11 @@ fileInput.addEventListener('change',async()=>{
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderTodayWorkout()});
 })();
 </script>
+<style id="mh49-dose-actions-style">
+.mh49-dose-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.mh47-next-dose .mh49-dose-actions button{min-height:44px;touch-action:manipulation;flex:1 1 auto}
+.mh47-next-dose .mh49-dose-actions .mh49-done{background:#116a55;color:white;border-color:#116a55;font-weight:750}
+</style>
 <script id="mh47-dose-appointments-script">
 (function(){
 'use strict';
@@ -20257,7 +20273,33 @@ function due(m,date){if(m.start&&m.start>date||m.end&&m.end<date)return false;co
 function nextDose(){const db=loadMed(),now=new Date();for(let j=0;j<366;j++){const day=new Date(now.getFullYear(),now.getMonth(),now.getDate()+j),date=dateKey(day),choices=[];for(const m of db.medications){if(!due(m,date))continue;const ts=Array.isArray(m.times)&&m.times.length?m.times:[m.time||'08:00'];for(const time of ts){if(!/^\d\d:\d\d$/.test(time))continue;const ev=db.events.find(e=>e.medId===m.id&&e.date===date&&(e.time===time||!e.time&&time==='08:00'));if(ev&&(ev.status==='taken'||ev.status==='skipped'||ev.status==='omitted'))continue;choices.push({m,time,date})}}if(choices.length){choices.sort((a,b)=>a.time.localeCompare(b.time));return choices[0]}}return null}
 function nextAppointment(){return loadAppointments().filter(x=>x.date>=today()).sort((a,b)=>(a.date+'T'+a.time).localeCompare(b.date+'T'+b.time))[0]||null}
 function node(tag,txt,cl){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cl)n.className=cl;return n}
-function renderDose(id){const box=el(id);if(!box)return;box.replaceChildren();box.append(node('h3','💊 Próxima toma pendiente'));const d=nextDose();if(!d){box.append(node('p','No hay tomas pendientes programadas.'));return}const when=d.date===today()?'Hoy':d.date===dateKey(new Date(Date.now()+86400000))?'Mañana':fmt(d.date);box.append(node('strong',safe(d.m.name)+' · '+safe(d.m.dose)),node('p',when+' a las '+d.time));if(d.date===today()&&d.time<pad(new Date().getHours())+':'+pad(new Date().getMinutes()))box.append(node('p','Hora prevista ya pasada; toma sin confirmar.'));const btn=node('button','Ver y gestionar en Farmacia');btn.type='button';btn.addEventListener('click',()=>{if(typeof window.mh23Open==='function')window.mh23Open('farmacia'); const detail=el('mh35MedSection');if(detail)detail.open=true;const sub=el('mh25Today')?.closest('details');if(sub)sub.open=true});box.append(btn)}
+function renderDose(id){
+ const box=el(id);if(!box)return;
+ box.replaceChildren();box.append(node('h3','💊 Próxima toma pendiente'));
+ const d=nextDose();
+ if(!d){box.append(node('p','No hay tomas pendientes programadas.'));return}
+ const when=d.date===today()?'Hoy':d.date===dateKey(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()+1))?'Mañana':fmt(d.date);
+ box.append(node('strong',safe(d.m.name)+' · '+safe(d.m.dose)),node('p',when+' a las '+d.time));
+ if(d.date===today()&&d.time<pad(new Date().getHours())+':'+pad(new Date().getMinutes()))box.append(node('p','Hora prevista ya pasada; toma sin confirmar.'));
+ const actions=node('div',undefined,'mh49-dose-actions');
+ if(d.date===today()){
+  for(const [label,status] of [['✓ Hecho','taken'],['Omitir','skipped']]){
+   const btn=node('button',label);btn.type='button';
+   if(status==='taken')btn.className='mh49-done';
+   btn.addEventListener('click',()=>{
+    if(status==='skipped'&&!confirm('¿Confirmas que vas a omitir esta toma? Se registrará en el historial.'))return;
+    const record=window.mh49RecordPendingDose;
+    if(typeof record!=='function'){alert('No se pudo acceder al registro de tomas. Abre Farmacia.');return}
+    const res=record(d.m.id,d.date,d.time,status);
+    if(!res?.ok)alert(res?.message||'No se pudo guardar.');
+    refresh();
+   });actions.append(btn)
+  }
+ }else box.append(node('p','Esta toma está programada para un día futuro. Podrás marcarla cuando llegue ese día.'));
+ const link=node('button','Ver tomas en Farmacia');link.type='button';
+ link.addEventListener('click',()=>{if(typeof window.mh23Open==='function')window.mh23Open('farmacia');const detail=el('mh35MedSection');if(detail)detail.open=true;const sub=el('mh25Today')?.closest('details');if(sub)sub.open=true});
+ actions.append(link);box.append(actions)
+}
 function renderAppointment(id,pharmacy){const box=el(id);if(!box)return;box.replaceChildren();const a=nextAppointment();if(!a){if(pharmacy){box.className='mh47-next-appointment';box.append(node('h3','🩺 Próxima cita médica'),node('p','No hay citas médicas futuras registradas.'))}else box.hidden=true;return}let yesterday=new Date(localDate(a.date));yesterday.setDate(yesterday.getDate()-1);if(!pharmacy&&today()<dateKey(yesterday)){box.hidden=true;return}box.hidden=false;box.className='mh47-next-appointment';box.append(node('h3','🩺 Próxima cita médica'),node('strong',safe(a.doctor)+' · '+safe(a.specialty)),node('p',fmt(a.date)+' · '+a.time));if(a.address)box.append(node('p','📍 '+safe(a.address)))}
 function renderList(){const list=el('mh47-appointment-list');if(!list)return;list.replaceChildren();const a=loadAppointments().sort((x,y)=>(x.date+'T'+x.time).localeCompare(y.date+'T'+y.time));if(!a.length){list.append(node('p','Todavía no has guardado ninguna cita.'));return}for(const ap of a){const row=node('div',undefined,'mh47-appt-row');row.append(node('strong',fmt(ap.date)+' · '+ap.time+' · '+safe(ap.doctor)),node('p',safe(ap.specialty)+(ap.address?' · '+safe(ap.address):'')));const acts=node('div');const edit=node('button','Editar');edit.type='button';edit.addEventListener('click',()=>{el('mh47-appointment-id').value=ap.id;el('mh47-doctor').value=ap.doctor;el('mh47-specialty').value=ap.specialty;el('mh47-address').value=ap.address||'';el('mh47-date').value=ap.date;el('mh47-time').value=ap.time;el('mh47-appointment-form').scrollIntoView({behavior:'smooth',block:'nearest'})});const del=node('button','Eliminar');del.type='button';del.addEventListener('click',()=>{if(!confirm('¿Eliminar esta cita médica?'))return;saveAppointments(loadAppointments().filter(x=>x.id!==ap.id))});acts.append(edit,del);row.append(acts);list.append(row)}}
 function refresh(){renderDose('mh47-pharmacy-dose');renderDose('mh47-day-dose');renderAppointment('mh47-pharmacy-appointment',true);renderAppointment('mh47-day-appointment',false);renderList()}
