@@ -1,6 +1,13 @@
-# Micro Health v22.3.53 — Corrección de Farmacia
+# Micro Health v22.3.54 — Seleccionar contenido del PDF de Farmacia
 
-- Se corrige la invisibilidad del calendario de medicación y visitas médicas y del informe PDF entre fechas en Farmacia.
-- Causa: el contenedor heredaba una regla global CSS `section { display:none }`. Se sustituye exclusivamente ese contenedor por un `div`, conservando sus controles y el código existente.
-- Se mantienen los medicamentos, las tomas, las citas médicas y las claves de almacenamiento sin cambios.
-- Antes de publicar, realizar una copia de seguridad completa. No borrar ni reinstalar la aplicación.
+En **Farmacia → Informe PDF entre fechas** se incorpora un selector de contenido:
+
+- **Todo** (por defecto): tomas programadas, realizadas y omitidas, más citas médicas.
+- **Solo medicamentos**: únicamente tomas de medicación, con sus estados y resumen.
+- **Solo citas médicas**: únicamente las visitas registradas y su resumen.
+
+El intervalo «Desde / Hasta» se mantiene para los tres informes. El calendario no cambia. La generación del PDF solo consulta los registros existentes y no los altera.
+
+Se conservan los datos guardados en `miguel-evolucion-v4`, `micro-health-medicacion-v1`, `micro-health-citas-medicas-v1` y IndexedDB. Caché renovada a v22.3.54.
+
+Antes de actualizar, hacer copia de seguridad completa. Subir el contenido de este ZIP a la raíz de GitHub Pages; no se publica automáticamente.
