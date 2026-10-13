@@ -1,11 +1,9 @@
-# Micro Health v22.3.50 — Entrenamiento de hoy
+# Micro Health v22.3.51 — Reparación de carga de datos
 
-- En Mi día, tarjeta «Mi entrenamiento de hoy» al principio, por encima de la próxima toma pendiente.
-- Presenta la rutina activa de hoy, si la hay; si no, la siguiente rutina de la rotación de favoritas.
-- «Iniciar rutina» abre el flujo existente de elección de gimnasio y registro en Entrenar; «Continuar rutina» retoma la sesión activa.
-- Sin rutinas favoritas, ofrece abrir el catálogo de rutinas para configurarlas.
-- No crea sesiones duplicadas ni modifica registros al mostrar el resumen.
-- Mantiene las funciones de Farmacia y claves de almacenamiento existentes.
-- Actualiza la versión de caché.
+Corrige un error de v22.3.50: el bloque de acceso a la rutina aparecía dentro de una plantilla JavaScript para el PDF del entrenamiento. El bloque se ha situado fuera de esa plantilla y ahora la sintaxis de los scripts se ha comprobado con Node.
 
-Antes de publicar, guardar copia completa. Subir los archivos del ZIP a la raíz de GitHub Pages. No se publica automáticamente.
+Conserva las funciones de v22.3.49 y la tarjeta de rutina de hoy de v22.3.50. Sin cambios en claves de almacenamiento, datos locales, fotos o medicación.
+
+**Protección de datos:** no desinstalar la app ni borrar los datos del navegador. Una actualización de código no garantiza recuperar datos si ya se borraron; comprobar tras instalar. Realizar copia de seguridad cuando el sistema vuelva a cargar correctamente.
+
+No se ha probado con los datos reales de Safari/iPhone ni publicado automáticamente.
