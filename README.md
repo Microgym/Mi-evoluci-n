@@ -1,10 +1,11 @@
-# Micro Health v22.3.49 — Confirmar próxima toma desde Mi día y Farmacia
+# Micro Health v22.3.50 — Entrenamiento de hoy
 
-- Los avisos de próxima toma muestran «✓ Hecho» y «Omitir» cuando la dosis corresponde a hoy.
-- Ambos avisos registran en el mismo historial de medicación existente, sin crear una copia de los datos.
-- Al confirmar u omitir, ambos avisos pasan a mostrar la siguiente dosis pendiente.
-- «Omitir» solicita confirmación para evitar pulsaciones accidentales.
-- Las dosis de días futuros se muestran, pero no pueden registrarse anticipadamente.
-- Conserva las claves de almacenamiento existentes: `miguel-evolucion-v4`, `micro-health-medicacion-v1`, `micro-health-citas-medicas-v1` y las fotografías en IndexedDB.
-- No incluye cambios al Worker ni publicación automática.
-- Antes de publicar, crear una copia completa y conservar también las copias JSON anteriores.
+- En Mi día, tarjeta «Mi entrenamiento de hoy» al principio, por encima de la próxima toma pendiente.
+- Presenta la rutina activa de hoy, si la hay; si no, la siguiente rutina de la rotación de favoritas.
+- «Iniciar rutina» abre el flujo existente de elección de gimnasio y registro en Entrenar; «Continuar rutina» retoma la sesión activa.
+- Sin rutinas favoritas, ofrece abrir el catálogo de rutinas para configurarlas.
+- No crea sesiones duplicadas ni modifica registros al mostrar el resumen.
+- Mantiene las funciones de Farmacia y claves de almacenamiento existentes.
+- Actualiza la versión de caché.
+
+Antes de publicar, guardar copia completa. Subir los archivos del ZIP a la raíz de GitHub Pages. No se publica automáticamente.
