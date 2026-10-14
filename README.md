@@ -36,3 +36,8 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 ## v22.3.63
 - Golf: botones rediseñados en tarjetas más limpias y legibles.
 - Navegación inferior: barra compacta en una sola fila con desplazamiento horizontal, evitando que ocupe dos filas en móvil.
+
+
+## v22.3.64
+- Golf: corregidos accesos Jugar una partida y Mis campos desde su nueva sección; el formulario se abre activando el contexto de Entrenamientos y vuelve a Golf al cerrarlo.
+- Menú inferior: seis botones sin scroll horizontal; Coach pasa junto a la foto de perfil.
