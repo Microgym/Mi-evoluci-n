@@ -20579,4 +20579,52 @@ function golfShowSavedRounds(){
  if(evolution&&host)host.appendChild(evolution);
 })();
 </script>
+
+<style id="mh63-golf-and-tabs-refresh">
+/* v22.3.63 · Golf más limpio y barra inferior compacta */
+#golf .golf-hub-hero{padding:18px 16px;border-radius:22px;background:linear-gradient(135deg,#eef8f4 0%,#ffffff 100%);border:1px solid #d7e8e2}
+#golf .golf-hub-symbol{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:#e4f4ee;font-size:25px;flex:0 0 auto}
+#golf .golf-hub-hero h2{font-size:19px;line-height:1.1;margin:0 0 4px;color:#123f4a}
+#golf .golf-hub-hero p{font-size:14px;line-height:1.4;color:#5d7270}
+#golf .golf-hub-grid{display:grid;grid-template-columns:1fr!important;gap:12px;margin:14px 0 18px}
+#golf .golf-hub-tile{display:grid!important;grid-template-columns:52px minmax(0,1fr) 18px;grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:3px;min-height:0;padding:16px 16px!important;border-radius:20px!important;border:1px solid #d9e7e1!important;background:#fff!important;box-shadow:0 8px 22px rgba(18,63,74,.06)!important;color:#123f4a!important;text-align:left;position:relative;overflow:hidden}
+#golf .golf-hub-tile::after{content:'›';grid-column:3;grid-row:1 / span 2;align-self:center;justify-self:end;font-size:24px;line-height:1;color:#7da195;font-weight:700}
+#golf .golf-hub-tile:hover{transform:translateY(-1px)}
+#golf .golf-hub-tile > span{grid-column:1;grid-row:1 / span 2;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:24px;line-height:1;background:#eef6f3}
+#golf .golf-hub-tile > strong{grid-column:2;grid-row:1;font-size:17px;line-height:1.2;color:#123f4a;display:block}
+#golf .golf-hub-tile > small{grid-column:2;grid-row:2;font-size:12.5px;line-height:1.42;color:#617773;display:block}
+#golf .golf-hub-play{border-color:#cfe7dd!important;background:linear-gradient(135deg,#eff9f4 0%,#ffffff 100%)!important}
+#golf .golf-hub-play > span{background:#dff3ea;color:#0f7a66}
+#golf .golf-hub-panel{padding:16px 14px;border-radius:18px}
+#mh23-tabs{display:flex!important;grid-template-columns:none!important;justify-content:flex-start!important;align-items:stretch;gap:8px!important;overflow-x:auto!important;overflow-y:hidden;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px))!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#mh23-tabs::-webkit-scrollbar{display:none}
+#mh23-tabs button{flex:0 0 auto;min-width:72px;padding:6px 8px!important;gap:3px;font-size:9.5px!important;line-height:1.05;border-radius:14px!important;white-space:nowrap;scroll-snap-align:start}
+#mh23-tabs button span{font-size:18px!important;line-height:1}
+#mh23-tabs button.mh23-selected{background:#e8f5f1!important;color:#0b7a6b!important;box-shadow:inset 0 0 0 1px #cfe5df}
+body.mh23-on{padding-bottom:96px!important}
+@media (max-width:390px){
+  #mh23-tabs{gap:6px!important;padding-left:8px!important;padding-right:8px!important}
+  #mh23-tabs button{min-width:66px;font-size:9px!important;padding:6px 6px!important}
+  #mh23-tabs button span{font-size:17px!important}
+  #golf .golf-hub-tile{padding:14px 14px!important;grid-template-columns:46px minmax(0,1fr) 16px}
+  #golf .golf-hub-tile > span{width:46px;height:46px;font-size:22px;border-radius:14px}
+  #golf .golf-hub-tile > strong{font-size:16px}
+  #golf .golf-hub-tile > small{font-size:12px}
+}
+@media (min-width:760px){
+  #golf .golf-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #golf .golf-hub-play{grid-column:1 / -1}
+  #mh23-tabs{max-width:760px!important;margin:0 auto}
+}
+</style>
+<script>
+(function(){
+  const tabs=document.getElementById('mh23-tabs');
+  if(!tabs) return;
+  const sync=()=>tabs.querySelector('.mh23-selected')?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  tabs.addEventListener('click',e=>{if(e.target.closest('button[data-mh23]'))setTimeout(sync,90)});
+  window.addEventListener('load',()=>setTimeout(sync,150),{once:true});
+})();
+</script>
+
 </body></html>
