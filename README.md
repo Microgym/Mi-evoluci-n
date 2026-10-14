@@ -1,13 +1,9 @@
-# Micro Health v22.3.54 — Seleccionar contenido del PDF de Farmacia
+# Micro Health v22.3.55 — Citas médicas ampliadas
 
-En **Farmacia → Informe PDF entre fechas** se incorpora un selector de contenido:
+- Observaciones editables por cada cita, visibles en el listado, calendario y PDF.
+- Asistencia: pendiente, acudió o no acudió; incluida en PDF.
+- Receta opcional en imagen o PDF (hasta 8 MB), almacenada en IndexedDB del dispositivo, accesible desde la cita. El informe PDF muestra el nombre de la receta, pero **no incrusta el archivo**.
+- Los datos previos de medicación, citas y hábitos se mantienen, sin migraciones destructivas.
+- Caché de PWA actualizada a v22.3.55.
 
-- **Todo** (por defecto): tomas programadas, realizadas y omitidas, más citas médicas.
-- **Solo medicamentos**: únicamente tomas de medicación, con sus estados y resumen.
-- **Solo citas médicas**: únicamente las visitas registradas y su resumen.
-
-El intervalo «Desde / Hasta» se mantiene para los tres informes. El calendario no cambia. La generación del PDF solo consulta los registros existentes y no los altera.
-
-Se conservan los datos guardados en `miguel-evolucion-v4`, `micro-health-medicacion-v1`, `micro-health-citas-medicas-v1` y IndexedDB. Caché renovada a v22.3.54.
-
-Antes de actualizar, hacer copia de seguridad completa. Subir el contenido de este ZIP a la raíz de GitHub Pages; no se publica automáticamente.
+**Importante:** Las recetas quedan en el navegador/dispositivo donde se adjuntaron. Borrar datos del sitio puede eliminarlas; no forman parte de una exportación de localStorage.
