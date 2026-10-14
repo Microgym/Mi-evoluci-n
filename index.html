@@ -4346,6 +4346,19 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
   <div class="food-hidden-compat"><span id="mealTotalKcal"></span><span id="mealTotalProt"></span><div id="mealProtBar"></div><span id="mealSummaryMsg"></span><div id="mealHistory"></div></div>
 </section>
 
+<section id="golf" aria-label="Golf">
+ <div class="golf-hub-hero"><span class="golf-hub-symbol" aria-hidden="true">⛳</span><div><h2>Mi Golf</h2><p>Juega, gestiona tus campos y revisa cómo evolucionas.</p></div></div>
+ <div class="golf-hub-grid">
+  <button type="button" class="golf-hub-tile golf-hub-play" onclick="openGolfQuickPlay()"><span>🏌️</span><strong>Jugar una partida</strong><small>9 o 18 hoyos · continuar borrador · tarjeta por hoyo</small></button>
+  <button type="button" class="golf-hub-tile" onclick="golfOpenFields()"><span>🗺️</span><strong>Mis campos</strong><small>Recorridos, pars, Course Rating y Slope Rating</small></button>
+  <button type="button" class="golf-hub-tile" onclick="golfShowSavedRounds()"><span>📋</span><strong>Mis partidas</strong><small>Historial, tarjetas y PDF</small></button>
+  <button type="button" class="golf-hub-tile" onclick="openGolfEvolution()"><span>📈</span><strong>Mi evolución</strong><small>Estadísticas y hándicap estimado</small></button>
+ </div>
+ <div id="golfSavedRounds" class="golf-hub-panel" hidden><div class="golf-hub-panel-head"><h3>📋 Mis partidas</h3><button type="button" class="secondary" onclick="document.getElementById('golfSavedRounds').hidden=true">Cerrar</button></div><div id="golfSavedRoundsList"></div></div>
+ <div id="golfEvolutionHost"></div>
+ <p class="golf-hub-footnote">El hándicap que aparece en MicroHealth es una estimación orientativa, no el índice oficial WHS.</p>
+</section>
+
 <section id="entreno">
 <div class="training-screen-head">
   <div class="training-screen-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div>
@@ -4358,20 +4371,9 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
     <button type="button" class="mh23-training-action mh23-training-primary" onclick="openTrainingEditor()"><span class="mh23-training-symbol">＋</span><strong>Entrenar ahora</strong><small>Registrar fuerza, cardio o deporte</small></button>
     <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('routines')"><span class="mh23-training-symbol">🏋️</span><strong>Mis rutinas</strong><small>Elegir, crear o editar</small></button>
     <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('history')"><span class="mh23-training-symbol">📋</span><strong>Historial</strong><small>Consultar o corregir sesiones</small></button>
-    <button type="button" class="mh23-training-action" onclick="mh23TrainingJump('golf')"><span class="mh23-training-symbol">⛳</span><strong>Golf</strong><small>Jugar y ver evolución</small></button>
   </div>
-  <div class="mh23-training-secondary"><button type="button" onclick="mh23TrainingJump('next')">⭐ Próxima rutina</button><button type="button" onclick="mh23TrainingJump('week')">📅 Resumen semanal</button><button type="button" onclick="mh23TrainingJump('golfstats')">📈 Estadísticas de golf</button></div>
+  <div class="mh23-training-secondary"><button type="button" onclick="mh23TrainingJump('next')">⭐ Próxima rutina</button><button type="button" onclick="mh23TrainingJump('week')">📅 Resumen semanal</button></div>
 </div>
-<!-- v22.2.86 · Acceso directo a Golf sin pasar por los pasos de registro general -->
-<div class="golf-quick-access">
-  <button type="button" class="golf-quick-play" onclick="openGolfQuickPlay()" aria-label="Jugar golf: elegir campo y recorridos o continuar una partida guardada">
-    <span class="golf-quick-icon" aria-hidden="true">⛳</span>
-    <span class="golf-quick-copy"><strong>Jugar Golf</strong><small>Inicia una partida o continúa tu borrador · campos, recorridos y tarjeta hoyo a hoyo</small></span>
-    <span class="golf-quick-arrow" aria-hidden="true">→</span>
-  </button>
-</div>
-<div class="golf-evo-shortcut"><button type="button" onclick="openGolfEvolution()">⛳ Ver mi evolución de golf · Masía, Lagos y Nuevos ↓</button></div>
-
 <details class="training-fold" id="trainingNextRoutineFold"><summary><span class="training-section-label">⭐ Siguiente rutina recomendada</span></summary><div class="training-fold-body"><div id="nextRoutineCard" class="routine-next-card"></div></div></details>
 
 <div class="card training-active-shell" id="activeRoutineCard" style="display:none">
@@ -4559,7 +4561,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
         </div>
         <div id="golfScoreSummary" class="golf-score-summary" aria-live="polite"></div>
         <div id="golfScoreTable" class="golf-score-scroll"></div>
-        <p id="golfScoreNote" class="sport-hint">El resultado (birdie, par, bogey…) es bruto, sin hándicap. Si levantas bola, el hoyo vale 0 puntos Stableford y la vuelta no tiene total bruto exacto. La evolución está en Entreno → «⛳ Evolución de golf · Todos mis campos». Stableford orientativo: faltan slope y course rating de azules para WHS oficial.</p>
+        <p id="golfScoreNote" class="sport-hint">El resultado (birdie, par, bogey…) es bruto, sin hándicap. Si levantas bola, el hoyo vale 0 puntos Stableford y la vuelta no tiene total bruto exacto. La evolución está en Golf → «Mi evolución». Stableford orientativo: faltan slope y course rating de azules para WHS oficial.</p>
         <details id="golfConfigDetails" class="golf-config"><summary>⚙️ Mis campos · crear, editar o leer tarjeta con foto</summary>
           <p class="muted">Los campos se guardan en tu copia de seguridad JSON. Las partidas anteriores mantienen su tarjeta original.</p>
           <h4>Crear campo nuevo</h4>
@@ -5056,6 +5058,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <button data-sec="miDia" class="active"><span class="nav-ico nav-home" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5"></path><path d="M6 10v9h12v-9"></path><path d="M10 19v-5h4v5"></path></svg></span><span class="nav-label">Inicio</span></button>
 <button data-sec="peso"><span class="nav-ico nav-weight" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 5h10a4 4 0 0 1 4 4v6a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V9a4 4 0 0 1 4-4Z"></path><path d="M8.5 9.5a3.5 3.5 0 0 1 7 0"></path><path d="m12 9.5 2.7-1.7"></path></svg></span><span class="nav-label">Peso</span></button>
 <button data-sec="comidas"><span class="nav-ico nav-food" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3v7"></path><path d="M9 3v7"></path><path d="M6 7h3"></path><path d="M7.5 10v11"></path><path d="M16 3c1.8 2.2 1.8 5.8 0 8"></path><path d="M16 11v10"></path></svg></span><span class="nav-label">Comidas</span></button>
+<button data-sec="golf"><span class="nav-ico" aria-hidden="true">⛳</span><span class="nav-label">Golf</span></button>
 <button data-sec="entreno"><span class="nav-ico nav-workout" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><span class="nav-label">Entreno</span></button>
 <button data-sec="evolucion"><span class="nav-ico nav-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 14h2"></path><path d="M12 10h2"></path><path d="M16 7h2"></path></svg></span><span class="nav-label">Evolución<br>salud</span></button>
 <button data-sec="evolucionEntreno"><span class="nav-ico nav-training-progress" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-3 3 2 4-6"></path><path d="M15 8h3v3"></path></svg></span><span class="nav-label">Evolución<br>entreno</span></button>
@@ -5067,6 +5070,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <button type="button" data-mh23="registrar"><span>⊕</span>Registrar</button>
 <button type="button" data-mh23="farmacia"><span>💊</span>Farmacia</button>
 <button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
+<button type="button" data-mh23="golf"><span>⛳</span>Golf</button>
 <button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
 <button type="button" data-mh23="asistente"><span>✦</span>Coach</button>
 </div>
@@ -11354,6 +11358,7 @@ function golfToggleLift(route,index){
  golfPersistDraft();
 }
 function openGolfEvolution(){
+ if(typeof window.mh23Open==='function')window.mh23Open('golf');
  const section=document.getElementById('golfEvolutionDetails');if(!section)return;
  section.open=true;renderGolfEvolution();section.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -20517,10 +20522,61 @@ for(const ap of data.appts){if(ap&&ap.date===date)out.push({kind:'appointment',d
 function cell(tag,text,cls){const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e}
 let selected='';function draw(){const mi=$('mh52-month'),cal=$('mh52-calendar'),detail=$('mh52-calendar-day');if(!mi||!cal||!detail)return;const m=mi.value;if(!/^\d{4}-\d{2}$/.test(m))return;let [year,month]=m.split('-').map(Number);if(month<1||month>12)return;const n=new Date(year,month,0).getDate(),first=(new Date(year,month-1,1).getDay()+6)%7,data=read();cal.replaceChildren();['L','M','X','J','V','S','D'].forEach(x=>cal.append(cell('div',x,'mh52-dow')));for(let i=0;i<first;i++){const blank=cell('button','','mh52-day');blank.disabled=true;cal.append(blank)}for(let i=1;i<=n;i++){const date=m+'-'+pad(i),entries=dayEntries(data,date);const b=cell('button',String(i),'mh52-day');b.type='button';b.setAttribute('aria-label',fmt(date)+', '+entries.length+' eventos');b.setAttribute('aria-pressed',String(selected===date));let meds=entries.filter(e=>e.kind==='dose'),visits=entries.filter(e=>e.kind==='appointment');if(meds.length)b.append(cell('small','💊 '+meds.length));if(visits.length)b.append(cell('small','🩺 '+visits.length));b.addEventListener('click',()=>{selected=date;draw()});cal.append(b)}if(!selected.startsWith(m))selected=m+'-'+pad(Math.min(new Date().getDate(),n));detail.replaceChildren();detail.append(cell('h4','Detalle del '+fmt(selected)));const entries=dayEntries(data,selected);if(!entries.length)detail.append(cell('p','Sin tomas ni citas registradas para este día.'));for(const e of entries)detail.append(cell('div',e.kind==='dose'?'💊 '+e.time+' · '+e.label+' · '+e.dose+' — '+e.status:'🩺 '+e.time+' · '+e.label+' · '+e.specialty+(e.address?' · '+e.address:'')+' — '+(e.attendance==='attended'?'Acudió':e.attendance==='missed'?'No acudió':'Pendiente')+(e.observations?' · Observaciones: '+e.observations:'')+(e.prescriptionName?' · 📎 Receta: '+e.prescriptionName:''),'mh52-event'))}
 function report(){const a=$('mh52-start').value,b=$('mh52-end').value,msg=$('mh52-report-error');msg.textContent='';if(!/^\d{4}-\d{2}-\d{2}$/.test(a)||!/^\d{4}-\d{2}-\d{2}$/.test(b)||a>b){msg.textContent='Selecciona dos fechas válidas, con inicio anterior o igual al final.';return}const begin=parseDay(a),end=parseDay(b),days=Math.round((end-begin)/86400000)+1;if(!Number.isFinite(days)||days<1||days>366){msg.textContent='Selecciona un período de hasta 366 días por informe.';return}const scope=$('mh54-report-scope').value,includeMeds=scope!=='appointments',includeVisits=scope!=='medications',scopeLabel=scope==='medications'?'Solo medicamentos':scope==='appointments'?'Solo citas médicas':'Medicamentos y citas médicas';const data=read();let rows=[],count={planned:0,taken:0,skipped:0,visits:0};for(let i=0;i<days;i++){const d=new Date(begin.getFullYear(),begin.getMonth(),begin.getDate()+i),date=key(d);for(const e of dayEntries(data,date)){if(e.kind==='dose'){if(!includeMeds)continue;if(e.status==='Tomada')count.taken++;else if(e.status==='Omitida')count.skipped++;else count.planned++;rows.push('<tr><td>'+esc(fmt(date))+'</td><td>'+esc(e.time)+'</td><td>Medicamento</td><td>'+esc(e.label)+' · '+esc(e.dose)+'</td><td>'+esc(e.status)+'</td></tr>')}else{if(!includeVisits)continue;count.visits++;rows.push('<tr><td>'+esc(fmt(date))+'</td><td>'+esc(e.time)+'</td><td>Visita médica</td><td>'+esc(e.label)+' · '+esc(e.specialty)+(e.address?' · '+esc(e.address):'')+(e.observations?'<br><strong>Observaciones:</strong> '+esc(e.observations):'')+(e.prescriptionName?'<br><strong>Receta adjunta:</strong> '+esc(e.prescriptionName)+' (archivo guardado en el dispositivo; no incorporado al PDF)':'')+'</td><td>'+esc(e.attendance==='attended'?'Acudió':e.attendance==='missed'?'No acudió':'Pendiente')+'</td></tr>')}}}
-const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe Farmacia '+esc(fmt(a))+' a '+esc(fmt(b))+'</title><style>body{font:14px -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#193f38;margin:24px}h1{color:#146759}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:8px;border-bottom:1px solid #dce7e3;text-align:left;vertical-align:top}th{background:#eaf5f1}tr{break-inside:avoid}.notice{background:#f3f8f6;padding:12px;border-radius:8px}.toolbar{margin:20px 0}button{padding:12px;background:#146e5e;color:white;border:0;border-radius:9px;cursor:pointer}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.back-app{background:#e9f4f0;color:#135a4e}@media print{.toolbar{display:none}body{margin:8mm}}@page{size:A4;margin:12mm}</style></head><body><h1>Micro Health · Informe de Farmacia</h1><p><strong>Período:</strong> '+esc(fmt(a))+' — '+esc(fmt(b))+'</p><p><strong>Contenido:</strong> '+esc(scopeLabel)+'</p><p class="notice">'+(includeMeds?'Tomas realizadas: '+count.taken+' · Omitidas: '+count.skipped+' · Programadas sin confirmar: '+count.planned:'')+(includeMeds&&includeVisits?' · ':'')+(includeVisits?'Visitas médicas: '+count.visits:'')+'</p><p>'+(includeMeds?'«Programada» significa que no existe confirmación guardada; no demuestra si la medicación se tomó o no. ':'')+(includeVisits?'La asistencia figura según lo indicado en cada cita. Las recetas se identifican por nombre pero no se incorporan como archivos al informe.':'')+'</p><div class="toolbar"><button onclick="window.print()">Imprimir / Guardar como PDF</button><button class="back-app" data-appurl="' + esc(location.href) + '" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}setTimeout(()=>{location.href=this.dataset.appurl},250)">← Volver a MicroHealth</button></div><table><thead><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>'+(rows.join('')||'<tr><td colspan="5">No hay registros en estas fechas</td></tr>')+'</tbody></table><p>Informe generado el '+esc(new Date().toLocaleString('es-ES'))+'. Contenido orientativo procedente de los registros locales de Micro Health.</p></body></html>';
+const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe Farmacia '+esc(fmt(a))+' a '+esc(fmt(b))+'</title><style>body{font:14px -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#193f38;margin:24px}h1{color:#146759}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:8px;border-bottom:1px solid #dce7e3;text-align:left;vertical-align:top}th{background:#eaf5f1}tr{break-inside:avoid}.notice{background:#f3f8f6;padding:12px;border-radius:8px}.toolbar{margin:20px 0}button{padding:12px;background:#146e5e;color:white;border:0;border-radius:9px;cursor:pointer}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.back-app{background:#e9f4f0;color:#135a4e}@media print{.toolbar{display:none}body{margin:8mm}}@page{size:A4;margin:12mm}</style>
+<style>
+/* v22.3.62 · entrada propia de Golf */
+#golf{padding-bottom:95px}
+.golf-hub-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(125deg,#eaf8f1,#fff);border:1px solid #d4e9de;border-radius:20px;padding:20px 16px;margin:10px 0 16px}
+.golf-hub-symbol{font-size:34px}.golf-hub-hero h2{margin:0 0 5px;color:#146547}.golf-hub-hero p{margin:0;color:#536f62;font-size:14px}
+.golf-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:18px}
+.golf-hub-tile{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;min-height:144px;padding:16px 12px!important;border:1px solid #d5e6de!important;border-radius:16px!important;background:#fff!important;color:#174e3b!important;box-shadow:0 3px 12px #0b49300c!important}
+.golf-hub-tile span{font-size:25px}.golf-hub-tile strong{font-size:15px}.golf-hub-tile small{font-size:12px;line-height:1.45;color:#658074}
+.golf-hub-play{background:#eaf8f0!important;border-color:#b8dcc7!important}
+.golf-hub-panel{padding:16px 12px;border-radius:17px;border:1px solid #dce9e0;background:#fafdfa;margin:15px 0}
+.golf-hub-panel[hidden]{display:none!important}.golf-hub-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.golf-hub-panel-head h3{margin:0 0 12px}
+.golf-hub-round{border-top:1px solid #deebe3;padding:13px 2px}.golf-hub-round p{margin:6px 0 10px;color:#547064;font-size:13px}
+.golf-hub-footnote{color:#607d70;font-size:12px;margin:18px 0}
+#golfEvolutionHost>.training-fold{margin-top:14px}
+#mh23-tabs{overflow-x:auto;scrollbar-width:none}#mh23-tabs::-webkit-scrollbar{display:none}
+@media(max-width:400px){.golf-hub-grid{gap:8px}.golf-hub-tile{padding:13px 9px!important}}
+</style>
+</head><body><h1>Micro Health · Informe de Farmacia</h1><p><strong>Período:</strong> '+esc(fmt(a))+' — '+esc(fmt(b))+'</p><p><strong>Contenido:</strong> '+esc(scopeLabel)+'</p><p class="notice">'+(includeMeds?'Tomas realizadas: '+count.taken+' · Omitidas: '+count.skipped+' · Programadas sin confirmar: '+count.planned:'')+(includeMeds&&includeVisits?' · ':'')+(includeVisits?'Visitas médicas: '+count.visits:'')+'</p><p>'+(includeMeds?'«Programada» significa que no existe confirmación guardada; no demuestra si la medicación se tomó o no. ':'')+(includeVisits?'La asistencia figura según lo indicado en cada cita. Las recetas se identifican por nombre pero no se incorporan como archivos al informe.':'')+'</p><div class="toolbar"><button onclick="window.print()">Imprimir / Guardar como PDF</button><button class="back-app" data-appurl="' + esc(location.href) + '" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}setTimeout(()=>{location.href=this.dataset.appurl},250)">← Volver a MicroHealth</button></div><table><thead><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>'+(rows.join('')||'<tr><td colspan="5">No hay registros en estas fechas</td></tr>')+'</tbody></table><p>Informe generado el '+esc(new Date().toLocaleString('es-ES'))+'. Contenido orientativo procedente de los registros locales de Micro Health.</p></body></html>';
 const w=window.open('','_blank');if(!w){msg.textContent='El navegador bloqueó la ventana del informe. Permite ventanas emergentes e inténtalo de nuevo.';return}w.document.open();w.document.write(html);w.document.close();w.focus()}
 function init(){if(!$('mh52-pharmacy-reports'))return;const today=key(new Date());$('mh52-month').value=today.slice(0,7);$('mh52-end').value=today;const start=new Date();start.setDate(start.getDate()-30);$('mh52-start').value=key(start);selected=today;$('mh52-month').addEventListener('change',draw);$('mh52-make-pdf').addEventListener('click',report);const details=$('mh52-pharmacy-reports').querySelector('details');details.addEventListener('toggle',()=>{if(details.open)draw()});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&details.open)draw()});window.addEventListener('focus',()=>{if(details.open)draw()});window.addEventListener('storage',()=>{if(details.open)draw()});draw()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
+<script>
+/* v22.3.62: Golf independiente. No cambia claves de almacenamiento ni datos. */
+function golfOpenFields(){
+  openGolfQuickPlay();
+  requestAnimationFrame(()=>{const f=document.getElementById('golfConfigDetails');
+    const target=f||document.getElementById('golfRoundSetup');
+    if(f?.tagName==='DETAILS')f.open=true;
+    target?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
+function golfShowSavedRounds(){
+  if(typeof window.mh23Open==='function')window.mh23Open('golf');
+  const host=document.getElementById('golfSavedRounds'),list=document.getElementById('golfSavedRoundsList');
+  if(!host||!list)return;
+  host.hidden=false;
+  const rounds=(db.entreno||[]).map((r,i)=>({r,i})).filter(({r})=>r?.deporte==='golf'&&Array.isArray(r.golfTarjeta)&&r.golfTarjeta.length).reverse();
+  list.replaceChildren();
+  if(!rounds.length){const p=document.createElement('p');p.className='muted';p.textContent='Aún no tienes partidas de golf guardadas.';list.appendChild(p)}
+  rounds.forEach(({r,i})=>{
+    const card=document.createElement('div');card.className='golf-hub-round';
+    const title=document.createElement('strong');title.textContent=(r.fecha||'Sin fecha')+' · '+(r.golfCourseName||'Golf');
+    const info=document.createElement('p');info.textContent=(r.golfTarjeta.length||0)+' hoyos · Golpes: '+(r.golfGolpes??'—')+' · Stableford: '+(r.golfStableford??'—');
+    const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='📋 Ver tarjeta y PDF';btn.addEventListener('click',()=>golfOpenCardViewer(i));
+    card.append(title,info,btn);list.appendChild(card);
+  });
+  requestAnimationFrame(()=>host.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+(function golfHubMoveEvolution(){
+ const evolution=document.getElementById('golfEvolutionDetails'),host=document.getElementById('golfEvolutionHost');
+ if(evolution&&host)host.appendChild(evolution);
 })();
 </script>
 </body></html>
