@@ -19,3 +19,8 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Evolución visual de un índice orientativo usando las últimas 20 vueltas de 18 hoyos válidas con Rating y Slope guardados en cada partida.
 - Tabla de partidas con diferencial y evolución calculada, con selección reducida según el número de resultados.
 - No modifica tarjetas guardadas, datos existentes ni calcula un índice oficial WHS; excluye 9 hoyos, vueltas parciales y bolas levantadas.
+
+## v22.3.61 · Golf 9 hoyos
+- Course Rating y Slope para recorrido de 9 hoyos, independientemente de los 18 hoyos.
+- Diferencial recreativo de 9 hoyos: (113/Slope9) × (golpes - CR9). Equivalencia a 18 = 2 × diferencial9. NO equivale al método WHS oficial para 9 hoyos.
+- Se muestra en resumen, tarjeta, PDF e historial orientativo. Se mantienen las rondas anteriores.
