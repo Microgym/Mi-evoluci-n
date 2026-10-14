@@ -20654,4 +20654,79 @@ body.mh23-on{padding-bottom:96px!important}
 .home-date-profile{gap:7px!important}
 @media(max-width:390px){#mh23-tabs button{font-size:9px!important}#mh23-tabs button span{font-size:18px!important}.mh64-coach-shortcut{min-width:43px;height:47px}}
 </style>
+
+<style id="mh65-golf-setup">
+/* Entrada directa a golf: sin selección duplicada de deporte. */
+body.mh65-golf-launch #sportSpecificFields > h3,
+body.mh65-golf-launch #sportSpecificFields > p.muted,
+body.mh65-golf-launch #sportSpecificFields > label,
+body.mh65-golf-launch #sportSpecificFields > #eSport {display:none!important}
+#mh65-new-course[hidden]{display:none!important}
+#mh65-new-course{background:#f2f9f6;border:1px solid #cfe5db;padding:16px;border-radius:16px;margin:12px 0}
+#mh65-new-course h4{margin:0 0 8px;color:#114e41}
+#mh65-new-course .mh65-hint{font-size:13px;color:#546f65}
+#mh65-new-course button{margin-top:8px}
+</style>
+<script>
+/* v22.3.65: reutilizar creación y almacenamiento originales de Golf. */
+(function(){
+ const selector=document.getElementById('golfCourseSelect');
+ const setup=document.getElementById('golfRoundSetup');
+ if(!selector||!setup)return;
+ const box=document.createElement('div');box.id='mh65-new-course';box.hidden=true;
+ box.innerHTML='<h4>⛳ Añadir campo nuevo</h4><p class="mh65-hint">El campo quedará guardado en Mis campos. Después podrás completar los datos de cada hoyo y empezar a jugar.</p><label for="mh65-name">Nombre del campo</label><input id="mh65-name" maxlength="100" placeholder="Ej. Campo de golf..."><div class="row"><div><label for="mh65-tee">Barras de salida</label><input id="mh65-tee" maxlength="35" placeholder="Ej. amarillas"></div><div><label for="mh65-holes">Número de hoyos</label><select id="mh65-holes"><option value="9">9 hoyos</option><option value="18" selected>18 hoyos</option><option value="27">27 hoyos</option></select></div></div><button type="button" class="primary" id="mh65-save">Guardar campo y continuar</button><div id="mh65-message" class="sport-hint" role="status"></div>';
+ selector.insertAdjacentElement('afterend',box);
+ const oldPopulate=window.golfPopulateSelectors;
+ window.golfPopulateSelectors=function(){
+  const result=oldPopulate.apply(this,arguments);
+  if(!selector.querySelector('option[value="__mh65_new__"]'))selector.add(new Option('＋ Nuevo campo…','__mh65_new__'));
+  box.hidden=true;
+  return result;
+ };
+ const oldChanged=window.golfCourseChanged;
+ window.golfCourseChanged=function(){
+  if(selector.value==='__mh65_new__'){
+   box.hidden=false;
+   const routes=document.getElementById('golfRoute1')?.closest('.row');if(routes)routes.style.display='none';
+   document.getElementById('golfStartButton')?.setAttribute('disabled','');
+   box.querySelector('#mh65-name')?.focus();
+   return;
+  }
+  box.hidden=true;
+  document.getElementById('golfRoute1')?.closest('.row')?.style.removeProperty('display');
+  document.getElementById('golfStartButton')?.removeAttribute('disabled');
+  return oldChanged.apply(this,arguments);
+ };
+ const oldCreate=window.golfCreateCourse;
+ box.querySelector('#mh65-save').addEventListener('click',()=>{
+  const name=box.querySelector('#mh65-name').value.trim();
+  document.getElementById('golfNewCourseName').value=name;
+  document.getElementById('golfNewCourseTee').value=box.querySelector('#mh65-tee').value.trim();
+  document.getElementById('golfNewCourseHoles').value=box.querySelector('#mh65-holes').value;
+  const before=new Set(Object.keys(golfCourseMap()));
+  oldCreate();
+  const created=Object.keys(golfCourseMap()).find(id=>!before.has(id));
+  if(!created){box.querySelector('#mh65-message').textContent=document.getElementById('golfCreateMessage')?.textContent||'No se pudo crear el campo.';return;}
+  box.hidden=true;
+  document.getElementById('golfRoute1')?.closest('.row')?.style.removeProperty('display');
+  document.getElementById('golfStartButton')?.removeAttribute('disabled');
+  const config=document.getElementById('golfConfigDetails');if(config)config.open=true;
+  box.querySelector('#mh65-message').textContent='';
+  const hint=document.getElementById('golfCreateMessage');
+  if(hint)hint.textContent='✓ Campo guardado. Completa par e índice de hándicap de cada hoyo aquí abajo y pulsa «Guardar cambios del campo y recorrido». Después, vuelve arriba y pulsa «Iniciar partida».';
+  requestAnimationFrame(()=>config?.scrollIntoView({behavior:'smooth',block:'start'}));
+ });
+ const oldLaunch=window.golfLaunchFromHub;
+ if(typeof oldLaunch==='function')window.golfLaunchFromHub=function(){
+  document.body.classList.add('mh65-golf-launch');
+  const r=oldLaunch.apply(this,arguments);
+  if(!arguments[0])setTimeout(()=>{const setup=document.getElementById('golfRoundSetup');if(setup)setup.scrollIntoView({behavior:'smooth',block:'start'})},140);
+  return r;
+ };
+ const oldClose=window.closeTrainingEditor;
+ if(typeof oldClose==='function')window.closeTrainingEditor=function(){document.body.classList.remove('mh65-golf-launch');return oldClose.apply(this,arguments)};
+ document.getElementById('mh23-tabs')?.addEventListener('click',()=>document.body.classList.remove('mh65-golf-launch'));
+})();
+</script>
+
 </body></html>
