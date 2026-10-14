@@ -66,3 +66,13 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Crear campo nuevo en Golf: primero nombre y luego elección entre foto de la tarjeta o creación manual.
 - Si se sube una foto, la app intenta leer pares, hándicaps y metros por hoyo al crear el campo.
 - Si la lectura falla o es parcial, el campo se guarda igualmente para poder completarlo manualmente.
+
+
+## v22.3.69
+Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: objetivo, consumido hoy y porcentaje para calorías, proteínas, hidratos, fibra, azúcares y pasos.
+
+
+## v22.3.70
+- Importación por fotos de 18 hoyos, con aviso de hoyos faltantes.
+- Variantes de barras de salida agrupadas bajo un mismo campo; selector de barras antes de jugar.
+- Revisión manual necesaria de pares, hándicaps, metros, Rating y Slope.
