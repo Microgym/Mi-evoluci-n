@@ -24,3 +24,10 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Course Rating y Slope para recorrido de 9 hoyos, independientemente de los 18 hoyos.
 - Diferencial recreativo de 9 hoyos: (113/Slope9) × (golpes - CR9). Equivalencia a 18 = 2 × diferencial9. NO equivale al método WHS oficial para 9 hoyos.
 - Se muestra en resumen, tarjeta, PDF e historial orientativo. Se mantienen las rondas anteriores.
+
+## v22.3.62 · Golf independiente
+- Golf tiene pestaña propia en navegación principal y en menú clásico.
+- Pantalla dedicada con Jugar, Mis campos, Mis partidas y Mi evolución.
+- Se retiran los accesos duplicados de Golf de Entrenamiento; las pantallas de captura, tarjetas y estadísticas se reutilizan.
+- El historial de Golf se consulta directamente desde su nueva sección.
+- Se mantienen todos los datos y claves de almacenamiento; no se migran registros.
