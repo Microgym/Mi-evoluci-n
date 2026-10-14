@@ -86,3 +86,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.72
 - Mis campos: eliminar campos personalizados con confirmación.
 - El campo base no puede borrarse, ni uno con borrador activo; no se eliminan partidas históricas.
+
+
+## v22.3.73
+- Golf > Mis campos: listado visible de campos y recorridos, con acciones Editar y Eliminar en cada tarjeta.
+- Protege el campo predeterminado y las partidas históricas.

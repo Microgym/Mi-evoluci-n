@@ -21211,4 +21211,79 @@ function mh72DeleteGolfCourse(){
  mh72RefreshDeleteGolfCourse();
 })();
 </script>
+
+<style id="mh73-fields-style">
+#mh73-fields[hidden]{display:none!important}
+#mh73-fields{background:#fff;border:1px solid #d6e8df;border-radius:20px;padding:16px;margin:14px 0 22px}
+#mh73-fields h3{margin:0 0 6px;color:#164b42}#mh73-fields .mh73-intro{font-size:13px;color:#63776f;margin:0 0 12px}
+.mh73-course{border:1px solid #dce9e3;border-radius:16px;padding:14px;margin:10px 0;background:#fafdff}
+.mh73-course strong{font-size:17px;display:block;color:#153f45}
+.mh73-course p{font-size:12.5px;color:#596e6a;margin:7px 0 11px}
+.mh73-actions{display:flex;flex-wrap:wrap;gap:9px}
+.mh73-actions button{border-radius:11px!important;min-height:42px;padding:9px 13px!important;font-size:13px!important;flex:1 1 110px}
+.mh73-delete{color:#ac3434!important;background:#fff2f2!important;border:1px solid #e8c5c5!important}
+#mh73-fields .mh73-status{margin:10px 0;color:#466d61;font-size:13px}
+</style>
+<script>
+/* v22.3.73: listado de campos claro, con acciones individuales. */
+(function(){
+ const host=document.getElementById('golf');if(!host)return;
+ const panel=document.createElement('div');panel.id='mh73-fields';panel.hidden=true;
+ const grid=host.querySelector('.golf-hub-grid');grid?.insertAdjacentElement('afterend',panel);
+ const el=(tag,cls,content)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(content!=null)n.textContent=content;return n};
+ function list(){
+  panel.replaceChildren();
+  const heading=el('h3','', '🗺️ Mis campos de golf');panel.appendChild(heading);
+  panel.appendChild(el('p','mh73-intro','Aquí aparecen todos los campos guardados en este dispositivo. Puedes editar cada uno o eliminarlo sin afectar a tus partidas anteriores.'));
+  const map=golfCourseMap(), ids=Object.keys(map);
+  panel.appendChild(el('p','mh73-intro',ids.length+' campo'+(ids.length===1?'':'s')+' disponible'+(ids.length===1?'':'s')));
+  for(const id of ids){
+   const c=map[id],card=el('div','mh73-course');
+   card.appendChild(el('strong','',c.name||'Campo sin nombre'));
+   const r=Object.values(c.routes||{});
+   card.appendChild(el('p','',(c.tee||'Barras sin indicar')+' · '+(r.length*9)+' hoyos · '+r.map(x=>x.name||'Recorrido').join(' / ')));
+   if(c.teeVariants && typeof c.teeVariants==='object'){
+     const extra=Object.keys(c.teeVariants);if(extra.length)card.appendChild(el('p','', 'Barras registradas: '+extra.join(', ')));
+   }
+   const actions=el('div','mh73-actions');
+   const edit=el('button','secondary','✏️ Editar campo');edit.type='button';edit.onclick=()=>{
+     panel.hidden=true;
+     golfLaunchFromHub(true);
+     setTimeout(()=>{
+       golfPopulateSelectors(id);
+       golfRenderConfig();
+       document.getElementById('golfConfigDetails')?.setAttribute('open','');
+       document.getElementById('golfConfigDetails')?.scrollIntoView({block:'start',behavior:'smooth'});
+     },240);
+   };actions.appendChild(edit);
+   if(id!=='escorpion'){
+    const del=el('button','mh73-delete','🗑️ Eliminar');del.type='button';del.onclick=()=>{
+      const cfg=golfConfig();const found=cfg.courses?.[id];if(!found){list();return;}
+      if(golfPlaying){alert('Hay una partida en curso. Finalízala o elimínala antes de borrar el campo.');return;}
+      if(db.golfDraft?.courseId===id){alert('Tienes un borrador en este campo. Elimínalo desde Jugar antes de borrar el campo.');return;}
+      if(!confirm('¿Eliminar el campo «'+found.name+'» con todos sus recorridos y barras? Las partidas ya guardadas se conservarán. Esta acción no se puede deshacer.'))return;
+      delete cfg.courses[id];
+      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){cfg.courses[id]=found;alert('No se pudo guardar la eliminación.');return;}
+      golfPopulateSelectors('escorpion');golfRenderConfig();golfRenderScorecard();
+      if(typeof renderGolfEvolution==='function')renderGolfEvolution();
+      list();
+      const st=el('p','mh73-status','✓ Campo eliminado. Las partidas anteriores se han conservado.');panel.insertBefore(st,panel.children[2]||null);
+     };actions.appendChild(del);
+   }else{actions.appendChild(el('p','mh73-intro','Campo predeterminado · protegido'));}
+   card.appendChild(actions);panel.appendChild(card);
+  }
+  const add=el('button','primary','＋ Crear campo nuevo');add.type='button';add.onclick=()=>{
+   panel.hidden=true;golfLaunchFromHub(false);
+   setTimeout(()=>{
+    const s=document.getElementById('golfCourseSelect');if(!s)return;
+    s.value='__mh65_new__';golfCourseChanged();
+    s.scrollIntoView({block:'center',behavior:'smooth'});
+   },240);
+  };panel.appendChild(add);
+  const close=el('button','secondary','Cerrar listado');close.type='button';close.style.marginLeft='9px';close.onclick=()=>panel.hidden=true;panel.appendChild(close);
+ }
+ window.golfOpenFields=function(){if(typeof window.mh23Open==='function')window.mh23Open('golf');panel.hidden=false;list();requestAnimationFrame(()=>panel.scrollIntoView({block:'start',behavior:'smooth'}));};
+})();
+</script>
+
 </body></html>
