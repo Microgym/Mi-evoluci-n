@@ -3738,7 +3738,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
     </div>
     <div class="home-date-profile">
       <div class="home-date-box"><span>Hoy</span><b id="homeHeaderDate">—</b></div>
-      <button type="button" class="home-avatar" id="profileAvatarButton" aria-label="Abrir Mis datos" title="Mis datos" onclick="goSection('datos')"><img id="profileAvatarImage" alt="Mi foto de perfil" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg></button>
+      <button type="button" class="mh64-coach-shortcut" onclick="mh23Open('asistente')" aria-label="Abrir Coach" title="Abrir Coach">✦<small>Coach</small></button><button type="button" class="home-avatar" id="profileAvatarButton" aria-label="Abrir Mis datos" title="Mis datos" onclick="goSection('datos')"><img id="profileAvatarImage" alt="Mi foto de perfil" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg></button>
     </div>
   </div>
 </header>
@@ -4349,7 +4349,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <section id="golf" aria-label="Golf">
  <div class="golf-hub-hero"><span class="golf-hub-symbol" aria-hidden="true">⛳</span><div><h2>Mi Golf</h2><p>Juega, gestiona tus campos y revisa cómo evolucionas.</p></div></div>
  <div class="golf-hub-grid">
-  <button type="button" class="golf-hub-tile golf-hub-play" onclick="openGolfQuickPlay()"><span>🏌️</span><strong>Jugar una partida</strong><small>9 o 18 hoyos · continuar borrador · tarjeta por hoyo</small></button>
+  <button type="button" class="golf-hub-tile golf-hub-play" onclick="golfLaunchFromHub(false)"><span>🏌️</span><strong>Jugar una partida</strong><small>9 o 18 hoyos · continuar borrador · tarjeta por hoyo</small></button>
   <button type="button" class="golf-hub-tile" onclick="golfOpenFields()"><span>🗺️</span><strong>Mis campos</strong><small>Recorridos, pars, Course Rating y Slope Rating</small></button>
   <button type="button" class="golf-hub-tile" onclick="golfShowSavedRounds()"><span>📋</span><strong>Mis partidas</strong><small>Historial, tarjetas y PDF</small></button>
   <button type="button" class="golf-hub-tile" onclick="openGolfEvolution()"><span>📈</span><strong>Mi evolución</strong><small>Estadísticas y hándicap estimado</small></button>
@@ -5072,7 +5072,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <button type="button" data-mh23="entreno"><span>🏋</span>Entrenar</button>
 <button type="button" data-mh23="golf"><span>⛳</span>Golf</button>
 <button type="button" data-mh23="progreso"><span>▥</span>Progreso</button>
-<button type="button" data-mh23="asistente"><span>✦</span>Coach</button>
+
 </div>
 <div id="mh23-sheet" role="dialog" aria-modal="false" aria-label="Accesos rápidos" hidden>
 <button type="button" id="mh23-dismiss" aria-label="Cerrar">×</button><h3 id="mh23-sheet-title"></h3><p id="mh23-sheet-desc"></p><div class="mh23-sheet-grid" id="mh23-sheet-actions"></div>
@@ -20549,14 +20549,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script>
 /* v22.3.62: Golf independiente. No cambia claves de almacenamiento ni datos. */
-function golfOpenFields(){
-  openGolfQuickPlay();
-  requestAnimationFrame(()=>{const f=document.getElementById('golfConfigDetails');
-    const target=f||document.getElementById('golfRoundSetup');
-    if(f?.tagName==='DETAILS')f.open=true;
-    target?.scrollIntoView({behavior:'smooth',block:'start'});
-  });
+let mh64GolfHubModal = false;
+function golfLaunchFromHub(fields=false){
+  // El formulario de Golf pertenece a Entrenamientos: activar su sección evita que quede oculto.
+  if(typeof window.mh23Open==='function') window.mh23Open('entreno');
+  else if(typeof goSection==='function') goSection('entreno');
+  try{
+    openGolfQuickPlay();
+    mh64GolfHubModal=true;
+    if(fields){
+      setTimeout(()=>{
+        const fold=document.getElementById('golfConfigDetails');
+        if(fold?.tagName==='DETAILS') fold.open=true;
+        (fold||document.getElementById('golfRoundSetup'))?.scrollIntoView({behavior:'smooth',block:'center'});
+      },180);
+    }
+  }catch(e){console.error('No se pudo abrir Golf',e);alert('No se pudo abrir la pantalla de Golf. Vuelve a intentarlo.');}
 }
+function golfOpenFields(){golfLaunchFromHub(true)}
+const mh64OldCloseTrainingEditor=window.closeTrainingEditor;
+if(typeof mh64OldCloseTrainingEditor==='function') window.closeTrainingEditor=function(){
+  mh64OldCloseTrainingEditor.apply(this,arguments);
+  if(mh64GolfHubModal){mh64GolfHubModal=false;setTimeout(()=>window.mh23Open?.('golf'),50)}
+};
 function golfShowSavedRounds(){
   if(typeof window.mh23Open==='function')window.mh23Open('golf');
   const host=document.getElementById('golfSavedRounds'),list=document.getElementById('golfSavedRoundsList');
@@ -20627,4 +20642,16 @@ body.mh23-on{padding-bottom:96px!important}
 })();
 </script>
 
+
+<style id="mh64-golf-nav-fixes">
+/* Seis accesos siempre visibles y Coach junto al perfil */
+#mh23-tabs{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important;overflow:visible!important;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;width:100%!important;max-width:100%!important;left:0!important;transform:none!important;box-sizing:border-box!important}
+#mh23-tabs button{width:auto!important;min-width:0!important;max-width:none!important;padding:6px 0!important;flex:none!important;gap:3px!important;font-size:10px!important;white-space:normal!important;line-height:1.12!important;overflow:visible!important}
+#mh23-tabs button span{font-size:19px!important}
+#mh23-tabs button.mh23-selected{border-radius:11px!important}
+.mh64-coach-shortcut{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;min-width:48px;height:52px;padding:4px!important;border:1px solid #d7e9e4!important;border-radius:15px!important;background:#e9f7f3!important;color:#0b7167!important;box-shadow:none!important;font-size:23px!important;line-height:1!important}
+.mh64-coach-shortcut small{font-size:10px!important;font-weight:750;line-height:1.15}
+.home-date-profile{gap:7px!important}
+@media(max-width:390px){#mh23-tabs button{font-size:9px!important}#mh23-tabs button span{font-size:18px!important}.mh64-coach-shortcut{min-width:43px;height:47px}}
+</style>
 </body></html>
