@@ -91,3 +91,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.73
 - Golf > Mis campos: listado visible de campos y recorridos, con acciones Editar y Eliminar en cada tarjeta.
 - Protege el campo predeterminado y las partidas históricas.
+
+
+## v22.3.74
+- Se puede eliminar también Club de Golf Escorpión desde Mis campos.
+- Se admite dejar la lista sin campos; Escorpión no reaparece al recargar.
+- Se mantienen las tarjetas de partidas guardadas y se confirma antes de borrar.
