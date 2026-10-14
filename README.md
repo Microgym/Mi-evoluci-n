@@ -76,3 +76,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Importación por fotos de 18 hoyos, con aviso de hoyos faltantes.
 - Variantes de barras de salida agrupadas bajo un mismo campo; selector de barras antes de jugar.
 - Revisión manual necesaria de pares, hándicaps, metros, Rating y Slope.
+
+
+## v22.3.71
+- Corregido bloqueo del módulo Golf al abrir los campos: colisión entre función y variable de variantes de barras.
+- Sin cambios en registros ni almacenamiento.

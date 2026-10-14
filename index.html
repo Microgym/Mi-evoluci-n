@@ -21057,10 +21057,10 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
  function getSnapshot(c){return {routes:deep(c.routes),whsRatings:deep(c.whsRatings||{})};}
  function populateTee(){
   const id=golfCurrentCourseId(),c=variants(),s=$('mh70-play-tee');if(!s)return;
-  const variants=c?.teeVariants||{};
-  teeWrap.hidden=!c||!Object.keys(variants).length;
+  const teeOptions=c?.teeVariants||{};
+  teeWrap.hidden=!c||!Object.keys(teeOptions).length;
   s.replaceChildren();
-  if(c){for(const name of Object.keys(variants))s.add(new Option(name,name));if(c.tee) s.value=normalize(c.tee);}
+  if(c){for(const name of Object.keys(teeOptions))s.add(new Option(name,name));if(c.tee) s.value=normalize(c.tee);}
   activeId=id;
  }
  const prevPopulate=window.golfPopulateSelectors;
