@@ -81,3 +81,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.71
 - Corregido bloqueo del módulo Golf al abrir los campos: colisión entre función y variable de variantes de barras.
 - Sin cambios en registros ni almacenamiento.
+
+
+## v22.3.72
+- Mis campos: eliminar campos personalizados con confirmación.
+- El campo base no puede borrarse, ni uno con borrador activo; no se eliminan partidas históricas.

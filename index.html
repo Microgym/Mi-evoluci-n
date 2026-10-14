@@ -4570,6 +4570,12 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
           <div class="row"><div><label>Barras de salida</label><input id="golfNewCourseTee" placeholder="Ej. amarillas" maxlength="35"></div><div><label>Hoyos</label><select id="golfNewCourseHoles"><option value="9">9 hoyos</option><option value="18" selected>18 hoyos</option><option value="27">27 hoyos</option></select></div></div>
           <button type="button" class="secondary" onclick="golfCreateCourse()">+ Crear campo</button>
           <div id="golfCreateMessage" class="sport-hint" role="status"></div>
+          <div id="mh72-delete-field" class="mh72-delete-field">
+            <h4>Eliminar campo</h4>
+            <p class="muted">Elimina únicamente el campo seleccionado. Las tarjetas de partidas anteriores permanecerán en el historial.</p>
+            <button type="button" id="mh72-delete-button" onclick="mh72DeleteGolfCourse()">🗑️ Eliminar este campo</button>
+            <div id="mh72-delete-message" class="sport-hint" role="status"></div>
+          </div>
           <hr><h4>Editar campo y recorrido seleccionados</h4>
           <label>Nombre del campo</label><input id="golfEditCourseName" maxlength="100">
           <label>Barras de salida</label><input id="golfEditCourseTee" maxlength="35">
@@ -21150,6 +21156,59 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
   }finally{locked=false;submit.disabled=false}
  },true);
  populateTee();
+})();
+</script>
+
+<style id="mh72-delete-style">
+#mh72-delete-field{margin:20px 0 14px;padding:16px;background:#fffafa;border:1px solid #efdad8;border-radius:16px}
+#mh72-delete-field h4{margin:0 0 6px;color:#8f3030}
+#mh72-delete-button{background:#fff1f1!important;color:#a32929!important;border:1px solid #edc4c4!important;border-radius:12px!important;min-height:44px;font-weight:750}
+#mh72-delete-field[hidden]{display:none!important}
+</style>
+<script>
+/* v22.3.72 — borrado explícito de campos personalizados. No borra partidas históricas. */
+function mh72RefreshDeleteGolfCourse(){
+ const sel=document.getElementById('golfCourseSelect'),block=document.getElementById('mh72-delete-field'),btn=document.getElementById('mh72-delete-button');
+ if(!sel||!block||!btn)return;
+ const id=sel.value;
+ const c=golfConfig().courses?.[id];
+ block.hidden=!c;
+ btn.disabled=!c;
+}
+function mh72DeleteGolfCourse(){
+ const sel=document.getElementById('golfCourseSelect'),msg=document.getElementById('mh72-delete-message');
+ if(!sel)return;
+ const id=sel.value,config=golfConfig(),course=config.courses?.[id];
+ if(!course){if(msg)msg.textContent='Solo puedes eliminar campos que hayas creado. El campo predeterminado se conserva.';return;}
+ if(golfPlaying){if(msg)msg.textContent='Finaliza o descarta antes la partida que esté en curso.';return;}
+ if(db.golfDraft?.courseId===id){
+  if(msg)msg.textContent='Hay un borrador de partida asociado a este campo. Desde Jugar, elimínalo o finalízalo antes de borrar el campo.';
+  return;
+ }
+ const historical=(db.entreno||[]).filter(r=>r?.deporte==='golf'&&r?.golfCourseId===id).length;
+ const question='¿Eliminar el campo «'+course.name+'» y sus recorridos y barras?\n\n'+
+ (historical?'Hay '+historical+' partida(s) ya guardada(s) de este campo: sus tarjetas y resultados se conservarán.\n\n':'')+
+ 'Esta operación no se puede deshacer. Las partidas guardadas NO se eliminarán.';
+ if(!confirm(question))return;
+ const old=course;
+ delete config.courses[id];
+ try{localStorage.setItem(KEY,JSON.stringify(db));}
+ catch(e){config.courses[id]=old;if(msg)msg.textContent='No se pudo guardar el borrado. No se ha eliminado el campo.';return;}
+ golfScores={};golfExtras={};golfEditHoleSnapshot=null;
+ golfPopulateSelectors('escorpion');
+ golfRenderConfig();golfRenderScorecard();
+ if(typeof renderGolfEvolution==='function')renderGolfEvolution();
+ mh72RefreshDeleteGolfCourse();
+ const create=document.getElementById('golfCreateMessage');
+ if(create)create.textContent='✓ Campo «'+course.name+'» eliminado. Las partidas anteriores siguen guardadas.';
+}
+(function(){
+ const sel=document.getElementById('golfCourseSelect');
+ if(!sel)return;
+ sel.addEventListener('change',()=>setTimeout(mh72RefreshDeleteGolfCourse,0));
+ const old=window.golfPopulateSelectors;
+ if(typeof old==='function')window.golfPopulateSelectors=function(){const result=old.apply(this,arguments);mh72RefreshDeleteGolfCourse();return result};
+ mh72RefreshDeleteGolfCourse();
 })();
 </script>
 </body></html>
