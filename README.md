@@ -54,3 +54,9 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Los ajustes generales de entrenamiento y la edición de campos no se muestran durante el inicio rápido.
 - Golf > Mis campos conserva los formularios de configuración y la lectura de tarjeta por foto.
 - No se modifican claves ni registros guardados.
+
+
+## v22.3.67
+- Golf: botón Eliminar partida durante la vuelta con confirmación.
+- Descarta los datos de la partida activa y elimina su borrador persistido; no guarda en historial ni borra partidas ya terminadas.
+- Vuelve a Golf y mantiene los campos registrados.

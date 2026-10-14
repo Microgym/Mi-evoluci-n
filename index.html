@@ -4556,6 +4556,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
             <button type="button" class="secondary" onclick="golfOpenCardViewer()">📋 Ver tarjeta completa</button>
             <button type="button" class="secondary" onclick="golfReturnToSetup()">Cambiar recorridos</button>
             <button type="button" class="primary" onclick="golfFinishRound()">🏁 Finalizar partida</button>
+            <button type="button" class="golf-discard-round" onclick="golfDiscardCurrentRound()">🗑️ Eliminar partida</button>
           </div>
           <p class="muted">El borrador se guarda al anotar cada hoyo. «Finalizar» permite guardar una partida incompleta, que podrás editar después.</p>
         </div>
@@ -11453,6 +11454,21 @@ function golfSaveDraftAndExit(){
  if(editingTrainingIndex!=null){setWorkoutWizardError('Estás modificando una partida guardada. Para conservar los cambios, finaliza y valida el guardado.');return;}
  if(!golfPersistDraft()){setWorkoutWizardError('No se ha podido guardar el borrador. Comprueba el almacenamiento y vuelve a intentarlo.');return;}
  hideWorkoutModal();showTrainingSavedConfirmation('Borrador de golf guardado. Vuelve a Deporte → Golf para continuar tu partida.');
+}
+/* v22.3.67: descartar exclusivamente la vuelta en curso y su borrador local. */
+function golfDiscardCurrentRound(){
+ if(editingTrainingIndex!=null){
+  alert('Estás editando una partida guardada. Para no borrar una partida del historial por accidente, este botón solo elimina partidas en curso.');
+  return;
+ }
+ if(!confirm('¿Eliminar esta partida sin guardarla? Se perderán todos los golpes, putts y búnker anotados en ella. Esta acción no se puede deshacer.'))return;
+ const previous=db.golfDraft;
+ delete db.golfDraft;
+ try{localStorage.setItem(KEY,JSON.stringify(db));}
+ catch(err){db.golfDraft=previous;alert('No se ha podido eliminar el borrador del almacenamiento. No se ha cerrado la partida.');return;}
+ golfPlaying=false;golfInitialized=false;golfScores={};golfExtras={};golfHoleCursor=0;golfAllowPartialFinish=false;golfEditHoleSnapshot=null;
+ closeTrainingEditor();
+ if(typeof window.mh23Open==='function')window.mh23Open('golf');
 }
 function golfFinishRound(){
  const data=golfRecordData(true);if(data.error){setWorkoutWizardError(data.error);return;}
@@ -20787,4 +20803,7 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
 })();
 </script>
 
+<style id="mh67-golf-discard-style">
+.golf-round-exit .golf-discard-round{background:#fff1f1!important;color:#a32828!important;border:1px solid #efbebe!important;border-radius:12px!important;min-height:44px;font-weight:750}
+</style>
 </body></html>
