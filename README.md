@@ -60,3 +60,9 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Golf: botón Eliminar partida durante la vuelta con confirmación.
 - Descarta los datos de la partida activa y elimina su borrador persistido; no guarda en historial ni borra partidas ya terminadas.
 - Vuelve a Golf y mantiene los campos registrados.
+
+
+## v22.3.68
+- Crear campo nuevo en Golf: primero nombre y luego elección entre foto de la tarjeta o creación manual.
+- Si se sube una foto, la app intenta leer pares, hándicaps y metros por hoyo al crear el campo.
+- Si la lectura falla o es parcial, el campo se guarda igualmente para poder completarlo manualmente.
