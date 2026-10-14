@@ -1,9 +1,8 @@
-# Micro Health v22.3.55 — Citas médicas ampliadas
+# Micro Health v22.3.56 — Regreso desde informe de Farmacia
 
-- Observaciones editables por cada cita, visibles en el listado, calendario y PDF.
-- Asistencia: pendiente, acudió o no acudió; incluida en PDF.
-- Receta opcional en imagen o PDF (hasta 8 MB), almacenada en IndexedDB del dispositivo, accesible desde la cita. El informe PDF muestra el nombre de la receta, pero **no incrusta el archivo**.
-- Los datos previos de medicación, citas y hábitos se mantienen, sin migraciones destructivas.
-- Caché de PWA actualizada a v22.3.55.
+- Se añade «Volver a MicroHealth» a la pantalla del informe de Farmacia antes de imprimir o guardar el PDF.
+- Regresa a la aplicación original si el navegador lo permite; si no, abre la aplicación en la pestaña del informe.
+- El botón no se imprime en el PDF.
+- Conserva las mejoras de la v22.3.55 y los datos locales.
 
-**Importante:** Las recetas quedan en el navegador/dispositivo donde se adjuntaron. Borrar datos del sitio puede eliminarlas; no forman parte de una exportación de localStorage.
+Versión v22.3.57: Golf permite registrar putts y golpes de búnker por hoyo. Datos incluidos en la tarjeta y el PDF.

@@ -3234,6 +3234,7 @@ body.workout-modal-open nav{visibility:hidden!important;pointer-events:none!impo
 .golf-hole-metrics strong{display:block;font-size:23px;color:#173e4a}
 .golf-hole-metrics small{font-size:12px;color:#52726c}
 .golf-hole-score-label{display:block;font-weight:750;margin:12px 0 7px}
+.golf-hole-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0}.golf-hole-extras label{font-size:13px;font-weight:700;text-align:left;color:#24534a}.golf-hole-extras input{width:100%;box-sizing:border-box;min-height:48px;margin-top:6px;text-align:center;font-size:20px}.golf-hole-extras input[aria-invalid="true"]{border-color:#b32727}#golfFields .golf-table input[aria-invalid="true"]{border-color:#b32727}
 #golfLiveStrokeInput{width:135px;max-width:100%;min-height:54px;font-size:24px;text-align:center;margin:0 auto}
 .golf-hole-outcome{font-size:18px;font-weight:800;color:#135c4c;margin:14px 0 4px}
 .golf-hole-points{font-size:14px;color:#355c59}
@@ -11166,7 +11167,7 @@ const GOLF_ROUTES={
  lagos:{name:'Lagos',par:[4,4,3,4,3,5,4,3,5],hcp:[5,9,17,3,15,13,11,7,1],meters:[366,318,141,331,120,471,323,159,435]},
  nuevos:{name:'Nuevos',par:[5,4,5,3,5,4,4,3,4],hcp:[15,5,13,17,9,1,3,11,7],meters:[438,329,473,126,474,380,353,177,352]}
 };
-let golfScores={};let golfInitialized=false;let golfEditHoleSnapshot=null;
+let golfScores={};let golfExtras={};let golfInitialized=false;let golfEditHoleSnapshot=null;
 let golfPlaying=false,golfHoleCursor=0,golfAllowPartialFinish=false;
 function golfConfig(){
  if(!db.golfConfig||typeof db.golfConfig!=='object')db.golfConfig={};
@@ -11203,9 +11204,9 @@ function golfRenderCourseInfo(){
  if(name)name.value=c.name;if(tee)tee.value=c.tee||'';
 }
 function golfSelectedRoutes(){const a=document.getElementById('golfRoute1')?.value||'masia',b=document.getElementById('golfRoute2')?.value||'';return b&&a!==b?[a,b]:[a];}
-function golfSelectedHoles(){const course=golfCurrentCourse();return golfSelectedRoutes().flatMap(route=>Array.from({length:9},(_,i)=>{const old=golfEditHoleSnapshot?.[route]?.[i],cfg=course.routes[route];if(!cfg)return [];return {route,index:i,par:Number(old?.par??cfg.par[i]),hcp:Number(old?.hcp??cfg.hcp[i]),meters:Number(old?.meters??cfg.meters[i]),score:golfScores[route]?.[i]??''};})).flat();}
+function golfSelectedHoles(){const course=golfCurrentCourse();return golfSelectedRoutes().flatMap(route=>Array.from({length:9},(_,i)=>{const old=golfEditHoleSnapshot?.[route]?.[i],cfg=course.routes[route];if(!cfg)return [];return {route,index:i,par:Number(old?.par??cfg.par[i]),hcp:Number(old?.hcp??cfg.hcp[i]),meters:Number(old?.meters??cfg.meters[i]),score:golfScores[route]?.[i]??'',putts:golfExtras[route]?.[i]?.putts??null,bunker:golfExtras[route]?.[i]?.bunker??null};})).flat();}
 function golfCourseChanged(){
- golfPopulateSelectors(golfCurrentCourseId());golfScores={};golfEditHoleSnapshot=null;
+ golfPopulateSelectors(golfCurrentCourseId());golfScores={};golfExtras={};golfEditHoleSnapshot=null;
  golfRenderConfig();golfRenderScorecard();golfPersistDraft();previewCalories();
 }
 function golfCreateCourse(){
@@ -11217,7 +11218,7 @@ function golfCreateCourse(){
  const routes={};for(let i=0;i<n/9;i++){const key=id+'_r'+(i+1);routes[key]={name:n===9?'Recorrido único':i===0?'Primeros 9':i===1?'Segundos 9':'Terceros 9',par:Array(9).fill(null),hcp:Array(9).fill(null),meters:Array(9).fill(null)};}
  cfg.courses[id]={name,tee,routes};
  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(err){delete cfg.courses[id];msg.textContent='No se pudo guardar el campo.';return;}
- golfPopulateSelectors(id);golfScores={};golfEditHoleSnapshot=null;golfRenderConfig();golfRenderScorecard();golfPersistDraft();renderGolfEvolution();
+ golfPopulateSelectors(id);golfScores={};golfExtras={};golfEditHoleSnapshot=null;golfRenderConfig();golfRenderScorecard();golfPersistDraft();renderGolfEvolution();
  msg.textContent='✓ Campo creado. Los hoyos empiezan vacíos: rellena los datos reales, a mano o con una foto, y guárdalos antes de registrar partidas.';
 }
 function golfRoundStrokes(holes,handicap){
@@ -11261,7 +11262,7 @@ function golfStats(holes,handicap){
 }
 function golfPersistDraft(){
  if(editingTrainingIndex!=null)return;
- db.golfDraft={courseId:golfCurrentCourseId(),routes:golfSelectedRoutes(),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,scores:JSON.parse(JSON.stringify(golfScores)),minutes:document.getElementById('eGolfMinutes')?.value||'',fecha:document.getElementById('eFecha')?.value||'',holeCursor:golfHoleCursor,playing:golfPlaying,hora:document.getElementById('eHora')?.value||''};
+ db.golfDraft={courseId:golfCurrentCourseId(),routes:golfSelectedRoutes(),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,scores:JSON.parse(JSON.stringify(golfScores)),extras:JSON.parse(JSON.stringify(golfExtras)),minutes:document.getElementById('eGolfMinutes')?.value||'',fecha:document.getElementById('eFecha')?.value||'',holeCursor:golfHoleCursor,playing:golfPlaying,hora:document.getElementById('eHora')?.value||''};
  try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(err){console.warn('No se pudo conservar el borrador de golf',err);return false;}
 }
 function golfSetup(record=null){
@@ -11270,12 +11271,12 @@ function golfSetup(record=null){
  const routes=record?.golfRecorridos?.length?record.golfRecorridos:draft?.routes?.length?draft.routes:['masia'];
  golfPopulateSelectors(record?.golfCourseId||draft?.courseId||'escorpion',routes[0],routes[1]);
  h.value=record?.golfHandicap??draft?.handicap??golfConfig().handicap;
- golfScores={};golfEditHoleSnapshot=null;
+ golfScores={};golfExtras={};golfEditHoleSnapshot=null;
  if(Array.isArray(record?.golfTarjeta)){
   golfEditHoleSnapshot={};record.golfTarjeta.forEach(x=>{if(!golfEditHoleSnapshot[x.route])golfEditHoleSnapshot[x.route]=[];golfEditHoleSnapshot[x.route][x.index]=x;});
  }
- if(Array.isArray(record?.golfTarjeta))record.golfTarjeta.forEach(x=>{if(!golfScores[x.route])golfScores[x.route]=Array(9).fill('');golfScores[x.route][x.index]=x.lifted?'X':(x.score??'');});
- else if(draft?.scores)golfScores=JSON.parse(JSON.stringify(draft.scores));
+ if(Array.isArray(record?.golfTarjeta))record.golfTarjeta.forEach(x=>{if(!golfScores[x.route])golfScores[x.route]=Array(9).fill('');golfScores[x.route][x.index]=x.lifted?'X':(x.score??'');if(!golfExtras[x.route])golfExtras[x.route]=Array(9).fill(null);golfExtras[x.route][x.index]={putts:x.putts??null,bunker:x.bunker??null};});
+ else if(draft?.scores){golfScores=JSON.parse(JSON.stringify(draft.scores));golfExtras=JSON.parse(JSON.stringify(draft.extras||{}));}
  if(!record&&draft?.minutes&&document.getElementById('eGolfMinutes'))document.getElementById('eGolfMinutes').value=draft.minutes;
  if(!record&&draft?.fecha&&document.getElementById('eFecha'))document.getElementById('eFecha').value=draft.fecha;
  if(!record&&draft?.hora&&document.getElementById('eHora'))document.getElementById('eHora').value=draft.hora;
@@ -11296,6 +11297,15 @@ function golfScoreChanged(route,index,el){
  el.setAttribute('aria-invalid',value!==''&&(!Number.isInteger(Number(value))||Number(value)<1||Number(value)>20)?'true':'false');
  golfRenderTotals();golfPersistDraft();
 }
+function golfExtraChanged(route,index,key,el){
+ const v=el.value.trim();const n=Number(v);
+ const valid=v===''||(Number.isInteger(n)&&n>=0&&n<=20);
+ el.setAttribute('aria-invalid',valid?'false':'true');
+ if(!golfExtras[route])golfExtras[route]=Array(9).fill(null);
+ const old=golfExtras[route][index]||{putts:null,bunker:null};
+ golfExtras[route][index]={...old,[key]:v===''?null:v};
+ golfPersistDraft();
+}
 function golfToggleLift(route,index){
  if(!golfScores[route])golfScores[route]=Array(9).fill('');
  golfScores[route][index]=golfScores[route][index]==='X'?'':'X';
@@ -11312,10 +11322,10 @@ function golfRenderScorecard(){
  const holes=golfSelectedHoles();const h=document.getElementById('eGolfHoles');if(h)h.value=String(holes.length);
  const club=document.getElementById('eGolfClub');if(club)club.value=golfCurrentCourse().name;
  let last='';
- host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes / Levantar</th><th>Resultado bruto</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>'+holes.map((hole,i)=>{
-  let head='';if(hole.route!==last){last=hole.route;head=`<tr><th colspan="8" style="text-align:left">${golfRouteName(hole.route,golfCurrentCourseId())}</th></tr>`;}
+ host.innerHTML='<table class="golf-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes / Levantar</th><th>Putts</th><th>Búnker</th><th>Resultado bruto</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>'+holes.map((hole,i)=>{
+  let head='';if(hole.route!==last){last=hole.route;head=`<tr><th colspan="10" style="text-align:left">${golfRouteName(hole.route,golfCurrentCourseId())}</th></tr>`;}
   const v=hole.score;
-  return head+`<tr><td>${i+1}</td><td>${hole.par||'—'}</td><td>${hole.hcp||'—'}</td><td>${hole.meters||'—'}</td><td><div class="golf-score-cell"><input type="number" inputmode="numeric" min="1" max="20" step="1" aria-label="Golpes ${golfRouteName(hole.route,golfCurrentCourseId())} hoyo ${hole.index+1}" value="${v==='X'?'':golfEsc(v)}" ${v==='X'?'disabled':''} oninput="golfScoreChanged('${hole.route}',${hole.index},this)"><button type="button" class="golf-lift-btn ${v==='X'?'is-lifted':''}" aria-pressed="${v==='X'}" onclick="golfToggleLift('${hole.route}',${hole.index})">${v==='X'?'↩ Reanudar':'⚑ Levantar'}</button></div></td><td class="golf-result-cell" data-golf-result="${i}">${golfResultLabel(hole)}</td><td data-golf-received="${i}">—</td><td data-golf-points="${i}">—</td></tr>`;
+  return head+`<tr><td>${i+1}</td><td>${hole.par||'—'}</td><td>${hole.hcp||'—'}</td><td>${hole.meters||'—'}</td><td><div class="golf-score-cell"><input type="number" inputmode="numeric" min="1" max="20" step="1" aria-label="Golpes ${golfRouteName(hole.route,golfCurrentCourseId())} hoyo ${hole.index+1}" value="${v==='X'?'':golfEsc(v)}" ${v==='X'?'disabled':''} oninput="golfScoreChanged('${hole.route}',${hole.index},this)"><button type="button" class="golf-lift-btn ${v==='X'?'is-lifted':''}" aria-pressed="${v==='X'}" onclick="golfToggleLift('${hole.route}',${hole.index})">${v==='X'?'↩ Reanudar':'⚑ Levantar'}</button></div></td><td><input type="number" inputmode="numeric" min="0" max="20" step="1" aria-label="Putts hoyo ${i+1}" value="${golfEsc(hole.putts??'')}" oninput="golfExtraChanged('${hole.route}',${hole.index},'putts',this)"></td><td><input type="number" inputmode="numeric" min="0" max="20" step="1" aria-label="Golpes de búnker hoyo ${i+1}" value="${golfEsc(hole.bunker??'')}" oninput="golfExtraChanged('${hole.route}',${hole.index},'bunker',this)"></td><td class="golf-result-cell" data-golf-result="${i}">${golfResultLabel(hole)}</td><td data-golf-received="${i}">—</td><td data-golf-points="${i}">—</td></tr>`;
  }).join('')+'</tbody></table>';
  golfRenderTotals();golfRenderHoleScreen();
 }
@@ -11368,6 +11378,7 @@ function golfRenderHoleScreen(){
   <div class="golf-hole-metrics"><div><small>PAR</small><strong>${hole.par}</strong></div><div><small>HÁNDICAP HOYO</small><strong>${hole.hcp}</strong></div><div><small>METROS</small><strong>${hole.meters||'—'}</strong></div></div>
   <label class="golf-hole-score-label" for="golfLiveStrokeInput">Mis golpes en este hoyo</label>
   <input id="golfLiveStrokeInput" type="number" inputmode="numeric" min="1" max="20" step="1" placeholder="Golpes" value="${lifted?'':golfEsc(raw)}" ${lifted?'disabled':''} oninput="golfLiveScoreChanged(this)">
+  <div class="golf-hole-extras"><label>Putts en este hoyo<input type="number" inputmode="numeric" min="0" max="20" step="1" placeholder="0" value="${golfEsc(hole.putts??'')}" oninput="golfExtraChanged('${hole.route}',${hole.index},'putts',this)"></label><label>Golpes de búnker<input type="number" inputmode="numeric" min="0" max="20" step="1" placeholder="0" value="${golfEsc(hole.bunker??'')}" oninput="golfExtraChanged('${hole.route}',${hole.index},'bunker',this)"></label></div>
   <div class="golf-hole-outcome" id="golfLiveOutcome">${golfEsc(outcome)}</div>
   <div class="golf-hole-points" id="golfLivePoints">${points==null?'Anota tus golpes para ver los puntos':`${points} puntos Stableford* · ${received} golpe${received===1?'':'s'} recibido${received===1?'':'s'}`}</div>
   <button type="button" class="secondary golf-lift-btn ${lifted?'is-lifted':''}" onclick="golfToggleLift('${hole.route}',${hole.index})">${lifted?'↩ Reanudar hoyo':'⚑ Levantar bola (0 puntos)'}</button>
@@ -11456,6 +11467,7 @@ function golfRecordData(allowPartial=false){
  const holes=golfSelectedHoles(),handicap=Number(document.getElementById('golfRoundHandicap')?.value);
  if(!Number.isInteger(handicap)||handicap<0||handicap>54)return {error:'El hándicap debe ser un número entero entre 0 y 54.'};
  if(holes.some(h=>!Number.isInteger(h.par)||h.par<3||h.par>6||!Number.isInteger(h.hcp)||h.hcp<1||h.hcp>18))return {error:'Completa y guarda primero los pares e índices de hándicap de los 9 hoyos de cada recorrido seleccionado.'};
+ if(holes.some(h=>['putts','bunker'].some(k=>h[k]!=null&&h[k]!==''&&(!Number.isInteger(Number(h[k]))||Number(h[k])<0||Number(h[k])>20))))return {error:'Revisa los putts y golpes de búnker: deben ser enteros entre 0 y 20.'};
  if(holes.some(h=>h.score!==''&&h.score!=='X'&&(!Number.isInteger(Number(h.score))||Number(h.score)<1||Number(h.score)>20)))return {error:'Revisa los golpes: deben ser enteros entre 1 y 20, o marca «Levantar bola».'};
  const stats=golfStats(holes,handicap);
  if(stats.played>0&&stats.played<holes.length&& !golfAllowPartialFinish&&!allowPartial)return {error:`Faltan ${holes.length-stats.played} hoyos por completar. Pulsa «Finalizar partida» para guardarla incompleta, o «Guardar para continuar luego».`};
@@ -11493,12 +11505,12 @@ function golfRenderCardViewer(){
  const gross=st.exact?String(st.gross):st.lifted?'Sin total exacto':st.scored?st.grossRaw+' (parcial)':'—';
  const lines=[];let last=null;
  holes.forEach((h,i)=>{
-  if(h.route!==last){last=h.route;lines.push(`<tr><td class="golf-view-route" colspan="8">${golfEsc(label(h))}</td></tr>`);}
+  if(h.route!==last){last=h.route;lines.push(`<tr><td class="golf-view-route" colspan="10">${golfEsc(label(h))}</td></tr>`);}
   const score=h.lifted||h.score==='X'?'⚑':h.score===''||h.score==null?'—':h.score;
   const got=Number(h.score),points=h.lifted||h.score==='X'?0:h.score!==''&&h.score!=null&&Number.isInteger(got)&&got>0?Math.max(0,2+Number(h.par)+st.received[i]-got):'—';
-  lines.push(`<tr><td>${h.index+1}</td><td>${h.par||'—'}</td><td>${h.hcp||'—'}</td><td>${h.meters||'—'}</td><td><b>${golfEsc(score)}</b></td><td>${golfEsc(golfResultLabel(h))}</td><td>${st.received[i]}</td><td><b>${points}</b></td></tr>`);
+  lines.push(`<tr><td>${h.index+1}</td><td>${h.par||'—'}</td><td>${h.hcp||'—'}</td><td>${h.meters||'—'}</td><td><b>${golfEsc(score)}</b></td><td>${golfEsc(h.putts??'—')}</td><td>${golfEsc(h.bunker??'—')}</td><td>${golfEsc(golfResultLabel(h))}</td><td>${st.received[i]}</td><td><b>${points}</b></td></tr>`);
  });
- host.innerHTML=`<h2 class="golf-view-title" id="golfViewTitle">${golfEsc(d.course)}</h2><div class="golf-view-meta">${golfEsc(d.tee||'Barras no indicadas')} · ${golfEsc(holes.map(h=>label(h)).filter((x,i,a)=>a.indexOf(x)===i).join(' + '))}${d.date?' · '+golfEsc(d.date):''}${d.time?' · '+golfEsc(d.time):''}${!d.saved?' · Partida en curso':''}</div><div class="golf-view-summary"><div>Hoyos completados<b>${st.played} / ${holes.length}</b></div><div>Par del recorrido<b>${par}</b></div><div>Golpes brutos<b>${golfEsc(gross)}</b></div><div>Stableford orientativo<b>${st.stableford} pts</b></div><div>Hándicap indicado<b>${d.handicap}</b></div><div>Bolas levantadas<b>${st.lifted}</b></div></div><div class="golf-view-table-wrap"><table class="golf-view-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes</th><th>Resultado</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>${lines.join('')}</tbody></table></div><p class="golf-view-note">* Stableford orientativo según el hándicap introducido; no equivale a un resultado oficial WHS. Los hoyos sin completar se muestran con — y las bolas levantadas con ⚑ (0 puntos). Puedes volver a la partida para seguir anotando golpes.</p>`;
+ host.innerHTML=`<h2 class="golf-view-title" id="golfViewTitle">${golfEsc(d.course)}</h2><div class="golf-view-meta">${golfEsc(d.tee||'Barras no indicadas')} · ${golfEsc(holes.map(h=>label(h)).filter((x,i,a)=>a.indexOf(x)===i).join(' + '))}${d.date?' · '+golfEsc(d.date):''}${d.time?' · '+golfEsc(d.time):''}${!d.saved?' · Partida en curso':''}</div><div class="golf-view-summary"><div>Hoyos completados<b>${st.played} / ${holes.length}</b></div><div>Par del recorrido<b>${par}</b></div><div>Golpes brutos<b>${golfEsc(gross)}</b></div><div>Stableford orientativo<b>${st.stableford} pts</b></div><div>Hándicap indicado<b>${d.handicap}</b></div><div>Bolas levantadas<b>${st.lifted}</b></div></div><div class="golf-view-table-wrap"><table class="golf-view-table"><thead><tr><th>Hoyo</th><th>Par</th><th>Hcp</th><th>m</th><th>Golpes</th><th>Putts</th><th>Búnker</th><th>Resultado</th><th>Recibe</th><th>Pts</th></tr></thead><tbody>${lines.join('')}</tbody></table></div><p class="golf-view-note">* Stableford orientativo según el hándicap introducido; no equivale a un resultado oficial WHS. Los hoyos sin completar se muestran con — y las bolas levantadas con ⚑ (0 puntos). Puedes volver a la partida para seguir anotando golpes.</p>`;
 }
 function golfCardPdfBytes(d){
  const W=595.28,H=841.89,margin=35;const pages=[];let ops=[],y=0;
@@ -11511,11 +11523,11 @@ function golfCardPdfBytes(d){
  const heading=()=>{write(margin,37,'MICRO HEALTH  /  TARJETA DE GOLF',13,true);write(margin,56,d.course,13,true);write(margin,72,`${d.tee||'Barras sin indicar'}  |  ${d.date||'Fecha no indicada'}  |  Hcp ${d.handicap}`,9);write(margin,92,`Hoyos ${st.played}/${d.holes.length}  |  Par ${par}  |  Golpes ${st.exact?st.gross:st.lifted?'Sin total exacto':st.grossRaw+' parcial'}  |  Stableford ${st.stableford} pts`,9,true);rule(102);y=124;write(margin,y,'RECORRIDO / HOYO',8,true);write(215,y,'PAR',8,true);write(251,y,'HCP',8,true);write(290,y,'METROS',8,true);write(351,y,'GOLPES',8,true);write(411,y,'RESULTADO',8,true);write(510,y,'PTS',8,true);y+=13;rule(y);y+=8;};
  heading();let last=null;
  d.holes.forEach((h,i)=>{
-  if(y>H-75){newPage();heading();last=null;}
+  if(y>H-95){newPage();heading();last=null;}
   if(h.route!==last){last=h.route;write(margin,y,d.routes[h.route]||h.route,10,true);y+=19;}
   const raw=h.lifted||h.score==='X'?'X':h.score===''||h.score==null?'-':String(h.score);
   const val=Number(h.score),pts=h.lifted||h.score==='X'?0:h.score!==''&&h.score!=null&&Number.isInteger(val)&&val>0?Math.max(0,2+Number(h.par)+st.received[i]-val):'-';
-  write(margin,y,`Hoyo ${h.index+1}`,9);write(215,y,h.par||'-',9);write(251,y,h.hcp||'-',9);write(290,y,h.meters||'-',9);write(351,y,raw,9,true);write(411,y,golfResultLabel(h),8);write(510,y,pts,9,true);y+=20;rule(y-7);
+  write(margin,y,`Hoyo ${h.index+1}`,9);write(215,y,h.par||'-',9);write(251,y,h.hcp||'-',9);write(290,y,h.meters||'-',9);write(351,y,raw,9,true);write(411,y,golfResultLabel(h),8);write(510,y,pts,9,true);y+=12;write(margin+12,y,`Putts: ${h.putts??'-'}    Bunker: ${h.bunker??'-'}`,8);y+=17;rule(y-7);
  });
  if(y>H-95){newPage();heading();}y+=16;write(margin,y,'Stableford orientativo. X = bola levantada (0 puntos).',9);y+=15;write(margin,y,'Tarjeta generada localmente en Micro Health.',9);newPage();
  const objects=[],pageIds=[],contentIds=[];for(let i=0;i<pages.length;i++){pageIds.push(5+i*2);contentIds.push(6+i*2);}
@@ -20423,7 +20435,7 @@ for(const ap of data.appts){if(ap&&ap.date===date)out.push({kind:'appointment',d
 function cell(tag,text,cls){const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e}
 let selected='';function draw(){const mi=$('mh52-month'),cal=$('mh52-calendar'),detail=$('mh52-calendar-day');if(!mi||!cal||!detail)return;const m=mi.value;if(!/^\d{4}-\d{2}$/.test(m))return;let [year,month]=m.split('-').map(Number);if(month<1||month>12)return;const n=new Date(year,month,0).getDate(),first=(new Date(year,month-1,1).getDay()+6)%7,data=read();cal.replaceChildren();['L','M','X','J','V','S','D'].forEach(x=>cal.append(cell('div',x,'mh52-dow')));for(let i=0;i<first;i++){const blank=cell('button','','mh52-day');blank.disabled=true;cal.append(blank)}for(let i=1;i<=n;i++){const date=m+'-'+pad(i),entries=dayEntries(data,date);const b=cell('button',String(i),'mh52-day');b.type='button';b.setAttribute('aria-label',fmt(date)+', '+entries.length+' eventos');b.setAttribute('aria-pressed',String(selected===date));let meds=entries.filter(e=>e.kind==='dose'),visits=entries.filter(e=>e.kind==='appointment');if(meds.length)b.append(cell('small','💊 '+meds.length));if(visits.length)b.append(cell('small','🩺 '+visits.length));b.addEventListener('click',()=>{selected=date;draw()});cal.append(b)}if(!selected.startsWith(m))selected=m+'-'+pad(Math.min(new Date().getDate(),n));detail.replaceChildren();detail.append(cell('h4','Detalle del '+fmt(selected)));const entries=dayEntries(data,selected);if(!entries.length)detail.append(cell('p','Sin tomas ni citas registradas para este día.'));for(const e of entries)detail.append(cell('div',e.kind==='dose'?'💊 '+e.time+' · '+e.label+' · '+e.dose+' — '+e.status:'🩺 '+e.time+' · '+e.label+' · '+e.specialty+(e.address?' · '+e.address:'')+' — '+(e.attendance==='attended'?'Acudió':e.attendance==='missed'?'No acudió':'Pendiente')+(e.observations?' · Observaciones: '+e.observations:'')+(e.prescriptionName?' · 📎 Receta: '+e.prescriptionName:''),'mh52-event'))}
 function report(){const a=$('mh52-start').value,b=$('mh52-end').value,msg=$('mh52-report-error');msg.textContent='';if(!/^\d{4}-\d{2}-\d{2}$/.test(a)||!/^\d{4}-\d{2}-\d{2}$/.test(b)||a>b){msg.textContent='Selecciona dos fechas válidas, con inicio anterior o igual al final.';return}const begin=parseDay(a),end=parseDay(b),days=Math.round((end-begin)/86400000)+1;if(!Number.isFinite(days)||days<1||days>366){msg.textContent='Selecciona un período de hasta 366 días por informe.';return}const scope=$('mh54-report-scope').value,includeMeds=scope!=='appointments',includeVisits=scope!=='medications',scopeLabel=scope==='medications'?'Solo medicamentos':scope==='appointments'?'Solo citas médicas':'Medicamentos y citas médicas';const data=read();let rows=[],count={planned:0,taken:0,skipped:0,visits:0};for(let i=0;i<days;i++){const d=new Date(begin.getFullYear(),begin.getMonth(),begin.getDate()+i),date=key(d);for(const e of dayEntries(data,date)){if(e.kind==='dose'){if(!includeMeds)continue;if(e.status==='Tomada')count.taken++;else if(e.status==='Omitida')count.skipped++;else count.planned++;rows.push('<tr><td>'+esc(fmt(date))+'</td><td>'+esc(e.time)+'</td><td>Medicamento</td><td>'+esc(e.label)+' · '+esc(e.dose)+'</td><td>'+esc(e.status)+'</td></tr>')}else{if(!includeVisits)continue;count.visits++;rows.push('<tr><td>'+esc(fmt(date))+'</td><td>'+esc(e.time)+'</td><td>Visita médica</td><td>'+esc(e.label)+' · '+esc(e.specialty)+(e.address?' · '+esc(e.address):'')+(e.observations?'<br><strong>Observaciones:</strong> '+esc(e.observations):'')+(e.prescriptionName?'<br><strong>Receta adjunta:</strong> '+esc(e.prescriptionName)+' (archivo guardado en el dispositivo; no incorporado al PDF)':'')+'</td><td>'+esc(e.attendance==='attended'?'Acudió':e.attendance==='missed'?'No acudió':'Pendiente')+'</td></tr>')}}}
-const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe Farmacia '+esc(fmt(a))+' a '+esc(fmt(b))+'</title><style>body{font:14px -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#193f38;margin:24px}h1{color:#146759}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:8px;border-bottom:1px solid #dce7e3;text-align:left;vertical-align:top}th{background:#eaf5f1}tr{break-inside:avoid}.notice{background:#f3f8f6;padding:12px;border-radius:8px}.toolbar{margin:20px 0}button{padding:12px;background:#146e5e;color:white;border:0;border-radius:9px}@media print{.toolbar{display:none}body{margin:8mm}}@page{size:A4;margin:12mm}</style></head><body><h1>Micro Health · Informe de Farmacia</h1><p><strong>Período:</strong> '+esc(fmt(a))+' — '+esc(fmt(b))+'</p><p><strong>Contenido:</strong> '+esc(scopeLabel)+'</p><p class="notice">'+(includeMeds?'Tomas realizadas: '+count.taken+' · Omitidas: '+count.skipped+' · Programadas sin confirmar: '+count.planned:'')+(includeMeds&&includeVisits?' · ':'')+(includeVisits?'Visitas médicas: '+count.visits:'')+'</p><p>'+(includeMeds?'«Programada» significa que no existe confirmación guardada; no demuestra si la medicación se tomó o no. ':'')+(includeVisits?'La asistencia figura según lo indicado en cada cita. Las recetas se identifican por nombre pero no se incorporan como archivos al informe.':'')+'</p><div class="toolbar"><button onclick="window.print()">Imprimir / Guardar como PDF</button></div><table><thead><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>'+(rows.join('')||'<tr><td colspan="5">No hay registros en estas fechas</td></tr>')+'</tbody></table><p>Informe generado el '+esc(new Date().toLocaleString('es-ES'))+'. Contenido orientativo procedente de los registros locales de Micro Health.</p></body></html>';
+const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe Farmacia '+esc(fmt(a))+' a '+esc(fmt(b))+'</title><style>body{font:14px -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#193f38;margin:24px}h1{color:#146759}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:8px;border-bottom:1px solid #dce7e3;text-align:left;vertical-align:top}th{background:#eaf5f1}tr{break-inside:avoid}.notice{background:#f3f8f6;padding:12px;border-radius:8px}.toolbar{margin:20px 0}button{padding:12px;background:#146e5e;color:white;border:0;border-radius:9px;cursor:pointer}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.back-app{background:#e9f4f0;color:#135a4e}@media print{.toolbar{display:none}body{margin:8mm}}@page{size:A4;margin:12mm}</style></head><body><h1>Micro Health · Informe de Farmacia</h1><p><strong>Período:</strong> '+esc(fmt(a))+' — '+esc(fmt(b))+'</p><p><strong>Contenido:</strong> '+esc(scopeLabel)+'</p><p class="notice">'+(includeMeds?'Tomas realizadas: '+count.taken+' · Omitidas: '+count.skipped+' · Programadas sin confirmar: '+count.planned:'')+(includeMeds&&includeVisits?' · ':'')+(includeVisits?'Visitas médicas: '+count.visits:'')+'</p><p>'+(includeMeds?'«Programada» significa que no existe confirmación guardada; no demuestra si la medicación se tomó o no. ':'')+(includeVisits?'La asistencia figura según lo indicado en cada cita. Las recetas se identifican por nombre pero no se incorporan como archivos al informe.':'')+'</p><div class="toolbar"><button onclick="window.print()">Imprimir / Guardar como PDF</button><button class="back-app" data-appurl="' + esc(location.href) + '" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}setTimeout(()=>{location.href=this.dataset.appurl},250)">← Volver a MicroHealth</button></div><table><thead><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>'+(rows.join('')||'<tr><td colspan="5">No hay registros en estas fechas</td></tr>')+'</tbody></table><p>Informe generado el '+esc(new Date().toLocaleString('es-ES'))+'. Contenido orientativo procedente de los registros locales de Micro Health.</p></body></html>';
 const w=window.open('','_blank');if(!w){msg.textContent='El navegador bloqueó la ventana del informe. Permite ventanas emergentes e inténtalo de nuevo.';return}w.document.open();w.document.write(html);w.document.close();w.focus()}
 function init(){if(!$('mh52-pharmacy-reports'))return;const today=key(new Date());$('mh52-month').value=today.slice(0,7);$('mh52-end').value=today;const start=new Date();start.setDate(start.getDate()-30);$('mh52-start').value=key(start);selected=today;$('mh52-month').addEventListener('change',draw);$('mh52-make-pdf').addEventListener('click',report);const details=$('mh52-pharmacy-reports').querySelector('details');details.addEventListener('toggle',()=>{if(details.open)draw()});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&details.open)draw()});window.addEventListener('focus',()=>{if(details.open)draw()});window.addEventListener('storage',()=>{if(details.open)draw()});draw()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
