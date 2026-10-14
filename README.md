@@ -31,3 +31,8 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Se retiran los accesos duplicados de Golf de Entrenamiento; las pantallas de captura, tarjetas y estadísticas se reutilizan.
 - El historial de Golf se consulta directamente desde su nueva sección.
 - Se mantienen todos los datos y claves de almacenamiento; no se migran registros.
+
+
+## v22.3.63
+- Golf: botones rediseñados en tarjetas más limpias y legibles.
+- Navegación inferior: barra compacta en una sola fila con desplazamiento horizontal, evitando que ocupe dos filas en móvil.
