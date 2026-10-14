@@ -20806,4 +20806,203 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
 <style id="mh67-golf-discard-style">
 .golf-round-exit .golf-discard-round{background:#fff1f1!important;color:#a32828!important;border:1px solid #efbebe!important;border-radius:12px!important;min-height:44px;font-weight:750}
 </style>
+
+<style id="mh68-golf-new-course-flow">
+#mh65-new-course{background:#f6fbf8;border:1px solid #cfe5db;padding:16px;border-radius:18px;margin:12px 0}
+#mh65-new-course .mh68-title{margin:0 0 8px;color:#114e41}
+#mh65-new-course .mh68-step{font-size:12px;font-weight:800;letter-spacing:.03em;color:#6a847b;text-transform:uppercase;margin:14px 0 6px}
+#mh65-new-course .mh68-choice{display:grid;gap:8px;margin:8px 0 4px}
+#mh65-new-course .mh68-choice label{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #d8e7e0;border-radius:14px;padding:12px;cursor:pointer}
+#mh65-new-course .mh68-choice input{margin-top:2px}
+#mh65-new-course .mh68-choice b{display:block;color:#114e41}
+#mh65-new-course .mh68-choice small{display:block;color:#5d746d;line-height:1.35}
+#mh65-new-course .mh68-panel{background:#fff;border:1px solid #dfece6;border-radius:14px;padding:12px;margin-top:8px}
+#mh65-new-course .mh68-panel[hidden]{display:none!important}
+#mh65-new-course .mh68-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+#mh65-new-course .mh68-actions button{flex:1 1 220px}
+#mh65-new-course .mh68-note{font-size:12.5px;line-height:1.45;color:#5d746d;margin-top:8px}
+#mh65-new-course .mh68-status{margin-top:10px}
+</style>
+<script>
+/* v22.3.68 · Crear campo nuevo: primero nombre, luego foto o manual. */
+(function(){
+  const box=document.getElementById('mh65-new-course');
+  const selector=document.getElementById('golfCourseSelect');
+  if(!box||!selector) return;
+
+  box.innerHTML=''
+    + '<h4 class="mh68-title">⛳ Añadir campo nuevo</h4>'
+    + '<p class="mh65-hint">Primero indica el nombre. Después elige si quieres crearlo leyendo una tarjeta o hacerlo manualmente.</p>'
+    + '<label for="mh68-name">Nombre del campo</label>'
+    + '<input id="mh68-name" maxlength="100" placeholder="Ej. Club de Golf ...">'
+    + '<div class="mh68-step">¿Tienes una foto de la tarjeta del campo?</div>'
+    + '<div class="mh68-choice">'
+    + '  <label><input type="radio" name="mh68-mode" value="photo"><span><b>Sí, tengo una foto</b><small>La app intentará leer los pares y el hándicap de cada hoyo.</small></span></label>'
+    + '  <label><input type="radio" name="mh68-mode" value="manual"><span><b>No, prefiero hacerlo manualmente</b><small>Se creará el campo vacío para completar los hoyos a mano.</small></span></label>'
+    + '</div>'
+    + '<div id="mh68-photo-panel" class="mh68-panel" hidden>'
+    + '  <div class="row"><div><label for="mh68-tee-photo">Barras de salida</label><input id="mh68-tee-photo" maxlength="35" placeholder="Ej. amarillas"></div><div><label for="mh68-holes-photo">Número de hoyos</label><select id="mh68-holes-photo"><option value="9">9 hoyos</option><option value="18" selected>18 hoyos</option><option value="27">27 hoyos</option></select></div></div>'
+    + '  <label for="mh68-photo">Foto de la tarjeta del campo</label><input id="mh68-photo" class="ios-photo-input" type="file" accept="image/*">'
+    + '  <div class="mh68-note">Si la lectura no reconoce todo, el campo se guardará igualmente y podrás revisar o completar los hoyos manualmente.</div>'
+    + '  <div class="mh68-actions"><button type="button" class="primary" id="mh68-create-photo">Crear campo leyendo la tarjeta</button></div>'
+    + '</div>'
+    + '<div id="mh68-manual-panel" class="mh68-panel" hidden>'
+    + '  <div class="row"><div><label for="mh68-tee-manual">Barras de salida</label><input id="mh68-tee-manual" maxlength="35" placeholder="Ej. amarillas"></div><div><label for="mh68-holes-manual">Número de hoyos</label><select id="mh68-holes-manual"><option value="9">9 hoyos</option><option value="18" selected>18 hoyos</option><option value="27">27 hoyos</option></select></div></div>'
+    + '  <div class="mh68-note">Después de crearlo se abrirá la configuración del campo para rellenar pares, hándicaps y metros manualmente.</div>'
+    + '  <div class="mh68-actions"><button type="button" class="secondary" id="mh68-create-manual">Crear campo manual</button></div>'
+    + '</div>'
+    + '<div id="mh68-status" class="sport-hint mh68-status" role="status"></div>';
+
+  const $=id=>document.getElementById(id);
+  const nameInput=$("mh68-name"), status=$("mh68-status"), photoPanel=$("mh68-photo-panel"), manualPanel=$("mh68-manual-panel");
+  const modeInputs=[...box.querySelectorAll('input[name="mh68-mode"]')];
+  const routeRow=document.getElementById('golfRoute1')?.closest('.row');
+  const startBtn=document.getElementById('golfStartButton');
+
+  function setStatus(msg){ if(status) status.textContent=msg||''; }
+  function selectedMode(){ return modeInputs.find(i=>i.checked)?.value||''; }
+  function updateModeUI(){
+    const mode=selectedMode();
+    photoPanel.hidden=mode!=='photo';
+    manualPanel.hidden=mode!=='manual';
+  }
+  function resetBox(){
+    if(nameInput) nameInput.value='';
+    modeInputs.forEach(i=>i.checked=false);
+    if($("mh68-tee-photo")) $("mh68-tee-photo").value='';
+    if($("mh68-tee-manual")) $("mh68-tee-manual").value='';
+    if($("mh68-holes-photo")) $("mh68-holes-photo").value='18';
+    if($("mh68-holes-manual")) $("mh68-holes-manual").value='18';
+    if($("mh68-photo")) $("mh68-photo").value='';
+    setStatus('');
+    updateModeUI();
+  }
+  function validateName(){
+    const name=(nameInput?.value||'').trim();
+    if(name.length<3){ setStatus('Escribe primero el nombre del campo (mínimo 3 caracteres).'); nameInput?.focus(); return null; }
+    return name;
+  }
+  function createBaseCourse(name,tee,holes){
+    const before=new Set(Object.keys(golfCourseMap()));
+    document.getElementById('golfNewCourseName').value=name;
+    document.getElementById('golfNewCourseTee').value=(tee||'').trim();
+    document.getElementById('golfNewCourseHoles').value=String(holes||18);
+    golfCreateCourse();
+    const afterKeys=Object.keys(golfCourseMap());
+    const created=afterKeys.find(id=>!before.has(id));
+    return created||null;
+  }
+  function assignRowsToCourse(courseId,rows){
+    const cfg=golfConfig();
+    const course=cfg.courses?.[courseId];
+    if(!course) return 0;
+    const routeKeys=Object.keys(course.routes||{});
+    let updated=0;
+    (Array.isArray(rows)?rows:[]).forEach(item=>{
+      const holeNum=Number(item?.hole);
+      if(!Number.isInteger(holeNum) || holeNum<1) return;
+      const routeIndex=Math.floor((holeNum-1)/9);
+      const holeIndex=(holeNum-1)%9;
+      const routeKey=routeKeys[routeIndex];
+      const route=course.routes?.[routeKey];
+      if(!route) return;
+      const mappings=[['par','par',3,6],['hcp','hcp',1,18],['meters','meters',1,1000]];
+      mappings.forEach(([field,target,lo,hi])=>{
+        const raw=item[field];
+        if(raw==null || raw==='') return;
+        const n=Number(raw);
+        if(!Number.isInteger(n) || n<lo || n>hi) return;
+        if(!Array.isArray(route[target])) route[target]=Array(9).fill(null);
+        route[target][holeIndex]=n;
+        updated++;
+      });
+    });
+    localStorage.setItem(KEY,JSON.stringify(db));
+    return updated;
+  }
+  async function analyzePhoto(file,name,tee){
+    const imageDataUrl=await foodPhotoToDataUrl(file);
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),50000);
+    try{
+      const response=await fetch(getAiBackendUrl()+'/analyze-golf-scorecard',{
+        method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({imageDataUrl,course:name,route:'Tarjeta completa',tee:tee||''}),signal:controller.signal
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok) throw new Error(data.error||'No se pudo leer la foto.');
+      return data.result||{};
+    } finally { clearTimeout(timer); }
+  }
+  function afterCreatedCourse(createdId,{fromPhoto=false,updated=0,confidence='',note=''}={}){
+    if(routeRow) routeRow.style.removeProperty('display');
+    startBtn?.removeAttribute('disabled');
+    selector.value=createdId;
+    golfCourseChanged();
+    box.hidden=true;
+    resetBox();
+    if(fromPhoto){
+      const extra=[];
+      if(confidence) extra.push(confidence);
+      if(note) extra.push(note);
+      setStatus('');
+      const createMsg=document.getElementById('golfCreateMessage');
+      if(createMsg) createMsg.textContent='✓ Campo creado y tarjeta leída. Se han rellenado '+updated+' valores. Revisa el campo en «Mis campos» si quieres corregir algo; si está bien, ya puedes iniciar la partida.'+(extra.length?' '+extra.join(' · '):'');
+    }else{
+      const createMsg=document.getElementById('golfCreateMessage');
+      if(createMsg) createMsg.textContent='✓ Campo creado. Complétalo manualmente en «Mis campos» antes de iniciar la partida.';
+      const config=document.getElementById('golfConfigDetails');
+      if(config) config.open=true;
+      requestAnimationFrame(()=>config?.scrollIntoView({behavior:'smooth',block:'start'}));
+    }
+  }
+
+  modeInputs.forEach(i=>i.addEventListener('change',updateModeUI));
+  selector.addEventListener('change',()=>{ if(selector.value==='__mh65_new__') resetBox(); });
+
+  $("mh68-create-manual").addEventListener('click',()=>{
+    const name=validateName(); if(!name) return;
+    const tee=$("mh68-tee-manual").value.trim()||'sin indicar';
+    const holes=Number($("mh68-holes-manual").value)||18;
+    setStatus('Creando campo…');
+    const createdId=createBaseCourse(name,tee,holes);
+    if(!createdId){ setStatus(document.getElementById('golfCreateMessage')?.textContent||'No se pudo crear el campo.'); return; }
+    afterCreatedCourse(createdId,{fromPhoto:false});
+  });
+
+  $("mh68-create-photo").addEventListener('click',async ()=>{
+    const name=validateName(); if(!name) return;
+    const tee=$("mh68-tee-photo").value.trim()||'sin indicar';
+    const holes=Number($("mh68-holes-photo").value)||18;
+    const file=$("mh68-photo").files?.[0];
+    if(!file){ setStatus('Añade una foto de la tarjeta del campo.'); $("mh68-photo").focus(); return; }
+    setStatus('Leyendo la tarjeta y creando el campo…');
+    let createdId=null;
+    try{
+      createdId=createBaseCourse(name,tee,holes);
+      if(!createdId){ setStatus(document.getElementById('golfCreateMessage')?.textContent||'No se pudo crear el campo.'); return; }
+      const result=await analyzePhoto(file,name,tee);
+      const updated=assignRowsToCourse(createdId,result.holes||[]);
+      golfPopulateSelectors(createdId);
+      golfRenderConfig(); golfRenderScorecard(); golfPersistDraft(); renderGolfEvolution();
+      afterCreatedCourse(createdId,{fromPhoto:true,updated,confidence:result.confidence||'',note:result.note||''});
+      const createMsg=document.getElementById('golfCreateMessage');
+      if(createMsg && !updated) createMsg.textContent='⚠️ El campo se ha creado, pero la foto no ha dado valores fiables. Revísalo y complétalo manualmente en «Mis campos».';
+    }catch(err){
+      console.error(err);
+      golfPopulateSelectors(createdId||golfCurrentCourseId()); golfRenderConfig(); golfRenderScorecard();
+      setStatus('No se pudo leer la tarjeta: '+((err&&err.name==='AbortError')?'tiempo de espera agotado':(err?.message||err))+'. El campo se ha guardado y puedes completarlo manualmente.');
+      const createMsg=document.getElementById('golfCreateMessage');
+      if(createMsg) createMsg.textContent='⚠️ Se ha creado el campo, pero no se pudo leer la foto. Completa los hoyos manualmente en «Mis campos».';
+      if(createdId){
+        if(routeRow) routeRow.style.removeProperty('display');
+        startBtn?.removeAttribute('disabled');
+        selector.value=createdId; golfCourseChanged();
+        const config=document.getElementById('golfConfigDetails'); if(config) config.open=true;
+      }
+    }
+  });
+})();
+</script>
+
 </body></html>
