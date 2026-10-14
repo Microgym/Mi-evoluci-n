@@ -47,3 +47,10 @@ Versión v22.3.58: PDF de Golf con columnas de putts y búnker; referencia orien
 - Golf: acceso directo sin volver a elegir deporte.
 - Selector de campo con opción Nuevo campo integrada y guardado utilizando la configuración existente.
 - Los nuevos recorridos requieren completar par e índice antes de jugar.
+
+
+## v22.3.66
+- Golf > Jugar: pantalla inicial simplificada a campo, recorridos e Iniciar partida.
+- Los ajustes generales de entrenamiento y la edición de campos no se muestran durante el inicio rápido.
+- Golf > Mis campos conserva los formularios de configuración y la lectura de tarjeta por foto.
+- No se modifican claves ni registros guardados.
