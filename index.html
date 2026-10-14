@@ -20729,4 +20729,62 @@ body.mh65-golf-launch #sportSpecificFields > #eSport {display:none!important}
 })();
 </script>
 
+
+<style id="mh66-golf-minimal-play">
+/* Simplificación visual exclusiva del acceso Golf > Jugar una partida.
+   No se borran controles ni datos: solo se ocultan los ajustes secundarios. */
+body.mh65-golf-launch:not(.mh66-golf-fields) #wizardStep3 #normalDurationField,
+body.mh65-golf-launch:not(.mh66-golf-fields) #sportSpecificFields > :not(#golfFields),
+body.mh65-golf-launch:not(.mh66-golf-fields) #manualExercisePicker,
+body.mh65-golf-launch:not(.mh66-golf-fields) #manualTrainingFields > :not(#sportSpecificFields),
+body.mh65-golf-launch:not(.mh66-golf-fields) #wizardBackButton,
+body.mh65-golf-launch:not(.mh66-golf-fields) #wizardNextButton,
+body.mh65-golf-launch:not(.mh66-golf-fields) #wizardSaveButton,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields > h3,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields > p.muted,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfScoreSummary,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfScoreTable,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfScoreNote,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfConfigDetails,
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfRoundSetup > .row:has(#golfRoundHandicap){
+  display:none!important;
+}
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfRoundSetup{
+  background:#fff;border:1px solid #d9e8e0;border-radius:18px;padding:16px;
+}
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfRoundSetup > label{
+  font-size:14px;font-weight:750;color:#144b44;
+}
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfRoundSetup .golf-round-start-actions{
+  margin-top:18px;
+}
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfStartButton{
+  width:100%;min-height:52px;font-weight:800;border-radius:14px;
+}
+/* Tras iniciar la vuelta mantener la tarjeta del hoyo, controles y guardado. */
+body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #golfRoundLive{
+  display:block!important;
+}
+</style>
+<script>
+/* v22.3.66: el acceso Mis campos sigue mostrando todas las opciones. */
+(function(){
+ const launch=window.golfLaunchFromHub;
+ if(typeof launch==='function'){
+   window.golfLaunchFromHub=function(fields){
+     document.body.classList.toggle('mh66-golf-fields',!!fields);
+     return launch.apply(this,arguments);
+   };
+ }
+ const close=window.closeTrainingEditor;
+ if(typeof close==='function'){
+   window.closeTrainingEditor=function(){
+     const result=close.apply(this,arguments);
+     document.body.classList.remove('mh66-golf-fields');
+     return result;
+   };
+ }
+})();
+</script>
+
 </body></html>
