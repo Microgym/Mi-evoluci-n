@@ -21263,15 +21263,23 @@ function mh72DeleteGolfCourse(){
    {
     const del=el('button','mh73-delete','🗑️ Eliminar');del.type='button';del.onclick=()=>{
       const cfg=golfConfig();const found=id==='escorpion'?golfCourseMap().escorpion:cfg.courses?.[id];if(!found){list();return;}
-      if(golfPlaying){alert('Hay una partida en curso. Finalízala o elimínala antes de borrar el campo.');return;}
-      if(db.golfDraft?.courseId===id){alert('Tienes un borrador en este campo. Elimínalo desde Jugar antes de borrar el campo.');return;}
-      if(!confirm('¿Eliminar el campo «'+found.name+'» con todos sus recorridos y barras? Las partidas ya guardadas se conservarán. Esta acción no se puede deshacer.'))return;
+      if(golfPlaying){alert('Hay una partida abierta. Sal de la pantalla de juego antes de borrar el campo.');return;}
+      const hasDraft=db.golfDraft?.courseId===id;
+      const warning=hasDraft
+       ? 'Este campo tiene una partida sin terminar.\n\n¿Eliminar «'+found.name+'» Y SU BORRADOR (golpes, putts y búnker sin guardar)?\n\nLas partidas ya finalizadas se conservarán. Esta acción no se puede deshacer.'
+       : '¿Eliminar el campo «'+found.name+'» con todos sus recorridos y barras? Las partidas ya guardadas se conservarán. Esta acción no se puede deshacer.';
+      if(!confirm(warning))return;
+      const previousDraft=db.golfDraft;
+      const previouslyDeleted=!!cfg.escorpionDeleted;
+      if(hasDraft)delete db.golfDraft;
       if(id==='escorpion')cfg.escorpionDeleted=true;
       else delete cfg.courses[id];
       try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){
-        if(id==='escorpion')cfg.escorpionDeleted=false;else cfg.courses[id]=found;
-        alert('No se pudo guardar la eliminación.');return;
+        if(id==='escorpion')cfg.escorpionDeleted=previouslyDeleted;else cfg.courses[id]=found;
+        if(hasDraft)db.golfDraft=previousDraft;
+        alert('No se pudo guardar la eliminación. No se ha borrado el campo ni el borrador.');return;
       }
+      if(hasDraft){golfInitialized=false;golfScores={};golfExtras={};golfHoleCursor=0;golfAllowPartialFinish=false;golfEditHoleSnapshot=null;}
       golfPopulateSelectors(Object.keys(golfCourseMap())[0]||'');
       if(Object.keys(golfCourseMap()).length){golfRenderConfig();golfRenderScorecard();}
       else {

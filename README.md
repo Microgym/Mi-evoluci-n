@@ -97,3 +97,7 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Se puede eliminar también Club de Golf Escorpión desde Mis campos.
 - Se admite dejar la lista sin campos; Escorpión no reaparece al recargar.
 - Se mantienen las tarjetas de partidas guardadas y se confirma antes de borrar.
+
+
+## v22.3.75
+- Eliminar campo con borrador: confirmación conjunta que permite borrar tanto el campo como su partida inacabada, sin tocar las partidas históricas.
