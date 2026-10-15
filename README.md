@@ -244,3 +244,6 @@ v22.3.100: Coloca Buscar con IA directamente en el panel visible de creación de
 
 
 v22.3.101: corrige búsqueda con IA: nombre del campo directamente junto al botón. No altera datos locales.
+
+
+v22.3.102: Guardar explícitamente un campo nuevo a partir de la búsqueda IA, con recorridos en bloques de 9 y salidas con par/hcp/metros separados. Evita duplicados; no modifica campos existentes.
