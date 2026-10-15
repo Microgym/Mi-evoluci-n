@@ -21097,7 +21097,7 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
  const priorRating=window.golfSaveRatings;
  window.golfSaveRatings=function(){const r=priorRating.apply(this,arguments);const c=variants();if(c?.teeVariants?.[normalize(c.tee)]){c.teeVariants[normalize(c.tee)]=getSnapshot(c);localStorage.setItem(KEY,JSON.stringify(db));}return r};
  async function recognize(file,name,tee,range){
-  const imageDataUrl=await foodPhotoToDataUrl(file),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),50000);
+  const imageDataUrl=await window.mh84CardCrop(file,range),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),50000);
   try{
    const res=await fetch(getAiBackendUrl()+'/analyze-golf-scorecard',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl,course:name,tee,route:range==='first'?'Hoyos 1 a 9 de tarjeta completa':'Hoyos 10 a 18 de tarjeta completa',holeRange:range==='first'?'1-9':'10-18',readFullCard:true}),signal:controller.signal});
    const data=await res.json().catch(()=>({}));if(!res.ok)throw Error(data.error||'No se pudo interpretar la tarjeta');return data.result||{};
@@ -21106,7 +21106,7 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
  function normalizedRows(result,range){
   const rows=Array.isArray(result?.holes)?result.holes:[];
   // Do not blindly convert 1–9 to 10–18: the AI could be rereading the front nine.
-  return rows.filter(x=>{const n=Number(x.hole);return Number.isInteger(n)&&n>=(range==='first'?1:10)&&n<=(range==='first'?9:18)});
+  return rows.map(x=>{const n=Number(x.hole);return range==='second'&&Number.isInteger(n)&&n>=1&&n<=9?{...x,hole:n+9}:x;}).filter(x=>{const n=Number(x.hole);return Number.isInteger(n)&&n>=(range==='first'?1:10)&&n<=(range==='first'?9:18)});
  }
  function apply(c,tee,rows,ratings){
   const variant=c.teeVariants[tee]||(c.teeVariants[tee]={routes:deep(c.routes),whsRatings:{}});
@@ -21686,6 +21686,7 @@ function mh72DeleteGolfCourse(){
   };
   editor.scrollIntoView({behavior:'smooth',block:'start'});
  }
+ window.mh84OpenGolfCardEditor=openEditor;
  // Intercept original confusing route-to-training and no-op print.
  detail.addEventListener('click',e=>{
   const btn=e.target.closest('button');if(!btn)return;
@@ -21699,5 +21700,43 @@ function mh72DeleteGolfCourse(){
  const original=window.mh78ShowCourse;
  if(typeof original==='function')window.mh78ShowCourse=function(id){detail.dataset.mh83Id=id;detail.classList.remove('mh83-editing');document.getElementById('mh83-editor')?.remove();return original.apply(this,arguments)};
 })();
+</script>
+
+<script>
+/* v22.3.84. La imagen panorámica se divide visualmente por bloques 1-9 y 10-18,
+   manteniendo los títulos de las filas en la segunda mitad. */
+window.mh84CardCrop=async function(file,range){
+ const imageDataUrl=await foodPhotoToDataUrl(file);
+ const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(Error('No se pudo abrir la fotografía'));im.src=imageDataUrl});
+ const w=image.naturalWidth,h=image.naturalHeight;
+ if(w<600||w/h<1.25)return imageDataUrl;
+ const canvas=document.createElement('canvas');
+ const labelWidth=Math.round(w*0.18), halfStart=Math.round(w*0.18), halfWidth=(w-halfStart)/2;
+ const begin=range==='second'?halfStart+halfWidth:halfStart;
+ // We keep a small overlap so the header of the hole at the split is visible.
+ const overlap=Math.round(w*0.015);
+ const rightBegin=Math.max(0,Math.round(begin-overlap)), rightWidth=Math.min(w-rightBegin,Math.round(halfWidth+overlap*2));
+ canvas.width=labelWidth+rightWidth;canvas.height=h;
+ const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,h);
+ ctx.drawImage(image,0,0,labelWidth,h,0,0,labelWidth,h);
+ ctx.drawImage(image,rightBegin,0,rightWidth,h,labelWidth,0,rightWidth,h);
+ return canvas.toDataURL('image/jpeg',.90);
+};
+/* Open the 18-hole editor from the course detail; never fall through to workout editor. */
+document.addEventListener('click',function(e){
+ const button=e.target.closest?.('#mh78-edit-card');if(!button)return;
+ const detail=document.getElementById('mh78-detail');if(!detail||!detail.contains(button))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ let id=detail.dataset.mh83Id;
+ if(!id||!golfCourseMap()[id]){
+  const chosen=document.getElementById('golfCourseSelect')?.value;
+  if(chosen&&golfCourseMap()[chosen])id=chosen;
+ }
+ if(!id||!golfCourseMap()[id]){alert('No se encuentra el campo seleccionado. Vuelve a Mis campos y ábrelo otra vez.');return;}
+ const tee=detail.querySelector('#mh78-tee')?.value||golfCourseMap()[id]?.tee||'Sin indicar';
+ if(typeof window.mh84OpenGolfCardEditor==='function'){
+  try{detail.hidden=false;window.mh84OpenGolfCardEditor(id,tee)}catch(err){console.error(err);alert('No se pudo abrir el editor: '+err.message)}
+ }else alert('No se ha cargado el editor. Vuelve a entrar en Golf.');
+},true);
 </script>
 </body></html>
