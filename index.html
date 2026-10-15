@@ -18565,7 +18565,7 @@ function restorePreSyncBackup(){
 const AI_BACKEND_KEY='mi-evolucion-ai-backend-v2';
 const AI_BACKEND_DEFAULT='https://mi-evolucion-foof-ai.miguel-ferrer.workers.dev';
 
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>r.update()).catch(()=>{});render();toggleTrainingFields();previewCalories();
+/* v22.3.109: no registrar ni forzar actualización de sw.js ausente */render();toggleTrainingFields();previewCalories();
 
 document.addEventListener('DOMContentLoaded',()=>{
  enableGlobalDateTyping();
@@ -19474,42 +19474,8 @@ setTimeout(()=>{
 </div>
 
 <script>
-/* v22.2.62 — actualización robusta de la PWA instalada */
-(function(){
-  if(!('serviceWorker' in navigator)) return;
-
-  let refreshing=false;
-
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(refreshing)return;
-    refreshing=true;
-    location.reload();
-  });
-
-  window.addEventListener('load', async ()=>{
-    try{
-      const reg=await navigator.serviceWorker.getRegistration();
-      if(reg){
-        await reg.update();
-        if(reg.waiting){
-          reg.waiting.postMessage({type:'SKIP_WAITING'});
-        }
-      }
-    }catch(e){}
-  });
-
-  document.addEventListener('visibilitychange', async ()=>{
-    if(document.visibilityState!=='visible')return;
-    try{
-      const reg=await navigator.serviceWorker.getRegistration();
-      if(reg){
-        await reg.update();
-        if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
-      }
-    }catch(e){}
-  });
-})();
-
+/* v22.3.109: se deshabilitan comprobaciones SW y recargas automáticas de versiones.
+   NO borrar caches, NO desregistrar controladores, NO modificar datos locales. */
 </script>
 
 <div class="volume-overlay" id="volumeOverlay" hidden role="presentation" onclick="if(event.target===this)closeVolumeSummary()"><section class="volume-dialog" role="dialog" aria-modal="true" aria-label="Resumen de kilos movidos"><div id="volumeSummaryContent"></div></section></div>
@@ -22200,7 +22166,7 @@ window.mh84CardCrop=async function(file,range){
    if(unreliableCourse){importButton.disabled=true;importButton.title='Primero hay que verificar los recorridos de 9 hoyos';}
    importButton.textContent='⛳ Guardar campo, recorridos y barras revisados';
    const importNote=document.createElement('p');importNote.className='mh99-muted';
-   importNote.textContent='Solo se guardan los datos encontrados. Los huecos quedan pendientes. Nunca se sustituye un campo ya existente.';
+   importNote.textContent='Puedes guardar los recorridos físicos aunque no haya tarjetas verificables. En ese caso se crea una salida provisional «Pendiente de completar» sin pares, hándicaps ni distancias. No se sustituye ningún campo existente.';
    review.append(importButton,importNote);
    const runImport=(mergeExisting=false)=>{
     const fieldName=String(c.name||course).trim();
@@ -22226,7 +22192,11 @@ window.mh84CardCrop=async function(file,range){
       const entry=tees.get(key);entry.byRoute.set(i,t);
       if(t.courseRating!=null&&t.slope!=null)entry.ratings.push({index:i,cr:Number(t.courseRating),slope:Number(t.slope)});
     }));
-    if(!tees.size){status.textContent='No hay barras documentadas. No se ha guardado nada.';return;}
+    if(!tees.size){
+      if(mergeExisting){status.textContent='La búsqueda no contiene barras nuevas para añadir a un campo existente. No se ha modificado nada.';return;}
+      // Salida técnica provisional: conserva los recorridos, sin afirmar un color ni inventar cifras.
+      tees.set('__pending__',{color:'Pendiente de completar',byRoute:new Map(),ratings:[]});
+    }
     const variants={},counts=[];
     for(const {color,byRoute,ratings} of tees.values()){
       const built={},rating={};let complete=0;
@@ -22312,7 +22282,7 @@ window.mh84CardCrop=async function(file,range){
       try{golfPopulateSelectors(id);window.mh78ShowCourse?.(id);}catch(e){console.error(e)}
       return;
     }
-    const summary=fieldName+'\nRecorridos: '+blocks.map(b=>b.name).join(', ')+'\nBarras: '+counts.join('; ')+'.\nLos datos que faltan quedarán vacíos. ¿Guardar como un campo nuevo?';
+    const summary=fieldName+'\nRecorridos: '+blocks.map(b=>b.name).join(', ')+'\nBarras: '+counts.join('; ')+'.\nLos datos que faltan quedarán vacíos. Las salidas pendientes no son colores reales. ¿Guardar como un campo nuevo?';
     if(!confirm(summary))return;
     const cfg=golfConfig();
     if(Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){status.textContent='El campo ya existe. No se han modificado datos.';return;}
