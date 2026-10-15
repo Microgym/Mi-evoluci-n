@@ -114,3 +114,14 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Datos opcionales: dirección, provincia, país, greenfee y teléfono.
 - Tras crear, ofrece jugar ahora o volver a Mis campos.
 - Consulta automática de datos del club pendiente de integrar y verificar; no se inventan datos.
+
+
+## v22.3.78
+- Ficha sencilla de Mis campos: un campo con datos del club y tarjetas agrupadas por color de barras.
+- Los colores no se presentan como campos diferentes.
+- Edición opcional de datos del club; configuración avanzada de tarjeta desde un botón específico.
+
+
+## v22.3.79
+- Tarjeta del campo en dos tablas compactas tipo scorecard: ida (1–9) y vuelta (10–18).
+- Ver/guardar como PDF usando la impresión del navegador, sin enviar los datos a servicios externos.

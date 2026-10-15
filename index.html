@@ -21417,4 +21417,127 @@ function mh72DeleteGolfCourse(){
 })();
 </script>
 
+
+<style id="mh78-fields-style">
+#mh78-detail[hidden]{display:none!important}
+#mh78-detail{background:#fff;border:1px solid #d7e9df;border-radius:20px;padding:18px;margin:16px 0 24px;color:#22453d}
+#mh78-detail h3{margin:0 0 14px;color:#134d3f}
+#mh78-detail .mh78-sub{margin:14px 0 7px;font-weight:800;color:#185443}
+#mh78-detail .mh78-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#mh78-detail .mh78-cell{padding:10px;background:#f2f8f5;border-radius:11px;overflow-wrap:anywhere}
+#mh78-detail .mh78-cell small{display:block;color:#6b8077;font-size:12px}
+#mh78-detail .mh78-cell strong{display:block;font-size:14px}
+#mh78-detail .mh78-card{overflow-x:auto;border:1px solid #e0ebe4;border-radius:12px}
+#mh78-detail table{border-collapse:collapse;width:100%;min-width:340px;text-align:center;font-size:13px}
+#mh78-detail th,#mh78-detail td{padding:9px 6px;border-bottom:1px solid #e5eee9}
+#mh78-detail th{background:#eef7f2;color:#275c4b}
+#mh78-detail .mh78-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+#mh78-detail .mh78-actions button{flex:1;min-width:130px}
+#mh78-detail .mh78-hint{font-size:12px;color:#698176;line-height:1.45}
+@media(max-width:450px){#mh78-detail .mh78-info{grid-template-columns:1fr}}
+</style>
+<script>
+/* v22.3.78: un campo, varias barras y su tarjeta. Independiente de Entrenamientos. */
+(function(){
+ const hub=document.getElementById('golf'),list=document.getElementById('mh73-fields');
+ if(!hub||!list)return;
+ const detail=document.createElement('section');detail.id='mh78-detail';detail.hidden=true;
+ list.insertAdjacentElement('afterend',detail);
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let current=null,selected='';
+ function infoRow(k,v){return '<div class="mh78-cell"><small>'+esc(k)+'</small><strong>'+esc(v||'No indicado')+'</strong></div>';}
+ function variantsFor(c){
+   const variants={...(c.teeVariants||{})};
+   if(!Object.keys(variants).length)variants[c.tee||'Sin indicar']={routes:c.routes||{},whsRatings:c.whsRatings||{}};
+   else if(c.tee&&!variants[c.tee])variants[c.tee]={routes:c.routes||{},whsRatings:c.whsRatings||{}};
+   return variants;
+ }
+ function render(){
+  const c=golfCourseMap()[current];if(!c){detail.hidden=true;list.hidden=false;return;}
+  const names=Object.keys(variantsFor(c));if(!names.includes(selected))selected=names[0]||'';
+  const varr=variantsFor(c)[selected]||{},routes=Object.values(varr.routes||{}),info=c.clubInfo||{};
+  const holes=routes.flatMap((r,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:r.par?.[j],hcp:r.hcp?.[j],meters:r.meters?.[j]})));
+  const rating=Object.values(varr.whsRatings||{}).find(v=>v&&typeof v==='object'&&v.courseRating!=null)||{};
+  // Two nine-hole blocks reproduce the layout of a printed golf scorecard.
+  const makeNine=(part,offset)=>'<section class="mh79-nine"><div class="mh79-nine-title">'+(offset===0?'Ida · hoyos 1–9':'Vuelta · hoyos 10–18')+'</div><div class="mh79-table-wrap"><table class="mh79-table"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'
+    +[['Par','par'],['Hcp','hcp'],['Metros','meters']].map(([label,key])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[key]??'—')+'</td>').join('')+'<td class="mh79-total">'+(key==='hcp'?'—':(part.every(h=>Number.isFinite(Number(h[key]))&&h[key]!==null&&h[key]!==undefined)?part.reduce((a,h)=>a+Number(h[key]),0):'—'))+'</td></tr>').join('')+'</tbody></table></div></section>';
+  const all=holes.length?'<div class="mh79-scorecard">'+makeNine(holes.slice(0,9),0)+(holes.length>9?makeNine(holes.slice(9,18),9):'')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
+  detail.innerHTML='<h3>⛳ '+esc(c.name)+'</h3>'
+   +'<div class="mh78-sub">Datos del club</div><div class="mh78-info">'
+   +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
+   +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
+   +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
+   +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
+   +'<p class="mh78-hint">Cada color pertenece a este mismo campo. Las distancias y valoraciones pueden cambiar según las barras seleccionadas. Comprueba la tarjeta si se importó desde una fotografía.</p>'
+   +'<div class="mh78-actions"><button type="button" class="secondary" id="mh78-edit-info">Editar datos del club</button><button type="button" class="secondary" id="mh78-edit-card">Editar tarjeta y barras</button><button type="button" class="secondary" id="mh78-back">← Mis campos</button></div>'
+   +'<div id="mh78-edit-form" hidden></div>';
+  detail.querySelector('#mh79-print').onclick=()=>window.print();
+  detail.querySelector('#mh78-tee').onchange=e=>{selected=e.target.value;render()};
+  detail.querySelector('#mh78-back').onclick=()=>{detail.hidden=true;list.hidden=false;list.scrollIntoView({block:'start',behavior:'smooth'})};
+  detail.querySelector('#mh78-edit-info').onclick=()=>{
+   const form=detail.querySelector('#mh78-edit-form');form.hidden=false;
+   form.innerHTML='<div class="mh78-sub">Editar datos del club</div>'
+    +[['address','Dirección'],['province','Provincia'],['country','País'],['greenfee','Greenfee orientativo'],['phone','Teléfono']].map(([key,label])=>'<label>'+label+'<input data-mh78-key="'+key+'" value="'+esc(info[key]||'')+'"></label>').join('')
+    +'<button type="button" class="primary" id="mh78-save-info">Guardar datos del club</button>';
+   form.querySelector('#mh78-save-info').onclick=()=>{
+    const cfg=golfConfig(),target=current==='escorpion'?cfg:cfg.courses?.[current];if(!target)return;
+    const previous=JSON.stringify(target.clubInfo||{}),next={};
+    form.querySelectorAll('[data-mh78-key]').forEach(inp=>next[inp.dataset.mh78Key]=inp.value.trim());
+    target.clubInfo=next;
+    try{localStorage.setItem(KEY,JSON.stringify(db));render();}catch(e){target.clubInfo=JSON.parse(previous);alert('No se pudieron guardar los datos del club.');}
+   };
+   form.scrollIntoView({block:'nearest',behavior:'smooth'});
+  };
+  detail.querySelector('#mh78-edit-card').onclick=()=>{
+   // Only the advanced card editor uses the old workout modal; opening this is explicit.
+   const id=current,tee=selected;detail.hidden=true;
+   golfLaunchFromHub(true);
+   setTimeout(()=>{
+    golfPopulateSelectors(id);
+    const select=document.getElementById('mh70-play-tee');if(select&&select.querySelector('option[value="'+CSS.escape(tee)+'"]')){select.value=tee;select.dispatchEvent(new Event('change',{bubbles:true}));}
+    golfRenderConfig();
+    const d=document.getElementById('golfConfigDetails');if(d){d.open=true;d.scrollIntoView({block:'start',behavior:'smooth'});}
+   },260);
+  };
+ }
+ window.mh78ShowCourse=function(id){current=id;selected='';list.hidden=true;const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;render();detail.scrollIntoView({block:'start',behavior:'smooth'});};
+ // Capture Edit card before the old handler launches the workout modal.
+ list.addEventListener('click',e=>{
+   const button=e.target.closest('button');if(!button||!button.textContent.includes('Editar campo'))return;
+   const all=[...list.querySelectorAll('.mh73-course')],card=button.closest('.mh73-course'),index=all.indexOf(card);
+   const id=Object.keys(golfCourseMap())[index];if(!id)return;
+   e.preventDefault();e.stopImmediatePropagation();window.mh78ShowCourse(id);
+ },true);
+ const prevOpen=window.golfOpenFields;
+ window.golfOpenFields=function(){detail.hidden=true;return prevOpen.apply(this,arguments)};
+})();
+</script>
+
+<style id="mh79-scorecard-design">
+#mh78-detail .mh79-card{border:none;overflow:visible;background:#fff}
+#mh78-detail .mh79-scorecard{display:grid;gap:12px}
+#mh78-detail .mh79-nine{border:1px solid #d7e6e0;border-radius:12px;overflow:hidden;background:white}
+#mh78-detail .mh79-nine-title{padding:9px 12px;font-weight:800;background:#e9f4ee;color:#195947;font-size:13px}
+#mh78-detail .mh79-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#mh78-detail .mh79-table{width:100%;min-width:490px;table-layout:fixed;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+#mh78-detail .mh79-table th,#mh78-detail .mh79-table td{padding:10px 2px;text-align:center;border:1px solid #e5eee9;white-space:nowrap}
+#mh78-detail .mh79-table th:first-child{width:51px;text-align:left;padding-left:7px;background:#e9f4ee;font-weight:800;position:sticky;left:0;z-index:1}
+#mh78-detail .mh79-table th:last-child,#mh78-detail .mh79-table td:last-child{background:#eff6f2;font-weight:800}
+#mh78-detail .mh79-table thead th{background:#e9f4ee;color:#234f43;font-weight:800}
+#mh78-detail .mh79-print-row{display:flex;justify-content:flex-end;margin:11px 0}
+#mh78-detail .mh79-print-row button{min-height:42px}
+@media print{
+ @page{size:A4 portrait;margin:11mm}
+ body *{visibility:hidden!important}
+ #mh78-detail,#mh78-detail *{visibility:visible!important}
+ #mh78-detail{position:absolute!important;top:0!important;left:0!important;width:100%!important;box-sizing:border-box!important;border:0!important;margin:0!important;padding:0!important;display:block!important;box-shadow:none!important;font-size:11px!important}
+ #mh78-detail .mh78-actions,#mh78-detail .mh79-print-row,#mh78-detail #mh78-edit-form,#mh78-detail .mh78-hint,#mh78-detail label[for="mh78-tee"],#mh78-detail #mh78-tee{display:none!important}
+ #mh78-detail .mh79-nine{break-inside:avoid;page-break-inside:avoid}
+ #mh78-detail .mh79-table-wrap{overflow:visible!important}
+ #mh78-detail .mh79-table{min-width:0!important;font-size:9.5px!important}
+ #mh78-detail .mh79-table th,#mh78-detail .mh79-table td{padding:6px 2px!important}
+ #mh78-detail .mh78-info{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #mh78-detail .mh78-cell{padding:5px!important}
+}
+</style>
 </body></html>
