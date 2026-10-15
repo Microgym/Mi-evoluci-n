@@ -136,3 +136,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Reimportar una foto actualiza los mismos hoyos del campo y color en lugar de duplicarlos.
 - Se revisan par y hándicap persistidos para decidir qué hoyos faltan, incluso tras sucesivas lecturas.
 - Validación explícita de los hoyos 10–18 y limpieza del selector de imágenes.
+
+
+## v22.3.82
+- El importador muestra hoyos completos en lugar de contar valores individuales como hoyos.
+- Acceso Editar / Ver reforzado, sin abrir entrenamiento.
+- No se alteran datos anteriores.

@@ -21166,7 +21166,7 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
    const missing=Array.from({length:holes},(_,i)=>i+1).filter(i=>!validHole(i));
    const done=holes-missing.length;
    $('mh70-tee-review').textContent=`Campo «${name}» guardado · barras ${tee}. ${done} de ${holes} hoyos con par y hándicap completos. `+(missing.length?'Faltan o requieren revisión los hoyos: '+missing.join(', ')+'. ':'Todos los hoyos tienen par y hándicap. ')+'Si subes la misma foto otra vez, se actualizan estos mismos hoyos, no se duplica la tarjeta.';
-   status.textContent=count+' datos de hoyos importados. '+(errs.join(' · ')||'')+' Puedes subir otra foto para completar los hoyos pendientes o elegir otra barra del mismo campo.';
+   status.textContent=done+' de '+holes+' hoyos completos (par y hándicap). '+(missing.length?'Revisar: '+missing.join(', ')+'. ':'')+(errs.join(' · ')||'')+' Puedes repetir la fotografía para intentar completar los pendientes; los datos no se duplican.';
    const message=$('golfCreateMessage');if(message)message.textContent=$('mh70-tee-review').textContent;
   }finally{locked=false;submit.disabled=false;photo.value='';}
  },true);
@@ -21543,4 +21543,39 @@ function mh72DeleteGolfCourse(){
  #mh78-detail .mh78-cell{padding:5px!important}
 }
 </style>
+
+<style id="mh82-fix-style">
+#mh78-detail.mh82-force-visible{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}
+#mh78-detail.mh82-force-visible[hidden]{display:none!important}
+</style>
+<script>
+/* v22.3.82 - Un acceso determinista a la ficha, sin lanzar Entrenamientos. */
+(function(){
+ const golf=document.getElementById('golf');
+ if(!golf)return;
+ golf.addEventListener('click',function(ev){
+   const btn=ev.target.closest('button[data-golf-course-id]');
+   if(!btn || !golf.contains(btn))return;
+   ev.preventDefault();ev.stopImmediatePropagation();
+   const id=btn.dataset.golfCourseId;
+   const detail=document.getElementById('mh78-detail');
+   const list=document.getElementById('mh73-fields');
+   if(!detail || !list || typeof window.mh78ShowCourse!=='function'){
+     alert('No se ha podido abrir la ficha. Cierra y vuelve a entrar en Golf.');return;
+   }
+   try{
+     window.mh78ShowCourse(id);
+     detail.classList.add('mh82-force-visible');
+     detail.hidden=false;
+     list.hidden=true;
+     requestAnimationFrame(()=>detail.scrollIntoView({behavior:'smooth',block:'start'}));
+   }catch(error){
+     console.error('Error en Editar / Ver',error);
+     detail.hidden=false;
+     detail.innerHTML='<h3>Ficha del campo</h3><p>No se ha podido representar la tarjeta: '+String(error?.message||'error desconocido').replace(/[<>&]/g,'')+'</p><button type="button" class="secondary" onclick="golfOpenFields()">Volver a Mis campos</button>';
+   }
+ },true);
+})();
+</script>
+
 </body></html>
