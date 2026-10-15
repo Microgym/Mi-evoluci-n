@@ -238,3 +238,6 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 
 
 v22.3.99: Búsqueda de campos vía Cloudflare Worker /search-golf-course, vista previa de recorridos, salidas, hoyos y fuentes. Sin guardado automático. Permite copiar información básica al formulario.
+
+
+v22.3.100: Coloca Buscar con IA directamente en el panel visible de creación de campos, antes del formulario. Sin cambios de datos.
