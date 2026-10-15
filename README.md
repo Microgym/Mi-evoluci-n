@@ -148,3 +148,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - El botón Ver/guardar PDF produce un archivo PDF descargable de la ficha del campo.
 - Editar tarjeta y barras abre un editor independiente con 9/18/27 hoyos por filas compactas, sin golpes ni pantalla de entrenamientos.
 - Barras adicionales en el mismo campo.
+
+
+## v22.3.84
+- La lectura de tarjeta horizontal envía a la IA recortes separados de la ida (1–9) y la vuelta (10–18), preservando etiquetas de filas cuando es posible.
+- Una lectura 1–9 de la segunda mitad se asigna a los hoyos 10–18. Confirmar datos tras importar.
+- Editar tarjeta y barras abre con prioridad el editor propio de 18 hoyos, sin el antiguo formulario de entrenamientos.
