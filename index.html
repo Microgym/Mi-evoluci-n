@@ -15255,116 +15255,7 @@ function exportVolumeSummaryPDF(){
  `;
  const heading=source.querySelector('.volume-head h2')?.textContent||'Resumen de entrenamiento';
  printWindow.document.open();
- printWindow.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+volumeEscape(heading)+' · Micro Health</title><style>'+style+'</style></head><body><div class="pdf-banner"><strong>Micro Health</strong><small>Informe de entrenamiento</small></div>'+content.innerHTML+'<div class="pdf-actions" style="margin-top:20px;text-align:center"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:10px;background:#168879;color:white;font-weight:700;font-size:15px">Guardar o compartir como PDF</button><p style="font-size:12px;color:#586976">En iPhone, utiliza Compartir desde la vista de impresión para guardar o enviar el PDF.</p></div>
-<style id="mh104-style">
-#mh104-preferences{padding:12px;border-radius:13px;border:1px solid #dce9e0;background:#f7faf8;margin:12px 0}
-#mh104-preferences .mh104-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:9px 0}
-#mh104-preferences .mh104-row strong{flex:1;min-width:120px}
-#mh104-preferences button{min-height:36px}
-#mh104-photo{border:1px solid #cfdfd7;border-radius:12px;padding:12px;margin:12px 0;background:#f8fbf9}
-#mh104-photo input,#mh104-photo select{width:100%;box-sizing:border-box}
-#mh104-photo .mh104-actions{display:flex;gap:8px;flex-wrap:wrap}
-#mh104-photo .mh104-actions button{flex:1;min-width:160px}
-#mh104-diff{max-height:32vh;overflow-y:auto;white-space:pre-wrap;font-size:12px;line-height:1.5}
-#mh104-history{max-height:200px;overflow:auto;font-size:13px}
-</style>
-<script>
-/* v22.3.104 — Preferencias Golf + lectura/revisión/fotohistorial no destructivo. */
-(function(){
- const clone=x=>JSON.parse(JSON.stringify(x));
- const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const pref=()=>{const c=golfConfig();if(!c.golfPreferences||typeof c.golfPreferences!=='object')c.golfPreferences={favorites:[],defaultId:''};if(!Array.isArray(c.golfPreferences.favorites))c.golfPreferences.favorites=[];return c.golfPreferences};
- function persist(rollback){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){rollback?.();alert('No se pudieron guardar los cambios.');return false}}
- function courseTarget(id){const cfg=golfConfig();return id==='escorpion'?cfg:cfg.courses?.[id]}
- function teeVariants(t){const obj={...(t.teeVariants||{})};if(t.tee&&!obj[t.tee])obj[t.tee]={routes:t.routes||{},whsRatings:t.whsRatings||{}};return obj}
- // A stable preference panel atop the fields list, independent of its rerendering.
- const list=document.getElementById('mh73-fields');
- if(list){
-  const panel=document.createElement('div');panel.id='mh104-preferences';list.insertAdjacentElement('afterbegin',panel);
-  function paint(){
-   const c=golfCourseMap(),p=pref();const ids=Object.keys(c).sort((a,b)=>Number(p.favorites.includes(b))-Number(p.favorites.includes(a))||String(c[a].name||'').localeCompare(String(c[b].name||''),'es'));
-   panel.innerHTML='<b>⭐ Favoritos y campo predeterminado</b><p class="muted">Marca varios favoritos y elige un único campo por defecto para nuevas partidas.</p>'+ids.map(id=>'<div class="mh104-row"><button type="button" data-fav="'+esc(id)+'" class="secondary">'+(p.favorites.includes(id)?'★':'☆')+'</button><strong>'+esc(c[id].name)+'</strong><button type="button" class="secondary" data-default="'+esc(id)+'">'+(p.defaultId===id?'✓ Predeterminado':'Usar por defecto')+'</button></div>').join('');
-  }
-  panel.addEventListener('click',e=>{
-   const fav=e.target.closest('button[data-fav]'),def=e.target.closest('button[data-default]');if(!fav&&!def)return;
-   const p=pref(),old=clone(p),id=fav?.dataset.fav||def?.dataset.default;
-   if(fav){p.favorites=p.favorites.includes(id)?p.favorites.filter(x=>x!==id):[...p.favorites,id];if(!p.favorites.includes(id)&&p.defaultId===id)p.defaultId='';}
-   if(def){p.defaultId=id;if(!p.favorites.includes(id))p.favorites.push(id)}
-   if(persist(()=>Object.assign(p,old)))paint();
-  });
-  const watcher=new MutationObserver(()=>{if(!panel.isConnected){list.prepend(panel);paint()}});watcher.observe(list,{childList:true});
-  const oldOpen=window.golfOpenFields;window.golfOpenFields=function(){const r=oldOpen?.apply(this,arguments);paint();return r};
-  paint();
- }
- // New-round default: only apply when user opens a round; do not override manual selections while filling the scorecard.
- const oldLaunch=window.golfLaunchFromHub;
- if(typeof oldLaunch==='function')window.golfLaunchFromHub=function(){const r=oldLaunch.apply(this,arguments);const id=pref().defaultId,sel=document.getElementById('golfCourseSelect');if(id&&golfCourseMap()[id]&&sel&&sel.value!==id){sel.value=id;window.golfCourseChanged?.()}return r};
- // Separate photo review panel inside the independent scorecard editor.
- const overlay=document.getElementById('mh89-overlay');
- if(!overlay)return;
- let state=null;
- const historyKey='golfCardVersions';
- function history(){const c=golfConfig();if(!c[historyKey]||typeof c[historyKey]!=='object')c[historyKey]={};return c[historyKey]}
- function readHistory(id,tee){return history()[id]?.[tee]||[]}
- function archive(id,tee,t,source){const h=history();h[id]||={};h[id][tee]||=[];h[id][tee].push({time:new Date().toISOString(),source,variant:clone(teeVariants(t)[tee])});if(h[id][tee].length>12)h[id][tee].shift()}
- function addPanel(){
-  if(overlay.hidden||overlay.querySelector('#mh104-photo'))return;
-  const body=overlay.querySelector('.mh89-body'),select=overlay.querySelector('#mh89-tee');if(!body||!select)return;
-  const id=document.getElementById('mh78-detail')?.dataset.mh83Id||document.getElementById('golfCourseSelect')?.value;
-  const t=courseTarget(id);if(!t)return;
-  const tee=select.value;
-  const holder=document.createElement('section');holder.id='mh104-photo';
-  holder.innerHTML='<h3>📷 Actualizar tarjeta desde foto con IA</h3><p class="muted">Elige la barra y el tramo de nueve hoyos al que corresponde la fotografía. Primero verás los cambios; nunca se guarda directamente.</p><label>Tramo del recorrido<select id="mh104-route"></select></label><label>Foto JPG o PNG<input type="file" id="mh104-file" accept="image/jpeg,image/png,image/webp"></label><div class="mh104-actions"><button type="button" id="mh104-analyze" class="secondary">Analizar fotografía</button><button type="button" id="mh104-apply" class="primary" disabled>Confirmar cambios de la foto</button></div><p id="mh104-status" role="status"></p><div id="mh104-diff"></div><h4>Histórico de esta salida</h4><div id="mh104-history"></div>';
-  const actions=body.querySelector('.mh89-actions');if(actions)actions.before(holder);else body.append(holder);
-  const routes=Object.entries(teeVariants(t)[tee]?.routes||{});const routeEl=holder.querySelector('#mh104-route');
-  routes.forEach(([key,r],i)=>routeEl.add(new Option((r.name||'Tramo '+(i+1))+' · 9 hoyos',key)));
-  const msg=holder.querySelector('#mh104-status'),diff=holder.querySelector('#mh104-diff'),commit=holder.querySelector('#mh104-apply');
-  function versions(){const all=readHistory(id,tee);holder.querySelector('#mh104-history').innerHTML=all.length?all.map((v,i)=>'<div><small>'+esc(new Date(v.time).toLocaleString('es-ES'))+' · '+esc(v.source)+'</small> <button type="button" class="secondary" data-restore="'+i+'">Restaurar</button></div>').reverse().join(''):'<p class="muted">Todavía no hay versiones anteriores.</p>'}
-  versions();
-  holder.querySelector('#mh104-history').onclick=e=>{const b=e.target.closest('[data-restore]');if(!b)return;const snapshot=readHistory(id,tee)[Number(b.dataset.restore)];if(!snapshot)return;
-   if(!confirm('¿Restaurar esta tarjeta anterior? Primero se archivará la versión actual.'))return;
-   const old=clone(t),oldHistory=clone(history()),variants=teeVariants(t);archive(id,tee,t,'antes de restaurar');t.teeVariants||=variants;t.teeVariants[tee]=clone(snapshot.variant);
-   if(t.tee===tee){t.routes=clone(snapshot.variant.routes);t.whsRatings=clone(snapshot.variant.whsRatings||{})}
-   if(persist(()=>{Object.keys(t).forEach(k=>delete t[k]);Object.assign(t,old);golfConfig()[historyKey]=oldHistory})){window.mh90OpenGolfCardEditor?.(id,tee)}
-  };
-  holder.querySelector('#mh104-analyze').onclick=async()=>{
-   const file=holder.querySelector('#mh104-file').files?.[0],route=routeEl.value;
-   if(!file||!route){msg.textContent='Selecciona la foto y un tramo del recorrido.';return}
-   if(file.size>8*1024*1024){msg.textContent='La imagen supera 8 MB. Comprímela antes de subirla.';return}
-   const btn=holder.querySelector('#mh104-analyze');btn.disabled=true;commit.disabled=true;state=null;msg.textContent='Leyendo tarjeta con IA…';diff.textContent='';
-   try{
-    const image=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onerror=()=>reject(Error('No se pudo leer la imagen.'));fr.onload=()=>resolve(fr.result);fr.readAsDataURL(file)});
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),55000);
-    let response;try{response=await fetch(getAiBackendUrl()+'/analyze-golf-scorecard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl:image,course:golfCourseMap()[id]?.name||'',route:teeVariants(t)[tee]?.routes?.[route]?.name||route,tee}),signal:controller.signal})}finally{clearTimeout(timer)}
-    const json=await response.json().catch(()=>({}));if(!response.ok||!json.ok)throw Error(json.error||'No se pudo leer la fotografía.');
-    const holes=Array.isArray(json.result?.holes)?json.result.holes:[],old=teeVariants(t)[tee]?.routes?.[route],changes=[];
-    for(const h of holes){const ix=Number(h.hole)-1;if(!Number.isInteger(ix)||ix<0||ix>8)continue;for(const field of ['par','hcp','meters']){const value=h[field];if(value===null||value===undefined||value==='')continue;const n=Number(value),min=field==='par'?3:field==='hcp'?1:1,max=field==='par'?6:field==='hcp'?18:1000;if(!Number.isInteger(n)||n<min||n>max)continue;const prev=old?.[field]?.[ix]??null;if(prev!==n)changes.push({index:ix,field,previous:prev,value:n})}}
-    if(!changes.length){msg.textContent='No se encontraron cambios verificables. No se ha modificado nada.';return}
-    state={id,tee,route,changes};msg.textContent='Lectura '+(json.result.confidence||'sin confianza indicada')+'. Revisa las '+changes.length+' diferencias antes de confirmar.';
-    diff.textContent=changes.map(x=>'Hoyo '+(x.index+1)+' · '+x.field+': '+(x.previous??'—')+' → '+x.value).join('\n');commit.disabled=false;
-   }catch(e){msg.textContent='Error: '+(e?.message||String(e))+'. No se han modificado datos.'}finally{btn.disabled=false}
-  };
-  commit.onclick=()=>{
-   if(!state||state.id!==id||state.tee!==tee||state.route!==routeEl.value)return;
-   if(!confirm('¿Aplicar los '+state.changes.length+' cambios revisados de la fotografía? Se conservará la tarjeta anterior.'))return;
-   const old=clone(t),oldHistory=clone(history());archive(id,tee,t,'antes de actualización por foto');t.teeVariants||=teeVariants(t);
-   const variant=t.teeVariants[tee];if(!variant?.routes?.[state.route]){msg.textContent='El recorrido ya no existe.';return}
-   state.changes.forEach(x=>{const route=variant.routes[state.route];if(!Array.isArray(route[x.field]))route[x.field]=Array(9).fill(null);route[x.field][x.index]=x.value});
-   if(t.tee===tee){t.routes=clone(variant.routes);t.whsRatings=clone(variant.whsRatings||{})}
-   if(persist(()=>{Object.keys(t).forEach(k=>delete t[k]);Object.assign(t,old);golfConfig()[historyKey]=oldHistory})){state=null;window.mh90OpenGolfCardEditor?.(id,tee)}
-  };
- }
- // Editor reconstructs inner HTML every time a tee changes; observe only the direct overlay.
- const obs=new MutationObserver(()=>{if(!overlay.hidden&&!overlay.querySelector('#mh104-photo'))addPanel()});obs.observe(overlay,{childList:true});
- // Capture snapshot when manual editor save is clicked; commit snapshot only when actual save succeeds.
- overlay.addEventListener('click',e=>{if(e.target?.id!=='mh89-save')return;const id=document.getElementById('mh78-detail')?.dataset.mh83Id,tee=overlay.querySelector('#mh89-tee')?.value,t=courseTarget(id);if(!id||!tee||!t)return;
-  const previous=clone(t),oldHistory=clone(history());archive(id,tee,t,'antes de edición manual');
-  // Persist only after the legacy save operation has returned; roll back history on its failure.
-  setTimeout(()=>{try{const changed=JSON.stringify(teeVariants(t)[tee])!==JSON.stringify(teeVariants(previous)[tee]);if(!changed){golfConfig()[historyKey]=oldHistory;return}localStorage.setItem(KEY,JSON.stringify(db))}catch(e){golfConfig()[historyKey]=oldHistory}},0)
- },true);
-})();
-</script>
-</body></html>');
+ printWindow.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+volumeEscape(heading)+' · Micro Health</title><style>'+style+'</style></head><body><div class="pdf-banner"><strong>Micro Health</strong><small>Informe de entrenamiento</small></div>'+content.innerHTML+'<div class="pdf-actions" style="margin-top:20px;text-align:center"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:10px;background:#168879;color:white;font-weight:700;font-size:15px">Guardar o compartir como PDF</button><p style="font-size:12px;color:#586976">En iPhone, utiliza Compartir desde la vista de impresión para guardar o enviar el PDF.</p></div></body></html>');
  printWindow.document.close();
  printWindow.focus();
 }
@@ -22426,6 +22317,114 @@ window.mh84CardCrop=async function(file,range){
   }catch(err){status.textContent=err?.name==='AbortError'?'La búsqueda agotó el tiempo de espera. Prueba de nuevo.':'No se pudo buscar: '+String(err?.message||'Error inesperado');}
   finally{clearTimeout(timer);button.disabled=false;button.textContent='✨ Buscar información con IA';}
  });
+})();
+</script>
+<style id="mh104-style">
+#mh104-preferences{padding:12px;border-radius:13px;border:1px solid #dce9e0;background:#f7faf8;margin:12px 0}
+#mh104-preferences .mh104-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:9px 0}
+#mh104-preferences .mh104-row strong{flex:1;min-width:120px}
+#mh104-preferences button{min-height:36px}
+#mh104-photo{border:1px solid #cfdfd7;border-radius:12px;padding:12px;margin:12px 0;background:#f8fbf9}
+#mh104-photo input,#mh104-photo select{width:100%;box-sizing:border-box}
+#mh104-photo .mh104-actions{display:flex;gap:8px;flex-wrap:wrap}
+#mh104-photo .mh104-actions button{flex:1;min-width:160px}
+#mh104-diff{max-height:32vh;overflow-y:auto;white-space:pre-wrap;font-size:12px;line-height:1.5}
+#mh104-history{max-height:200px;overflow:auto;font-size:13px}
+</style>
+<script>
+/* v22.3.104 — Preferencias Golf + lectura/revisión/fotohistorial no destructivo. */
+(function(){
+ const clone=x=>JSON.parse(JSON.stringify(x));
+ const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const pref=()=>{const c=golfConfig();if(!c.golfPreferences||typeof c.golfPreferences!=='object')c.golfPreferences={favorites:[],defaultId:''};if(!Array.isArray(c.golfPreferences.favorites))c.golfPreferences.favorites=[];return c.golfPreferences};
+ function persist(rollback){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){rollback?.();alert('No se pudieron guardar los cambios.');return false}}
+ function courseTarget(id){const cfg=golfConfig();return id==='escorpion'?cfg:cfg.courses?.[id]}
+ function teeVariants(t){const obj={...(t.teeVariants||{})};if(t.tee&&!obj[t.tee])obj[t.tee]={routes:t.routes||{},whsRatings:t.whsRatings||{}};return obj}
+ // A stable preference panel atop the fields list, independent of its rerendering.
+ const list=document.getElementById('mh73-fields');
+ if(list){
+  const panel=document.createElement('div');panel.id='mh104-preferences';list.insertAdjacentElement('afterbegin',panel);
+  function paint(){
+   const c=golfCourseMap(),p=pref();const ids=Object.keys(c).sort((a,b)=>Number(p.favorites.includes(b))-Number(p.favorites.includes(a))||String(c[a].name||'').localeCompare(String(c[b].name||''),'es'));
+   panel.innerHTML='<b>⭐ Favoritos y campo predeterminado</b><p class="muted">Marca varios favoritos y elige un único campo por defecto para nuevas partidas.</p>'+ids.map(id=>'<div class="mh104-row"><button type="button" data-fav="'+esc(id)+'" class="secondary">'+(p.favorites.includes(id)?'★':'☆')+'</button><strong>'+esc(c[id].name)+'</strong><button type="button" class="secondary" data-default="'+esc(id)+'">'+(p.defaultId===id?'✓ Predeterminado':'Usar por defecto')+'</button></div>').join('');
+  }
+  panel.addEventListener('click',e=>{
+   const fav=e.target.closest('button[data-fav]'),def=e.target.closest('button[data-default]');if(!fav&&!def)return;
+   const p=pref(),old=clone(p),id=fav?.dataset.fav||def?.dataset.default;
+   if(fav){p.favorites=p.favorites.includes(id)?p.favorites.filter(x=>x!==id):[...p.favorites,id];if(!p.favorites.includes(id)&&p.defaultId===id)p.defaultId='';}
+   if(def){p.defaultId=id;if(!p.favorites.includes(id))p.favorites.push(id)}
+   if(persist(()=>Object.assign(p,old)))paint();
+  });
+  const watcher=new MutationObserver(()=>{if(!panel.isConnected){list.prepend(panel);paint()}});watcher.observe(list,{childList:true});
+  const oldOpen=window.golfOpenFields;window.golfOpenFields=function(){const r=oldOpen?.apply(this,arguments);paint();return r};
+  paint();
+ }
+ // New-round default: only apply when user opens a round; do not override manual selections while filling the scorecard.
+ const oldLaunch=window.golfLaunchFromHub;
+ if(typeof oldLaunch==='function')window.golfLaunchFromHub=function(){const r=oldLaunch.apply(this,arguments);const id=pref().defaultId,sel=document.getElementById('golfCourseSelect');if(id&&golfCourseMap()[id]&&sel&&sel.value!==id){sel.value=id;window.golfCourseChanged?.()}return r};
+ // Separate photo review panel inside the independent scorecard editor.
+ const overlay=document.getElementById('mh89-overlay');
+ if(!overlay)return;
+ let state=null;
+ const historyKey='golfCardVersions';
+ function history(){const c=golfConfig();if(!c[historyKey]||typeof c[historyKey]!=='object')c[historyKey]={};return c[historyKey]}
+ function readHistory(id,tee){return history()[id]?.[tee]||[]}
+ function archive(id,tee,t,source){const h=history();h[id]||={};h[id][tee]||=[];h[id][tee].push({time:new Date().toISOString(),source,variant:clone(teeVariants(t)[tee])});if(h[id][tee].length>12)h[id][tee].shift()}
+ function addPanel(){
+  if(overlay.hidden||overlay.querySelector('#mh104-photo'))return;
+  const body=overlay.querySelector('.mh89-body'),select=overlay.querySelector('#mh89-tee');if(!body||!select)return;
+  const id=document.getElementById('mh78-detail')?.dataset.mh83Id||document.getElementById('golfCourseSelect')?.value;
+  const t=courseTarget(id);if(!t)return;
+  const tee=select.value;
+  const holder=document.createElement('section');holder.id='mh104-photo';
+  holder.innerHTML='<h3>📷 Actualizar tarjeta desde foto con IA</h3><p class="muted">Elige la barra y el tramo de nueve hoyos al que corresponde la fotografía. Primero verás los cambios; nunca se guarda directamente.</p><label>Tramo del recorrido<select id="mh104-route"></select></label><label>Foto JPG o PNG<input type="file" id="mh104-file" accept="image/jpeg,image/png,image/webp"></label><div class="mh104-actions"><button type="button" id="mh104-analyze" class="secondary">Analizar fotografía</button><button type="button" id="mh104-apply" class="primary" disabled>Confirmar cambios de la foto</button></div><p id="mh104-status" role="status"></p><div id="mh104-diff"></div><h4>Histórico de esta salida</h4><div id="mh104-history"></div>';
+  const actions=body.querySelector('.mh89-actions');if(actions)actions.before(holder);else body.append(holder);
+  const routes=Object.entries(teeVariants(t)[tee]?.routes||{});const routeEl=holder.querySelector('#mh104-route');
+  routes.forEach(([key,r],i)=>routeEl.add(new Option((r.name||'Tramo '+(i+1))+' · 9 hoyos',key)));
+  const msg=holder.querySelector('#mh104-status'),diff=holder.querySelector('#mh104-diff'),commit=holder.querySelector('#mh104-apply');
+  function versions(){const all=readHistory(id,tee);holder.querySelector('#mh104-history').innerHTML=all.length?all.map((v,i)=>'<div><small>'+esc(new Date(v.time).toLocaleString('es-ES'))+' · '+esc(v.source)+'</small> <button type="button" class="secondary" data-restore="'+i+'">Restaurar</button></div>').reverse().join(''):'<p class="muted">Todavía no hay versiones anteriores.</p>'}
+  versions();
+  holder.querySelector('#mh104-history').onclick=e=>{const b=e.target.closest('[data-restore]');if(!b)return;const snapshot=readHistory(id,tee)[Number(b.dataset.restore)];if(!snapshot)return;
+   if(!confirm('¿Restaurar esta tarjeta anterior? Primero se archivará la versión actual.'))return;
+   const old=clone(t),oldHistory=clone(history()),variants=teeVariants(t);archive(id,tee,t,'antes de restaurar');t.teeVariants||=variants;t.teeVariants[tee]=clone(snapshot.variant);
+   if(t.tee===tee){t.routes=clone(snapshot.variant.routes);t.whsRatings=clone(snapshot.variant.whsRatings||{})}
+   if(persist(()=>{Object.keys(t).forEach(k=>delete t[k]);Object.assign(t,old);golfConfig()[historyKey]=oldHistory})){window.mh90OpenGolfCardEditor?.(id,tee)}
+  };
+  holder.querySelector('#mh104-analyze').onclick=async()=>{
+   const file=holder.querySelector('#mh104-file').files?.[0],route=routeEl.value;
+   if(!file||!route){msg.textContent='Selecciona la foto y un tramo del recorrido.';return}
+   if(file.size>8*1024*1024){msg.textContent='La imagen supera 8 MB. Comprímela antes de subirla.';return}
+   const btn=holder.querySelector('#mh104-analyze');btn.disabled=true;commit.disabled=true;state=null;msg.textContent='Leyendo tarjeta con IA…';diff.textContent='';
+   try{
+    const image=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onerror=()=>reject(Error('No se pudo leer la imagen.'));fr.onload=()=>resolve(fr.result);fr.readAsDataURL(file)});
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),55000);
+    let response;try{response=await fetch(getAiBackendUrl()+'/analyze-golf-scorecard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl:image,course:golfCourseMap()[id]?.name||'',route:teeVariants(t)[tee]?.routes?.[route]?.name||route,tee}),signal:controller.signal})}finally{clearTimeout(timer)}
+    const json=await response.json().catch(()=>({}));if(!response.ok||!json.ok)throw Error(json.error||'No se pudo leer la fotografía.');
+    const holes=Array.isArray(json.result?.holes)?json.result.holes:[],old=teeVariants(t)[tee]?.routes?.[route],changes=[];
+    for(const h of holes){const ix=Number(h.hole)-1;if(!Number.isInteger(ix)||ix<0||ix>8)continue;for(const field of ['par','hcp','meters']){const value=h[field];if(value===null||value===undefined||value==='')continue;const n=Number(value),min=field==='par'?3:field==='hcp'?1:1,max=field==='par'?6:field==='hcp'?18:1000;if(!Number.isInteger(n)||n<min||n>max)continue;const prev=old?.[field]?.[ix]??null;if(prev!==n)changes.push({index:ix,field,previous:prev,value:n})}}
+    if(!changes.length){msg.textContent='No se encontraron cambios verificables. No se ha modificado nada.';return}
+    state={id,tee,route,changes};msg.textContent='Lectura '+(json.result.confidence||'sin confianza indicada')+'. Revisa las '+changes.length+' diferencias antes de confirmar.';
+    diff.textContent=changes.map(x=>'Hoyo '+(x.index+1)+' · '+x.field+': '+(x.previous??'—')+' → '+x.value).join('\n');commit.disabled=false;
+   }catch(e){msg.textContent='Error: '+(e?.message||String(e))+'. No se han modificado datos.'}finally{btn.disabled=false}
+  };
+  commit.onclick=()=>{
+   if(!state||state.id!==id||state.tee!==tee||state.route!==routeEl.value)return;
+   if(!confirm('¿Aplicar los '+state.changes.length+' cambios revisados de la fotografía? Se conservará la tarjeta anterior.'))return;
+   const old=clone(t),oldHistory=clone(history());archive(id,tee,t,'antes de actualización por foto');t.teeVariants||=teeVariants(t);
+   const variant=t.teeVariants[tee];if(!variant?.routes?.[state.route]){msg.textContent='El recorrido ya no existe.';return}
+   state.changes.forEach(x=>{const route=variant.routes[state.route];if(!Array.isArray(route[x.field]))route[x.field]=Array(9).fill(null);route[x.field][x.index]=x.value});
+   if(t.tee===tee){t.routes=clone(variant.routes);t.whsRatings=clone(variant.whsRatings||{})}
+   if(persist(()=>{Object.keys(t).forEach(k=>delete t[k]);Object.assign(t,old);golfConfig()[historyKey]=oldHistory})){state=null;window.mh90OpenGolfCardEditor?.(id,tee)}
+  };
+ }
+ // Editor reconstructs inner HTML every time a tee changes; observe only the direct overlay.
+ const obs=new MutationObserver(()=>{if(!overlay.hidden&&!overlay.querySelector('#mh104-photo'))addPanel()});obs.observe(overlay,{childList:true});
+ // Capture snapshot when manual editor save is clicked; commit snapshot only when actual save succeeds.
+ overlay.addEventListener('click',e=>{if(e.target?.id!=='mh89-save')return;const id=document.getElementById('mh78-detail')?.dataset.mh83Id,tee=overlay.querySelector('#mh89-tee')?.value,t=courseTarget(id);if(!id||!tee||!t)return;
+  const previous=clone(t),oldHistory=clone(history());archive(id,tee,t,'antes de edición manual');
+  // Persist only after the legacy save operation has returned; roll back history on its failure.
+  setTimeout(()=>{try{const changed=JSON.stringify(teeVariants(t)[tee])!==JSON.stringify(teeVariants(previous)[tee]);if(!changed){golfConfig()[historyKey]=oldHistory;return}localStorage.setItem(KEY,JSON.stringify(db))}catch(e){golfConfig()[historyKey]=oldHistory}},0)
+ },true);
 })();
 </script>
 </body></html>
