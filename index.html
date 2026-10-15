@@ -20462,8 +20462,14 @@ function nextAppointment(){return loadAppointments().filter(x=>x.date>=today()).
 function node(tag,txt,cl){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cl)n.className=cl;return n}
 function renderDose(id){
  const box=el(id);if(!box)return;
- box.replaceChildren();box.append(node('h3','💊 Próxima toma pendiente'));
  const d=nextDose();
+ // En «Mi día» solo se muestra una toma cuya fecha sea hoy.
+ // Farmacia mantiene la vista de futuras tomas tal como estaba.
+ if(id==='mh47-day-dose'){
+  box.hidden=!d||d.date!==today();
+  if(box.hidden){box.replaceChildren();return;}
+ }else box.hidden=false;
+ box.replaceChildren();box.append(node('h3','💊 Próxima toma pendiente'));
  if(!d){box.append(node('p','No hay tomas pendientes programadas.'));return}
  const when=d.date===today()?'Hoy':d.date===dateKey(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()+1))?'Mañana':fmt(d.date);
  box.append(node('strong',safe(d.m.name)+' · '+safe(d.m.dose)),node('p',when+' a las '+d.time));

@@ -228,3 +228,10 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.97
 - Mi día: se retira la cabecera grande con el título y la frase descriptiva, conservando la función de detalles.
 - Ejercicios diarios completados: etiqueta visible ✅ HECHO y Desmarcar secundario; sin alterar el registro diario.
+
+
+## v22.3.98
+- Mi día solo muestra la próxima toma pendiente cuando corresponde a la fecha actual.
+- Tras marcar Hecho u Omitir se actualiza y se oculta si no quedan tomas de hoy.
+- Farmacia sigue mostrando las próximas tomas futuras.
+- Sin cambios en los registros ni en el almacenamiento.
