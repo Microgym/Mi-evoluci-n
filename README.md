@@ -250,3 +250,6 @@ v22.3.102: Guardar explícitamente un campo nuevo a partir de la búsqueda IA, c
 
 
 v22.3.103: Permite fusionar barras del resultado de IA con un campo existente, solo si coinciden nombres de los recorridos, sin sobrescribir valores ya guardados.
+
+
+v22.3.104: favoritos, campo por defecto, foto con revisión y restauración de tarjeta, historial de ediciones, caché de búsquedas exitosas.
