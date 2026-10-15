@@ -264,3 +264,10 @@ v22.3.106: búsqueda Golf; 100 s de espera, conservación de resultado previo an
 
 
 v22.3.107: comprobación de campos de 27 hoyos en búsqueda IA. Escorpión se importa únicamente si se reconocen Masía, Lagos y Nuevos (9 hoyos cada uno); no confunde las combinaciones de 18 hoyos con recorridos físicos. Se bloquean resultados duplicados antes del guardado. No se migra ni escribe ningún dato al cargar.
+
+
+v22.3.108: permite crear un campo nuevo con recorridos verificados pero sin barras de salida documentadas. Se usa «Pendiente de completar» como salida provisional, dejando par/HCP/metros en null. No modifica campos existentes ni las partidas.
+
+
+## v22.3.109 — Arranque estable
+Se ha desactivado el registro del sw.js ausente y el mecanismo de update/reload automático. No se borra ninguna caché ni dato del usuario. Esta corrección no garantiza resolver cachés controladas por un Service Worker previamente instalado.
