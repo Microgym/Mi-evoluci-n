@@ -3755,7 +3755,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 </section>
 <section id="miDia" class="active" aria-label="Mi día">
 <div id="mh41-dashboard" aria-label="Inicio simplificado">
- <div class="mh41-head"><div><small>MICRO HEALTH · TU DÍA</small><h2>☀️ Mi día</h2><p>Tu peso, objetivos, hábitos y evolución de hoy.</p></div><button type="button" id="mh42-detail-toggle" onclick="mh42ToggleFullPanel()">Ver detalles ↓</button></div>
+ <div class="mh41-head mh97-compact-head"><button type="button" id="mh42-detail-toggle" onclick="mh42ToggleFullPanel()">Ver detalles ↓</button></div>
  <div id="mh41-summary" class="mh41-summary" aria-live="polite">
   <button type="button" class="mh41-stat" onclick="goSection('peso')"><span>⚖️ Peso</span><strong id="mh41-weight">—</strong><small>Ver registros</small></button>
   <button type="button" class="mh41-stat" onclick="goSection('comidas')"><span>🔥 Calorías</span><strong id="mh41-calories">—</strong><small>Consumidas hoy</small></button>
@@ -21945,7 +21945,7 @@ window.mh84CardCrop=async function(file,range){
   function fillSuggestions(){const host=document.getElementById('mh91-suggestions');if(!host)return;const names=[...new Set((db.entreno||[]).map(r=>r.ej).filter(Boolean))].slice(-80);host.innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');}
   function renderManage(){const host=document.getElementById('mh91-manage-list');if(!host)return;host.innerHTML=items().length?items().map(x=>'<div class="mh91-item"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' × '+x.reps+' · '+esc(x.daypart||'mañana')+' · '+esc(x.start||'')+(x.end?' → '+esc(x.end):' · sin fecha de fin')+'</small><small>'+esc(muscle(x.name))+'</small><div class="mh91-controls"><button type="button" class="secondary" data-remove="'+esc(x.id)+'">Eliminar</button></div></div>').join(''):'<p class="muted">Aún no has configurado ejercicios diarios.</p>';host.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('¿Eliminar este ejercicio diario y sus recordatorios futuros? El historial realizado se conservará.'))return;db.dailyExercises=items().filter(x=>x.id!==b.dataset.remove);store();refresh();}));fillSuggestions();}
   function renderDay(){const host=document.getElementById('mh91-day-list'),stats=document.getElementById('mh91-day-stats');if(!host)return;const d=date(),configured=items().filter(x=>active(x,d)),dayLogs=logs()[d]||{};
-   host.innerHTML=configured.length?configured.map(x=>{const l=dayLogs[x.id],done=!!l;return '<div class="mh91-item '+(done?'mh91-done':'')+'"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' series × '+x.reps+' repeticiones · '+esc(muscle(x.name))+'</small><div class="mh91-controls">'+(done?'<button type="button" class="secondary" data-undo="'+esc(x.id)+'">Desmarcar</button><small>Hecho: '+l.reps+' rep. · '+(l.volume==null?'volumen no estimado':l.volume+' kg estimados')+'</small>':'<button type="button" class="primary" data-done="'+esc(x.id)+'">✓ Hecho</button><label>Reps. reales <input aria-label="Repeticiones reales" type="number" min="1" max="4000" value="'+(x.sets*x.reps)+'" data-actual="'+esc(x.id)+'"></label><button type="button" class="secondary" data-save="'+esc(x.id)+'">Registrar reales</button>')+'</div></div>'}).join(''):'<p class="muted">No tienes ejercicios diarios programados para este día. Puedes añadirlos desde Entrenar.</p>';
+   host.innerHTML=configured.length?configured.map(x=>{const l=dayLogs[x.id],done=!!l;return '<div class="mh91-item '+(done?'mh91-done':'')+'"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' series × '+x.reps+' repeticiones · '+esc(muscle(x.name))+'</small><div class="mh91-controls">'+(done?'<span class="mh97-done-label">✅ HECHO</span><small class="mh97-done-summary">'+l.reps+' rep. · '+(l.volume==null?'volumen no estimado':l.volume+' kg estimados')+'</small><button type="button" class="secondary mh97-undo" data-undo="'+esc(x.id)+'">Desmarcar</button>':'<button type="button" class="primary" data-done="'+esc(x.id)+'">✓ Hecho</button><label>Reps. reales <input aria-label="Repeticiones reales" type="number" min="1" max="4000" value="'+(x.sets*x.reps)+'" data-actual="'+esc(x.id)+'"></label><button type="button" class="secondary" data-save="'+esc(x.id)+'">Registrar reales</button>')+'</div></div>'}).join(''):'<p class="muted">No tienes ejercicios diarios programados para este día. Puedes añadirlos desde Entrenar.</p>';
    host.querySelectorAll('[data-done],[data-save],[data-undo]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.done||b.dataset.save||b.dataset.undo,x=items().find(y=>y.id===id);if(!x)return;const day=logs()[d]||{};if(b.dataset.undo){delete day[id];}else{const total=b.dataset.done?x.sets*x.reps:Number(host.querySelector('[data-actual="'+id+'"]')?.value);if(!Number.isInteger(total)||total<1||total>4000){alert('Indica cuántas repeticiones has hecho realmente.');return;}day[id]={reps:total,volume:volume(x,total),muscles:muscle(x.name),at:new Date().toISOString()};}logs()[d]=day;if(store())refresh();}));
    if(stats){const count=configured.filter(x=>dayLogs[x.id]).length;const kg=configured.reduce((n,x)=>n+(Number(dayLogs[x.id]?.volume)||0),0);stats.textContent=count+' de '+configured.length+' completados · '+(kg?kg.toLocaleString('es-ES')+' kg estimados movilizados · ':'')+'no cuentan como entrenamiento completo';}
   }
@@ -22089,4 +22089,13 @@ window.mh84CardCrop=async function(file,range){
  draw();renderEditButtons();
 })();
 </script>
+
+<style id="mh97-tidy-day">
+#miDia #mh41-dashboard .mh97-compact-head{padding:0!important;margin:0!important;min-height:0;justify-content:flex-end}
+#miDia #mh41-dashboard .mh97-compact-head:has(#mh42-detail-toggle[hidden]){display:none!important}
+#miDia #mh41-dashboard{margin-top:0}
+#mh91-day .mh97-done-label{display:inline-flex;align-items:center;font-size:16px;font-weight:900;letter-spacing:.025em;color:#137353}
+#mh91-day .mh97-done-summary{font-size:14px;flex-basis:100%;margin:0 0 3px;color:#496f61}
+#mh91-day .mh97-undo{font-size:12px;min-height:29px!important;padding:5px 10px!important;opacity:.8}
+</style>
 </body></html>

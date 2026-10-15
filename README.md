@@ -223,3 +223,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.96
 - Mi día: Mis ejercicios diarios se sitúa justo antes de Mi entrenamiento de hoy.
 - Sin cambios en almacenamiento, cálculo ni registro de ejercicios.
+
+
+## v22.3.97
+- Mi día: se retira la cabecera grande con el título y la frase descriptiva, conservando la función de detalles.
+- Ejercicios diarios completados: etiqueta visible ✅ HECHO y Desmarcar secundario; sin alterar el registro diario.
