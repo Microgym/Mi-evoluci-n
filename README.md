@@ -258,3 +258,6 @@ v22.3.104: favoritos, campo por defecto, foto con revisión y restauración de t
 ## v22.3.105 RECUPERACIÓN
 - Reparación de ubicación del bloque HTML/CSS/JS de v22.3.104 que interrumpía el JavaScript principal.
 - Sin cambios en formato de datos, claves de almacenamiento ni funciones de Golf; verificar en iPhone antes de usar la edición de tarjetas.
+
+
+v22.3.106: búsqueda Golf; 100 s de espera, conservación de resultado previo ante errores de red, tiempo y datos vacíos. No cambia almacenamiento de campos ni entrenamientos.

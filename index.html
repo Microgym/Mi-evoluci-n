@@ -22125,25 +22125,31 @@ window.mh84CardCrop=async function(file,range){
  const safeUrl=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
  const link=(u,label)=>{const valid=safeUrl(u);return valid?'<a href="'+esc(valid)+'" target="_blank" rel="noopener noreferrer">'+esc(label||valid)+'</a>':''};
  const val=(n)=>n===null||n===undefined||n===''?'—':esc(n);
+ const cacheKeyFor=(course,location)=>'mh104_golf_search_'+(course+'|'+location).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const getSaved=(course,location)=>{try{const saved=JSON.parse(localStorage.getItem(cacheKeyFor(course,location))||'null');return saved?.data?.ok&&Array.isArray(saved.data.result?.routes)&&saved.data.result.routes.length?saved:null}catch(e){return null}};
  let searchId=0;
  button.addEventListener('click',async()=>{
   const course=$('mh99-course').value.trim(),location=$('mh99-location').value.trim();
   if(course.length<3){status.textContent='Escribe el nombre del campo aquí (mínimo 3 caracteres).';$('mh99-course').focus();return}
-  button.disabled=true;button.textContent='Buscando información…';review.hidden=true;review.innerHTML='';status.textContent='Consultando fuentes públicas. Puede tardar unos segundos.';
-  const id=++searchId;let controller=new AbortController();let timer=setTimeout(()=>controller.abort(),65000);
+  button.disabled=true;button.textContent='Buscando información…';review.hidden=true;review.innerHTML='';status.textContent='Consultando fuentes públicas. Puede tardar hasta 100 segundos.';
+  const id=++searchId;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),100000);
+  const cached=getSaved(course,location);
+  let usedCache=false;
   try{
    const base=getAiBackendUrl();
-   const resp=await fetch(base+'/search-golf-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course,location}),signal:controller.signal,cache:'no-store'});
-   let data=await resp.json().catch(()=>({}));
-   const cacheKey='mh104_golf_search_'+(course+'|'+location).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-   if(!resp.ok||!data.ok||!Array.isArray(data?.result?.routes)||!data.result.routes.length){
-     let saved=null;try{saved=JSON.parse(localStorage.getItem(cacheKey)||'null')}catch(e){}
-     if(saved?.data?.ok&&Array.isArray(saved.data.result?.routes)&&saved.data.result.routes.length){data=saved.data;status.textContent='⚠️ La búsqueda no ha encontrado información nueva. Mostrando el último resultado guardado de '+new Date(saved.savedAt).toLocaleDateString('es-ES')+'. Comprueba las fuentes antes de actualizar.';}
+   let data,problem='';
+   try{
+    const resp=await fetch(base+'/search-golf-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course,location}),signal:controller.signal,cache:'no-store'});
+    data=await resp.json().catch(()=>({}));
+    if(!resp.ok||!data.ok){problem=String(data?.error||'El servicio devolvió HTTP '+resp.status);}
+    else if(!Array.isArray(data?.result?.routes)||!data.result.routes.length){problem='No se encontraron recorridos verificables en esta consulta.';}
+   }catch(e){problem=e?.name==='AbortError'?'La consulta ha agotado el tiempo de espera.':'Falló la conexión: '+String(e?.message||e);}
+   if(problem){
+    if(cached){data=cached.data;usedCache=true;status.textContent='⚠️ '+problem+' Mostrando la última búsqueda guardada ('+new Date(cached.savedAt).toLocaleDateString('es-ES')+'). Comprueba las fuentes antes de guardar.';}
+    else throw Error(problem+' No hay una búsqueda anterior guardada para este nombre y ubicación. Puedes reintentar.');
+   }else if(Array.isArray(data?.result?.routes)&&data.result.routes.length){
+    try{localStorage.setItem(cacheKeyFor(course,location),JSON.stringify({savedAt:new Date().toISOString(),data}));}catch(e){console.warn('Golf cache unavailable',e)}
    }
-
-   if(!data.ok)throw Error(data.error||'No se pudo realizar la búsqueda.'+(data.detail?' '+data.detail:''));
-   // Cache successful structured search only; never cache errors or empty results.
-   if(Array.isArray(data?.result?.routes)&&data.result.routes.length){try{localStorage.setItem('mh104_golf_search_'+(course+'|'+location).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),JSON.stringify({savedAt:new Date().toISOString(),data}));}catch(e){console.warn('Golf cache unavailable',e)}}
    if(id!==searchId)return;
    const result=data.result||{},c=result.course||{},routes=Array.isArray(result.routes)?result.routes:[];
    let html='<h4>🔎 Propuesta encontrada · confianza '+esc(result.confidence||'no indicada')+'</h4><p><b>Campo:</b> '+val(c.name)+'<br><b>Ubicación:</b> '+val(c.location)+'<br><b>Dirección:</b> '+val(c.address)+'<br><b>Teléfono:</b> '+val(c.phone)+'<br><b>Web:</b> '+(link(c.website,c.website)||'—')+'</p>';
@@ -22313,8 +22319,8 @@ window.mh84CardCrop=async function(file,range){
    const auto=choices.find(([id,field])=>String(field.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()===String(c.name||course).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase());
    if(auto)select.value=auto[0];
    review.append(mergeBox);mergeBox.querySelector('button').onclick=()=>runImport(true);
-   if(!status.textContent.includes('último resultado guardado'))status.textContent='✓ Búsqueda completada. Revisa las fuentes y los datos antes de crear el campo.';
-  }catch(err){status.textContent=err?.name==='AbortError'?'La búsqueda agotó el tiempo de espera. Prueba de nuevo.':'No se pudo buscar: '+String(err?.message||'Error inesperado');}
+   if(!usedCache)status.textContent='✓ Búsqueda completada. Revisa las fuentes y los datos antes de crear el campo.';
+  }catch(err){status.textContent='⚠️ No se pudo buscar: '+String(err?.message||'Error inesperado')+' Pulsa de nuevo para reintentar.';}
   finally{clearTimeout(timer);button.disabled=false;button.textContent='✨ Buscar información con IA';}
  });
 })();
