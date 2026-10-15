@@ -182,3 +182,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.89
 - Editor independiente para tarjetas y barras, sin navegación a Entrenamientos.
 - Edición por campo y por color con 18 hoyos y Hcp 9/18.
+
+
+## v22.3.90
+- Editar tarjeta y barras abre el panel desde la fase de captura del documento, antes de los controladores antiguos.
+- Editor en contenedor independiente en lugar de elemento section, evitando estilos generales de secciones ocultas.
+- Se conserva edición de 18 hoyos y las barras por campo.
