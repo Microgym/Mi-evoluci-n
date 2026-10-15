@@ -261,3 +261,6 @@ v22.3.104: favoritos, campo por defecto, foto con revisión y restauración de t
 
 
 v22.3.106: búsqueda Golf; 100 s de espera, conservación de resultado previo ante errores de red, tiempo y datos vacíos. No cambia almacenamiento de campos ni entrenamientos.
+
+
+v22.3.107: comprobación de campos de 27 hoyos en búsqueda IA. Escorpión se importa únicamente si se reconocen Masía, Lagos y Nuevos (9 hoyos cada uno); no confunde las combinaciones de 18 hoyos con recorridos físicos. Se bloquean resultados duplicados antes del guardado. No se migra ni escribe ningún dato al cargar.

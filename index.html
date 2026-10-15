@@ -22152,6 +22152,19 @@ window.mh84CardCrop=async function(file,range){
    }
    if(id!==searchId)return;
    const result=data.result||{},c=result.course||{},routes=Array.isArray(result.routes)?result.routes:[];
+   // v22.3.107: campos con 27 hoyos: un recorrido físico tiene 9 hoyos.
+   // El color de una combinación (18 hoyos) nunca es una barra de salida.
+   const normalizedRouteName=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+   const escorpionQuery=/\bescorpion\b/i.test([course,c.name].join(' '));
+   const expectedEscorpion=['masia','lagos','nuevos'];
+   const foundRouteNames=routes.map(r=>normalizedRouteName(r.name));
+   const isEscorpionComplete=expectedEscorpion.every(n=>foundRouteNames.includes(n)) && expectedEscorpion.every(n=>routes.some(r=>normalizedRouteName(r.name)===n && Number(r.holesCount)===9));
+   const hasDuplicatePhysical=foundRouteNames.length!==new Set(foundRouteNames).size;
+   const unsafe27=escorpionQuery&&!isEscorpionComplete;
+   const unreliableCourse=unsafe27||hasDuplicatePhysical;
+   if(unsafe27){status.textContent='⚠️ Escorpión debe tener tres recorridos físicos de 9 hoyos: Masía, Lagos y Nuevos. La búsqueda aún no los ha distinguido correctamente. No se permitirá importar esta propuesta.';}
+   else if(hasDuplicatePhysical){status.textContent='⚠️ La IA ha repetido nombres de recorridos. Revisa la propuesta: la importación está bloqueada para evitar duplicados.';}
+
    let html='<h4>🔎 Propuesta encontrada · confianza '+esc(result.confidence||'no indicada')+'</h4><p><b>Campo:</b> '+val(c.name)+'<br><b>Ubicación:</b> '+val(c.location)+'<br><b>Dirección:</b> '+val(c.address)+'<br><b>Teléfono:</b> '+val(c.phone)+'<br><b>Web:</b> '+(link(c.website,c.website)||'—')+'</p>';
    html+='<button type="button" class="secondary" id="mh99-use-info">Copiar nombre y dirección al formulario</button><p class="mh99-muted">Comprueba recorridos, barras y fuentes antes de guardar.</p>';
    html+='<h4>Recorridos y barras</h4>';
@@ -22172,6 +22185,7 @@ window.mh84CardCrop=async function(file,range){
    for(const key of ['missing','warnings']){const items=Array.isArray(result[key])?result[key]:[];if(items.length)html+='<h4>'+(key==='missing'?'Datos pendientes':'Avisos y dudas')+'</h4><ul>'+items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'}
    const sources=Array.isArray(data.sources)?data.sources:[];
    if(sources.length)html+='<h4>Fuentes consultadas</h4><ul>'+sources.slice(0,35).map(x=>'<li>'+link(x.url,x.title||x.url)+'</li>').join('')+'</ul>';
+   if(unreliableCourse)html='<p><strong>⚠️ Revisión obligatoria: los recorridos encontrados no son fiables. No se pueden guardar.</strong></p>'+html;
    review.innerHTML=html;review.hidden=false;
    $('mh99-use-info').addEventListener('click',()=>{
     if(name)name.value=String(c.name||course).slice(0,100);
@@ -22183,6 +22197,7 @@ window.mh84CardCrop=async function(file,range){
    // v22.3.102: importación EXPLÍCITA, únicamente a campo nuevo; nunca sobreescribe fichas existentes.
    const importButton=document.createElement('button');
    importButton.type='button';importButton.className='primary';importButton.id='mh102-save';
+   if(unreliableCourse){importButton.disabled=true;importButton.title='Primero hay que verificar los recorridos de 9 hoyos';}
    importButton.textContent='⛳ Guardar campo, recorridos y barras revisados';
    const importNote=document.createElement('p');importNote.className='mh99-muted';
    importNote.textContent='Solo se guardan los datos encontrados. Los huecos quedan pendientes. Nunca se sustituye un campo ya existente.';
@@ -22195,6 +22210,7 @@ window.mh84CardCrop=async function(file,range){
     if(!mergeExisting&&Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){
      status.textContent='El campo ya existe: usa «Añadir barras al campo existente». No se han cambiado datos.';return;
     }
+    if(unreliableCourse){status.textContent='Importación bloqueada: primero deben identificarse correctamente los recorridos físicos de 9 hoyos. No se ha modificado ningún dato.';return;}
     const blocks=[];
     routes.forEach((r,i)=>{
       const count=Number(r.holesCount)||Math.max(9,...(r.tees||[]).map(t=>Math.max(0,...(t.holes||[]).map(h=>Number(h.hole)||0))));
