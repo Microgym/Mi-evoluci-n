@@ -142,3 +142,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - El importador muestra hoyos completos en lugar de contar valores individuales como hoyos.
 - Acceso Editar / Ver reforzado, sin abrir entrenamiento.
 - No se alteran datos anteriores.
+
+
+## v22.3.83
+- El botón Ver/guardar PDF produce un archivo PDF descargable de la ficha del campo.
+- Editar tarjeta y barras abre un editor independiente con 9/18/27 hoyos por filas compactas, sin golpes ni pantalla de entrenamientos.
+- Barras adicionales en el mismo campo.
