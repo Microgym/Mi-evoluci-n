@@ -22112,7 +22112,7 @@ window.mh84CardCrop=async function(file,range){
 #mh99-review a{overflow-wrap:anywhere}#mh99-review .mh99-muted{font-size:12px;color:#526f62}#mh99-review h4{margin:12px 0 5px}
 </style>
 <script>
-/* MicroHealth v22.3.101: nombre propio en la búsqueda real de campos con IA y vista previa SIN persistencia de resultados. */
+/* MicroHealth v22.3.102: nombre propio en la búsqueda real de campos con IA y vista previa SIN persistencia de resultados. */
 (function(){
  const panel=document.getElementById('mh77-create-panel'), box=document.getElementById('mh65-new-course');
  if(!panel||!box)return;
@@ -22139,7 +22139,7 @@ window.mh84CardCrop=async function(file,range){
    if(id!==searchId)return;
    const result=data.result||{},c=result.course||{},routes=Array.isArray(result.routes)?result.routes:[];
    let html='<h4>🔎 Propuesta encontrada · confianza '+esc(result.confidence||'no indicada')+'</h4><p><b>Campo:</b> '+val(c.name)+'<br><b>Ubicación:</b> '+val(c.location)+'<br><b>Dirección:</b> '+val(c.address)+'<br><b>Teléfono:</b> '+val(c.phone)+'<br><b>Web:</b> '+(link(c.website,c.website)||'—')+'</p>';
-   html+='<button type="button" class="secondary" id="mh99-use-info">Copiar nombre y dirección al formulario</button><p class="mh99-muted">La copia solo rellena campos visibles; pulsa los botones normales de creación si deseas guardar un campo. No se importan tarjetas automáticamente.</p>';
+   html+='<button type="button" class="secondary" id="mh99-use-info">Copiar nombre y dirección al formulario</button><p class="mh99-muted">Comprueba recorridos, barras y fuentes antes de guardar.</p>';
    html+='<h4>Recorridos y barras</h4>';
    if(!routes.length)html+='<p>No se encontraron recorridos documentados. Puedes subir fotografías para completar los datos.</p>';
    routes.forEach((r,i)=>{
@@ -22166,6 +22166,73 @@ window.mh84CardCrop=async function(file,range){
     const phone=$('mh77-phone');if(phone&&c.phone)phone.value=String(c.phone).slice(0,70);
     status.textContent='✓ Datos básicos copiados al formulario. Revisa antes de crear el campo. Recorridos y barras no se han guardado.';
    });
+   // v22.3.102: importación EXPLÍCITA, únicamente a campo nuevo; nunca sobreescribe fichas existentes.
+   const importButton=document.createElement('button');
+   importButton.type='button';importButton.className='primary';importButton.id='mh102-save';
+   importButton.textContent='⛳ Guardar campo, recorridos y barras revisados';
+   const importNote=document.createElement('p');importNote.className='mh99-muted';
+   importNote.textContent='Solo se guardan los datos encontrados. Los huecos quedan pendientes. Nunca se sustituye un campo ya existente.';
+   review.append(importButton,importNote);
+   importButton.onclick=()=>{
+    const fieldName=String(c.name||course).trim();
+    if(fieldName.length<3){status.textContent='No hay nombre de campo válido.';return;}
+    if(!routes.length){status.textContent='La búsqueda no ha encontrado recorridos para guardar. Puedes usar el formulario manual.';return;}
+    const normalizeName=n=>String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es');
+    if(Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){
+     status.textContent='Este campo ya está guardado. Para proteger tus datos, no lo duplico ni modifico. Puedes editarlo desde Mis campos.';return;
+    }
+    const blocks=[];
+    routes.forEach((r,i)=>{
+      const count=Number(r.holesCount)||Math.max(9,...(r.tees||[]).map(t=>Math.max(0,...(t.holes||[]).map(h=>Number(h.hole)||0))));
+      const segments=count>9?2:1;
+      for(let part=0;part<segments;part++)blocks.push({routeIndex:i,part,key:'r'+i+'_'+part,name:String(r.name||'Recorrido '+(i+1)).slice(0,100)+(segments===2?(part===0?' · 1–9':' · 10–18'):'')});
+    });
+    if(blocks.length>12){status.textContent='Demasiados recorridos para importar. Revisa la búsqueda.';return;}
+    const tees=new Map();
+    routes.forEach((r,i)=>(Array.isArray(r.tees)?r.tees:[]).forEach(t=>{
+      let color=String(t.color||'').trim().slice(0,55);
+      if(!color||/^(?:no especificad|desconocid|sin indic)/i.test(color))color='Sin especificar';
+      const key=color.toLocaleLowerCase('es');if(!tees.has(key))tees.set(key,{color,byRoute:new Map(),ratings:[]});
+      const entry=tees.get(key);entry.byRoute.set(i,t);
+      if(t.courseRating!=null&&t.slope!=null)entry.ratings.push({index:i,cr:Number(t.courseRating),slope:Number(t.slope)});
+    }));
+    if(!tees.size){status.textContent='No hay barras documentadas. No se ha guardado nada.';return;}
+    const variants={},counts=[];
+    for(const {color,byRoute,ratings} of tees.values()){
+      const built={},rating={};let complete=0;
+      for(const b of blocks){
+       const source=byRoute.get(b.routeIndex),holeList=Array.isArray(source?.holes)?source.holes:[];
+       const rows=Array.from({length:9},(_,j)=>{
+         const target=b.part*9+j+1;
+         const raw=holeList.find(h=>Number(h.hole)===target)||(!b.part?holeList.find(h=>Number(h.hole)===j+1):null);
+         const num=(v,lo,hi)=>v==null||v===''||!Number.isInteger(Number(v))||Number(v)<lo||Number(v)>hi?null:Number(v);
+         return {par:num(raw?.par,3,6),hcp:num(raw?.hcp,1,18),meters:num(raw?.meters,1,1000)};
+       });
+       complete+=rows.filter(h=>h.par!==null&&h.hcp!==null&&h.meters!==null).length;
+       built[b.key]={name:b.name,par:rows.map(h=>h.par),hcp:rows.map(h=>h.hcp),meters:rows.map(h=>h.meters)};
+      }
+      for(const x of ratings){
+       if(x.cr>=25&&x.cr<=90&&x.slope>=55&&x.slope<=155){
+        const parts=blocks.filter(b=>b.routeIndex===x.index).map(b=>b.key);
+        // Rating solo para el recorrido completo de la fuente, no para un tramo ficticio.
+        if(parts.length)rating[parts.join('|')]={courseRating:x.cr,slopeRating:x.slope,tee:color};
+       }
+      }
+      variants[color]={routes:built,whsRatings:rating};counts.push(color+': '+complete+'/'+blocks.length*9+' hoyos completos');
+    }
+    const summary=fieldName+'\nRecorridos: '+blocks.map(b=>b.name).join(', ')+'\nBarras: '+counts.join('; ')+'.\nLos datos que faltan quedarán vacíos. ¿Guardar como un campo nuevo?';
+    if(!confirm(summary))return;
+    const cfg=golfConfig();
+    if(Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){status.textContent='El campo ya existe. No se han modificado datos.';return;}
+    const id='campo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),first=Object.keys(variants)[0];
+    const copy=x=>JSON.parse(JSON.stringify(x));
+    const info={address:String(c.address||'').slice(0,240),province:String(c.location||location||'').slice(0,120),country:'',greenfee:'',phone:String(c.phone||'').slice(0,70)};
+    cfg.courses[id]={name:fieldName,tee:first,routes:copy(variants[first].routes),whsRatings:copy(variants[first].whsRatings),teeVariants:variants,clubInfo:info};
+    try{localStorage.setItem(KEY,JSON.stringify(db));}catch(err){delete cfg.courses[id];status.textContent='No se pudo guardar. No se han cambiado otros campos.';return;}
+    status.textContent='✓ Campo guardado con '+blocks.length+' tramos de 9 hoyos y '+tees.size+' barras. Revisa lo pendiente en Mis campos.';
+    importButton.disabled=true;importButton.textContent='✓ Campo guardado';
+    try{golfPopulateSelectors(id);window.golfOpenFields?.();window.mh78ShowCourse?.(id);}catch(e){console.error(e)}
+   };
    status.textContent='✓ Búsqueda completada. Revisa las fuentes y los datos antes de crear el campo.';
   }catch(err){status.textContent=err?.name==='AbortError'?'La búsqueda agotó el tiempo de espera. Prueba de nuevo.':'No se pudo buscar: '+String(err?.message||'Error inesperado');}
   finally{clearTimeout(timer);button.disabled=false;button.textContent='✨ Buscar información con IA';}
