@@ -241,3 +241,6 @@ v22.3.99: Búsqueda de campos vía Cloudflare Worker /search-golf-course, vista 
 
 
 v22.3.100: Coloca Buscar con IA directamente en el panel visible de creación de campos, antes del formulario. Sin cambios de datos.
+
+
+v22.3.101: corrige búsqueda con IA: nombre del campo directamente junto al botón. No altera datos locales.

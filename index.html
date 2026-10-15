@@ -22112,12 +22112,12 @@ window.mh84CardCrop=async function(file,range){
 #mh99-review a{overflow-wrap:anywhere}#mh99-review .mh99-muted{font-size:12px;color:#526f62}#mh99-review h4{margin:12px 0 5px}
 </style>
 <script>
-/* MicroHealth v22.3.99: búsqueda real de campos con IA y vista previa SIN persistencia de resultados. */
+/* MicroHealth v22.3.101: nombre propio en la búsqueda real de campos con IA y vista previa SIN persistencia de resultados. */
 (function(){
  const panel=document.getElementById('mh77-create-panel'), box=document.getElementById('mh65-new-course');
  if(!panel||!box)return;
  const section=document.createElement('section');section.id='mh99-search';
- section.innerHTML='<h4>✨ Buscar información del campo con IA</h4><p class="mh99-muted">Escribe el nombre arriba. La IA buscará fuentes públicas y te mostrará una propuesta para revisar. No se guardará nada automáticamente.</p><label for="mh99-location">Localidad o provincia (opcional, para evitar campos homónimos)</label><input id="mh99-location" maxlength="120" placeholder="Ej. Valencia, España"><button type="button" class="secondary" id="mh99-button">✨ Buscar información con IA</button><p id="mh99-status" role="status" aria-live="polite"></p><div id="mh99-review" hidden></div>';
+ section.innerHTML='<h4>✨ Buscar información del campo con IA</h4><p class="mh99-muted">Escribe aquí el nombre del campo. La IA buscará fuentes públicas y te mostrará una propuesta para revisar. No se guardará nada automáticamente.</p><label for="mh99-course">Nombre del campo</label><input id="mh99-course" type="text" maxlength="120" placeholder="Ej. Club de Golf El Bosque"><label for="mh99-location">Localidad o provincia (opcional, para evitar campos homónimos)</label><input id="mh99-location" maxlength="120" placeholder="Ej. Valencia, España"><button type="button" class="secondary" id="mh99-button">✨ Buscar información con IA</button><p id="mh99-status" role="status" aria-live="polite"></p><div id="mh99-review" hidden></div>';
  const name=document.getElementById('mh68-name');
  panel.insertBefore(section,box); // v22.3.100: visible al abrir Crear campo nuevo, independiente del formulario de foto/manual
  const $=id=>document.getElementById(id),button=$('mh99-button'),status=$('mh99-status'),review=$('mh99-review');
@@ -22127,8 +22127,8 @@ window.mh84CardCrop=async function(file,range){
  const val=(n)=>n===null||n===undefined||n===''?'—':esc(n);
  let searchId=0;
  button.addEventListener('click',async()=>{
-  const course=name?.value.trim()||'',location=$('mh99-location').value.trim();
-  if(course.length<3){status.textContent='Escribe primero el nombre del campo (mínimo 3 caracteres).';name?.focus();return}
+  const course=$('mh99-course').value.trim(),location=$('mh99-location').value.trim();
+  if(course.length<3){status.textContent='Escribe el nombre del campo aquí (mínimo 3 caracteres).';$('mh99-course').focus();return}
   button.disabled=true;button.textContent='Buscando información…';review.hidden=true;review.innerHTML='';status.textContent='Consultando fuentes públicas. Puede tardar unos segundos.';
   const id=++searchId;let controller=new AbortController();let timer=setTimeout(()=>controller.abort(),65000);
   try{
@@ -22160,7 +22160,7 @@ window.mh84CardCrop=async function(file,range){
    if(sources.length)html+='<h4>Fuentes consultadas</h4><ul>'+sources.slice(0,35).map(x=>'<li>'+link(x.url,x.title||x.url)+'</li>').join('')+'</ul>';
    review.innerHTML=html;review.hidden=false;
    $('mh99-use-info').addEventListener('click',()=>{
-    if(c.name&&name)name.value=String(c.name).slice(0,100);
+    if(name)name.value=String(c.name||course).slice(0,100);
     const address=$('mh77-address');if(address&&c.address)address.value=String(c.address).slice(0,240);
     const province=$('mh77-province');if(province&&!province.value&&c.location)province.value=String(c.location).slice(0,120);
     const phone=$('mh77-phone');if(phone&&c.phone)phone.value=String(c.phone).slice(0,70);
