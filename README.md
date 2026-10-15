@@ -247,3 +247,6 @@ v22.3.101: corrige búsqueda con IA: nombre del campo directamente junto al bot�
 
 
 v22.3.102: Guardar explícitamente un campo nuevo a partir de la búsqueda IA, con recorridos en bloques de 9 y salidas con par/hcp/metros separados. Evita duplicados; no modifica campos existentes.
+
+
+v22.3.103: Permite fusionar barras del resultado de IA con un campo existente, solo si coinciden nombres de los recorridos, sin sobrescribir valores ya guardados.
