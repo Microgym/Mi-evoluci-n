@@ -21935,7 +21935,7 @@ window.mh84CardCrop=async function(file,range){
 (function(){
   function items(){if(!Array.isArray(db.dailyExercises))db.dailyExercises=[];return db.dailyExercises;}
   function logs(){if(!db.dailyExerciseLogs||typeof db.dailyExerciseLogs!=='object')db.dailyExerciseLogs={};return db.dailyExerciseLogs;}
-  function date(){return (typeof dayReviewISO==='function'&&document.getElementById('dayReviewDate'))?dayReviewISO():today();}
+  function date(){return today();} // Ejercicios diarios: siempre corresponden a la fecha real de hoy.
   function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
   function store(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){alert('No se pudieron guardar los ejercicios diarios.');return false;}}
   function active(x,d){return (!x.start||d>=x.start)&&(!x.end||d<=x.end);}
@@ -21965,6 +21965,31 @@ window.mh84CardCrop=async function(file,range){
   document.querySelectorAll('#mh23-tabs [data-mh23="miDia"]').forEach(b=>b.addEventListener('click',()=>setTimeout(refresh,0)));
   window.mh91Refresh=refresh;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
+})();
+</script>
+
+<style id="mh94-daily-visibility">
+#miDia #mh91-day{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;}
+#miDia #mh91-day .mh91-item{display:block!important;}
+</style>
+<script>
+/* v22.3.94. Solo presentación: no se modifica ni se reescribe el almacenamiento. */
+(function(){
+  function position(){
+    const panel=document.getElementById('mh91-day');
+    const anchor=document.getElementById('mh43-goals');
+    if(panel&&anchor&&anchor.parentNode===panel.parentNode&&anchor.nextElementSibling!==panel){
+      anchor.insertAdjacentElement('afterend',panel);
+    }
+  }
+  function update(){
+    try{position();if(typeof window.mh91Refresh==='function')window.mh91Refresh();}
+    catch(e){console.error('No se pudo actualizar Mis ejercicios diarios:',e);}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#mh23-tabs [data-mh23="miDia"]'))requestAnimationFrame(update);
+  });
 })();
 </script>
 </body></html>

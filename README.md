@@ -206,3 +206,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Solucionado error de sintaxis introducido en v22.3.92 al insertar una etiqueta style en un string JavaScript.
 - No modifica la clave de almacenamiento, los datos, ni inicia restablecimiento o restauración.
 - Antes de registrar nuevos datos, exportar una copia completa del estado recuperado.
+
+
+## v22.3.94
+- Corrige solo la fecha y actualización de Mis ejercicios diarios en Mi día.
+- Usa la fecha real de hoy en lugar de la selección de fecha de Resumen del día.
+- Mantiene los datos previos y funciones recuperadas en v22.3.93.
