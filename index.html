@@ -11212,9 +11212,18 @@ function golfCurrentCourseId(){return document.getElementById('golfCourseSelect'
 function golfCurrentCourse(){return golfCourseMap()[golfCurrentCourseId()]||Object.values(golfCourseMap())[0]||{name:'Sin campos',tee:'',routes:{},whsRatings:{}};}
 function golfRouteName(key,courseId='escorpion'){return golfCourseMap()[courseId]?.routes?.[key]?.name||GOLF_ROUTES[key]?.name||key;}
 function golfEsc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function golfDisplayCourseName(c){
+ const name=String(c?.name||'Campo sin nombre').trim();
+ const tee=String(c?.tee||'').trim();
+ // Legacy records sometimes included the tee in the course name.
+ const pattern=/\s*[-–·,]?\s+(azules|amarillas|blancas|rojas|negras|naranjas|verdes)\s*$/i;
+ const match=name.match(pattern);
+ if(match && (!tee || match[1].toLowerCase()===tee.toLowerCase()))return name.slice(0,match.index).trim()||name;
+ return name;
+}
 function golfPopulateSelectors(courseId,route1,route2){
  const courses=golfCourseMap(),courseSelect=document.getElementById('golfCourseSelect');if(!courseSelect)return;
- courseSelect.innerHTML=Object.entries(courses).map(([id,c])=>`<option value="${golfEsc(id)}">${golfEsc(c.name)} · ${golfEsc(c.tee||'barras sin indicar')}</option>`).join('');
+ courseSelect.innerHTML=Object.entries(courses).map(([id,c])=>`<option value="${golfEsc(id)}">${golfEsc(golfDisplayCourseName(c))}</option>`).join('');
  courseSelect.value=courses[courseId]?courseId:(Object.keys(courses)[0]||'');
  if(!Object.keys(courses).length){courseSelect.innerHTML='<option value="">No hay campos guardados</option>';}
  const routes=Object.entries(golfCurrentCourse().routes||{}),a=document.getElementById('golfRoute1'),b=document.getElementById('golfRoute2'),edit=document.getElementById('golfConfigRoute');
@@ -21072,9 +21081,9 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
  function populateTee(){
   const id=golfCurrentCourseId(),c=variants(),s=$('mh70-play-tee');if(!s)return;
   const teeOptions=c?.teeVariants||{};
-  teeWrap.hidden=!c||!Object.keys(teeOptions).length;
+  teeWrap.hidden=!c;
   s.replaceChildren();
-  if(c){for(const name of Object.keys(teeOptions))s.add(new Option(name,name));if(c.tee) s.value=normalize(c.tee);}
+  if(c){const names=Object.keys(teeOptions);if(c.tee&&!names.some(t=>normalize(t)===normalize(c.tee)))names.unshift(normalize(c.tee));for(const name of names)s.add(new Option(name,name));if(!names.length)s.add(new Option('Sin indicar','Sin indicar'));if(c.tee) s.value=normalize(c.tee);}
   activeId=id;
  }
  const prevPopulate=window.golfPopulateSelectors;
@@ -21492,16 +21501,16 @@ function mh72DeleteGolfCourse(){
    };
    form.scrollIntoView({block:'nearest',behavior:'smooth'});
   };
-  detail.querySelector('#mh78-edit-card').onclick=()=>{
-   // Only the advanced card editor uses the old workout modal; opening this is explicit.
-   const id=current,tee=selected;detail.hidden=true;
-   golfLaunchFromHub(true);
-   setTimeout(()=>{
-    golfPopulateSelectors(id);
-    const select=document.getElementById('mh70-play-tee');if(select&&select.querySelector('option[value="'+CSS.escape(tee)+'"]')){select.value=tee;select.dispatchEvent(new Event('change',{bubbles:true}));}
-    golfRenderConfig();
-    const d=document.getElementById('golfConfigDetails');if(d){d.open=true;d.scrollIntoView({block:'start',behavior:'smooth'});}
-   },260);
+  detail.querySelector('#mh78-edit-card').onclick=(event)=>{
+   event.preventDefault();event.stopPropagation();
+   const id=current,tee=selected;
+   if(!id||!golfCourseMap()[id]){alert('No se encuentra el campo seleccionado.');return;}
+   if(typeof window.mh84OpenGolfCardEditor!=='function'){alert('No está disponible el editor de tarjetas.');return;}
+   try{
+    detail.hidden=false;
+    detail.dataset.mh83Id=id;
+    window.mh84OpenGolfCardEditor(id,tee);
+   }catch(error){console.error('Error editando tarjeta:',error);alert('No se pudo abrir la tarjeta: '+error.message);}
   };
  }
  window.mh78ShowCourse=function(id){current=id;selected='';const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;list.hidden=true;try{render();detail.scrollIntoView({block:'start',behavior:'smooth'});}catch(err){console.error('Error al abrir ficha de Golf:',err);detail.hidden=false;detail.innerHTML='<h3>⛳ Ficha del campo</h3><p>No se ha podido mostrar la tarjeta. Puedes volver al listado e intentarlo de nuevo.</p><button type="button" class="secondary" onclick="golfOpenFields()">← Mis campos</button>';}};
@@ -21690,11 +21699,11 @@ function mh72DeleteGolfCourse(){
  // Intercept original confusing route-to-training and no-op print.
  detail.addEventListener('click',e=>{
   const btn=e.target.closest('button');if(!btn)return;
-  if(btn.id==='mh78-edit-card'||btn.id==='mh79-print'){
+  if(btn.id==='mh79-print'){
    e.preventDefault();e.stopImmediatePropagation();
    const id=detail.dataset.mh83Id,c=golfCourseMap()[id];if(!c){alert('No se encuentra el campo. Vuelve a Mis campos.');return}
    const tee=detail.querySelector('#mh78-tee')?.value||c.tee||'Sin indicar';
-   if(btn.id==='mh78-edit-card')openEditor(id,tee);else downloadPdf(c,tee);
+   downloadPdf(c,tee);
   }
  },true);
  const original=window.mh78ShowCourse;
@@ -21710,22 +21719,8 @@ function mh72DeleteGolfCourse(){
 window.mh84CardCrop=async function(file,range){
  return await foodPhotoToDataUrl(file);
 };
-/* Open the 18-hole editor from the course detail; never fall through to workout editor. */
-document.addEventListener('click',function(e){
- const button=e.target.closest?.('#mh78-edit-card');if(!button)return;
- const detail=document.getElementById('mh78-detail');if(!detail||!detail.contains(button))return;
- e.preventDefault();e.stopImmediatePropagation();
- let id=detail.dataset.mh83Id;
- if(!id||!golfCourseMap()[id]){
-  const chosen=document.getElementById('golfCourseSelect')?.value;
-  if(chosen&&golfCourseMap()[chosen])id=chosen;
- }
- if(!id||!golfCourseMap()[id]){alert('No se encuentra el campo seleccionado. Vuelve a Mis campos y ábrelo otra vez.');return;}
- const tee=detail.querySelector('#mh78-tee')?.value||golfCourseMap()[id]?.tee||'Sin indicar';
- if(typeof window.mh84OpenGolfCardEditor==='function'){
-  try{detail.hidden=false;window.mh84OpenGolfCardEditor(id,tee)}catch(err){console.error(err);alert('No se pudo abrir el editor: '+err.message)}
- }else alert('No se ha cargado el editor. Vuelve a entrar en Golf.');
-},true);
+/* La edición se abre directamente desde el botón de la ficha.
+   Sin interceptores globales ni navegación a Entrenamientos. */
 </script>
 
 <style id="mh86-reference-style">
