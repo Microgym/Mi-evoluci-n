@@ -22105,7 +22105,7 @@ window.mh84CardCrop=async function(file,range){
 #mh91-day .mh97-undo{font-size:12px;min-height:29px!important;padding:5px 10px!important;opacity:.8}
 </style>
 <style id="mh99-golf-search-style">
-#mh99-search{background:#fff;border:1px solid #cbded4;padding:14px;border-radius:15px;margin:13px 0}#mh99-search[hidden],#mh99-review[hidden]{display:none!important}
+#mh77-create-panel #mh99-search{display:block!important;background:#fff;border:1px solid #cbded4;padding:14px;border-radius:15px;margin:13px 0}#mh99-search[hidden],#mh99-review[hidden]{display:none!important}
 #mh99-search button{margin-top:10px}#mh99-review{margin-top:14px;max-height:65vh;overflow:auto;border-top:1px solid #d8e7de;padding-top:12px}
 #mh99-review .mh99-group{background:#f4f9f6;border:1px solid #dcebe3;padding:10px;border-radius:12px;margin:8px 0}
 #mh99-review table{font-size:12px;width:100%;border-collapse:collapse}#mh99-review th,#mh99-review td{padding:5px;border:1px solid #dce6e1;text-align:center}
@@ -22119,7 +22119,7 @@ window.mh84CardCrop=async function(file,range){
  const section=document.createElement('section');section.id='mh99-search';
  section.innerHTML='<h4>✨ Buscar información del campo con IA</h4><p class="mh99-muted">Escribe el nombre arriba. La IA buscará fuentes públicas y te mostrará una propuesta para revisar. No se guardará nada automáticamente.</p><label for="mh99-location">Localidad o provincia (opcional, para evitar campos homónimos)</label><input id="mh99-location" maxlength="120" placeholder="Ej. Valencia, España"><button type="button" class="secondary" id="mh99-button">✨ Buscar información con IA</button><p id="mh99-status" role="status" aria-live="polite"></p><div id="mh99-review" hidden></div>';
  const name=document.getElementById('mh68-name');
- if(name)name.insertAdjacentElement('afterend',section);else box.prepend(section);
+ panel.insertBefore(section,box); // v22.3.100: visible al abrir Crear campo nuevo, independiente del formulario de foto/manual
  const $=id=>document.getElementById(id),button=$('mh99-button'),status=$('mh99-status'),review=$('mh99-review');
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const safeUrl=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
