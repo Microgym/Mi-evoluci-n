@@ -3893,7 +3893,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
   <div class="life-habits">
     <div class="life-habits-head"><div><b>Mis pequeños hábitos</b><span>Marca lo que hayas hecho hoy</span></div><strong id="lifeHabitsCount">0/3</strong></div>
     <div class="life-habit-items" id="lifeHabitsItems"></div>
-    <div class="life-week" id="lifeHabitsCalendar" aria-label="Hábitos de los últimos siete días"></div><div class="life-week-legend">✓ Tres hábitos · número: hábitos completados · — sin marcar</div><div class="life-habits-foot"><span id="lifeHabitsWeek">Sin registros anteriores</span><span>Se guarda en este dispositivo</span></div>
+    <div class="life-week" id="lifeHabitsCalendar" aria-label="Hábitos de esta semana, de lunes a domingo"></div><div class="life-week-legend">✓ Tres hábitos · número: hábitos completados · — sin marcar</div><div class="life-habits-foot"><span id="lifeHabitsWeek">Sin registros anteriores</span><span>Se guarda en este dispositivo</span></div>
   </div>
   <div class="life-recovery" aria-label="Sueño y recuperación">
     <h3>🌙 Sueño y recuperación</h3>
@@ -7634,25 +7634,30 @@ function renderLifestyleToday(){
   const host=document.getElementById('lifeHabitsItems');
   host.innerHTML=LIFE_HABITS.map(([id,emoji,name])=>`<button type="button" class="life-habit" aria-pressed="${!!todayHabits[id]}" onclick="toggleLifeHabit('${id}')"><span class="life-habit-check" aria-hidden="true">✓</span><span>${emoji} ${name}</span></button>`).join('');
   document.getElementById('lifeHabitsCount').textContent=`${checked}/${LIFE_HABITS.length}`;
+  // Semana natural: lunes a domingo. No mover los registros de su fecha original.
+  const weekday=new Date(d+'T12:00:00').getDay();
+  const monday=addIsoDays(d,-((weekday+6)%7));
   let recorded=0,completed=0;
-  for(let i=1;i<=7;i++){
-    const day=db.habitsDaily?.[addIsoDays(d,-i)];
+  for(let i=0;i<7;i++){
+    const date=addIsoDays(monday,i);
+    if(date>d)continue;
+    const day=db.habitsDaily?.[date];
     if(day&&LIFE_HABITS.some(h=>day[h[0]]!==undefined)){
       recorded++;
       if(LIFE_HABITS.every(h=>day[h[0]]===true))completed++;
     }
   }
-  document.getElementById('lifeHabitsWeek').textContent=recorded?`${completed} días con los 3 hábitos · últimos 7 días`:'Aún no hay historial de hábitos';
+  document.getElementById('lifeHabitsWeek').textContent=recorded?`${completed} días con los 3 hábitos · esta semana (lunes a domingo)`:'Aún no hay hábitos registrados esta semana';
   const calendar=document.getElementById('lifeHabitsCalendar');
   if(calendar){
-    const names=['D','L','M','X','J','V','S'];
+    const names=['L','M','X','J','V','S','D'];
     calendar.innerHTML=Array.from({length:7},(_,i)=>{
-      const date=addIsoDays(d,i-6);
+      const date=addIsoDays(monday,i);
       const row=db.habitsDaily?.[date]||{};
       const n=LIFE_HABITS.filter(h=>row[h[0]]===true).length;
       const done=n===LIFE_HABITS.length;
-      const label=names[new Date(date+'T12:00:00').getDay()];
-      return `<div class="life-week-day" title="${fechaES(date)}: ${n} de 3 hábitos"><small>${label}</small><span class="life-week-dot ${done?'done':n?'partial':''} ${date===d?'today':''}">${done?'✓':n||'—'}</span></div>`;
+      const future=date>d;
+      return `<div class="life-week-day" title="${fechaES(date)}: ${future?'próximo día':n+' de 3 hábitos'}"><small>${names[i]}</small><span class="life-week-dot ${done?'done':n?'partial':''} ${date===d?'today':''}">${future?'—':done?'✓':n||'—'}</span></div>`;
     }).join('');
   }
   renderLifeRecovery();
@@ -21304,6 +21309,111 @@ function mh72DeleteGolfCourse(){
   const close=el('button','secondary','Cerrar listado');close.type='button';close.style.marginLeft='9px';close.onclick=()=>panel.hidden=true;panel.appendChild(close);
  }
  window.golfOpenFields=function(){if(typeof window.mh23Open==='function')window.mh23Open('golf');panel.hidden=false;list();requestAnimationFrame(()=>panel.scrollIntoView({block:'start',behavior:'smooth'}));};
+})();
+</script>
+
+
+<style id="mh77-golf-fields">
+#mh77-create-panel[hidden],#mh77-created[hidden]{display:none!important}
+#mh77-create-panel{margin:16px 0;padding:16px;border:1px solid #cde6d9;border-radius:18px;background:#f7fbf9}
+#mh77-create-panel h3{margin:0 0 8px;color:#135b48}
+#mh77-create-panel #mh65-new-course{display:block!important;margin:0;border:0;background:transparent;padding:0}
+#mh77-create-panel .mh77-extra{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+#mh77-create-panel .mh77-extra>div:first-child{grid-column:1/-1}
+#mh77-create-panel .mh77-extra label{display:block;font-size:13px}
+#mh77-create-panel .mh77-extra input{width:100%;box-sizing:border-box}
+#mh77-create-panel .mh77-note{font-size:12px;color:#55746c}
+#mh77-created{padding:18px;background:#e9f6ef;border:1px solid #a8dbc2;border-radius:16px;margin:15px 0}
+#mh77-created .mh77-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+#mh77-created button{flex:1;min-width:130px}
+@media(max-width:480px){#mh77-create-panel .mh77-extra{grid-template-columns:1fr}}
+</style>
+<script>
+/* v22.3.77 — creación de campos desde el centro Golf; sin abrir Entrenamientos. */
+(function(){
+ const golf=document.getElementById('golf'),list=document.getElementById('mh73-fields'),
+       box=document.getElementById('mh65-new-course');
+ if(!golf||!list||!box)return;
+ const panel=document.createElement('div');panel.id='mh77-create-panel';panel.hidden=true;
+ panel.innerHTML='<h3>⛳ Crear campo nuevo</h3><p>Crear un campo no inicia una partida. Podrás jugar cuando quieras.</p>';
+ list.insertAdjacentElement('afterend',panel);
+ panel.appendChild(box);
+ box.hidden=false;
+ const extra=document.createElement('div');extra.className='mh77-extra';
+ extra.innerHTML='<div><label for="mh77-address">Dirección (opcional)</label><input id="mh77-address" placeholder="Calle, número y localidad"></div>'
+ +'<div><label for="mh77-province">Provincia (opcional)</label><input id="mh77-province" placeholder="Provincia"></div>'
+ +'<div><label for="mh77-country">País (opcional)</label><input id="mh77-country" placeholder="País"></div>'
+ +'<div><label for="mh77-fee">Greenfee orientativo (opcional)</label><input id="mh77-fee" placeholder="Ej. 80 € · día laborable"></div>'
+ +'<div><label for="mh77-phone">Teléfono del club (opcional)</label><input id="mh77-phone" type="tel" placeholder="+34 ..."></div>';
+ const choice=box.querySelector('.mh68-choice');
+ if(choice)choice.insertAdjacentElement('beforebegin',extra);else box.appendChild(extra);
+ const foot=document.createElement('div');
+ foot.innerHTML='<p class="mh77-note">Los datos del club son opcionales. Puedes comprobarlos en fuentes oficiales; el precio del greenfee puede variar por fecha, temporada y condiciones.</p><button type="button" class="secondary" id="mh77-cancel">Volver a Mis campos</button>';
+ panel.appendChild(foot);
+ const done=document.createElement('div');done.id='mh77-created';done.hidden=true;
+ done.innerHTML='<strong id="mh77-created-title">✓ Campo creado</strong><p>El campo está guardado. ¿Quieres jugar ahora?</p><div class="mh77-actions"><button type="button" class="primary" id="mh77-play">⛳ Sí, jugar</button><button type="button" class="secondary" id="mh77-no">Ahora no · Mis campos</button></div>';
+ panel.insertAdjacentElement('afterend',done);
+ let pending=null, lastId=null, waitingPhoto=false;
+ const v=id=>document.getElementById(id)?.value.trim()||'';
+ function metadata(){return {address:v('mh77-address'),province:v('mh77-province'),country:v('mh77-country'),greenfee:v('mh77-fee'),phone:v('mh77-phone')};}
+ function saveMeta(id,meta){
+  if(!id||!golfConfig().courses?.[id])return;
+  golfConfig().courses[id].clubInfo=meta;
+  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){console.error('No se pudieron guardar los datos del club',e);}
+ }
+ function closeToFields(){
+   panel.hidden=true;done.hidden=true;list.hidden=false;
+   if(typeof window.golfOpenFields==='function')window.golfOpenFields();
+ }
+ function showCreated(id){
+  if(!id)return;
+  lastId=id;pending=null;waitingPhoto=false;
+  panel.hidden=true;done.hidden=false;list.hidden=true;
+  document.getElementById('mh77-created-title').textContent='✓ Campo «'+(golfCourseMap()[id]?.name||'nuevo')+'» creado';
+  done.scrollIntoView({block:'center',behavior:'smooth'});
+ }
+ function prepareNew(){
+  done.hidden=true;list.hidden=true;panel.hidden=false;
+  panel.querySelectorAll('.mh77-extra input').forEach(x=>x.value='');
+  box.hidden=false;
+  panel.scrollIntoView({block:'start',behavior:'smooth'});
+ }
+ window.mh77OpenCreate=prepareNew;
+ // Capture clicks on list buttons, also if the list is rebuilt dynamically.
+ list.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||!b.textContent.includes('Crear campo nuevo'))return;
+  e.stopImmediatePropagation();e.preventDefault();prepareNew();
+ },true);
+ document.getElementById('mh77-cancel').addEventListener('click',closeToFields);
+ document.getElementById('mh77-no').addEventListener('click',closeToFields);
+ document.getElementById('mh77-play').addEventListener('click',()=>{
+  const id=lastId;done.hidden=true;panel.hidden=true;
+  golfLaunchFromHub(false);
+  setTimeout(()=>{if(id&&golfCourseMap()[id]){golfPopulateSelectors(id);golfRenderConfig();golfRenderScorecard();}},280);
+ });
+ function newId(before){return Object.keys(golfCourseMap()).find(k=>!before.has(k));}
+ document.getElementById('mh68-create-manual')?.addEventListener('click',()=>{
+  const before=new Set(Object.keys(golfCourseMap())),meta=metadata();
+  setTimeout(()=>{const id=newId(before);if(id){saveMeta(id,meta);showCreated(id)}},0);
+ },true);
+ document.getElementById('mh68-create-photo')?.addEventListener('click',()=>{
+  const before=new Set(Object.keys(golfCourseMap())),meta=metadata();
+  if(!document.getElementById('mh68-photo')?.files?.length)return;
+  waitingPhoto=true;pending={before,meta};
+ },true);
+ const photoStatus=document.getElementById('mh70-photo-status')||document.getElementById('mh68-status');
+ const observer=new MutationObserver(()=>{
+  if(!waitingPhoto||!pending)return;
+  const id=newId(pending.before);
+  if(!id)return;
+  const message=(photoStatus?.textContent||'')+' '+(document.getElementById('golfCreateMessage')?.textContent||'');
+  if(/(?:guardad|cread|analizad|revis|detectad|fall|error|no se pudo)/i.test(message)){
+    saveMeta(id,pending.meta);showCreated(id);
+  }
+ });
+ [photoStatus,document.getElementById('golfCreateMessage')].filter(Boolean).forEach(x=>observer.observe(x,{childList:true,subtree:true,characterData:true}));
+ // Surface optional club information when editing a course.
+ list.addEventListener('click',e=>{},false);
 })();
 </script>
 

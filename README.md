@@ -101,3 +101,16 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 
 ## v22.3.75
 - Eliminar campo con borrador: confirmación conjunta que permite borrar tanto el campo como su partida inacabada, sin tocar las partidas históricas.
+
+
+## v22.3.76
+- El calendario de «Mis pequeños hábitos» muestra la semana de lunes a domingo (ya no siete días móviles).
+- El resumen semanal cuenta los días registrados en esa misma semana, incluido hoy.
+- Se conservan todas las fechas e históricos anteriores.
+
+
+## v22.3.77
+- Crear campo desde Mis campos sin iniciar partida.
+- Datos opcionales: dirección, provincia, país, greenfee y teléfono.
+- Tras crear, ofrece jugar ahora o volver a Mis campos.
+- Consulta automática de datos del club pendiente de integrar y verificar; no se inventan datos.
