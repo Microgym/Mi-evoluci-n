@@ -188,3 +188,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Editar tarjeta y barras abre el panel desde la fase de captura del documento, antes de los controladores antiguos.
 - Editor en contenedor independiente en lugar de elemento section, evitando estilos generales de secciones ocultas.
 - Se conserva edición de 18 hoyos y las barras por campo.
+
+
+## v22.3.91
+- Hasta dos ejercicios diarios desde Entrenar, con series, repeticiones, carga adicional, fecha inicio/fin y franja.
+- En Mi día: Hecho o repeticiones reales, historial por fecha y volumen estimado según peso.
+- Guardado independiente de db.entreno, sin aumentar sesiones de entrenamiento.
