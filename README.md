@@ -177,3 +177,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Al iniciar partida, el desplegable de campo solo muestra el nombre del campo, nunca el color de barras añadido automáticamente.
 - El selector independiente de barras aparece también cuando solo hay una variante guardada.
 - Se muestra el nombre limpio en campos anteriores que incorporaron el color como sufijo; no se modifican sus datos persistidos.
+
+
+## v22.3.89
+- Editor independiente para tarjetas y barras, sin navegación a Entrenamientos.
+- Edición por campo y por color con 18 hoyos y Hcp 9/18.

@@ -21789,4 +21789,99 @@ window.mh84CardCrop=async function(file,range){
 })();
 </script>
 
+<style id="mh89-editor-style">
+#mh89-overlay[hidden]{display:none!important}
+#mh89-overlay{position:fixed;inset:0;z-index:2147483000;background:#f5f9f7;color:#173b32;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 0 45px}
+#mh89-overlay .mh89-head{position:sticky;top:0;z-index:3;background:white;border-bottom:1px solid #d8e8e0;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#mh89-overlay .mh89-head button{width:auto;flex:none}
+#mh89-overlay .mh89-body{max-width:920px;margin:auto;padding:16px}
+#mh89-overlay h2{font-size:20px;margin:0 0 6px}
+#mh89-overlay .mh89-note{font-size:13px;color:#5e746b}
+#mh89-overlay label{display:block;margin:12px 0 5px;font-weight:650}
+#mh89-overlay select,#mh89-overlay input{box-sizing:border-box;max-width:100%}
+#mh89-overlay .mh89-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+#mh89-overlay .mh89-row>div{flex:1;min-width:145px}
+#mh89-overlay .mh89-table-wrap{overflow-x:auto;background:white;border:1px solid #d6e6df;border-radius:12px;margin:8px 0 18px}
+#mh89-overlay table{width:100%;min-width:620px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+#mh89-overlay th,#mh89-overlay td{border:1px solid #e0e9e5;text-align:center;padding:5px 2px}
+#mh89-overlay th{background:#e9f4ee}
+#mh89-overlay th:first-child{width:65px;position:sticky;left:0;z-index:1}
+#mh89-overlay input[data-mh89]{font-size:14px;text-align:center;padding:6px 1px;width:100%;min-width:0;border:1px solid #ccdcd6;border-radius:5px}
+#mh89-overlay .mh89-actions{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+#mh89-overlay .mh89-actions button{min-height:46px;flex:1}
+#mh89-message{margin-top:12px;font-weight:650;color:#216a51}
+</style>
+<script>
+/* v22.3.89 — Editor autónomo: fuera de cualquier formulario de entrenamiento o navegación. */
+(function(){
+ const detail=document.getElementById('mh78-detail');
+ if(!detail)return;
+ const overlay=document.createElement('section');overlay.id='mh89-overlay';overlay.hidden=true;
+ overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','Editar tarjeta y barras');
+ document.body.appendChild(overlay);
+ let courseId='',selectedTee='',savedScroll=0;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[k]));
+ const clone=x=>JSON.parse(JSON.stringify(x));
+ function target(){const cfg=golfConfig();return courseId==='escorpion'?cfg:cfg.courses?.[courseId]}
+ function names(c){const set={...(c.teeVariants||{})};if(c.tee&&!set[c.tee])set[c.tee]={routes:c.routes||{},whsRatings:c.whsRatings||{}};return set}
+ function selected(c){return names(c)[selectedTee]||{routes:c.routes||{},whsRatings:c.whsRatings||{}}}
+ function close(){overlay.hidden=true;document.body.style.overflow=''; if(courseId&&golfCourseMap()[courseId]){window.mh78ShowCourse(courseId);const select=detail.querySelector('#mh78-tee');if(select&&[...select.options].some(o=>o.value===selectedTee)){select.value=selectedTee;select.dispatchEvent(new Event('change'))}}window.scrollTo(0,savedScroll)}
+ function show(id,tee){
+  const c=golfCourseMap()[id];if(!c){alert('No se encuentra el campo.');return}
+  courseId=id;selectedTee=tee||Object.keys(names(c))[0]||c.tee||'Sin indicar';
+  const variant=selected(c),keys=Object.keys(variant.routes||{}),ratings=Object.values(variant.whsRatings||{}),rating=ratings.find(r=>r?.courseRating!=null)||{};
+  if(overlay.hidden)savedScroll=window.scrollY;
+  const block=(start,key)=>{
+   const route=variant.routes[key]||{};
+   return '<h3>Hoyos '+(start+1)+'–'+(start+9)+'</h3><div class="mh89-table-wrap"><table><thead><tr><th>Hoyo</th>'+Array.from({length:9},(_,i)=>'<th>'+(start+i+1)+'</th>').join('')+'</tr></thead><tbody>'
+    +[['Par','par',3,6],['Hcp 18','hcp',1,18],['Hcp 9','hcp9',1,9],['Metros','meters',0,1000]].map(([label,field,min,max])=>'<tr><th>'+label+'</th>'+Array.from({length:9},(_,i)=>'<td><input data-mh89="1" data-route="'+esc(key)+'" data-index="'+i+'" data-field="'+field+'" type="number" inputmode="numeric" min="'+min+'" max="'+max+'" value="'+esc(route[field]?.[i]??'')+'"></td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  };
+  overlay.innerHTML='<div class="mh89-head"><b>⛳ Editar tarjeta y barras</b><button type="button" class="secondary" id="mh89-close">✕ Cerrar</button></div><div class="mh89-body"><h2>'+esc(c.name)+'</h2><p class="mh89-note">Editas los datos del campo, no una partida. Ningún golpe ni resultado se modifica.</p>'
+   +'<label for="mh89-tee">Barras de salida</label><select id="mh89-tee">'+Object.keys(names(c)).map(t=>'<option value="'+esc(t)+'" '+(t===selectedTee?'selected':'')+'>'+esc(t)+'</option>').join('')+'</select>'
+   +'<div class="mh89-row"><div><label for="mh89-new">Añadir otro color al mismo campo</label><input id="mh89-new" placeholder="Ej. Amarillas" maxlength="35"></div><button type="button" class="secondary" id="mh89-add">+ Añadir barras</button></div>'
+   +keys.map((key,i)=>block(i*9,key)).join('')
+   +'<div class="mh89-row"><div><label for="mh89-rating">Course Rating</label><input type="number" id="mh89-rating" step="0.1" value="'+esc(rating.courseRating??'')+'"></div><div><label for="mh89-slope">Slope Rating</label><input type="number" id="mh89-slope" step="1" value="'+esc(rating.slopeRating??'')+'"></div></div>'
+   +'<div class="mh89-actions"><button type="button" class="primary" id="mh89-save">Guardar tarjeta</button><button type="button" class="secondary" id="mh89-cancel">Volver sin guardar</button></div><div id="mh89-message" role="status"></div></div>';
+  overlay.hidden=false;document.body.style.overflow='hidden';overlay.scrollTop=0;
+  overlay.querySelector('#mh89-close').onclick=overlay.querySelector('#mh89-cancel').onclick=close;
+  overlay.querySelector('#mh89-tee').onchange=e=>show(id,e.target.value);
+  overlay.querySelector('#mh89-add').onclick=()=>{
+    const name=overlay.querySelector('#mh89-new').value.trim(),t=target();
+    if(!name){overlay.querySelector('#mh89-message').textContent='Escribe un color de barras.';return}
+    t.teeVariants||={};if(t.teeVariants[name]){show(id,name);return}
+    const prev=clone(t.teeVariants);t.teeVariants[name]={routes:clone(variant.routes),whsRatings:{}};
+    try{localStorage.setItem(KEY,JSON.stringify(db));show(id,name)}catch(e){t.teeVariants=prev;overlay.querySelector('#mh89-message').textContent='No se pudieron añadir las barras.'}
+  };
+  overlay.querySelector('#mh89-save').onclick=()=>{
+    const t=target();if(!t)return;
+    const copy=clone(variant.routes),vals=[...overlay.querySelectorAll('input[data-mh89]')];let invalid=false;
+    vals.forEach(input=>{
+      const field=input.dataset.field,key=input.dataset.route,i=Number(input.dataset.index);
+      const raw=input.value.trim(),n=Number(raw),low=field==='par'?3:field==='hcp'||field==='hcp9'?1:0,high=field==='par'?6:field==='hcp'?18:field==='hcp9'?9:1000;
+      if(raw&&(!Number.isInteger(n)||n<low||n>high)){invalid=true;return}
+      if(!Array.isArray(copy[key][field]))copy[key][field]=Array(9).fill(null);
+      copy[key][field][i]=raw?n:null;
+    });
+    const msg=overlay.querySelector('#mh89-message');
+    const ratingText=overlay.querySelector('#mh89-rating').value.trim(),slopeText=overlay.querySelector('#mh89-slope').value.trim();
+    const rating=Number(ratingText),slope=Number(slopeText);
+    if(invalid||ratingText&&(rating<25||rating>85)||slopeText&&(!Number.isInteger(slope)||slope<55||slope>155)){msg.textContent='Revisa los valores de hoyos, Rating y Slope.';return}
+    const prev=clone(t);t.teeVariants||={};
+    const whsRatings=clone(variant.whsRatings||{});
+    if(ratingText&&slopeText)whsRatings[keys.slice(0,2).join('|')]={courseRating:rating,slopeRating:slope,tee:selectedTee};
+    t.teeVariants[selectedTee]={routes:copy,whsRatings};
+    if(selectedTee===t.tee){t.routes=clone(copy);t.whsRatings=clone(whsRatings)}
+    try{localStorage.setItem(KEY,JSON.stringify(db));msg.textContent='✓ Guardado correctamente.';setTimeout(close,350)}catch(e){Object.keys(t).forEach(k=>delete t[k]);Object.assign(t,prev);msg.textContent='No se pudieron guardar los cambios.'}
+  };
+ }
+ // Intercept at capture phase before any legacy click handlers or re-renders.
+ detail.addEventListener('click',event=>{
+  const btn=event.target.closest('#mh78-edit-card');if(!btn)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const id=detail.dataset.mh83Id||document.getElementById('golfCourseSelect')?.value;
+  const tee=detail.querySelector('#mh78-tee')?.value;
+  try{show(id,tee)}catch(err){console.error(err);alert('No se pudo abrir el editor: '+err.message)}
+ },true);
+})();
+</script>
 </body></html>
