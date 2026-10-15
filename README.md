@@ -200,3 +200,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Se fuerza la visibilidad de Mis ejercicios diarios en Mi día.
 - Se actualiza al entrar en Mi día y al registrar ejercicios.
 - No cambia registros ni contadores de entrenamiento.
+
+
+## v22.3.93 - Recuperación sin migración
+- Solucionado error de sintaxis introducido en v22.3.92 al insertar una etiqueta style en un string JavaScript.
+- No modifica la clave de almacenamiento, los datos, ni inicia restablecimiento o restauración.
+- Antes de registrar nuevos datos, exportar una copia completa del estado recuperado.

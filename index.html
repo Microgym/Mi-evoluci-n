@@ -15255,12 +15255,7 @@ function exportVolumeSummaryPDF(){
  `;
  const heading=source.querySelector('.volume-head h2')?.textContent||'Resumen de entrenamiento';
  printWindow.document.open();
- printWindow.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+volumeEscape(heading)+' · Micro Health</title><style>'+style+'</style></head><body><div class="pdf-banner"><strong>Micro Health</strong><small>Informe de entrenamiento</small></div>'+content.innerHTML+'<div class="pdf-actions" style="margin-top:20px;text-align:center"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:10px;background:#168879;color:white;font-weight:700;font-size:15px">Guardar o compartir como PDF</button><p style="font-size:12px;color:#586976">En iPhone, utiliza Compartir desde la vista de impresión para guardar o enviar el PDF.</p></div><style id="mh92-day-fix">
-#miDia #mh91-day{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:unset!important;overflow:visible!important}
-#miDia #mh91-day[hidden]{display:block!important}
-#miDia #mh91-day-list{display:block!important;visibility:visible!important}
-</style>
-</body></html>');
+ printWindow.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+volumeEscape(heading)+' · Micro Health</title><style>'+style+'</style></head><body><div class="pdf-banner"><strong>Micro Health</strong><small>Informe de entrenamiento</small></div>'+content.innerHTML+'<div class="pdf-actions" style="margin-top:20px;text-align:center"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:10px;background:#168879;color:white;font-weight:700;font-size:15px">Guardar o compartir como PDF</button><p style="font-size:12px;color:#586976">En iPhone, utiliza Compartir desde la vista de impresión para guardar o enviar el PDF.</p></div></body></html>');
  printWindow.document.close();
  printWindow.focus();
 }
