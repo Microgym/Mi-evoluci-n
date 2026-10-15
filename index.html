@@ -3823,6 +3823,7 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 <div id="mh50-day-routine" class="mh50-routine" aria-live="polite"></div>
 <div class="mh47-next-dose" id="mh47-day-dose" aria-live="polite"></div><div id="mh47-day-appointment" aria-live="polite"></div>
 <div class="mh23-day-group" id="mh43-goals"><h3>⚖️ Mi peso y mis objetivos</h3></div>
+<div class="mh23-day-group mh91-panel" id="mh91-day"><h3>☀️ Mis ejercicios diarios</h3><div id="mh91-day-list"></div><p id="mh91-day-stats" class="muted"></p></div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
@@ -4360,6 +4361,17 @@ body:not(.mh23-compact) #mh41-dashboard .mh41-head p{margin-bottom:0}
 </section>
 
 <section id="entreno">
+<div id="mh91-daily-manage" class="mh91-panel">
+<h3>☀️ Mis ejercicios diarios</h3><p class="muted">Uno o dos ejercicios cortos para cada mañana. No cuentan como entrenamiento completo.</p>
+<div id="mh91-manage-list"></div>
+<details id="mh91-add-detail"><summary>＋ Añadir ejercicio diario</summary>
+<div class="mh91-form"><label>Ejercicio</label><input id="mh91-name" list="mh91-suggestions" placeholder="Ej. Flexiones" maxlength="90"><datalist id="mh91-suggestions"></datalist>
+<div class="row"><div><label>Series</label><input id="mh91-sets" type="number" min="1" max="20" value="3"></div><div><label>Repeticiones por serie</label><input id="mh91-reps" type="number" min="1" max="200" value="15"></div></div>
+<div class="row"><div><label>Inicio</label><input id="mh91-start" type="date"></div><div><label>Hasta (opcional)</label><input id="mh91-end" type="date"></div></div>
+<div class="row"><div><label>Peso adicional (kg, opcional)</label><input id="mh91-load" type="number" min="0" step="0.5" placeholder="0"></div><div><label>Franja</label><select id="mh91-daypart"><option value="mañana">Mañana</option><option value="tarde">Tarde</option><option value="noche">Noche</option></select></div></div>
+<p class="muted">Los kilos de ejercicios con peso corporal son una estimación; puedes revisar las repeticiones realmente hechas cada día.</p>
+<button type="button" class="primary" onclick="mh91Add()">Guardar ejercicio diario</button><div id="mh91-error" role="status"></div></div></details>
+</div>
 <div class="training-screen-head">
   <div class="training-screen-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div>
   <div><h2>Entrenamiento</h2><div class="muted">Registra sesiones, progresa en fuerza y organiza tus rutinas.</div></div>
@@ -21908,6 +21920,42 @@ window.mh84CardCrop=async function(file,range){
   const tee=detail.querySelector('#mh78-tee')?.value;
   try{show(id,tee)}catch(err){console.error(err);alert('No se pudo abrir el editor: '+err.message)}
  },true);
+})();
+</script>
+<style id="mh91-style">
+.mh91-panel{background:var(--card,#fff);padding:16px;border:1px solid #d7e7df;border-radius:16px;margin:14px 0}
+.mh91-panel h3{margin:0 0 8px}.mh91-panel .muted{font-size:13px}.mh91-form{display:grid;gap:10px;padding-top:12px}.mh91-form input,.mh91-form select{width:100%;box-sizing:border-box}
+.mh91-item{padding:12px;margin:10px 0;background:#f5faf7;border:1px solid #dcece3;border-radius:13px}
+.mh91-item strong{display:block;color:#134d3d}.mh91-item small{display:block;color:#5f796d;margin:4px 0}
+.mh91-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px}.mh91-controls button{min-height:38px}.mh91-controls input{width:84px!important;min-height:38px;box-sizing:border-box}
+.mh91-done{background:#e6f5e9;border-color:#8ccbaa}.mh91-done strong:before{content:'✓ ';color:#178356}
+</style>
+<script>
+/* MicroHealth v22.3.91: microejercicios, totalmente separados de db.entreno. */
+(function(){
+  function items(){if(!Array.isArray(db.dailyExercises))db.dailyExercises=[];return db.dailyExercises;}
+  function logs(){if(!db.dailyExerciseLogs||typeof db.dailyExerciseLogs!=='object')db.dailyExerciseLogs={};return db.dailyExerciseLogs;}
+  function date(){return (typeof dayReviewISO==='function'&&document.getElementById('dayReviewDate'))?dayReviewISO():today();}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
+  function store(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){alert('No se pudieron guardar los ejercicios diarios.');return false;}}
+  function active(x,d){return (!x.start||d>=x.start)&&(!x.end||d<=x.end);}
+  function muscle(name){const n=name.toLocaleLowerCase('es');if(/flexion|flexión|push.up|press|fondos/.test(n))return 'Pectorales · tríceps · deltoides';if(/sentadilla|squat|zancada/.test(n))return 'Cuádriceps · glúteos';if(/dominada|remo|pull.up/.test(n))return 'Dorsales · bíceps';if(/plancha|abdominal/.test(n))return 'Core';return 'Trabajo muscular · revisar grupo';}
+  function bodyWeight(){const a=(db.peso||[]).filter(x=>Number(x.peso)>0).sort((x,y)=>(x.fecha||'').localeCompare(y.fecha||''));return Number(a.at(-1)?.peso)||0;}
+  function volume(x,total){const n=x.name.toLocaleLowerCase('es');const factor=/flexion|flexión|push.up/.test(n)?.64:/sentadilla|squat|zancada/.test(n)?.75:/dominada|pull.up/.test(n)?1:0;const kg=Number(x.load||0)+bodyWeight()*factor;return kg>0?Math.round(kg*total):null;}
+  function fillSuggestions(){const host=document.getElementById('mh91-suggestions');if(!host)return;const names=[...new Set((db.entreno||[]).map(r=>r.ej).filter(Boolean))].slice(-80);host.innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');}
+  function renderManage(){const host=document.getElementById('mh91-manage-list');if(!host)return;host.innerHTML=items().length?items().map(x=>'<div class="mh91-item"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' × '+x.reps+' · '+esc(x.daypart||'mañana')+' · '+esc(x.start||'')+(x.end?' → '+esc(x.end):' · sin fecha de fin')+'</small><small>'+esc(muscle(x.name))+'</small><div class="mh91-controls"><button type="button" class="secondary" data-remove="'+esc(x.id)+'">Eliminar</button></div></div>').join(''):'<p class="muted">Aún no has configurado ejercicios diarios.</p>';host.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('¿Eliminar este ejercicio diario y sus recordatorios futuros? El historial realizado se conservará.'))return;db.dailyExercises=items().filter(x=>x.id!==b.dataset.remove);store();refresh();}));fillSuggestions();}
+  function renderDay(){const host=document.getElementById('mh91-day-list'),stats=document.getElementById('mh91-day-stats');if(!host)return;const d=date(),configured=items().filter(x=>active(x,d)),dayLogs=logs()[d]||{};
+   host.innerHTML=configured.length?configured.map(x=>{const l=dayLogs[x.id],done=!!l;return '<div class="mh91-item '+(done?'mh91-done':'')+'"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' series × '+x.reps+' repeticiones · '+esc(muscle(x.name))+'</small><div class="mh91-controls">'+(done?'<button type="button" class="secondary" data-undo="'+esc(x.id)+'">Desmarcar</button><small>Hecho: '+l.reps+' rep. · '+(l.volume==null?'volumen no estimado':l.volume+' kg estimados')+'</small>':'<button type="button" class="primary" data-done="'+esc(x.id)+'">✓ Hecho</button><label>Reps. reales <input aria-label="Repeticiones reales" type="number" min="1" max="4000" value="'+(x.sets*x.reps)+'" data-actual="'+esc(x.id)+'"></label><button type="button" class="secondary" data-save="'+esc(x.id)+'">Registrar reales</button>')+'</div></div>'}).join(''):'<p class="muted">No tienes ejercicios diarios programados para este día. Puedes añadirlos desde Entrenar.</p>';
+   host.querySelectorAll('[data-done],[data-save],[data-undo]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.done||b.dataset.save||b.dataset.undo,x=items().find(y=>y.id===id);if(!x)return;const day=logs()[d]||{};if(b.dataset.undo){delete day[id];}else{const total=b.dataset.done?x.sets*x.reps:Number(host.querySelector('[data-actual="'+id+'"]')?.value);if(!Number.isInteger(total)||total<1||total>4000){alert('Indica cuántas repeticiones has hecho realmente.');return;}day[id]={reps:total,volume:volume(x,total),muscles:muscle(x.name),at:new Date().toISOString()};}logs()[d]=day;if(store())refresh();}));
+   if(stats){const count=configured.filter(x=>dayLogs[x.id]).length;const kg=configured.reduce((n,x)=>n+(Number(dayLogs[x.id]?.volume)||0),0);stats.textContent=count+' de '+configured.length+' completados · '+(kg?kg.toLocaleString('es-ES')+' kg estimados movilizados · ':'')+'no cuentan como entrenamiento completo';}
+  }
+  function refresh(){renderManage();renderDay();}
+  window.mh91Add=function(){const name=document.getElementById('mh91-name')?.value.trim(),sets=Number(document.getElementById('mh91-sets')?.value),reps=Number(document.getElementById('mh91-reps')?.value),start=document.getElementById('mh91-start')?.value||today(),end=document.getElementById('mh91-end')?.value||'',load=Number(document.getElementById('mh91-load')?.value||0),err=document.getElementById('mh91-error');if(!name||!Number.isInteger(sets)||sets<1||sets>20||!Number.isInteger(reps)||reps<1||reps>200||end&&end<start||!Number.isFinite(load)||load<0){err.textContent='Revisa nombre, series, repeticiones y fechas.';return;}if(items().length>=2){err.textContent='Puedes configurar un máximo de dos ejercicios diarios.';return;}items().push({id:'de_'+Date.now().toString(36),name,sets,reps,start,end,load,daypart:document.getElementById('mh91-daypart')?.value||'mañana'});if(store()){err.textContent='✓ Ejercicio diario guardado.';document.getElementById('mh91-add-detail').open=false;refresh();}};
+  const originalRender=window.render;
+  if(typeof originalRender==='function')window.render=function(){const r=originalRender.apply(this,arguments);refresh();return r;};
+  const originalDay=window.renderDayReview;
+  if(typeof originalDay==='function')window.renderDayReview=function(){const r=originalDay.apply(this,arguments);renderDay();return r;};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
 })();
 </script>
 </body></html>
