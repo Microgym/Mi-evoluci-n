@@ -22104,4 +22104,72 @@ window.mh84CardCrop=async function(file,range){
 #mh91-day .mh97-done-summary{font-size:14px;flex-basis:100%;margin:0 0 3px;color:#496f61}
 #mh91-day .mh97-undo{font-size:12px;min-height:29px!important;padding:5px 10px!important;opacity:.8}
 </style>
+<style id="mh99-golf-search-style">
+#mh99-search{background:#fff;border:1px solid #cbded4;padding:14px;border-radius:15px;margin:13px 0}#mh99-search[hidden],#mh99-review[hidden]{display:none!important}
+#mh99-search button{margin-top:10px}#mh99-review{margin-top:14px;max-height:65vh;overflow:auto;border-top:1px solid #d8e7de;padding-top:12px}
+#mh99-review .mh99-group{background:#f4f9f6;border:1px solid #dcebe3;padding:10px;border-radius:12px;margin:8px 0}
+#mh99-review table{font-size:12px;width:100%;border-collapse:collapse}#mh99-review th,#mh99-review td{padding:5px;border:1px solid #dce6e1;text-align:center}
+#mh99-review a{overflow-wrap:anywhere}#mh99-review .mh99-muted{font-size:12px;color:#526f62}#mh99-review h4{margin:12px 0 5px}
+</style>
+<script>
+/* MicroHealth v22.3.99: búsqueda real de campos con IA y vista previa SIN persistencia de resultados. */
+(function(){
+ const panel=document.getElementById('mh77-create-panel'), box=document.getElementById('mh65-new-course');
+ if(!panel||!box)return;
+ const section=document.createElement('section');section.id='mh99-search';
+ section.innerHTML='<h4>✨ Buscar información del campo con IA</h4><p class="mh99-muted">Escribe el nombre arriba. La IA buscará fuentes públicas y te mostrará una propuesta para revisar. No se guardará nada automáticamente.</p><label for="mh99-location">Localidad o provincia (opcional, para evitar campos homónimos)</label><input id="mh99-location" maxlength="120" placeholder="Ej. Valencia, España"><button type="button" class="secondary" id="mh99-button">✨ Buscar información con IA</button><p id="mh99-status" role="status" aria-live="polite"></p><div id="mh99-review" hidden></div>';
+ const name=document.getElementById('mh68-name');
+ if(name)name.insertAdjacentElement('afterend',section);else box.prepend(section);
+ const $=id=>document.getElementById(id),button=$('mh99-button'),status=$('mh99-status'),review=$('mh99-review');
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const safeUrl=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}};
+ const link=(u,label)=>{const valid=safeUrl(u);return valid?'<a href="'+esc(valid)+'" target="_blank" rel="noopener noreferrer">'+esc(label||valid)+'</a>':''};
+ const val=(n)=>n===null||n===undefined||n===''?'—':esc(n);
+ let searchId=0;
+ button.addEventListener('click',async()=>{
+  const course=name?.value.trim()||'',location=$('mh99-location').value.trim();
+  if(course.length<3){status.textContent='Escribe primero el nombre del campo (mínimo 3 caracteres).';name?.focus();return}
+  button.disabled=true;button.textContent='Buscando información…';review.hidden=true;review.innerHTML='';status.textContent='Consultando fuentes públicas. Puede tardar unos segundos.';
+  const id=++searchId;let controller=new AbortController();let timer=setTimeout(()=>controller.abort(),65000);
+  try{
+   const base=getAiBackendUrl();
+   const resp=await fetch(base+'/search-golf-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course,location}),signal:controller.signal,cache:'no-store'});
+   const data=await resp.json().catch(()=>({}));
+   if(!resp.ok||!data.ok)throw Error(data.error||'No se pudo realizar la búsqueda.'+(data.detail?' '+data.detail:''));
+   if(id!==searchId)return;
+   const result=data.result||{},c=result.course||{},routes=Array.isArray(result.routes)?result.routes:[];
+   let html='<h4>🔎 Propuesta encontrada · confianza '+esc(result.confidence||'no indicada')+'</h4><p><b>Campo:</b> '+val(c.name)+'<br><b>Ubicación:</b> '+val(c.location)+'<br><b>Dirección:</b> '+val(c.address)+'<br><b>Teléfono:</b> '+val(c.phone)+'<br><b>Web:</b> '+(link(c.website,c.website)||'—')+'</p>';
+   html+='<button type="button" class="secondary" id="mh99-use-info">Copiar nombre y dirección al formulario</button><p class="mh99-muted">La copia solo rellena campos visibles; pulsa los botones normales de creación si deseas guardar un campo. No se importan tarjetas automáticamente.</p>';
+   html+='<h4>Recorridos y barras</h4>';
+   if(!routes.length)html+='<p>No se encontraron recorridos documentados. Puedes subir fotografías para completar los datos.</p>';
+   routes.forEach((r,i)=>{
+    html+='<div class="mh99-group"><b>'+esc(r.name||'Recorrido '+(i+1))+'</b> · '+val(r.holesCount)+' hoyos '+link(r.sourceUrl,'Fuente del recorrido');
+    const tees=Array.isArray(r.tees)?r.tees:[];
+    if(!tees.length)html+='<p class="mh99-muted">No hay tarjetas verificables para este recorrido.</p>';
+    tees.forEach(t=>{
+     html+='<h4>Salida '+val(t.color)+' · CR '+val(t.courseRating)+' · Slope '+val(t.slope)+'</h4><div class="mh99-muted">'+link(t.sourceUrl,'Fuente de la salida')+'</div>';
+     const holes=Array.isArray(t.holes)?t.holes:[];
+     if(holes.length){html+='<div style="overflow-x:auto"><table><thead><tr><th>Hoyo</th><th>Par</th><th>HCP</th><th>Metros</th><th>Fuente</th></tr></thead><tbody>';
+      holes.forEach(h=>html+='<tr><td>'+val(h.hole)+'</td><td>'+val(h.par)+'</td><td>'+val(h.hcp)+'</td><td>'+val(h.meters)+'</td><td>'+link(h.sourceUrl,'Ver')+'</td></tr>');
+      html+='</tbody></table></div>';
+     }else html+='<p class="mh99-muted">Sin hoyos publicados verificables para esta salida.</p>';
+    });html+='</div>';
+   });
+   for(const key of ['missing','warnings']){const items=Array.isArray(result[key])?result[key]:[];if(items.length)html+='<h4>'+(key==='missing'?'Datos pendientes':'Avisos y dudas')+'</h4><ul>'+items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'}
+   const sources=Array.isArray(data.sources)?data.sources:[];
+   if(sources.length)html+='<h4>Fuentes consultadas</h4><ul>'+sources.slice(0,35).map(x=>'<li>'+link(x.url,x.title||x.url)+'</li>').join('')+'</ul>';
+   review.innerHTML=html;review.hidden=false;
+   $('mh99-use-info').addEventListener('click',()=>{
+    if(c.name&&name)name.value=String(c.name).slice(0,100);
+    const address=$('mh77-address');if(address&&c.address)address.value=String(c.address).slice(0,240);
+    const province=$('mh77-province');if(province&&!province.value&&c.location)province.value=String(c.location).slice(0,120);
+    const phone=$('mh77-phone');if(phone&&c.phone)phone.value=String(c.phone).slice(0,70);
+    status.textContent='✓ Datos básicos copiados al formulario. Revisa antes de crear el campo. Recorridos y barras no se han guardado.';
+   });
+   status.textContent='✓ Búsqueda completada. Revisa las fuentes y los datos antes de crear el campo.';
+  }catch(err){status.textContent=err?.name==='AbortError'?'La búsqueda agotó el tiempo de espera. Prueba de nuevo.':'No se pudo buscar: '+String(err?.message||'Error inesperado');}
+  finally{clearTimeout(timer);button.disabled=false;button.textContent='✨ Buscar información con IA';}
+ });
+})();
+</script>
 </body></html>

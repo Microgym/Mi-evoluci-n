@@ -235,3 +235,6 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Tras marcar Hecho u Omitir se actualiza y se oculta si no quedan tomas de hoy.
 - Farmacia sigue mostrando las próximas tomas futuras.
 - Sin cambios en los registros ni en el almacenamiento.
+
+
+v22.3.99: Búsqueda de campos vía Cloudflare Worker /search-golf-course, vista previa de recorridos, salidas, hoyos y fuentes. Sin guardado automático. Permite copiar información básica al formulario.
