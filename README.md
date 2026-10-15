@@ -125,3 +125,14 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 ## v22.3.79
 - Tarjeta del campo en dos tablas compactas tipo scorecard: ida (1–9) y vuelta (10–18).
 - Ver/guardar como PDF usando la impresión del navegador, sin enviar los datos a servicios externos.
+
+
+## v22.3.80
+- Botón Editar / Ver abre directamente la ficha del campo seleccionado, sin pasar por iniciar partida.
+- Asociación por ID de campo, sin depender del orden de la lista.
+
+
+## v22.3.81
+- Reimportar una foto actualiza los mismos hoyos del campo y color en lugar de duplicarlos.
+- Se revisan par y hándicap persistidos para decidir qué hoyos faltan, incluso tras sucesivas lecturas.
+- Validación explícita de los hoyos 10–18 y limpieza del selector de imágenes.

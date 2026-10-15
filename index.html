@@ -11265,7 +11265,7 @@ function golfCreateCourse(){
  const name=document.getElementById('golfNewCourseName')?.value.trim(),tee=document.getElementById('golfNewCourseTee')?.value.trim()||'sin indicar',n=Number(document.getElementById('golfNewCourseHoles')?.value),msg=document.getElementById('golfCreateMessage');
  if(!name||name.length<3){msg.textContent='Escribe el nombre del campo (mínimo 3 caracteres).';return;}
  if(![9,18,27].includes(n)){msg.textContent='Selecciona 9, 18 o 27 hoyos.';return;}
- const cfg=golfConfig();if(Object.values(golfCourseMap()).some(c=>c.name.toLowerCase()===name.toLowerCase())){msg.textContent='Ya existe un campo con ese nombre.';return;}
+ const cfg=golfConfig();if(Object.values(golfCourseMap()).some(c=>c.name.trim().replace(/\s+/g,' ').toLocaleLowerCase('es')===name.trim().replace(/\s+/g,' ').toLocaleLowerCase('es'))){msg.textContent='Ya existe un campo con ese nombre.';return;}
  const id='campo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
  const routes={};for(let i=0;i<n/9;i++){const key=id+'_r'+(i+1);routes[key]={name:n===9?'Recorrido único':i===0?'Primeros 9':i===1?'Segundos 9':'Terceros 9',par:Array(9).fill(null),hcp:Array(9).fill(null),meters:Array(9).fill(null)};}
  cfg.courses[id]={name,tee,routes};
@@ -21105,6 +21105,7 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
  }
  function normalizedRows(result,range){
   const rows=Array.isArray(result?.holes)?result.holes:[];
+  // Do not blindly convert 1–9 to 10–18: the AI could be rereading the front nine.
   return rows.filter(x=>{const n=Number(x.hole);return Number.isInteger(n)&&n>=(range==='first'?1:10)&&n<=(range==='first'?9:18)});
  }
  function apply(c,tee,rows,ratings){
@@ -21149,19 +21150,25 @@ body.mh65-golf-launch:not(.mh66-golf-fields) #golfFields.golf-round-playing #gol
     try{
      const one=await recognize(files[j],name,tee,'first');let rows=normalizedRows(one,'first');
      if(holes>9){const two=await recognize(files[j],name,tee,'second');rows=rows.concat(normalizedRows(two,'second'));}
-     rows.forEach(h=>covered.add(Number(h.hole)));
-     count+=apply(c,tee,rows,one);
+     // A second upload updates existing hole slots; it never appends new hole records.
+     const byHole=new Map();rows.forEach(row=>byHole.set(Number(row.hole),row));
+     count+=apply(c,tee,[...byHole.values()],one);
     }catch(err){errs.push('Foto '+(j+1)+': '+err.message)}
    }
    const variant=c.teeVariants[tee];if(variant){c.tee=tee;c.routes=deep(variant.routes);c.whsRatings=deep(variant.whsRatings||{});}
    localStorage.setItem(KEY,JSON.stringify(db));
    golfPopulateSelectors(id);golfRenderConfig();golfRenderScorecard();
    $('mh70-tee-review').hidden=false;
-   const missing=Array.from({length:holes},(_,i)=>i+1).filter(i=>!covered.has(i));
-   $('mh70-tee-review').textContent=`Campo «${name}» guardado · barras ${tee}. ${covered.size} de ${holes} hoyos identificados. `+(missing.length?'Revisar hoyos: '+missing.join(', ')+'. ':'')+'Comprueba pares, hándicaps y metros en «Mis campos» antes de jugar.';
-   status.textContent=count+' datos de hoyos importados. '+(errs.join(' · ')||'')+' Puedes añadir otra foto con otras barras manteniendo el mismo nombre de campo.';
+   const validHole=n=>{
+    const route=Object.values(c.teeVariants[tee]?.routes||{})[Math.floor((n-1)/9)],i=(n-1)%9;
+    return route&&Number.isInteger(Number(route.par?.[i]))&&Number(route.par[i])>=3&&Number(route.par[i])<=6&&Number.isInteger(Number(route.hcp?.[i]))&&Number(route.hcp[i])>=1&&Number(route.hcp[i])<=18;
+   };
+   const missing=Array.from({length:holes},(_,i)=>i+1).filter(i=>!validHole(i));
+   const done=holes-missing.length;
+   $('mh70-tee-review').textContent=`Campo «${name}» guardado · barras ${tee}. ${done} de ${holes} hoyos con par y hándicap completos. `+(missing.length?'Faltan o requieren revisión los hoyos: '+missing.join(', ')+'. ':'Todos los hoyos tienen par y hándicap. ')+'Si subes la misma foto otra vez, se actualizan estos mismos hoyos, no se duplica la tarjeta.';
+   status.textContent=count+' datos de hoyos importados. '+(errs.join(' · ')||'')+' Puedes subir otra foto para completar los hoyos pendientes o elegir otra barra del mismo campo.';
    const message=$('golfCreateMessage');if(message)message.textContent=$('mh70-tee-review').textContent;
-  }finally{locked=false;submit.disabled=false}
+  }finally{locked=false;submit.disabled=false;photo.value='';}
  },true);
  populateTee();
 })();
@@ -21255,15 +21262,12 @@ function mh72DeleteGolfCourse(){
      const extra=Object.keys(c.teeVariants);if(extra.length)card.appendChild(el('p','', 'Barras registradas: '+extra.join(', ')));
    }
    const actions=el('div','mh73-actions');
-   const edit=el('button','secondary','✏️ Editar campo');edit.type='button';edit.onclick=()=>{
-     panel.hidden=true;
-     golfLaunchFromHub(true);
-     setTimeout(()=>{
-       golfPopulateSelectors(id);
-       golfRenderConfig();
-       document.getElementById('golfConfigDetails')?.setAttribute('open','');
-       document.getElementById('golfConfigDetails')?.scrollIntoView({block:'start',behavior:'smooth'});
-     },240);
+   const edit=el('button','secondary','✏️ Editar / Ver');edit.type='button';edit.dataset.golfCourseId=id;edit.onclick=()=>{
+     if(typeof window.mh78ShowCourse==='function'){
+       window.mh78ShowCourse(id);
+     }else{
+       alert('No se ha podido abrir la ficha del campo. Actualiza la página y vuelve a intentarlo.');
+     }
    };actions.appendChild(edit);
    {
     const del=el('button','mh73-delete','🗑️ Eliminar');del.type='button';del.onclick=()=>{
@@ -21500,12 +21504,11 @@ function mh72DeleteGolfCourse(){
    },260);
   };
  }
- window.mh78ShowCourse=function(id){current=id;selected='';list.hidden=true;const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;render();detail.scrollIntoView({block:'start',behavior:'smooth'});};
+ window.mh78ShowCourse=function(id){current=id;selected='';const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;list.hidden=true;try{render();detail.scrollIntoView({block:'start',behavior:'smooth'});}catch(err){console.error('Error al abrir ficha de Golf:',err);detail.hidden=false;detail.innerHTML='<h3>⛳ Ficha del campo</h3><p>No se ha podido mostrar la tarjeta. Puedes volver al listado e intentarlo de nuevo.</p><button type="button" class="secondary" onclick="golfOpenFields()">← Mis campos</button>';}};
  // Capture Edit card before the old handler launches the workout modal.
  list.addEventListener('click',e=>{
-   const button=e.target.closest('button');if(!button||!button.textContent.includes('Editar campo'))return;
-   const all=[...list.querySelectorAll('.mh73-course')],card=button.closest('.mh73-course'),index=all.indexOf(card);
-   const id=Object.keys(golfCourseMap())[index];if(!id)return;
+   const button=e.target.closest('button');if(!button||(!button.textContent.includes('Editar / Ver')&&!button.textContent.includes('Editar campo')))return;
+   const id=button.dataset.golfCourseId;if(!id)return;
    e.preventDefault();e.stopImmediatePropagation();window.mh78ShowCourse(id);
  },true);
  const prevOpen=window.golfOpenFields;
