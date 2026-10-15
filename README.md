@@ -194,3 +194,9 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Hasta dos ejercicios diarios desde Entrenar, con series, repeticiones, carga adicional, fecha inicio/fin y franja.
 - En Mi día: Hecho o repeticiones reales, historial por fecha y volumen estimado según peso.
 - Guardado independiente de db.entreno, sin aumentar sesiones de entrenamiento.
+
+
+## v22.3.92
+- Se fuerza la visibilidad de Mis ejercicios diarios en Mi día.
+- Se actualiza al entrar en Mi día y al registrar ejercicios.
+- No cambia registros ni contadores de entrenamiento.
