@@ -22173,13 +22173,13 @@ window.mh84CardCrop=async function(file,range){
    const importNote=document.createElement('p');importNote.className='mh99-muted';
    importNote.textContent='Solo se guardan los datos encontrados. Los huecos quedan pendientes. Nunca se sustituye un campo ya existente.';
    review.append(importButton,importNote);
-   importButton.onclick=()=>{
+   const runImport=(mergeExisting=false)=>{
     const fieldName=String(c.name||course).trim();
     if(fieldName.length<3){status.textContent='No hay nombre de campo válido.';return;}
     if(!routes.length){status.textContent='La búsqueda no ha encontrado recorridos para guardar. Puedes usar el formulario manual.';return;}
     const normalizeName=n=>String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es');
-    if(Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){
-     status.textContent='Este campo ya está guardado. Para proteger tus datos, no lo duplico ni modifico. Puedes editarlo desde Mis campos.';return;
+    if(!mergeExisting&&Object.values(golfCourseMap()).some(x=>normalizeName(x.name)===normalizeName(fieldName))){
+     status.textContent='El campo ya existe: usa «Añadir barras al campo existente». No se han cambiado datos.';return;
     }
     const blocks=[];
     routes.forEach((r,i)=>{
@@ -22220,6 +22220,68 @@ window.mh84CardCrop=async function(file,range){
       }
       variants[color]={routes:built,whsRatings:rating};counts.push(color+': '+complete+'/'+blocks.length*9+' hoyos completos');
     }
+    if(mergeExisting){
+      const id=document.getElementById('mh103-target')?.value;
+      const target=golfConfig().courses?.[id];
+      if(!id||!target){status.textContent='Elige un campo existente de Mis campos (no el predeterminado).';return;}
+      const normal=normalizeName;
+      if(normal(golfDisplayCourseName(target))!==normal(fieldName)){
+        if(!confirm('El nombre buscado no coincide exactamente con el campo seleccionado. ¿Confirmas que se trata del mismo club?'))return;
+      }
+      const oldVariants=target.teeVariants||{};
+      const oldRoutes=target.routes||{};
+      const refRoutes=Object.keys(oldVariants).length?oldVariants[Object.keys(oldVariants)[0]]?.routes||oldRoutes:oldRoutes;
+      const existing=Object.entries(refRoutes);
+      if(!existing.length){status.textContent='El campo no tiene recorridos identificables. Revisa su ficha antes de importar.';return;}
+      const keyMap=new Map();const used=new Set();
+      for(const b of blocks){
+        const match=existing.find(([key,r])=>!used.has(key)&&normal(r.name)===normal(b.name));
+        if(match){keyMap.set(b.key,match[0]);used.add(match[0]);}
+      }
+      if(!keyMap.size){status.textContent='Los nombres de recorridos encontrados no coinciden con los guardados. No se ha modificado nada. Revisa la ficha del campo.';return;}
+      const deep=x=>JSON.parse(JSON.stringify(x));
+      const updated=deep(oldVariants);
+      if(!Object.keys(updated).length&&target.tee){updated[target.tee]={routes:deep(oldRoutes),whsRatings:deep(target.whsRatings||{})};}
+      const keys=Object.keys(updated);
+      let added=0,filled=0,kept=0;
+      for(const [color,proposal] of Object.entries(variants)){
+        const existingColor=keys.find(k=>normal(k)===normal(color));
+        const colorKey=existingColor||color;
+        if(!updated[colorKey]){updated[colorKey]={routes:deep(refRoutes),whsRatings:{}};added++;}
+        const dest=updated[colorKey];dest.routes ||=deep(refRoutes);dest.whsRatings||={};
+        for(const [newKey,oldKey] of keyMap){
+          const from=proposal.routes[newKey];if(!from)continue;
+          const to=dest.routes[oldKey]||(dest.routes[oldKey]=deep(refRoutes[oldKey]));
+          for(const prop of ['par','hcp','meters']){
+            if(!Array.isArray(to[prop]))to[prop]=Array(9).fill(null);
+            for(let i=0;i<9;i++){
+              const value=from[prop]?.[i];
+              if((to[prop][i]===null||to[prop][i]===undefined||to[prop][i]==='')&&value!==null&&value!==undefined){to[prop][i]=value;filled++;}
+              else if(value!==null&&value!==undefined)kept++;
+            }
+          }
+        }
+        for(const [ratingKey,value] of Object.entries(proposal.whsRatings||{})){
+          const translated=ratingKey.split('|').map(k=>keyMap.get(k));
+          if(translated.every(Boolean)){const toKey=translated.join('|');if(!dest.whsRatings[toKey])dest.whsRatings[toKey]=value;}
+        }
+      }
+      const skipped=blocks.filter(b=>!keyMap.has(b.key)).map(b=>b.name);
+      const msg='Campo: '+target.name+'\nBarras nuevas: '+added+'\nDatos vacíos que se completarán: '+filled+'\nDatos existentes que se conservarán: '+kept+'\nRecorridos no coincidentes (omitidos): '+(skipped.join(', ')||'ninguno')+'\n\n¿Añadir sin reemplazar los datos existentes?';
+      if(!confirm(msg))return;
+      const previous=target.teeVariants;
+      const former=deep({routes:target.routes,whsRatings:target.whsRatings,tee:target.tee});
+      target.teeVariants=updated;
+      if(!target.tee||!updated[target.tee])target.tee=Object.keys(updated)[0];
+      target.routes=deep(updated[target.tee].routes);target.whsRatings=deep(updated[target.tee].whsRatings||{});
+      try{localStorage.setItem(KEY,JSON.stringify(db));}
+      catch(e){target.teeVariants=previous;Object.assign(target,former);status.textContent='No se pudo guardar; se han restaurado los datos anteriores.';return;}
+      status.textContent='✓ Incorporadas '+added+' barras nuevas; '+filled+' valores completados. Datos existentes conservados. '+(skipped.length?'Algunos recorridos no coincidieron y se omitieron.':'');
+      importButton.disabled=true;importButton.textContent='✓ Importación completada';
+      document.getElementById('mh103-merge').disabled=true;
+      try{golfPopulateSelectors(id);window.mh78ShowCourse?.(id);}catch(e){console.error(e)}
+      return;
+    }
     const summary=fieldName+'\nRecorridos: '+blocks.map(b=>b.name).join(', ')+'\nBarras: '+counts.join('; ')+'.\nLos datos que faltan quedarán vacíos. ¿Guardar como un campo nuevo?';
     if(!confirm(summary))return;
     const cfg=golfConfig();
@@ -22233,6 +22295,16 @@ window.mh84CardCrop=async function(file,range){
     importButton.disabled=true;importButton.textContent='✓ Campo guardado';
     try{golfPopulateSelectors(id);window.golfOpenFields?.();window.mh78ShowCourse?.(id);}catch(e){console.error(e)}
    };
+   importButton.onclick=()=>runImport(false);
+   const mergeBox=document.createElement('div');mergeBox.id='mh103-merge-box';
+   const choices=Object.entries(golfConfig().courses||{});
+   mergeBox.innerHTML='<h4>➕ Completar un campo existente</h4><p class="mh99-muted">Añade barras que falten y completa solo casillas vacías; nunca reemplaza pares, HCP, metros ni barras ya guardadas. Los recorridos deben coincidir por nombre.</p><label for="mh103-target">Campo de destino</label><select id="mh103-target"></select><button type="button" class="secondary" id="mh103-merge">Añadir barras al campo existente</button>';
+   const select=mergeBox.querySelector('select');
+   for(const [id,field] of choices)select.add(new Option(field.name,id));
+   if(!choices.length)mergeBox.querySelector('button').disabled=true;
+   const auto=choices.find(([id,field])=>String(field.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()===String(c.name||course).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase());
+   if(auto)select.value=auto[0];
+   review.append(mergeBox);mergeBox.querySelector('button').onclick=()=>runImport(true);
    status.textContent='✓ Búsqueda completada. Revisa las fuentes y los datos antes de crear el campo.';
   }catch(err){status.textContent=err?.name==='AbortError'?'La búsqueda agotó el tiempo de espera. Prueba de nuevo.':'No se pudo buscar: '+String(err?.message||'Error inesperado');}
   finally{clearTimeout(timer);button.disabled=false;button.textContent='✨ Buscar información con IA';}
