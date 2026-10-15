@@ -166,3 +166,14 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Se incorpora una tarjeta de referencia de El Bosque (barras azules) transcrita de la captura proporcionada por el usuario: 18 hoyos completos, par 72, 5.336 m, Course Rating 69,6 y Slope 131.
 - Botón opcional dentro de la ficha para aplicar estos datos confirmados sin depender del lector IA. No afecta a otras barras ni a partidas históricas.
 - La extracción automática de otras tarjetas sigue pendiente de reparación del servicio remoto.
+
+
+## v22.3.87
+- El botón Editar tarjeta y barras llama directamente al editor dentro de la ficha.
+- Se eliminan capturas de clic superpuestas y la navegación al formulario antiguo de Entrenamientos.
+
+
+## v22.3.88
+- Al iniciar partida, el desplegable de campo solo muestra el nombre del campo, nunca el color de barras añadido automáticamente.
+- El selector independiente de barras aparece también cuando solo hay una variante guardada.
+- Se muestra el nombre limpio en campos anteriores que incorporaron el color como sufijo; no se modifican sus datos persistidos.
