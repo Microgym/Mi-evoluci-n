@@ -21992,4 +21992,101 @@ window.mh84CardCrop=async function(file,range){
   });
 })();
 </script>
+
+<style id="mh95-style">
+#mh95-pick{padding:10px;border:1px solid #dce9e3;border-radius:12px}
+#mh95-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;max-height:285px;overflow-y:auto;margin-top:8px}
+.mh95-ex{border:1px solid #d9e7df;background:white;border-radius:10px;padding:7px;min-height:95px;font-size:12px;overflow:hidden}
+.mh95-ex img{height:75px;width:100%;object-fit:contain}
+.mh95-ex[aria-pressed="true"]{border:2px solid #158266;background:#ecf8f2}
+#mh95-edit-cancel[hidden]{display:none}
+</style>
+<script>
+/* v22.3.95: edición y selector de catálogo para ejercicios diarios.
+   Reutiliza db.dailyExercises y conserva dailyExerciseLogs, sin tocar db.entreno. */
+(function(){
+ const detail=document.getElementById('mh91-add-detail'), form=detail?.querySelector('.mh91-form');
+ if(!detail||!form)return;
+ let editing=null,selected=null,mode='name';
+ const pick=document.createElement('div');pick.id='mh95-pick';
+ pick.innerHTML='<label>Elegir ejercicio del catálogo</label><div class="row"><button type="button" class="secondary" id="mh95-by-name">Por nombre</button><button type="button" class="secondary" id="mh95-by-image">Por imágenes</button></div><input id="mh95-search" placeholder="Buscar por nombre o músculo"><div id="mh95-grid"></div>';
+ form.insertBefore(pick,form.firstChild);
+ const name=document.getElementById('mh91-name');
+ const duration=document.createElement('div');
+ duration.innerHTML='<label for="mh95-minutes">Tiempo estimado (minutos, opcional)</label><input id="mh95-minutes" type="number" min="0" max="300" step="1" placeholder="Ej. 10">';
+ const load=document.getElementById('mh91-load');
+ load?.closest('.row')?.insertAdjacentElement('afterend',duration);
+ const save=form.querySelector('button[onclick*="mh91Add"]');
+ if(!save)return;
+ const cancel=document.createElement('button');cancel.type='button';cancel.className='secondary';cancel.id='mh95-edit-cancel';cancel.hidden=true;cancel.textContent='Cancelar modificación';
+ save.insertAdjacentElement('afterend',cancel);
+ const search=document.getElementById('mh95-search'),grid=document.getElementById('mh95-grid');
+ const catalog=()=>typeof EXERCISE_CATALOG!=='undefined'?EXERCISE_CATALOG:[];
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function matches(){const q=search.value.trim().toLowerCase();return catalog().filter(x=>!q||[x.name,x.zone,x.equipment].some(v=>String(v||'').toLowerCase().includes(q))).slice(0,mode==='image'?48:70);}
+ function draw(){
+  grid.innerHTML=matches().map(x=>'<button type="button" class="mh95-ex" data-id="'+esc(x.id)+'" aria-pressed="'+(selected===x.id)+'">'+(mode==='image'&&x.image?'<img alt="" src="'+x.image+'">':'')+'<span>'+esc(x.name)+'</span></button>').join('');
+ }
+ grid.addEventListener('click',e=>{
+  const b=e.target.closest('[data-id]');if(!b)return;
+  selected=b.dataset.id;const x=catalog().find(y=>y.id===selected);
+  if(x)name.value=x.name;draw();
+ });
+ document.getElementById('mh95-by-name').onclick=()=>{mode='name';draw()};
+ document.getElementById('mh95-by-image').onclick=()=>{mode='image';draw()};
+ search.addEventListener('input',draw);
+ name.addEventListener('input',()=>{const x=catalog().find(y=>y.name===name.value.trim());selected=x?.id||null;});
+ function reset(){editing=null;selected=null;cancel.hidden=true;save.textContent='Guardar ejercicio diario';detail.querySelector('summary').textContent='＋ Añadir ejercicio diario';form.querySelector('#mh95-minutes').value='';name.value='';draw();}
+ cancel.onclick=()=>{reset();detail.open=false};
+ function renderEditButtons(){
+  const host=document.getElementById('mh91-manage-list');if(!host)return;
+  const items=Array.isArray(db.dailyExercises)?db.dailyExercises:[];
+  [...host.querySelectorAll('.mh91-item')].forEach((row,i)=>{
+   if(!items[i]||row.querySelector('.mh95-edit'))return;
+   const b=document.createElement('button');b.type='button';b.className='secondary mh95-edit';b.textContent='Modificar';
+   b.onclick=()=>{
+    const x=(db.dailyExercises||[]).find(y=>y.id===items[i].id);if(!x)return;
+    editing=x.id;name.value=x.name;selected=x.catalogId||catalog().find(y=>y.name===x.name)?.id||null;
+    for(const [id,value] of [['mh91-sets',x.sets],['mh91-reps',x.reps],['mh91-start',x.start],['mh91-end',x.end||''],['mh91-load',x.load||0],['mh91-daypart',x.daypart||'mañana'],['mh95-minutes',x.minutes||'']]){
+     const el=document.getElementById(id);if(el)el.value=value;
+    }
+    cancel.hidden=false;save.textContent='Guardar modificación';
+    detail.querySelector('summary').textContent='✏️ Modificar ejercicio diario';
+    detail.open=true;draw();detail.scrollIntoView({behavior:'smooth',block:'start'});
+   };
+   row.querySelector('.mh91-controls')?.prepend(b);
+  });
+ }
+ const originalAdd=window.mh91Add;
+ window.mh91Add=function(){
+  const nameValue=name.value.trim(),sets=Number(document.getElementById('mh91-sets')?.value),reps=Number(document.getElementById('mh91-reps')?.value),
+   minutesRaw=document.getElementById('mh95-minutes')?.value||'',minutes=minutesRaw===''?null:Number(minutesRaw),
+   loadValue=Number(document.getElementById('mh91-load')?.value||0),
+   start=document.getElementById('mh91-start')?.value||today(),end=document.getElementById('mh91-end')?.value||'';
+  const error=document.getElementById('mh91-error');
+  if(!nameValue||!Number.isInteger(sets)||sets<1||sets>20||!Number.isInteger(reps)||reps<1||reps>200||!Number.isFinite(loadValue)||loadValue<0||end&&end<start||minutes!==null&&(!Number.isInteger(minutes)||minutes<0||minutes>300)){
+   if(error)error.textContent='Revisa ejercicio, series, repeticiones, kilos, tiempo y fechas.';return;
+  }
+  if(editing){
+   const x=(db.dailyExercises||[]).find(y=>y.id===editing);
+   if(!x){if(error)error.textContent='No se encuentra el ejercicio.';return;}
+   const prev={...x};
+   Object.assign(x,{name:nameValue,sets,reps,load:loadValue,minutes,catalogId:selected||null,start,end,daypart:document.getElementById('mh91-daypart')?.value||'mañana'});
+   try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){Object.assign(x,prev);if(error)error.textContent='No se pudo guardar la modificación.';return;}
+   if(error)error.textContent='✓ Ejercicio modificado. Los registros de días anteriores se conservan.';
+   reset();detail.open=false;window.mh91Refresh?.();renderEditButtons();
+  }else{
+   originalAdd?.();
+   const x=(db.dailyExercises||[]).at(-1);
+   if(x&&x.name===nameValue){x.minutes=minutes;x.catalogId=selected||null;try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){console.error(e)}}
+   window.mh91Refresh?.();renderEditButtons();
+  }
+ };
+ const oldRefresh=window.mh91Refresh;
+ window.mh91Refresh=function(){const r=oldRefresh?.();renderEditButtons();return r;};
+ const observer=new MutationObserver(()=>renderEditButtons());
+ observer.observe(document.getElementById('mh91-manage-list'),{childList:true});
+ draw();renderEditButtons();
+})();
+</script>
 </body></html>
