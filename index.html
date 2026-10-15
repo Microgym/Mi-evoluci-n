@@ -21973,13 +21973,13 @@ window.mh84CardCrop=async function(file,range){
 #miDia #mh91-day .mh91-item{display:block!important;}
 </style>
 <script>
-/* v22.3.94. Solo presentación: no se modifica ni se reescribe el almacenamiento. */
+/* v22.3.96. Ejercicios diarios antes de entrenamiento de hoy; sin alterar datos. */
 (function(){
   function position(){
     const panel=document.getElementById('mh91-day');
-    const anchor=document.getElementById('mh43-goals');
-    if(panel&&anchor&&anchor.parentNode===panel.parentNode&&anchor.nextElementSibling!==panel){
-      anchor.insertAdjacentElement('afterend',panel);
+    const anchor=document.getElementById('mh50-day-routine');
+    if(panel&&anchor&&anchor.parentNode===panel.parentNode&&anchor.previousElementSibling!==panel){
+      anchor.insertAdjacentElement('beforebegin',panel);
     }
   }
   function update(){

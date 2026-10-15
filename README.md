@@ -218,3 +218,8 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - Ejercicios diarios: elegir del catálogo por nombre o imagen; editar series, repeticiones, kilos, minutos y fechas.
 - Modificar un ejercicio existente sin alterar los días completados.
 - Mantiene los registros diarios fuera del contador de entrenamientos.
+
+
+## v22.3.96
+- Mi día: Mis ejercicios diarios se sitúa justo antes de Mi entrenamiento de hoy.
+- Sin cambios en almacenamiento, cálculo ni registro de ejercicios.
