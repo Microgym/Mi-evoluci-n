@@ -154,3 +154,15 @@ Objetivos diarios editables de hidratos, fibra y azúcares totales. Mi día: obj
 - La lectura de tarjeta horizontal envía a la IA recortes separados de la ida (1–9) y la vuelta (10–18), preservando etiquetas de filas cuando es posible.
 - Una lectura 1–9 de la segunda mitad se asigna a los hoyos 10–18. Confirmar datos tras importar.
 - Editar tarjeta y barras abre con prioridad el editor propio de 18 hoyos, sin el antiguo formulario de entrenamientos.
+
+
+## v22.3.85
+- Se desactiva el recorte automático de fotografías que provocaba cero hoyos reconocidos.
+- Nunca se renumeran artificialmente 1-9 como 10-18 al recibir la foto completa.
+- El reconocimiento de los hoyos 10-18 depende aún del servicio IA y NO está garantizado.
+
+
+## v22.3.86
+- Se incorpora una tarjeta de referencia de El Bosque (barras azules) transcrita de la captura proporcionada por el usuario: 18 hoyos completos, par 72, 5.336 m, Course Rating 69,6 y Slope 131.
+- Botón opcional dentro de la ficha para aplicar estos datos confirmados sin depender del lector IA. No afecta a otras barras ni a partidas históricas.
+- La extracción automática de otras tarjetas sigue pendiente de reparación del servicio remoto.
