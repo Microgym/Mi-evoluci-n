@@ -325,3 +325,6 @@ v22.3.122 · Reorganiza la ficha Editar / Ver: grupos de recorridos físicos 9/1
 
 
 v22.3.124: ficha de Golf con selector de recorrido físico y color; tarjeta y PDF limitados a esa combinación. Muestra estado por barra completo/parcial/pendiente. Sin migraciones de datos.
+
+## v22.3.125
+Corrige la vista de hoyos por recorrido y color: claves físicas independientes del color, tablas directas y contador de datos completos. No migra datos.
