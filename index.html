@@ -21509,16 +21509,21 @@ function mh72DeleteGolfCourse(){
   const varr=variantsFor(c)[selected]||{},routes=Object.values(varr.routes||{}),info=c.clubInfo||{};
   // v22.3.122: los tramos de 9 son una representación interna, NO recorridos físicos.
   const entries=Object.entries(varr.routes||{});
+  // v22.3.125: el recorrido físico es independiente del color seleccionado.
+  // Los nombres y claves proceden del campo, nunca de una sola tarjeta.
+  const allVariants=variantsFor(c);
+  const canonicalKeys=[...new Set(Object.values(allVariants).flatMap(v=>Object.keys(v.routes||{})))];
+  const referenceRoutes=Object.assign({},...Object.values(allVariants).map(v=>v.routes||{}));
   const physical=(Array.isArray(c.physicalRoutes)&&c.physicalRoutes.length
-   ? c.physicalRoutes.map(r=>({name:String(r.name||'Recorrido'),keys:(r.keys||[]).filter(k=>varr.routes?.[k]),count:Number(r.holesCount)||9}))
-   : entries.reduce((out,[key,r])=>{
-       const name=String(r.name||key).replace(/\s*[·-]\s*(?:1[–-]9|10[–-]18)\s*$/,'').trim();
+   ? c.physicalRoutes.map(r=>({name:String(r.name||'Recorrido'),keys:(r.keys||[]).map(String),count:Number(r.holesCount)||9})).filter(g=>g.keys.length)
+   : canonicalKeys.reduce((out,key)=>{
+       const name=String(referenceRoutes[key]?.name||key).replace(/\s*[·-]\s*(?:1[–-]9|10[–-]18)\s*$/,'').trim();
        let g=out.find(x=>x.name.toLowerCase()===name.toLowerCase());
        if(!g){g={name,keys:[],count:0};out.push(g)}g.keys.push(key);g.count+=9;return out;
      },[]));
   if(!physical.some(g=>g.name===selectedRoute))selectedRoute=physical[0]?.name||'';
   const active=physical.find(g=>g.name===selectedRoute)||null;
-  const groupHoles=g=>g.keys.flatMap((key,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:varr.routes[key]?.par?.[j],hcp:varr.routes[key]?.hcp?.[j],meters:varr.routes[key]?.meters?.[j]})));
+  const groupHoles=g=>g.keys.flatMap((key,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:varr.routes?.[key]?.par?.[j]??null,hcp:varr.routes?.[key]?.hcp?.[j]??null,meters:varr.routes?.[key]?.meters?.[j]??null})));
   const hasData=g=>groupHoles(g).some(h=>h.par!=null||h.hcp!=null||h.meters!=null);
 
   const holes=routes.flatMap((r,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:r.par?.[j],hcp:r.hcp?.[j],meters:r.meters?.[j]})));
@@ -21526,12 +21531,19 @@ function mh72DeleteGolfCourse(){
   // Two nine-hole blocks reproduce the layout of a printed golf scorecard.
   const makeNine=(part,offset)=>'<section class="mh79-nine"><div class="mh79-nine-title">'+(offset===0?'Ida · hoyos 1–9':'Vuelta · hoyos 10–18')+'</div><div class="mh79-table-wrap"><table class="mh79-table"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'
     +[['Par','par'],['Hcp','hcp'],['Metros','meters']].map(([label,key])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[key]??'—')+'</td>').join('')+'<td class="mh79-total">'+(key==='hcp'?'—':(part.every(h=>Number.isFinite(Number(h[key]))&&h[key]!==null&&h[key]!==undefined)?part.reduce((a,h)=>a+Number(h[key]),0):'—'))+'</td></tr>').join('')+'</tbody></table></div></section>';
-  const all=active?'<div class="mh79-scorecard">'+[active].map(g=>{
-   const rows=groupHoles(g);
-   return '<h4 style="margin:14px 0 6px">'+esc(g.name)+' · '+rows.length+' hoyos</h4>'
-    +makeNine(rows.slice(0,9),0)+(rows.length>9?makeNine(rows.slice(9,18),9):'');
-  }).join('')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
-  const physicalCards=physical.map((g,i)=>'<section class="mh122-physical" data-physical="'+i+'"><div class="mh122-physical-title"><strong>'+esc(g.name)+'</strong><span>'+g.keys.length*9+' hoyos · '+(hasData(g)?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div><div class="mh122-colors">'+Object.entries(variantsFor(c)).map(([color,v])=>{
+  // Explicit tables independent of the old print-card layout.
+  const all=active?(()=>{
+    const rows=groupHoles(active);
+    const sections=[];
+    for(let off=0;off<rows.length;off+=9){
+      const part=rows.slice(off,off+9);
+      const dataRows=[['Par','par'],['HCP','hcp'],['Metros','meters']].map(([label,field])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[field]??'—')+'</td>').join('')+'</tr>').join('');
+      sections.push('<section class="mh125-nine" style="display:block;margin:12px 0 20px"><h4>Hoyos '+(off+1)+'–'+(off+part.length)+'</h4><div style="display:block;overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="display:table;min-width:560px;width:100%;border-collapse:collapse"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'</tr></thead><tbody>'+dataRows+'</tbody></table></div></section>');
+    }
+    const available=rows.filter(h=>h.par!=null&&h.hcp!=null&&h.meters!=null).length;
+    return '<div class="mh125-card" style="display:block!important"><p style="margin:8px 0">'+available+' de '+rows.length+' hoyos con par, HCP y metros. '+(available===0?'Esta barra no tiene datos por hoyo guardados en este recorrido.':'')+'</p>'+sections.join('')+'</div>';
+  })():'<p>Recorrido sin configurar.</p>';
+  const physicalCards=physical.map((g,i)=>'<section class="mh122-physical" data-physical="'+i+'"><div class="mh122-physical-title"><strong>'+esc(g.name)+'</strong><span>'+(g.count||g.keys.length*9)+' hoyos · '+(hasData(g)?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div><div class="mh122-colors">'+Object.entries(variantsFor(c)).map(([color,v])=>{
    const data=g.keys.some(k=>{const r=v.routes?.[k];return r&&['par','hcp','meters'].some(f=>(r[f]||[]).some(x=>x!=null))});
    const count=g.keys.reduce((sum,k)=>{const r=v.routes?.[k];return sum+Array.from({length:9},(_,j)=>['par','hcp','meters'].every(f=>r?.[f]?.[j]!=null)).filter(Boolean).length},0);return '<span class="mh122-chip">'+esc(color)+' · '+(count===g.keys.length*9?'completa':data?'parcial':'pendiente')+'</span>';
   }).join('')+'</div><button type="button" class="secondary mh122-complete" data-physical="'+i+'">Completar barras de '+esc(g.name)+'</button></section>').join('');
@@ -21541,7 +21553,7 @@ function mh72DeleteGolfCourse(){
    +'<div class="mh78-sub">Recorridos físicos · '+physical.reduce((a,g)=>a+g.keys.length*9,0)+' hoyos</div>'
    +'<div class="mh122-physical-list">'+physicalCards+'</div>'
    +'<div id="mh118-bars-slot" style="margin:14px 0;display:block;visibility:visible"></div>'
-   +'<div class="mh78-sub">Tarjeta por recorrido y salida</div><label for="mh124-route">Recorrido</label><select id="mh124-route">'+physical.map(g=>'<option value="'+esc(g.name)+'" '+(g.name===selectedRoute?'selected':'')+'>'+esc(g.name)+' · '+g.keys.length*9+' hoyos</option>').join('')+'</select>'
+   +'<div class="mh78-sub">Tarjeta por recorrido y salida</div><label for="mh124-route">Recorrido</label><select id="mh124-route">'+physical.map(g=>'<option value="'+esc(g.name)+'" '+(g.name===selectedRoute?'selected':'')+'>'+esc(g.name)+' · '+(g.count||g.keys.length*9)+' hoyos</option>').join('')+'</select>'
    +'<label for="mh78-tee">Color de salida</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
    +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos del recorrido',active?.keys.length*9||0)+infoRow('CR / Slope de esta salida',(()=>{const key=active?.keys.join('|')||'';const r=varr.whsRatings?.[key] || Object.entries(varr.whsRatings||{}).find(([k])=>k.split('|').join('|')===key)?.[1];return r ? (r.courseRating??'—')+' / '+(r.slopeRating??'—') : 'No documentado para esta combinación';})())+'</div>'
    +'<div class="mh78-sub">Tarjeta · '+esc(selectedRoute)+' · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
