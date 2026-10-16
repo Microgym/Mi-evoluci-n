@@ -271,3 +271,6 @@ v22.3.108: permite crear un campo nuevo con recorridos verificados pero sin barr
 
 ## v22.3.109 — Arranque estable
 Se ha desactivado el registro del sw.js ausente y el mecanismo de update/reload automático. No se borra ninguna caché ni dato del usuario. Esta corrección no garantiza resolver cachés controladas por un Service Worker previamente instalado.
+
+
+v22.3.110: fija la botonera Añadir serie / Validar en el modo foco de rutinas, sin cambiar scripts ni almacenamiento.
