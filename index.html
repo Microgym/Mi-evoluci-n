@@ -3768,7 +3768,14 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     font-size:12px !important;
   }
 }
-</style></head>
+</style>
+<style id="mh114-style">
+#mh78-detail .mh114-routes{display:grid;gap:8px;margin:9px 0 16px}
+#mh78-detail .mh114-route{border:1px solid #d7e5df;border-radius:10px;padding:12px;background:#f8fbf9;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#mh78-detail .mh114-route strong{color:#225c45}
+#mh78-detail .mh114-route span{font-size:12px;color:#526c62}
+</style>
+</head>
 <body>
 <div id="mh111-boot" role="status" aria-label="Abriendo MicroHealth">
  <div class="mark" aria-hidden="true">✚</div><strong>MicroHealth</strong><small>Preparando tu día…</small><div class="bar" aria-hidden="true"></div>
@@ -21509,6 +21516,8 @@ function mh72DeleteGolfCourse(){
   detail.innerHTML='<h3>⛳ '+esc(c.name)+'</h3>'
    +'<div class="mh78-sub">Datos del club</div><div class="mh78-info">'
    +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
+   +'<div class="mh78-sub">Recorridos del campo · '+(routes.length*9)+' hoyos</div>'
+   +'<div class="mh114-routes">'+(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>')+'</div>'
    +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
    +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
    +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'

@@ -284,3 +284,6 @@ v22.3.112: se corrige la cadena de HTML del informe PDF que contenía un bloque 
 
 ## v22.3.113 — Escorpión
 Creación explícita de los tres recorridos físicos de 9 hoyos sin búsqueda IA ni datos inventados. No modifica fichas existentes.
+
+
+v22.3.114: La ficha de campo muestra los nombres de TODOS los recorridos de nueve hoyos y su estado de tarjeta. Cambio únicamente de presentación.
