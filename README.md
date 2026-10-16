@@ -322,3 +322,6 @@ v22.3.122 · Reorganiza la ficha Editar / Ver: grupos de recorridos físicos 9/1
 ## v22.3.123
 - Editor de tarjeta: selector explícito de recorrido físico y barra, muestra únicamente los 9/18 hoyos correspondientes.
 - Guardado conserva otros recorridos y barras. Course Rating y Slope por par recorrido/color.
+
+
+v22.3.124: ficha de Golf con selector de recorrido físico y color; tarjeta y PDF limitados a esa combinación. Muestra estado por barra completo/parcial/pendiente. Sin migraciones de datos.

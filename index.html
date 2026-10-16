@@ -21495,7 +21495,7 @@ function mh72DeleteGolfCourse(){
  const detail=document.createElement('section');detail.id='mh78-detail';detail.hidden=true;
  list.insertAdjacentElement('afterend',detail);
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let current=null,selected='';
+ let current=null,selected='',selectedRoute='';
  function infoRow(k,v){return '<div class="mh78-cell"><small>'+esc(k)+'</small><strong>'+esc(v||'No indicado')+'</strong></div>';}
  function variantsFor(c){
    const variants={...(c.teeVariants||{})};
@@ -21516,6 +21516,8 @@ function mh72DeleteGolfCourse(){
        let g=out.find(x=>x.name.toLowerCase()===name.toLowerCase());
        if(!g){g={name,keys:[],count:0};out.push(g)}g.keys.push(key);g.count+=9;return out;
      },[]));
+  if(!physical.some(g=>g.name===selectedRoute))selectedRoute=physical[0]?.name||'';
+  const active=physical.find(g=>g.name===selectedRoute)||null;
   const groupHoles=g=>g.keys.flatMap((key,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:varr.routes[key]?.par?.[j],hcp:varr.routes[key]?.hcp?.[j],meters:varr.routes[key]?.meters?.[j]})));
   const hasData=g=>groupHoles(g).some(h=>h.par!=null||h.hcp!=null||h.meters!=null);
 
@@ -21524,14 +21526,14 @@ function mh72DeleteGolfCourse(){
   // Two nine-hole blocks reproduce the layout of a printed golf scorecard.
   const makeNine=(part,offset)=>'<section class="mh79-nine"><div class="mh79-nine-title">'+(offset===0?'Ida · hoyos 1–9':'Vuelta · hoyos 10–18')+'</div><div class="mh79-table-wrap"><table class="mh79-table"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'
     +[['Par','par'],['Hcp','hcp'],['Metros','meters']].map(([label,key])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[key]??'—')+'</td>').join('')+'<td class="mh79-total">'+(key==='hcp'?'—':(part.every(h=>Number.isFinite(Number(h[key]))&&h[key]!==null&&h[key]!==undefined)?part.reduce((a,h)=>a+Number(h[key]),0):'—'))+'</td></tr>').join('')+'</tbody></table></div></section>';
-  const all=physical.length?'<div class="mh79-scorecard">'+physical.map(g=>{
+  const all=active?'<div class="mh79-scorecard">'+[active].map(g=>{
    const rows=groupHoles(g);
    return '<h4 style="margin:14px 0 6px">'+esc(g.name)+' · '+rows.length+' hoyos</h4>'
     +makeNine(rows.slice(0,9),0)+(rows.length>9?makeNine(rows.slice(9,18),9):'');
   }).join('')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
   const physicalCards=physical.map((g,i)=>'<section class="mh122-physical" data-physical="'+i+'"><div class="mh122-physical-title"><strong>'+esc(g.name)+'</strong><span>'+g.keys.length*9+' hoyos · '+(hasData(g)?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div><div class="mh122-colors">'+Object.entries(variantsFor(c)).map(([color,v])=>{
    const data=g.keys.some(k=>{const r=v.routes?.[k];return r&&['par','hcp','meters'].some(f=>(r[f]||[]).some(x=>x!=null))});
-   return '<span class="mh122-chip">'+esc(color)+' · '+(data?'datos':'pendiente')+'</span>';
+   const count=g.keys.reduce((sum,k)=>{const r=v.routes?.[k];return sum+Array.from({length:9},(_,j)=>['par','hcp','meters'].every(f=>r?.[f]?.[j]!=null)).filter(Boolean).length},0);return '<span class="mh122-chip">'+esc(color)+' · '+(count===g.keys.length*9?'completa':data?'parcial':'pendiente')+'</span>';
   }).join('')+'</div><button type="button" class="secondary mh122-complete" data-physical="'+i+'">Completar barras de '+esc(g.name)+'</button></section>').join('');
   detail.innerHTML='<h3>⛳ '+esc(c.name)+'</h3>'
    +'<div class="mh78-sub">Datos del club</div><div class="mh78-info">'
@@ -21539,9 +21541,10 @@ function mh72DeleteGolfCourse(){
    +'<div class="mh78-sub">Recorridos físicos · '+physical.reduce((a,g)=>a+g.keys.length*9,0)+' hoyos</div>'
    +'<div class="mh122-physical-list">'+physicalCards+'</div>'
    +'<div id="mh118-bars-slot" style="margin:14px 0;display:block;visibility:visible"></div>'
-   +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
-   +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos totales del club',holes.length)+infoRow('Valoraciones CR / Slope',Object.entries(varr.whsRatings||{}).map(([key,x])=>{const parts=key.split('|');const g=physical.find(g=>g.keys.join('|')===key);return (g?.name||parts.map(k=>varr.routes?.[k]?.name||k).join(' + '))+': '+(x.courseRating??'—')+' / '+(x.slopeRating??'—')}).join(' · ')||'Pendientes por recorrido y salida')+'</div>'
-   +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
+   +'<div class="mh78-sub">Tarjeta por recorrido y salida</div><label for="mh124-route">Recorrido</label><select id="mh124-route">'+physical.map(g=>'<option value="'+esc(g.name)+'" '+(g.name===selectedRoute?'selected':'')+'>'+esc(g.name)+' · '+g.keys.length*9+' hoyos</option>').join('')+'</select>'
+   +'<label for="mh78-tee">Color de salida</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
+   +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos del recorrido',active?.keys.length*9||0)+infoRow('CR / Slope de esta salida',(()=>{const key=active?.keys.join('|')||'';const r=varr.whsRatings?.[key] || Object.entries(varr.whsRatings||{}).find(([k])=>k.split('|').join('|')===key)?.[1];return r ? (r.courseRating??'—')+' / '+(r.slopeRating??'—') : 'No documentado para esta combinación';})())+'</div>'
+   +'<div class="mh78-sub">Tarjeta · '+esc(selectedRoute)+' · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
    +'<p class="mh78-hint">Cada color pertenece a este mismo campo. Las distancias y valoraciones pueden cambiar según las barras seleccionadas. Comprueba la tarjeta si se importó desde una fotografía.</p>'
    +'<div class="mh78-actions"><button type="button" class="secondary" id="mh78-edit-info">Editar datos del club</button><button type="button" class="secondary" id="mh78-edit-card">Editar tarjeta y barras</button><button type="button" class="secondary" id="mh78-back">← Mis campos</button></div>'
    +'<div id="mh78-edit-form" hidden></div>';
@@ -21558,6 +21561,7 @@ function mh72DeleteGolfCourse(){
    else {const status=panel.querySelector('#mh115-message');if(status)status.textContent='Selecciona los tramos de '+g.name+' para completar sus barras.'}
   });
   detail.querySelector('#mh79-print').onclick=()=>window.print();
+  detail.querySelector('#mh124-route').onchange=e=>{selectedRoute=e.target.value;render()};
   detail.querySelector('#mh78-tee').onchange=e=>{selected=e.target.value;render()};
   detail.querySelector('#mh78-back').onclick=()=>{detail.hidden=true;list.hidden=false;list.scrollIntoView({block:'start',behavior:'smooth'})};
   detail.querySelector('#mh78-edit-info').onclick=()=>{
@@ -21586,7 +21590,7 @@ function mh72DeleteGolfCourse(){
    }catch(error){console.error('Error editando tarjeta:',error);alert('No se pudo abrir la tarjeta: '+error.message);}
   };
  }
- window.mh78ShowCourse=function(id){current=id;selected='';const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;list.hidden=true;try{render();detail.scrollIntoView({block:'start',behavior:'smooth'});}catch(err){console.error('Error al abrir ficha de Golf:',err);detail.hidden=false;detail.innerHTML='<h3>⛳ Ficha del campo</h3><p>No se ha podido mostrar la tarjeta. Puedes volver al listado e intentarlo de nuevo.</p><button type="button" class="secondary" onclick="golfOpenFields()">← Mis campos</button>';}};
+ window.mh78ShowCourse=function(id){current=id;selected='';selectedRoute='';const c=document.getElementById('mh77-create-panel');if(c)c.hidden=true;const d=document.getElementById('mh77-created');if(d)d.hidden=true;detail.hidden=false;list.hidden=true;try{render();detail.scrollIntoView({block:'start',behavior:'smooth'});}catch(err){console.error('Error al abrir ficha de Golf:',err);detail.hidden=false;detail.innerHTML='<h3>⛳ Ficha del campo</h3><p>No se ha podido mostrar la tarjeta. Puedes volver al listado e intentarlo de nuevo.</p><button type="button" class="secondary" onclick="golfOpenFields()">← Mis campos</button>';}};
  // Capture Edit card before the old handler launches the workout modal.
  list.addEventListener('click',e=>{
    const button=e.target.closest('button');if(!button||(!button.textContent.includes('Editar / Ver')&&!button.textContent.includes('Editar campo')))return;
@@ -21626,6 +21630,14 @@ function mh72DeleteGolfCourse(){
 }
 </style>
 
+<style id="mh124-print-scope">
+@media print{
+ #mh78-detail .mh122-physical-list,#mh78-detail #mh118-bars-slot,
+ #mh78-detail label[for="mh124-route"],#mh78-detail #mh124-route,
+ #mh78-detail .mh78-info:first-of-type{display:none!important}
+ #mh78-detail .mh79-card{display:block!important}
+}
+</style>
 <style id="mh82-fix-style">
 #mh78-detail.mh82-force-visible{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important}
 #mh78-detail.mh82-force-visible[hidden]{display:none!important}
