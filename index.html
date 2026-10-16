@@ -21518,12 +21518,25 @@ function mh72DeleteGolfCourse(){
    +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
    +'<div class="mh78-sub">Recorridos del campo · '+(routes.length*9)+' hoyos</div>'
    +'<div class="mh114-routes">'+(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>')+'</div>'
+   +'<div style="margin:10px 0 15px"><button type="button" class="primary" id="mh117-open-bars" style="width:100%;min-height:48px">🎨 Elegir recorrido y color · Añadir barras con IA</button><p id="mh117-note" class="mh78-hint" hidden></p></div>'
    +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
    +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
    +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
    +'<p class="mh78-hint">Cada color pertenece a este mismo campo. Las distancias y valoraciones pueden cambiar según las barras seleccionadas. Comprueba la tarjeta si se importó desde una fotografía.</p>'
    +'<div class="mh78-actions"><button type="button" class="secondary" id="mh78-edit-info">Editar datos del club</button><button type="button" class="secondary" id="mh78-edit-card">Editar tarjeta y barras</button><button type="button" class="secondary" id="mh78-back">← Mis campos</button></div>'
    +'<div id="mh78-edit-form" hidden></div>';
+  detail.querySelector('#mh117-open-bars').onclick=()=>{
+    const note=detail.querySelector('#mh117-note');
+    detail.dataset.mh83Id=current;
+    try{
+      if(typeof window.mh115Mount!=='function')throw Error('No se ha cargado el selector de barras.');
+      window.mh115Mount();
+      const panel=detail.querySelector('#mh115-panel');
+      if(!panel)throw Error('No se pudo mostrar el selector para este campo.');
+      panel.hidden=false;
+      panel.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){note.hidden=false;note.textContent='No se ha podido abrir el selector: '+String(e.message||e);}
+  };
   detail.querySelector('#mh79-print').onclick=()=>window.print();
   detail.querySelector('#mh78-tee').onchange=e=>{selected=e.target.value;render()};
   detail.querySelector('#mh78-back').onclick=()=>{detail.hidden=true;list.hidden=false;list.scrollIntoView({block:'start',behavior:'smooth'})};
@@ -22595,6 +22608,7 @@ window.mh84CardCrop=async function(file,range){
    catch(e){Object.keys(target).forEach(k=>delete target[k]);Object.assign(target,old);message.textContent='No se pudo guardar: '+(e.message||String(e))+'. No se han modificado los datos anteriores.'}
   };
  }
+ window.mh115Mount=init;
  const observer=new MutationObserver(()=>{if(!detail.hidden&&!detail.querySelector('#mh115-panel'))init()});observer.observe(detail,{childList:true});
  const old=window.mh78ShowCourse;if(typeof old==='function')window.mh78ShowCourse=function(){detail.dataset.mh83Id=String(arguments[0]||'');const result=old.apply(this,arguments);init();return result};
  init();
