@@ -293,3 +293,11 @@ v22.3.115: Añadir barras por recorrido (IA web o foto), revisión y guardado li
 
 
 v22.3.116: Mostrar selector de recorrido y color justo debajo de los recorridos; escoger catálogo de recorridos de la variante más completa. No cambia datos ni funciones de otras secciones.
+
+
+## v22.3.117
+- Botón explícito en ficha de campo para abrir selector de recorrido y color, sin depender del montaje automático.
+- Mensaje de error visible si falta el módulo.
+
+
+v22.3.118: selector nativo desplegable en ficha Golf, mensaje explícito de ausencia de colores; no modifica datos ni guardado.
