@@ -21892,7 +21892,7 @@ window.mh84CardCrop=async function(file,range){
  const overlay=document.createElement('div');overlay.id='mh89-overlay';overlay.hidden=true;
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','Editar tarjeta y barras');
  document.body.appendChild(overlay);
- let courseId='',selectedTee='',savedScroll=0;
+ let courseId='',selectedTee='',savedScroll=0,selectedPhysical=0;
  const esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[k]));
  const clone=x=>JSON.parse(JSON.stringify(x));
  function target(){const cfg=golfConfig();return courseId==='escorpion'?cfg:cfg.courses?.[courseId]}
@@ -21901,8 +21901,17 @@ window.mh84CardCrop=async function(file,range){
  function close(){overlay.hidden=true;overlay.style.removeProperty('display');document.body.style.overflow=''; if(courseId&&golfCourseMap()[courseId]){window.mh78ShowCourse(courseId);const select=detail.querySelector('#mh78-tee');if(select&&[...select.options].some(o=>o.value===selectedTee)){select.value=selectedTee;select.dispatchEvent(new Event('change'))}}window.scrollTo(0,savedScroll)}
  function show(id,tee){
   const c=golfCourseMap()[id];if(!c){alert('No se encuentra el campo.');return}
+  if(courseId!==id)selectedPhysical=0;
   courseId=id;selectedTee=tee||Object.keys(names(c))[0]||c.tee||'Sin indicar';
-  const variant=selected(c),keys=Object.keys(variant.routes||{}),ratings=Object.values(variant.whsRatings||{}),rating=ratings.find(r=>r?.courseRating!=null)||{};
+  const variant=selected(c),allKeys=Object.keys(variant.routes||{});
+  const physical=(Array.isArray(c.physicalRoutes)&&c.physicalRoutes.length
+    ? c.physicalRoutes.map(r=>({name:String(r.name||'Recorrido'),keys:(r.keys||[]).filter(k=>allKeys.includes(k))})).filter(r=>r.keys.length)
+    : allKeys.reduce((out,k)=>{const name=String(variant.routes[k]?.name||k).replace(/\s*[·-]\s*(?:1[–-]9|10[–-]18)\s*$/,'').trim();let group=out.find(g=>g.name.toLowerCase()===name.toLowerCase());if(!group){group={name,keys:[]};out.push(group)}group.keys.push(k);return out},[]));
+  if(selectedPhysical>=physical.length)selectedPhysical=0;
+  const currentPhysical=physical[selectedPhysical]||{name:'Recorrido',keys:allKeys};
+  const keys=currentPhysical.keys;
+  const ratings=variant.whsRatings||{};
+  const rating=ratings[keys.join('|')]||{};
   if(overlay.hidden)savedScroll=window.scrollY;
   const block=(start,key)=>{
    const route=variant.routes[key]||{};
@@ -21910,6 +21919,7 @@ window.mh84CardCrop=async function(file,range){
     +[['Par','par',3,6],['Hcp 18','hcp',1,18],['Hcp 9','hcp9',1,9],['Metros','meters',0,1000]].map(([label,field,min,max])=>'<tr><th>'+label+'</th>'+Array.from({length:9},(_,i)=>'<td><input data-mh89="1" data-route="'+esc(key)+'" data-index="'+i+'" data-field="'+field+'" type="number" inputmode="numeric" min="'+min+'" max="'+max+'" value="'+esc(route[field]?.[i]??'')+'"></td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   };
   overlay.innerHTML='<div class="mh89-head"><b>⛳ Editar tarjeta y barras</b><button type="button" class="secondary" id="mh89-close">✕ Cerrar</button></div><div class="mh89-body"><h2>'+esc(c.name)+'</h2><p class="mh89-note">Editas los datos del campo, no una partida. Ningún golpe ni resultado se modifica.</p>'
+   +'<label for="mh89-physical">Recorrido</label><select id="mh89-physical">'+physical.map((r,i)=>'<option value="'+i+'" '+(i===selectedPhysical?'selected':'')+'>'+esc(r.name)+' · '+(r.keys.length*9)+' hoyos</option>').join('')+'</select>'
    +'<label for="mh89-tee">Barras de salida</label><select id="mh89-tee">'+Object.keys(names(c)).map(t=>'<option value="'+esc(t)+'" '+(t===selectedTee?'selected':'')+'>'+esc(t)+'</option>').join('')+'</select>'
    +'<div class="mh89-row"><div><label for="mh89-new">Añadir otro color al mismo campo</label><input id="mh89-new" placeholder="Ej. Amarillas" maxlength="35"></div><button type="button" class="secondary" id="mh89-add">+ Añadir barras</button></div>'
    +keys.map((key,i)=>block(i*9,key)).join('')
@@ -21917,6 +21927,7 @@ window.mh84CardCrop=async function(file,range){
    +'<div class="mh89-actions"><button type="button" class="primary" id="mh89-save">Guardar tarjeta</button><button type="button" class="secondary" id="mh89-cancel">Volver sin guardar</button></div><div id="mh89-message" role="status"></div></div>';
   overlay.hidden=false;document.body.style.overflow='hidden';overlay.scrollTop=0;
   overlay.querySelector('#mh89-close').onclick=overlay.querySelector('#mh89-cancel').onclick=close;
+  overlay.querySelector('#mh89-physical').onchange=e=>{selectedPhysical=Number(e.target.value);show(id,selectedTee)};
   overlay.querySelector('#mh89-tee').onchange=e=>show(id,e.target.value);
   overlay.querySelector('#mh89-add').onclick=()=>{
     const name=overlay.querySelector('#mh89-new').value.trim(),t=target();
