@@ -304,3 +304,8 @@ v22.3.118: selector nativo desplegable en ficha Golf, mensaje explícito de ause
 
 
 v22.3.119: controles de búsqueda y foto independientes por recorrido en ficha, sin desplegable; se identifica el campo en cada render.
+
+
+## v22.3.120
+- Ficha Editar/Ver: montaje inmediato de controles por recorrido usando el ID inequívoco del campo.
+- No cambia los registros ni esquemas.
