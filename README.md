@@ -315,3 +315,6 @@ v22.3.119: controles de búsqueda y foto independientes por recorrido en ficha, 
 - Conserva nombres y tamaño de recorridos físicos de 9 o 18 hoyos al importar nuevos campos desde IA.
 - La ficha muestra todas las tarjetas de 9 hoyos internas (27, 36 hoyos, etc.), no solo las primeras 18.
 - No migra automáticamente registros antiguos ni altera el almacenamiento existente.
+
+
+v22.3.122 · Reorganiza la ficha Editar / Ver: grupos de recorridos físicos 9/18 (sin alterar tramos internos ni partidas), estado de barras por recorrido y valoración por combinación. Controles de completar dirigidos a los tramos internos ya disponibles. No modifica datos guardados ni los servicios de IA.

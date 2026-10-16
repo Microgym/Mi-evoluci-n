@@ -21507,26 +21507,56 @@ function mh72DeleteGolfCourse(){
   const c=golfCourseMap()[current];if(!c){detail.hidden=true;list.hidden=false;return;}
   const names=Object.keys(variantsFor(c));if(!names.includes(selected))selected=names[0]||'';
   const varr=variantsFor(c)[selected]||{},routes=Object.values(varr.routes||{}),info=c.clubInfo||{};
+  // v22.3.122: los tramos de 9 son una representación interna, NO recorridos físicos.
+  const entries=Object.entries(varr.routes||{});
+  const physical=(Array.isArray(c.physicalRoutes)&&c.physicalRoutes.length
+   ? c.physicalRoutes.map(r=>({name:String(r.name||'Recorrido'),keys:(r.keys||[]).filter(k=>varr.routes?.[k]),count:Number(r.holesCount)||9}))
+   : entries.reduce((out,[key,r])=>{
+       const name=String(r.name||key).replace(/\s*[·-]\s*(?:1[–-]9|10[–-]18)\s*$/,'').trim();
+       let g=out.find(x=>x.name.toLowerCase()===name.toLowerCase());
+       if(!g){g={name,keys:[],count:0};out.push(g)}g.keys.push(key);g.count+=9;return out;
+     },[]));
+  const groupHoles=g=>g.keys.flatMap((key,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:varr.routes[key]?.par?.[j],hcp:varr.routes[key]?.hcp?.[j],meters:varr.routes[key]?.meters?.[j]})));
+  const hasData=g=>groupHoles(g).some(h=>h.par!=null||h.hcp!=null||h.meters!=null);
+
   const holes=routes.flatMap((r,i)=>Array.from({length:9},(_,j)=>({n:i*9+j+1,par:r.par?.[j],hcp:r.hcp?.[j],meters:r.meters?.[j]})));
   const rating=Object.values(varr.whsRatings||{}).find(v=>v&&typeof v==='object'&&v.courseRating!=null)||{};
   // Two nine-hole blocks reproduce the layout of a printed golf scorecard.
   const makeNine=(part,offset)=>'<section class="mh79-nine"><div class="mh79-nine-title">'+(offset===0?'Ida · hoyos 1–9':'Vuelta · hoyos 10–18')+'</div><div class="mh79-table-wrap"><table class="mh79-table"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'
     +[['Par','par'],['Hcp','hcp'],['Metros','meters']].map(([label,key])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[key]??'—')+'</td>').join('')+'<td class="mh79-total">'+(key==='hcp'?'—':(part.every(h=>Number.isFinite(Number(h[key]))&&h[key]!==null&&h[key]!==undefined)?part.reduce((a,h)=>a+Number(h[key]),0):'—'))+'</td></tr>').join('')+'</tbody></table></div></section>';
-  const all=holes.length?'<div class="mh79-scorecard">'+routes.map((r,i)=>'<h4 style="margin:14px 0 5px">'+esc(r.name||('Tramo '+(i+1)))+'</h4>'+makeNine(holes.slice(i*9,(i+1)*9),i*9)).join('')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
+  const all=physical.length?'<div class="mh79-scorecard">'+physical.map(g=>{
+   const rows=groupHoles(g);
+   return '<h4 style="margin:14px 0 6px">'+esc(g.name)+' · '+rows.length+' hoyos</h4>'
+    +makeNine(rows.slice(0,9),0)+(rows.length>9?makeNine(rows.slice(9,18),9):'');
+  }).join('')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
+  const physicalCards=physical.map((g,i)=>'<section class="mh122-physical" data-physical="'+i+'"><div class="mh122-physical-title"><strong>'+esc(g.name)+'</strong><span>'+g.keys.length*9+' hoyos · '+(hasData(g)?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div><div class="mh122-colors">'+Object.entries(variantsFor(c)).map(([color,v])=>{
+   const data=g.keys.some(k=>{const r=v.routes?.[k];return r&&['par','hcp','meters'].some(f=>(r[f]||[]).some(x=>x!=null))});
+   return '<span class="mh122-chip">'+esc(color)+' · '+(data?'datos':'pendiente')+'</span>';
+  }).join('')+'</div><button type="button" class="secondary mh122-complete" data-physical="'+i+'">Completar barras de '+esc(g.name)+'</button></section>').join('');
   detail.innerHTML='<h3>⛳ '+esc(c.name)+'</h3>'
    +'<div class="mh78-sub">Datos del club</div><div class="mh78-info">'
    +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
-   +'<div class="mh78-sub">Recorridos del campo · '+(routes.length*9)+' hoyos</div>'
-   +'<div class="mh114-routes">'+(Array.isArray(c.physicalRoutes)&&c.physicalRoutes.length?c.physicalRoutes.map(r=>'<div class="mh114-route"><strong>'+esc(r.name)+'</strong><span>'+esc(r.holesCount)+' hoyos · '+esc((r.keys||[]).map(k=>varr.routes?.[k]).filter(Boolean).some(v=>(v.par||[]).some(x=>x!=null)||(v.meters||[]).some(x=>x!=null))?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div>').join(''):(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>'))+'</div>'
+   +'<div class="mh78-sub">Recorridos físicos · '+physical.reduce((a,g)=>a+g.keys.length*9,0)+' hoyos</div>'
+   +'<div class="mh122-physical-list">'+physicalCards+'</div>'
    +'<div id="mh118-bars-slot" style="margin:14px 0;display:block;visibility:visible"></div>'
    +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
-   +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos del campo',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
+   +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos totales del club',holes.length)+infoRow('Valoraciones CR / Slope',Object.entries(varr.whsRatings||{}).map(([key,x])=>{const parts=key.split('|');const g=physical.find(g=>g.keys.join('|')===key);return (g?.name||parts.map(k=>varr.routes?.[k]?.name||k).join(' + '))+': '+(x.courseRating??'—')+' / '+(x.slopeRating??'—')}).join(' · ')||'Pendientes por recorrido y salida')+'</div>'
    +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
    +'<p class="mh78-hint">Cada color pertenece a este mismo campo. Las distancias y valoraciones pueden cambiar según las barras seleccionadas. Comprueba la tarjeta si se importó desde una fotografía.</p>'
    +'<div class="mh78-actions"><button type="button" class="secondary" id="mh78-edit-info">Editar datos del club</button><button type="button" class="secondary" id="mh78-edit-card">Editar tarjeta y barras</button><button type="button" class="secondary" id="mh78-back">← Mis campos</button></div>'
    +'<div id="mh78-edit-form" hidden></div>';
   detail.dataset.mh83Id=current;
   try{window.mh115Mount?.(current)}catch(e){const slot=detail.querySelector('#mh118-bars-slot');if(slot)slot.textContent='No se pudo mostrar la edición de barras: '+String(e.message||e)}
+  detail.querySelectorAll('.mh122-complete').forEach(btn=>btn.onclick=()=>{
+   const i=Number(btn.dataset.physical),g=physical[i];
+   if(!g)return;
+   const panel=detail.querySelector('#mh115-panel');
+   if(!panel){alert('No se ha podido cargar el editor de barras. No se ha modificado nada.');return;}
+   panel.scrollIntoView({behavior:'smooth',block:'start'});
+   const card=[...panel.querySelectorAll('.mh119-route-card')].find(el=>el.dataset.route===g.keys[0]);
+   if(card){card.style.outline='3px solid #14836a';card.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>card.style.removeProperty('outline'),3500)}
+   else {const status=panel.querySelector('#mh115-message');if(status)status.textContent='Selecciona los tramos de '+g.name+' para completar sus barras.'}
+  });
   detail.querySelector('#mh79-print').onclick=()=>window.print();
   detail.querySelector('#mh78-tee').onchange=e=>{selected=e.target.value;render()};
   detail.querySelector('#mh78-back').onclick=()=>{detail.hidden=true;list.hidden=false;list.scrollIntoView({block:'start',behavior:'smooth'})};
@@ -22608,4 +22638,14 @@ window.mh84CardCrop=async function(file,range){
  init();
 })();
 </script>
+
+<style id="mh122-physical-style">
+#mh78-detail .mh122-physical{border:1px solid #d5e4dc;border-radius:12px;background:#f8fbf9;padding:12px;margin:9px 0}
+#mh78-detail .mh122-physical-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
+#mh78-detail .mh122-physical-title strong{font-size:19px;color:#155a46}
+#mh78-detail .mh122-physical-title span{font-size:13px;color:#587469}
+#mh78-detail .mh122-colors{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}
+#mh78-detail .mh122-chip{border-radius:100px;padding:4px 9px;background:#e8f2ed;color:#355d4c;font-size:12px}
+#mh78-detail .mh122-complete{width:100%;margin-top:4px}
+</style>
 </body></html>
