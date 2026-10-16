@@ -318,3 +318,7 @@ v22.3.119: controles de búsqueda y foto independientes por recorrido en ficha, 
 
 
 v22.3.122 · Reorganiza la ficha Editar / Ver: grupos de recorridos físicos 9/18 (sin alterar tramos internos ni partidas), estado de barras por recorrido y valoración por combinación. Controles de completar dirigidos a los tramos internos ya disponibles. No modifica datos guardados ni los servicios de IA.
+
+## v22.3.123
+- Editor de tarjeta: selector explícito de recorrido físico y barra, muestra únicamente los 9/18 hoyos correspondientes.
+- Guardado conserva otros recorridos y barras. Course Rating y Slope por par recorrido/color.
