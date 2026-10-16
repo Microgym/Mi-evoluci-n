@@ -280,3 +280,7 @@ v22.3.111: Pantalla de apertura estática y ligera mientras el navegador procesa
 
 
 v22.3.112: se corrige la cadena de HTML del informe PDF que contenía un bloque CSS accidental y rompía el script del calendario y PDF. No cambia el almacenamiento ni registros.
+
+
+## v22.3.113 — Escorpión
+Creación explícita de los tres recorridos físicos de 9 hoyos sin búsqueda IA ni datos inventados. No modifica fichas existentes.

@@ -22466,4 +22466,43 @@ window.mh84CardCrop=async function(file,range){
  },true);
 })();
 </script>
+
+<style id="mh113-style">
+#mh113-escorpion{background:#f4faf6;border:1px solid #c9e3d2;border-radius:14px;padding:14px;margin:12px 0}
+#mh113-escorpion button{width:100%;margin:10px 0 4px}
+#mh113-result{font-size:13px;white-space:pre-wrap}
+</style>
+<script>
+/* v22.3.113 · Creación controlada de tres recorridos físicos de Escorpión.
+   No modifica ni borra campos existentes; no inventa valores de tarjeta. */
+(function(){
+ const panel=document.getElementById('mh77-create-panel');
+ if(!panel)return;
+ const area=document.createElement('section');area.id='mh113-escorpion';
+ area.innerHTML='<h4>⛳ Escorpión: crear los 27 hoyos correctamente</h4><p>Crear tres recorridos físicos independientes: <b>Masía, Lagos y Nuevos</b> (9 hoyos cada uno). Las tarjetas, los colores y los datos por hoyo quedarán pendientes. No es necesario buscar con IA.</p><button type="button" class="secondary" id="mh113-create">Crear estructura de Escorpión (27 hoyos)</button><p id="mh113-result" role="status" aria-live="polite"></p>';
+ const anchor=document.getElementById('mh99-search');
+ if(anchor)anchor.insertAdjacentElement('beforebegin',area);else panel.insertBefore(area,panel.firstChild);
+ const status=area.querySelector('#mh113-result');
+ area.querySelector('#mh113-create').addEventListener('click',()=>{
+  try{
+   const cfg=golfConfig();
+   const normal=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+   const exists=Object.values(golfCourseMap()).some(c=>normal(c.name).includes('escorpion'));
+   if(exists){status.textContent='Escorpión ya figura en Mis campos. No se ha creado un duplicado ni cambiado sus datos. Si necesitas corregirlo, abre su ficha.';return;}
+   const names=['Masía','Lagos','Nuevos'];
+   const routeData={};
+   names.forEach((name,i)=>{routeData['esc_'+(i+1)]={name,par:Array(9).fill(null),hcp:Array(9).fill(null),meters:Array(9).fill(null)};});
+   if(!window.confirm('Crear Club de Golf Escorpión con Masía, Lagos y Nuevos (9 hoyos cada uno), sin tarjetas inventadas. ¿Confirmas?'))return;
+   const id='campo_escorpion_'+Date.now().toString(36);
+   const clone=v=>JSON.parse(JSON.stringify(v));
+   const provisional='Pendiente de completar';
+   const course={name:'Club de Golf Escorpión',tee:provisional,routes:clone(routeData),whsRatings:{},teeVariants:{[provisional]:{routes:clone(routeData),whsRatings:{}}},clubInfo:{address:'',province:'Valencia',country:'España',greenfee:'',phone:''}};
+   cfg.courses[id]=course;
+   try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){delete cfg.courses[id];status.textContent='No se pudo guardar; no se han cambiado otros campos.';return;}
+   status.textContent='✓ Escorpión guardado: Masía, Lagos y Nuevos. Tarjetas pendientes de completar.';
+   try{golfPopulateSelectors(id);window.mh78ShowCourse?.(id);}catch(e){console.warn('Golf: abrir ficha',e)}
+  }catch(e){console.error('Escorpión 27 hoyos',e);status.textContent='No se pudo crear el campo. No se han modificado otros registros.';}
+ });
+})();
+</script>
 </body></html>
