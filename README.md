@@ -309,3 +309,9 @@ v22.3.119: controles de búsqueda y foto independientes por recorrido en ficha, 
 ## v22.3.120
 - Ficha Editar/Ver: montaje inmediato de controles por recorrido usando el ID inequívoco del campo.
 - No cambia los registros ni esquemas.
+
+
+## v22.3.121 — Golf
+- Conserva nombres y tamaño de recorridos físicos de 9 o 18 hoyos al importar nuevos campos desde IA.
+- La ficha muestra todas las tarjetas de 9 hoyos internas (27, 36 hoyos, etc.), no solo las primeras 18.
+- No migra automáticamente registros antiguos ni altera el almacenamiento existente.
