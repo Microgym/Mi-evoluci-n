@@ -274,3 +274,6 @@ Se ha desactivado el registro del sw.js ausente y el mecanismo de update/reload 
 
 
 v22.3.110: fija la botonera Añadir serie / Validar en el modo foco de rutinas, sin cambiar scripts ni almacenamiento.
+
+
+v22.3.111: Pantalla de apertura estática y ligera mientras el navegador procesa el HTML. Sin cambios de registros, almacenamiento, navegación, worker ni funciones de entrenamiento/golf. Esto evita ver la interfaz incompleta de la versión recién cargada; no puede impedir que un Service Worker antiguo sirva inicialmente HTML antiguo.

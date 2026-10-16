@@ -7,6 +7,19 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.111: portada ligera durante el procesamiento inicial; no altera datos -->
+<style id="mh111-startup-style">
+#mh111-boot{position:fixed;inset:0;z-index:2147483646;background:#f6f7f9;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center;padding:24px}
+#mh111-boot .mark{width:54px;height:54px;background:#e6f2eb;color:#18794e;border-radius:18px;display:grid;place-items:center;font-size:29px}
+#mh111-boot strong{font-size:21px;letter-spacing:-.02em}
+#mh111-boot small{font-size:13px;color:#747985}
+#mh111-boot .bar{width:125px;height:3px;background:#e3e7e9;border-radius:8px;overflow:hidden}
+#mh111-boot .bar::after{content:"";display:block;width:40%;height:100%;background:#18794e;border-radius:8px;animation:mh111-move 1.15s ease-in-out infinite alternate}
+@keyframes mh111-move{from{transform:translateX(0)}to{transform:translateX(190%)}}
+#mh111-boot.mh111-done{opacity:0;pointer-events:none;transition:opacity .18s ease}
+@media(prefers-reduced-motion:reduce){#mh111-boot .bar::after{animation:none}}
+</style>
+
 
 <style>
 :root{
@@ -3757,6 +3770,22 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 }
 </style></head>
 <body>
+<div id="mh111-boot" role="status" aria-label="Abriendo MicroHealth">
+ <div class="mark" aria-hidden="true">✚</div><strong>MicroHealth</strong><small>Preparando tu día…</small><div class="bar" aria-hidden="true"></div>
+</div>
+<script id="mh111-boot-script">
+(function(){
+ function ready(){
+  var el=document.getElementById('mh111-boot');if(!el)return;
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+   el.classList.add('mh111-done');
+   setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},220);
+  });});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
+ else ready();
+})();
+</script>
 <header class="mh-topbar">
   <div class="header-wrap">
     <div class="brand-lockup">
