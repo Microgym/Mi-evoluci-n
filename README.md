@@ -290,3 +290,6 @@ v22.3.114: La ficha de campo muestra los nombres de TODOS los recorridos de nuev
 
 
 v22.3.115: Añadir barras por recorrido (IA web o foto), revisión y guardado limitado a un recorrido de 9 hoyos y un color. No se autoguarda.
+
+
+v22.3.116: Mostrar selector de recorrido y color justo debajo de los recorridos; escoger catálogo de recorridos de la variante más completa. No cambia datos ni funciones de otras secciones.
