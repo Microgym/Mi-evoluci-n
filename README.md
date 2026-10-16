@@ -287,3 +287,6 @@ Creación explícita de los tres recorridos físicos de 9 hoyos sin búsqueda IA
 
 
 v22.3.114: La ficha de campo muestra los nombres de TODOS los recorridos de nueve hoyos y su estado de tarjeta. Cambio únicamente de presentación.
+
+
+v22.3.115: Añadir barras por recorrido (IA web o foto), revisión y guardado limitado a un recorrido de 9 hoyos y un color. No se autoguarda.
