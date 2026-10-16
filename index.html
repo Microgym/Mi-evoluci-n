@@ -21518,19 +21518,15 @@ function mh72DeleteGolfCourse(){
    +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
    +'<div class="mh78-sub">Recorridos del campo · '+(routes.length*9)+' hoyos</div>'
    +'<div class="mh114-routes">'+(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>')+'</div>'
-   +'<details id="mh118-bars" style="margin:12px 0 16px;border:1px solid #b9d9c9;border-radius:14px;padding:12px;background:#f5faf7"><summary style="font-size:16px;font-weight:800;cursor:pointer;min-height:32px">🎨 Añadir barras por recorrido con IA</summary><p style="margin:12px 0 4px;font-size:13px">'+(names.filter(n=>n!=="Pendiente de completar").length?'Colores guardados: '+names.filter(n=>n!=="Pendiente de completar").map(esc).join(', '):'⚠️ No hay colores reales guardados. «Pendiente de completar» es solo un marcador provisional, no un color detectado por la IA.')+'</p><div id="mh118-bars-slot"></div></details>'
+   +'<div id="mh118-bars-slot" style="margin:14px 0"></div>'
    +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
    +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
    +'<div class="mh78-sub">Tarjeta del campo · '+esc(selected)+'</div><div class="mh78-card mh79-card">'+all+'</div><div class="mh79-print-row"><button type="button" class="secondary" id="mh79-print">📄 Ver / guardar PDF</button></div>'
    +'<p class="mh78-hint">Cada color pertenece a este mismo campo. Las distancias y valoraciones pueden cambiar según las barras seleccionadas. Comprueba la tarjeta si se importó desde una fotografía.</p>'
    +'<div class="mh78-actions"><button type="button" class="secondary" id="mh78-edit-info">Editar datos del club</button><button type="button" class="secondary" id="mh78-edit-card">Editar tarjeta y barras</button><button type="button" class="secondary" id="mh78-back">← Mis campos</button></div>'
    +'<div id="mh78-edit-form" hidden></div>';
-  const barsDetails=detail.querySelector('#mh118-bars');
-  barsDetails.addEventListener('toggle',()=>{if(barsDetails.open){
-    try{window.mh115Mount?.();const panel=detail.querySelector('#mh115-panel');
-      if(!panel){const slot=detail.querySelector('#mh118-bars-slot');if(slot)slot.textContent='No se ha podido iniciar el lector de barras. Comprueba que el campo tenga recorridos.';}
-    }catch(e){const slot=detail.querySelector('#mh118-bars-slot');if(slot)slot.textContent='Error al abrir selector: '+String(e.message||e);}
-  }});
+  detail.dataset.mh83Id=current;
+  try{window.mh115Mount?.()}catch(e){const slot=detail.querySelector('#mh118-bars-slot');if(slot)slot.textContent='No se pudo mostrar la edición de barras: '+String(e.message||e)}
   detail.querySelector('#mh79-print').onclick=()=>window.print();
   detail.querySelector('#mh78-tee').onchange=e=>{selected=e.target.value;render()};
   detail.querySelector('#mh78-back').onclick=()=>{detail.hidden=true;list.hidden=false;list.scrollIntoView({block:'start',behavior:'smooth'})};
@@ -22543,34 +22539,38 @@ window.mh84CardCrop=async function(file,range){
   const base=Object.values(t.teeVariants||{}).map(v=>v?.routes||{}).sort((a,b)=>Object.keys(b).length-Object.keys(a).length)[0]||t.routes||{};
   const routes=Object.entries(base);if(!routes.length)return;
   const holder=document.createElement('section');holder.id='mh115-panel';
-  holder.innerHTML='<h4>🎨 Añadir barras por recorrido con IA</h4><p>Elige uno de los recorridos físicos de 9 hoyos. Puedes buscar datos en Internet o leer una foto de esa salida. Nada se guarda hasta confirmar.</p><label>Recorrido<select id="mh115-route">'+routes.map(([key,r])=>'<option value="'+escape(key)+'">'+escape(r.name||key)+'</option>').join('')+'</select></label><label>Color de salida<select id="mh115-color"><option>Blancas</option><option>Amarillas</option><option>Azules</option><option>Rojas</option><option>Negras</option><option>Verdes</option></select></label><label>Foto de la tarjeta (opcional)<input id="mh115-file" type="file" accept="image/jpeg,image/png,image/webp" /></label><div class="mh115-actions"><button type="button" class="secondary" id="mh115-web">Buscar esta barra con IA</button><button type="button" class="secondary" id="mh115-photo">Leer foto de esta barra</button></div><p id="mh115-message" role="status" aria-live="polite"></p><div id="mh115-preview" hidden></div><button type="button" class="primary" id="mh115-save" disabled>Confirmar y guardar esta barra</button>';
+  holder.innerHTML='<h4>🎨 Completar barras por recorrido</h4><p>Cada recorrido tiene nueve hoyos. Selecciona un color y busca su tarjeta o sube una foto. No se guarda nada sin confirmar.</p>'
+   +'<div id="mh119-route-cards">'+routes.map(([key,r])=>'<section class="mh119-route-card" data-route="'+escape(key)+'" style="background:#fff;border:1px solid #d4e5dd;border-radius:12px;padding:12px;margin:10px 0"><strong>'+escape(r.name||key)+' · 9 hoyos</strong><label style="display:block;margin-top:10px">Color<select class="mh119-color"><option>Amarillas</option><option>Blancas</option><option>Azules</option><option>Rojas</option><option>Negras</option><option>Verdes</option></select></label><label style="display:block">Fotografía de esta tarjeta<input class="mh119-file" type="file" accept="image/jpeg,image/png,image/webp" /></label><div class="mh115-actions"><button type="button" class="secondary mh119-web">Buscar barras con IA</button><button type="button" class="secondary mh119-photo">Leer foto</button></div></section>').join('')+'</div>'
+   +'<p id="mh115-message" role="status" aria-live="polite"></p><div id="mh115-preview" hidden></div><button type="button" class="primary" id="mh115-save" disabled>Confirmar y guardar esta barra</button>';
   const slot=detail.querySelector('#mh118-bars-slot');if(slot)slot.appendChild(holder);else detail.appendChild(holder);
   const $=q=>holder.querySelector(q), message=$('#mh115-message'),preview=$('#mh115-preview'),save=$('#mh115-save');let proposed=null;
+  let chosenRoute='',chosenColor='';
+  const selectedCard=()=>[...holder.querySelectorAll('.mh119-route-card')].find(v=>v.dataset.route===chosenRoute);
   function reset(){proposed=null;save.disabled=true;preview.hidden=true;preview.textContent='';message.textContent=''}
-  $('#mh115-route').onchange=reset;$('#mh115-color').onchange=reset;$('#mh115-file').onchange=reset;
+  holder.querySelectorAll('.mh119-color,.mh119-file').forEach(el=>el.addEventListener('change',reset));
   async function request(path,body){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),path.includes('search')?100000:65000);try{const r=await fetch(getAiBackendUrl()+path,{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});const data=await r.json().catch(()=>({}));if(!r.ok||!data.ok)throw Error(data.error||('Servicio IA: HTTP '+r.status));return data.result||{}}finally{clearTimeout(timer)}}
   function show(holes,source,extra=''){
    const found=new Map();(holes||[]).forEach(h=>{const row=valid(h);if(row&&!found.has(row.hole))found.set(row.hole,row)});
    const rows=[...found.values()].sort((a,b)=>a.hole-b.hole);if(!rows.length){message.textContent='No se encontraron hoyos verificables para este recorrido y color. No se ha cambiado nada.';return}
-   const route=$('#mh115-route').value,color=$('#mh115-color').value;
+   const route=chosenRoute,color=chosenColor;
    proposed={route,color,rows,source};
    preview.textContent='Recorrido: '+(base[route]?.name||route)+'\nSalida: '+color+'\nFuente: '+source+'\n'+(extra?'Nota: '+extra+'\n':'')+'\n'+rows.map(h=>'Hoyo '+h.hole+' · Par '+(h.par??'—')+' · HCP '+(h.hcp??'—')+' · metros '+(h.meters??'—')).join('\n');
    preview.hidden=false;save.disabled=false;message.textContent=rows.length+' hoyos leídos. Revisa los datos antes de confirmar; los valores no leídos no reemplazarán los existentes.';
   }
-  async function run(kind){
-   reset();const route=$('#mh115-route').value,color=$('#mh115-color').value;let body,path;
+  async function run(kind,card){
+   reset();const route=card.dataset.route,color=card.querySelector('.mh119-color').value;chosenRoute=route;chosenColor=color;let body,path;
    try{
     if(kind==='photo'){
-     const file=$('#mh115-file').files?.[0];if(!file){message.textContent='Selecciona primero una fotografía.';return}if(file.size>7.5*1024*1024){message.textContent='La foto supera el tamaño permitido (7,5 MB).';return}
+     const file=card.querySelector('.mh119-file').files?.[0];if(!file){message.textContent='Selecciona primero una fotografía.';return}if(file.size>7.5*1024*1024){message.textContent='La foto supera el tamaño permitido (7,5 MB).';return}
      const imageDataUrl=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onerror=()=>reject(Error('No se pudo leer la fotografía.'));rd.onload=()=>resolve(rd.result);rd.readAsDataURL(file)});
      path='/analyze-golf-scorecard';body={imageDataUrl,course:t.name,route:base[route]?.name||route,tee:color};
     }else{
      path='/search-golf-course';body={course:t.name,location:[t.clubInfo?.province,t.clubInfo?.country].filter(Boolean).join(', ')};
     }
-    $('#mh115-web').disabled=true;$('#mh115-photo').disabled=true;message.textContent='Consultando IA…';
+    holder.querySelectorAll('.mh119-web,.mh119-photo').forEach(b=>b.disabled=true);message.textContent='Consultando IA para '+(base[route]?.name||route)+' · '+color+'…';
     const result=await request(path,body);
     // Discard a stale result if the user changed route/tee while the request was running.
-    if(route!==$('#mh115-route').value||color!==$('#mh115-color').value){message.textContent='Selección modificada; repite la lectura.';return}
+    if(route!==chosenRoute||color!==chosenColor){message.textContent='Selección modificada; repite la lectura.';return}
     if(kind==='photo')show(result.holes,'Fotografía',result.note||'');
     else{
      const physical=(result.routes||[]).find(r=>norm(r.name)===norm(base[route]?.name||route)&&Number(r.holesCount)===9);
@@ -22580,11 +22580,11 @@ window.mh84CardCrop=async function(file,range){
      show(tee.holes,'Búsqueda web'+(tee.sourceUrl?' · '+tee.sourceUrl:''),'Datos parciales permitidos');
     }
    }catch(e){message.textContent=e.name==='AbortError'?'La búsqueda ha tardado demasiado. No se han modificado datos.':'Error de IA: '+(e.message||String(e))+'. No se han modificado datos.'}
-   finally{$('#mh115-web').disabled=false;$('#mh115-photo').disabled=false}
+   finally{holder.querySelectorAll('.mh119-web,.mh119-photo').forEach(b=>b.disabled=false)}
   }
-  $('#mh115-web').onclick=()=>run('web');$('#mh115-photo').onclick=()=>run('photo');
+  holder.querySelectorAll('.mh119-route-card').forEach(card=>{card.querySelector('.mh119-web').onclick=()=>run('web',card);card.querySelector('.mh119-photo').onclick=()=>run('photo',card)});
   save.onclick=()=>{
-   if(!proposed||proposed.route!==$('#mh115-route').value||proposed.color!==$('#mh115-color').value)return;
+   if(!proposed||proposed.route!==chosenRoute||proposed.color!==chosenColor)return;
    const {route,color,rows}=proposed,cfg=golfConfig(),target=id==='escorpion'?cfg:cfg.courses?.[id];if(!target){message.textContent='Campo no encontrado.';return}
    const old=clone(target);const variants=clone(target.teeVariants||{});
    if(!variants[color]){const template=clone(target.teeVariants?.[target.tee]?.routes||target.routes||{});for(const v of Object.values(template)){v.par=Array(9).fill(null);v.hcp=Array(9).fill(null);v.meters=Array(9).fill(null)}variants[color]={routes:template,whsRatings:{}}}

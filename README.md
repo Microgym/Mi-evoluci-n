@@ -301,3 +301,6 @@ v22.3.116: Mostrar selector de recorrido y color justo debajo de los recorridos;
 
 
 v22.3.118: selector nativo desplegable en ficha Golf, mensaje explícito de ausencia de colores; no modifica datos ni guardado.
+
+
+v22.3.119: controles de búsqueda y foto independientes por recorrido en ficha, sin desplegable; se identifica el campo en cada render.
