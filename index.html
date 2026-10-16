@@ -21512,12 +21512,12 @@ function mh72DeleteGolfCourse(){
   // Two nine-hole blocks reproduce the layout of a printed golf scorecard.
   const makeNine=(part,offset)=>'<section class="mh79-nine"><div class="mh79-nine-title">'+(offset===0?'Ida · hoyos 1–9':'Vuelta · hoyos 10–18')+'</div><div class="mh79-table-wrap"><table class="mh79-table"><thead><tr><th>Hoyo</th>'+part.map(h=>'<th>'+h.n+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'
     +[['Par','par'],['Hcp','hcp'],['Metros','meters']].map(([label,key])=>'<tr><th>'+label+'</th>'+part.map(h=>'<td>'+esc(h[key]??'—')+'</td>').join('')+'<td class="mh79-total">'+(key==='hcp'?'—':(part.every(h=>Number.isFinite(Number(h[key]))&&h[key]!==null&&h[key]!==undefined)?part.reduce((a,h)=>a+Number(h[key]),0):'—'))+'</td></tr>').join('')+'</tbody></table></div></section>';
-  const all=holes.length?'<div class="mh79-scorecard">'+makeNine(holes.slice(0,9),0)+(holes.length>9?makeNine(holes.slice(9,18),9):'')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
+  const all=holes.length?'<div class="mh79-scorecard">'+routes.map((r,i)=>'<h4 style="margin:14px 0 5px">'+esc(r.name||('Tramo '+(i+1)))+'</h4>'+makeNine(holes.slice(i*9,(i+1)*9),i*9)).join('')+'</div>':'<p class="mh78-hint">Aún no hay hoyos configurados.</p>';
   detail.innerHTML='<h3>⛳ '+esc(c.name)+'</h3>'
    +'<div class="mh78-sub">Datos del club</div><div class="mh78-info">'
    +infoRow('Dirección',info.address)+infoRow('Provincia',info.province)+infoRow('País',info.country)+infoRow('Teléfono',info.phone)+infoRow('Greenfee orientativo',info.greenfee)+'</div>'
    +'<div class="mh78-sub">Recorridos del campo · '+(routes.length*9)+' hoyos</div>'
-   +'<div class="mh114-routes">'+(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>')+'</div>'
+   +'<div class="mh114-routes">'+(Array.isArray(c.physicalRoutes)&&c.physicalRoutes.length?c.physicalRoutes.map(r=>'<div class="mh114-route"><strong>'+esc(r.name)+'</strong><span>'+esc(r.holesCount)+' hoyos · '+esc((r.keys||[]).map(k=>varr.routes?.[k]).filter(Boolean).some(v=>(v.par||[]).some(x=>x!=null)||(v.meters||[]).some(x=>x!=null))?'Tarjeta parcial':'Tarjeta pendiente')+'</span></div>').join(''):(routes.length?routes.map((r,i)=>'<div class="mh114-route"><strong>'+esc(r.name||('Recorrido '+(i+1)))+'</strong><span>9 hoyos'+(r.par?.some(v=>v!=null)||r.meters?.some(v=>v!=null)?' · Tarjeta parcial':' · Tarjeta pendiente')+'</span></div>').join(''):'<p>Sin recorridos definidos</p>'))+'</div>'
    +'<div id="mh118-bars-slot" style="margin:14px 0;display:block;visibility:visible"></div>'
    +'<div class="mh78-sub">Barras de salida</div><label for="mh78-tee">Selecciona el color</label><select id="mh78-tee">'+names.map(n=>'<option value="'+esc(n)+'" '+(n===selected?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'
    +'<div class="mh78-info" style="margin-top:10px">'+infoRow('Hoyos del campo',holes.length)+infoRow('Course Rating',rating.courseRating??'No indicado')+infoRow('Slope Rating',rating.slopeRating??'No indicado')+'</div>'
@@ -22348,7 +22348,7 @@ window.mh84CardCrop=async function(file,range){
     const id='campo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),first=Object.keys(variants)[0];
     const copy=x=>JSON.parse(JSON.stringify(x));
     const info={address:String(c.address||'').slice(0,240),province:String(c.location||location||'').slice(0,120),country:'',greenfee:'',phone:String(c.phone||'').slice(0,70)};
-    cfg.courses[id]={name:fieldName,tee:first,routes:copy(variants[first].routes),whsRatings:copy(variants[first].whsRatings),teeVariants:variants,clubInfo:info};
+    cfg.courses[id]={name:fieldName,tee:first,routes:copy(variants[first].routes),whsRatings:copy(variants[first].whsRatings),teeVariants:variants,clubInfo:info,physicalRoutes:routes.map((r,i)=>({name:String(r.name||('Recorrido '+(i+1))),holesCount:Number(r.holesCount)||9,keys:blocks.filter(x=>x.routeIndex===i).map(x=>x.key)}))};
     try{localStorage.setItem(KEY,JSON.stringify(db));}catch(err){delete cfg.courses[id];status.textContent='No se pudo guardar. No se han cambiado otros campos.';return;}
     status.textContent='✓ Campo guardado con '+blocks.length+' tramos de 9 hoyos y '+tees.size+' barras. Revisa lo pendiente en Mis campos.';
     importButton.disabled=true;importButton.textContent='✓ Campo guardado';
