@@ -277,3 +277,6 @@ v22.3.110: fija la botonera Añadir serie / Validar en el modo foco de rutinas, 
 
 
 v22.3.111: Pantalla de apertura estática y ligera mientras el navegador procesa el HTML. Sin cambios de registros, almacenamiento, navegación, worker ni funciones de entrenamiento/golf. Esto evita ver la interfaz incompleta de la versión recién cargada; no puede impedir que un Service Worker antiguo sirva inicialmente HTML antiguo.
+
+
+v22.3.112: se corrige la cadena de HTML del informe PDF que contenía un bloque CSS accidental y rompía el script del calendario y PDF. No cambia el almacenamiento ni registros.
