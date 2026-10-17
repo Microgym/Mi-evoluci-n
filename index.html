@@ -3895,7 +3895,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <div id="mh50-day-routine" class="mh50-routine" aria-live="polite"></div>
 <div class="mh47-next-dose" id="mh47-day-dose" aria-live="polite"></div><div id="mh47-day-appointment" aria-live="polite"></div>
 <div class="mh23-day-group" id="mh43-goals"><h3>⚖️ Mi peso y mis objetivos</h3></div>
-<div class="mh23-day-group mh91-panel" id="mh91-day"><h3>☀️ Mis ejercicios diarios</h3><div id="mh91-day-list"></div><p id="mh91-day-stats" class="muted"></p></div>
+<div class="mh23-day-group mh91-panel" id="mh91-day"><h3>☀️ Mis ejercicios diarios</h3><div id="mh127-day-groups"></div><div id="mh91-day-list"></div><p id="mh91-day-stats" class="muted"></p></div>
 <div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
@@ -4435,7 +4435,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <section id="entreno">
 <div id="mh91-daily-manage" class="mh91-panel">
 <h3>☀️ Mis ejercicios diarios</h3><p class="muted">Uno o dos ejercicios cortos para cada mañana. No cuentan como entrenamiento completo.</p>
-<div id="mh91-manage-list"></div>
+<div id="mh127-import" class="mh127-import"><label for="mh127-routine">Copiar una rutina completa a mis ejercicios diarios</label><select id="mh127-routine"></select><button type="button" class="secondary" id="mh127-copy">＋ Añadir rutina a ejercicios diarios</button><p class="muted" id="mh127-info" role="status">Se copia sin modificar la rutina original.</p></div><div id="mh127-manage"></div><div id="mh91-manage-list"></div>
 <details id="mh91-add-detail"><summary>＋ Añadir ejercicio diario</summary>
 <div class="mh91-form"><label>Ejercicio</label><input id="mh91-name" list="mh91-suggestions" placeholder="Ej. Flexiones" maxlength="90"><datalist id="mh91-suggestions"></datalist>
 <div class="row"><div><label>Series</label><input id="mh91-sets" type="number" min="1" max="20" value="3"></div><div><label>Repeticiones por serie</label><input id="mh91-reps" type="number" min="1" max="200" value="15"></div></div>
@@ -7054,7 +7054,7 @@ function coachRoutineRenderPreview(){
     <div><label>${ex.tipo==='cardio'?'Minutos':'Repeticiones'}</label><input type="number" min="1" max="240" value="${ex.tipo==='cardio'?ex.tiempo:(ex.reps||12)}" onchange="coachRoutineSetMetric(${i},this.value)"></div></div>
     <button type="button" class="set-remove" onclick="coachRoutineRemoveExercise(${i})">Quitar ejercicio</button></div>`).join('')}
     ${missing.length?`<p class="sport-hint">No se encontraron en el catálogo: ${missing.map(assistantEscape).join(', ')}. Puedes añadirlos después desde el editor de rutinas cuando esté disponible.</p>`:''}
-    <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
+    <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="mh127FromCoach()">☀️ Usar como ejercicios diarios</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
 }
 function coachRoutineSetMetric(i,v){
   const ex=coachRoutinePending?.draft?.ejercicios?.[i];if(!ex)return;
@@ -21715,13 +21715,19 @@ function mh72DeleteGolfCourse(){
  function getVariant(c,tee){return variants(c)[tee]||{routes:copy(c.routes),whsRatings:copy(c.whsRatings||{})};}
  function scoreRows(c,tee){const v=getVariant(c,tee);return Object.values(v.routes||{}).flatMap((r,k)=>Array.from({length:9},(_,i)=>({hole:k*9+i+1,par:r.par?.[i],hcp:r.hcp?.[i],meters:r.meters?.[i]})));}
  function pdfText(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x20-\x7e]/g,'?').replace(/[\\()]/g,'\\$&');}
- function downloadPdf(c,tee){
-  const rows=scoreRows(c,tee),variant=getVariant(c,tee),ratings=Object.values(variant.whsRatings||{});
-  const rating=ratings.find(x=>x?.courseRating!=null)||{};
+ function downloadPdf(c,tee,routeName){
+  const variant=getVariant(c,tee);
+  const physical=Array.isArray(c.physicalRoutes)?c.physicalRoutes:[];
+  const group=physical.find(r=>String(r.name)===String(routeName));
+  if(!group||!Array.isArray(group.keys)||!group.keys.length){alert('No se identifica el recorrido seleccionado. No se ha generado ningún PDF.');return;}
+  const rows=group.keys.flatMap((key,k)=>Array.from({length:9},(_,j)=>({hole:k*9+j+1,par:variant.routes?.[key]?.par?.[j]??null,hcp:variant.routes?.[key]?.hcp?.[j]??null,meters:variant.routes?.[key]?.meters?.[j]??null})));
+  if(!rows.some(h=>h.par!=null||h.hcp!=null||h.meters!=null)){alert('Esta salida no contiene datos de hoyos para el recorrido seleccionado. No se generará una tarjeta vacía.');return;}
+  const key=group.keys.join('|');
+  const rating=variant.whsRatings?.[key]||{};
   const W=842,H=595,ops=[];
   const write=(x,y,text,size=11,bold=false)=>{ops.push(`BT /${bold?'F2':'F1'} ${size} Tf 0.10 0.21 0.20 rg 1 0 0 1 ${x} ${H-y} Tm (${pdfText(text)}) Tj ET`)};
   const line=(x,y,x2,y2)=>ops.push(`0.75 0.82 0.78 RG 0.7 w ${x} ${H-y} m ${x2} ${H-y2} l S`);
-  write(35,40,'MICROHEALTH  /  TARJETA DE CAMPO',16,true);write(35,66,c.name,17,true);write(35,87,'Barras: '+tee+'    Hoyos: '+rows.length+'    Rating: '+(rating.courseRating??'--')+'    Slope: '+(rating.slopeRating??'--'),10);
+  write(35,40,'MICROHEALTH  /  TARJETA DE CAMPO',16,true);write(35,66,c.name+' - '+routeName,17,true);write(35,87,'Barras: '+tee+'    Hoyos: '+rows.length+'    Rating: '+(rating.courseRating??'--')+'    Slope: '+(rating.slopeRating??'--'),10);
   const names=['HOYO','PAR','HCP','METROS'];
   function block(chunk,start,top){
    write(35,top,start===0?'IDA  -  HOYOS 1-9':'VUELTA  -  HOYOS 10-18',12,true);
@@ -21743,7 +21749,7 @@ function mh72DeleteGolfCourse(){
   const start=doc.length;doc+='xref\n0 7\n0000000000 65535 f \n';for(let i=1;i<=6;i++)doc+=String(ofs[i]).padStart(10,'0')+' 00000 n \n';
   doc+=`trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
   const blob=new Blob([new Uint8Array(Array.from(doc,c=>c.charCodeAt(0)))],{type:'application/pdf'}),url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='Tarjeta_'+c.name.replace(/[^\w\-]+/g,'_')+'_'+tee.replace(/[^\w\-]+/g,'_')+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const a=document.createElement('a');a.href=url;a.download='Tarjeta_'+c.name.replace(/[^\w\-]+/g,'_')+'_'+String(routeName).replace(/[^\w\-]+/g,'_')+'_'+tee.replace(/[^\w\-]+/g,'_')+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
  }
  function getLiveCourseId(){return detail.dataset.mh83Id||document.getElementById('golfCourseSelect')?.value||'';}
  function openEditor(id,tee){
@@ -21800,7 +21806,8 @@ function mh72DeleteGolfCourse(){
    e.preventDefault();e.stopImmediatePropagation();
    const id=detail.dataset.mh83Id,c=golfCourseMap()[id];if(!c){alert('No se encuentra el campo. Vuelve a Mis campos.');return}
    const tee=detail.querySelector('#mh78-tee')?.value||c.tee||'Sin indicar';
-   downloadPdf(c,tee);
+   const route=detail.querySelector('#mh124-route')?.value;
+   downloadPdf(c,tee,route);
   }
  },true);
  const original=window.mh78ShowCourse;
@@ -22683,4 +22690,70 @@ window.mh84CardCrop=async function(file,range){
 #mh78-detail .mh122-chip{border-radius:100px;padding:4px 9px;background:#e8f2ed;color:#355d4c;font-size:12px}
 #mh78-detail .mh122-complete{width:100%;margin-top:4px}
 </style>
+<style id="mh127-style">
+.mh127-import{border:1px solid #d2e5dd;border-radius:14px;padding:12px;margin:12px 0;background:#f6fbf8;display:grid;gap:9px}
+.mh127-import select,.mh127-import button{width:100%}
+.mh127-group{margin:12px 0;border:1px solid #cfdfd7;border-radius:15px;padding:12px;background:#f8fcfa}
+.mh127-group summary{font-weight:750;color:#12533f;cursor:pointer;font-size:16px;line-height:1.4}
+.mh127-group .mh91-item{margin:10px 0}
+.mh127-actions{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
+</style>
+<script>
+/* v22.3.127: additive daily-routine groups. Uses existing dailyExercises + logs. */
+(function(){
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const info=()=>document.getElementById('mh127-info');
+ const todayDate=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
+ function groups(){if(!Array.isArray(db.dailyRoutineGroups))db.dailyRoutineGroups=[];return db.dailyRoutineGroups;}
+ function persist(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){alert('No se pudieron guardar los ejercicios diarios.');return false;}}
+ function routineChoices(){const s=document.getElementById('mh127-routine');if(!s)return;const before=s.value;const rs=Array.isArray(db.rutinas)?db.rutinas:[];s.innerHTML=rs.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.nombre)+'</option>').join('');if(rs.some(r=>String(r.id)===before))s.value=before;}
+ function importRoutine(r){
+   const exs=(r?.ejercicios||[]).filter(x=>x&&String(x.ej||x.name||'').trim());
+   if(!exs.length){alert('Esta rutina no contiene ejercicios reconocibles.');return;}
+   if(exs.length>60){alert('La rutina supera el máximo de 60 ejercicios.');return;}
+   const copy=exs.map((x,i)=>({id:'dr_'+Date.now().toString(36)+'_'+i+'_'+Math.random().toString(36).slice(2,7),name:String(x.ej||x.name).slice(0,90),sets:Math.max(1,Math.min(20,Number(x.series||x.sets)||1)),reps:Math.max(1,Math.min(200,Number(x.reps)||1)),load:Math.max(0,Number(x.kg||x.load)||0),minutes:x.tipo==='cardio'?Number(x.tiempo||x.duracion)||null:null,catalogId:x.exerciseId||null,start:todayDate(),end:'',daypart:'mañana'}));
+   const gid='daily_r_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+   if(!Array.isArray(db.dailyExercises))db.dailyExercises=[];
+   const old=JSON.stringify(db.dailyExercises);const oldGroups=JSON.stringify(groups());
+   db.dailyExercises.push(...copy);groups().push({id:gid,name:String(r.nombre||'Rutina diaria').slice(0,80),exerciseIds:copy.map(x=>x.id),start:todayDate()});
+   if(!persist()){db.dailyExercises=JSON.parse(old);db.dailyRoutineGroups=JSON.parse(oldGroups);return;}
+   window.mh91Refresh?.();render();
+   const target=info();if(target)target.textContent='✓ Rutina copiada ('+copy.length+' ejercicios). La original no ha cambiado.';
+ }
+ window.mh127FromCoach=function(){
+   const pending=typeof coachRoutinePending!=='undefined'?coachRoutinePending:null;
+   if(!pending?.draft?.ejercicios?.length){alert('Prepara primero la propuesta del Coach.');return;}
+   if(!confirm('¿Añadir esta propuesta a Mis ejercicios diarios? Se copiará sin contar como entrenamiento completo.'))return;
+   importRoutine(pending.draft);
+   if(typeof coachRoutineImportMessage==='function')coachRoutineImportMessage('✓ Copiada a Mis ejercicios diarios. La propuesta del Coach sigue disponible.');
+ };
+ function render(){
+   routineChoices();
+   const manage=document.getElementById('mh127-manage');
+   if(manage){manage.innerHTML=groups().map(g=>'<div class="mh127-group"><strong>'+esc(g.name)+'</strong><p class="muted">'+g.exerciseIds.length+' ejercicios en Mi día</p><button type="button" class="secondary" data-remove-group="'+esc(g.id)+'">Quitar rutina diaria</button></div>').join('');
+    manage.querySelectorAll('[data-remove-group]').forEach(b=>b.onclick=()=>{const g=groups().find(x=>x.id===b.dataset.removeGroup);if(!g||!confirm('¿Quitar esta rutina de los días futuros? Los registros de días ya completados se conservan.'))return;const ids=new Set(g.exerciseIds);const prev=JSON.stringify([db.dailyExercises,db.dailyRoutineGroups]);db.dailyExercises=(db.dailyExercises||[]).filter(x=>!ids.has(x.id));db.dailyRoutineGroups=groups().filter(x=>x.id!==g.id);if(!persist()){const a=JSON.parse(prev);db.dailyExercises=a[0];db.dailyRoutineGroups=a[1];return;}window.mh91Refresh?.();render();});}
+   const host=document.getElementById('mh91-day-list'),out=document.getElementById('mh127-day-groups');if(!host||!out)return;
+   // Restore moved rows before re-rendering groups; renderDay will generate fresh ones on refresh.
+   const daily=db.dailyExercises||[],dayLogs=(db.dailyExerciseLogs||{})[todayDate()]||{};
+   const ownGroups=groups().filter(g=>g.exerciseIds.some(id=>daily.some(x=>x.id===id)));
+   out.innerHTML='';const rows=[...host.querySelectorAll('.mh91-item')];
+   for(const g of ownGroups){
+      const ids=new Set(g.exerciseIds),subset=daily.filter(x=>ids.has(x.id)),done=subset.filter(x=>dayLogs[x.id]).length;
+      const box=document.createElement('details');box.className='mh127-group';box.open=done!==subset.length;
+      const summary=document.createElement('summary');summary.textContent='☀️ '+g.name+' · '+done+' de '+subset.length+' hechos';box.append(summary);
+      const actions=document.createElement('div');actions.className='mh127-actions';
+      const all=document.createElement('button');all.type='button';all.className='secondary';all.textContent='✓ Marcar toda la rutina como hecha';all.onclick=()=>{if(!confirm('¿Marcar todos los ejercicios pendientes de esta rutina como hechos hoy?'))return;const logs=db.dailyExerciseLogs||(db.dailyExerciseLogs={});const d=logs[todayDate()]||(logs[todayDate()]={});subset.forEach(x=>{if(!d[x.id])d[x.id]={reps:x.sets*x.reps,volume:null,muscles:'',at:new Date().toISOString()};});if(persist())window.mh91Refresh?.();};actions.append(all);box.append(actions);
+      rows.forEach(row=>{const btn=row.querySelector('[data-done],[data-save],[data-undo]');const id=btn?.dataset.done||btn?.dataset.save||btn?.dataset.undo;if(ids.has(id))box.append(row);});out.append(box);
+   }
+   // Remove empty fallback only when group exercises exist and there are no standalone exercises.
+ }
+ document.getElementById('mh127-copy')?.addEventListener('click',()=>{const id=document.getElementById('mh127-routine')?.value;const r=(db.rutinas||[]).find(x=>String(x.id)===id);if(r&&confirm('¿Copiar «'+r.nombre+'» a Mis ejercicios diarios?'))importRoutine(r);});
+ // Run after existing daily refresh; queue so existing controls are freshly constructed.
+ const old=window.mh91Refresh;
+ window.mh91Refresh=function(){const v=old?.apply(this,arguments);render();return v;};
+ const mo=new MutationObserver(()=>{const h=document.getElementById('mh91-day-list');if(h?.querySelector('[data-done],[data-save],[data-undo]'))render();});
+ const host=document.getElementById('mh91-day-list');if(host)mo.observe(host,{childList:true});
+ render();
+})();
+</script>
 </body></html>

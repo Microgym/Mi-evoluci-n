@@ -328,3 +328,9 @@ v22.3.124: ficha de Golf con selector de recorrido físico y color; tarjeta y PD
 
 ## v22.3.125
 Corrige la vista de hoyos por recorrido y color: claves físicas independientes del color, tablas directas y contador de datos completos. No migra datos.
+
+
+v22.3.126: PDF usa recorrido y color elegidos. Rechaza tarjetas sin datos; no cambia almacenamiento.
+
+
+v22.3.127: copiar una rutina a ejercicios diarios y copiar propuesta del Coach; agrupación desplegable en Mi día; sin modificar rutinas originales.
