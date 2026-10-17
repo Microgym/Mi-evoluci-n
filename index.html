@@ -7000,6 +7000,25 @@ function coachRoutineReadJson(reply){
   if(!obj){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{obj=JSON.parse(raw.slice(a,b+1))}catch{}}}
   return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null;
 }
+// v22.3.130: extrae solo la cantidad expresamente solicitada de ejercicios.
+// Distingue ejercicios de días, series y repeticiones; no presupone cantidades.
+function mh130RequestedExerciseCount(text){
+  const words={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20};
+  const s=String(text||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const m=s.match(/\b(\d{1,2}|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|quince|veinte)\s+(?:ejercicios?|movimientos?)\b/);
+  if(!m)return null;
+  const n=/^\d+$/.test(m[1])?Number(m[1]):words[m[1]];
+  if(!Number.isInteger(n)||n<1||n>45)return null;
+  const perDay=/\b(?:por|cada|al)\s+(?:dia|sesion|entrenamiento)\b/.test(s.slice(m.index,m.index+m[0].length+35));
+  return {count:n,perDay};
+}
+function mh130FindRequestForReply(row){
+  if(row?.requestedExerciseCount)return {count:Number(row.requestedExerciseCount),perDay:!!row.requestedExercisesPerDay};
+  const messages=Array.isArray(db.assistantChat)?db.assistantChat:[];
+  const i=messages.findIndex(m=>m.role==='assistant'&&Number(m.createdAt)===Number(row?.createdAt));
+  for(let k=i-1;k>=0;k--){if(messages[k].role==='user')return mh130RequestedExerciseCount(messages[k].text);}
+  return null;
+}
 function coachRoutineSafeNum(value,min,max,fallback){
   const n=Number(value);
   return Number.isFinite(n)&&n>=min&&n<=max?n:fallback;
@@ -7053,6 +7072,7 @@ function coachRoutineRenderPreview(){
   host.hidden=false;
   host.innerHTML=`<h3>🏋️ Rutina propuesta por el Coach</h3>
     <p class="muted">Revisa y modifica antes de guardar. No se ha guardado todavía.</p>
+    ${coachRoutinePending.requestedCount?`<p class="sport-hint">Cantidad solicitada: ${coachRoutinePending.requestedCount.count} ejercicio(s) ${coachRoutinePending.requestedCount.perDay?'por día':'en total'}. La propuesta se ha limitado a esa cantidad.</p>`:''}
     <label>Nombre de la rutina</label><input maxlength="80" value="${assistantEscape(draft.nombre).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}" oninput="coachRoutinePending.draft.nombre=this.value" />
     <label>Objetivo semanal (días, opcional)</label><input type="number" min="1" max="7" value="${draft.objetivoSemanal??''}" onchange="coachRoutinePending.draft.objetivoSemanal=this.value?Number(this.value):null" />
     ${draft.ejercicios.map((ex,i)=>`<div class="draft-row"><b>${i+1}. ${assistantEscape(ex.ej)}</b><div class="muted">${assistantEscape(ex.dia||"Sesión única")}</div><div class="row"><div><label>Series</label><input type="number" min="1" max="12" value="${ex.series||3}" onchange="coachRoutinePending.draft.ejercicios[${i}].series=Number(this.value)"></div>
@@ -7114,12 +7134,14 @@ async function coachCreateRoutineFromReply(createdAt){
     const recent=buildCoachSnapshot(28);
     const exerciseNames=[...new Set(EXERCISE_CATALOG.map(x=>x.name).filter(Boolean))];
     const original=String(row.text||''); // Solo la recomendación seleccionada: no mezclar sesiones anteriores.
+    const requestedCount=mh130FindRequestForReply(row);
     async function requestPlan(complete){
       const message=(complete?'COMPLETA LA RECOMENDACIÓN PARA QUE SEA UNA RUTINA UTILIZABLE. Si faltan ejercicios específicos, elige ejercicios apropiados del catálogo, según el objetivo y la distribución del Coach. No afirmes que fueron recomendados literalmente. ':'CONVIERTE LA RECOMENDACIÓN EN RUTINA. ')+
         'Devuelve ÚNICAMENTE JSON válido, sin Markdown, con esta estructura: '+
         '{"nombre":"Plan del Coach","diasSemana":3,"dias":[{"nombre":"Día 1 - Tren superior","ejercicios":[{"nombre":"nombre exacto del catálogo","series":3,"repeticiones":12}]}]}. '+
         'OBLIGATORIO: si diasSemana es N, el array dias debe tener EXACTAMENTE N elementos, cada uno con un nombre distinto y su propia lista de ejercicios. Nunca pongas todos los ejercicios en una sola sesión. Si el texto solo dice la distribución semanal, propón ejercicios concretos apropiados del catálogo para cada día. '+
         'No inventes pesos, historial, lesiones ni equipamiento. Los nombres de ejercicios DEBEN coincidir con el catálogo. '+
+        (requestedCount?'LÍMITE ESTRICTO: el usuario pidió '+requestedCount.count+' ejercicios '+(requestedCount.perDay?'POR DÍA':'EN TOTAL')+'. Devuelve EXACTAMENTE esa cantidad, sin extras ni calentamientos como ejercicios añadidos. ':'')+
         'CATÁLOGO: '+JSON.stringify(exerciseNames).slice(0,23000)+'. '+
         'CONTEXTO DE RECOMENDACIONES: '+original.slice(0,12500);
       const response=await fetch(getAiBackendUrl()+'/assistant-chat',{
@@ -7145,8 +7167,25 @@ async function coachCreateRoutineFromReply(createdAt){
       plan=await requestPlan(true);
       result=coachRoutineBuildDraft(plan||{},row.text);
     }
+    // El texto generado no basta: imponer el límite en la propia propuesta.
+    // Solo filtramos esta propuesta temporal; nunca alteramos rutinas guardadas.
+    if(requestedCount){
+      const limit=requestedCount.perDay?null:requestedCount.count;
+      if(limit){result.draft.ejercicios=result.draft.ejercicios.slice(0,limit);}
+      else{
+        const perDaySeen=new Map();
+        result.draft.ejercicios=result.draft.ejercicios.filter(ex=>{
+          const day=String(ex.dia||'Sesión única');const n=perDaySeen.get(day)||0;
+          if(n>=requestedCount.count)return false;perDaySeen.set(day,n+1);return true;
+        });
+      }
+    }
+    if(requestedCount){
+      result.requestedCount=requestedCount;
+      result.wasCountLimited=true;
+    }
     if(!result.draft.ejercicios.length)throw new Error('El Coach no ha proporcionado ejercicios reconocibles. No se ha guardado nada.');
-    if(expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result)){
+    if(!requestedCount && expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result)){
       throw new Error('El Coach ha indicado '+expectedDays(plan,result)+' días pero no ha distribuido los ejercicios en sesiones diferentes. No se ha guardado ninguna rutina. Vuelve a intentarlo.');
     }
     coachRoutineOpenEditor(result);
@@ -7332,10 +7371,14 @@ async function sendAssistantMessage(){
     && /\b(?:crea|crear|haz|hazme|genera|generar|prepara|preparar|dame|diseña|diseñar|nueva|nuevo|otra|otro|quiero|propón|propon|recomienda|recomendar)\b/i.test(message);
   const wantsRevision=/\b(?:modifica|modificar|cambia|cambiar|ajusta|ajustar|anterior|la misma|continúa|continua|esa rutina|mi ultima rutina|mi última rutina)\b/i.test(message);
   const independentRoutine=wantsNewRoutine&&!wantsRevision;
+  const requestedExerciseCount=mh130RequestedExerciseCount(message);
   const history=independentRoutine?[]:db.assistantChat.slice(-6,-1).map(m=>({role:m.role==='user'?'user':'assistant',text:String(m.text||'').slice(0,700)}));
   const coachMessage=independentRoutine
     ?'NUEVA RUTINA INDEPENDIENTE. Crea una unica propuesta desde cero para esta solicitud. No acumules, repitas ni combines ejercicios o sesiones de recomendaciones previas. La nueva propuesta ha de ajustarse al numero de dias y ejercicios que pido. Solicitud: '+message
     :message;
+  const coachMessageWithCount=requestedExerciseCount
+    ?'INSTRUCCIÓN OBLIGATORIA: incluye EXACTAMENTE '+requestedExerciseCount.count+' ejercicios '+(requestedExerciseCount.perDay?'POR DÍA':'EN TOTAL')+'; no agregues ejercicios adicionales, variantes ni calentamientos en la lista. '+coachMessage
+    :coachMessage;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),60000);
 
@@ -7345,7 +7388,7 @@ async function sendAssistantMessage(){
       mode:'cors',
       cache:'no-store',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({message:coachMessage,snapshot,history,context:{days:temporal.days,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
+      body:JSON.stringify({message:coachMessageWithCount,snapshot,history,context:{days:temporal.days,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
       signal:controller.signal
     });
     const raw=await response.text();
@@ -7369,6 +7412,8 @@ async function sendAssistantMessage(){
     db.assistantChat.push({
       role:'assistant',
       text:reply,
+      requestedExerciseCount:requestedExerciseCount?.count||null,
+      requestedExercisesPerDay:!!requestedExerciseCount?.perDay,
       time:assistantChatTimestamp(),
       createdAt:Date.now(),
       contextLabel:temporal.label,
