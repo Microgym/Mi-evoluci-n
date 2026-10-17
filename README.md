@@ -1,1 +1,1 @@
-MicroHealth v22.3.133 — Coach conectado al catálogo. Las solicitudes «solo catálogo» envían al Coach nombres e identificadores reales, filtrando modalidad y equipo; la conversión admite solo los elementos permitidos en esa consulta y lee títulos numerados ignorando instrucciones. No modifica registros existentes ni Cloudflare. Copia de seguridad antes de actualizar.
+MicroHealth v22.3.134 — Alta supervisada de ejercicios nuevos del Coach. Partiendo de v22.3.133. No borra rutinas ni historial; las imágenes IA no se generan todavía.

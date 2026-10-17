@@ -7073,7 +7073,7 @@ function coachRoutineBuildDraft(plan,sourceText){
 }
 let coachRoutinePending=null;
 function coachRoutineOpenEditor(result){
-  if(!result.draft.ejercicios.length){
+  if(!result.draft.ejercicios.length&&!result.newItems?.length){
     coachRoutineImportMessage('No se han reconocido ejercicios del catálogo en esta recomendación. Pide al Coach ejercicios concretos y vuelve a intentarlo.');coachRoutineFocusPanel();
     return;
   }
@@ -7088,6 +7088,18 @@ function coachRoutineRenderPreview(){
   if(!coachRoutinePending){host.hidden=true;host.innerHTML='';return;}
   const {draft,missing}=coachRoutinePending;
   host.hidden=false;
+  if(coachRoutinePending.newItems?.length){
+    const pending=coachRoutinePending.newItems;
+    host.innerHTML=`<h3>🆕 Revisar ejercicios nuevos</h3><p class="muted">Estos ejercicios no están en el catálogo. No se guardará ninguno hasta que lo confirmes. Los ya existentes se conservarán en la rutina.</p>`+
+      pending.map((x,i)=>`<div class="draft-row"><b>${i+1}. ${assistantEscape(x.name)}</b>
+        <label>Categoría</label><select onchange="coachRoutinePending.newItems[${i}].tipo=this.value">${['movilidad','fuerza','cardio','estiramientos','equilibrio'].map(v=>`<option value="${v}" ${v===x.tipo?'selected':''}>${v}</option>`).join('')}</select>
+        <label>Músculo o zona corporal</label><input maxlength="60" value="${assistantEscape(x.zone).replace(/"/g,'&quot;')}" oninput="coachRoutinePending.newItems[${i}].zone=this.value" />
+        <label>Material</label><input maxlength="80" value="${assistantEscape(x.equipment).replace(/"/g,'&quot;')}" oninput="coachRoutinePending.newItems[${i}].equipment=this.value" />
+        <label>Instrucciones (opcional)</label><textarea rows="2" oninput="coachRoutinePending.newItems[${i}].instructions=this.value">${assistantEscape(x.instructions)}</textarea></div>`).join('')+
+      `<p class="muted">Las imágenes de inicio y final aún no están disponibles. Podrás añadirlas en una actualización posterior.</p>
+       <div class="row"><button type="button" class="primary" onclick="mh134ApproveNewExercises()">✓ Confirmar y añadir ${pending.length} al catálogo</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
+    return;
+  }
   host.innerHTML=`<h3>🏋️ Rutina propuesta por el Coach</h3>
     <p class="muted">Revisa y modifica antes de guardar. No se ha guardado todavía.</p>
     ${coachRoutinePending.requestedCount?`<p class="sport-hint">Cantidad solicitada: ${coachRoutinePending.requestedCount.count} ejercicio(s) ${coachRoutinePending.requestedCount.perDay?'por día':'en total'}. La propuesta se ha limitado a esa cantidad.</p>`:''}
@@ -7098,6 +7110,47 @@ function coachRoutineRenderPreview(){
     <button type="button" class="set-remove" onclick="coachRoutineRemoveExercise(${i})">Quitar ejercicio</button></div>`).join('')}
     ${missing.length?`<p class="sport-hint">No se encontraron en el catálogo: ${missing.map(assistantEscape).join(', ')}. Puedes añadirlos después desde el editor de rutinas cuando esté disponible.</p>`:''}
     <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="mh127FromCoach()">☀️ Usar como ejercicios diarios</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
+}
+function mh134ApproveNewExercises(){
+  const pending=coachRoutinePending;
+  if(!pending?.newItems?.length)return;
+  if(!confirm('¿Añadir estos '+pending.newItems.length+' ejercicios al catálogo de MicroHealth? Podrás usarlos en futuras rutinas.'))return;
+  const before=JSON.stringify(Array.isArray(db.coachCustomExercises)?db.coachCustomExercises:[]);
+  const created=[];
+  try{
+    if(!Array.isArray(db.coachCustomExercises))db.coachCustomExercises=[];
+    for(const x of pending.newItems){
+      const existing=visibleExerciseCatalog().find(e=>coachRoutineCleanName(e.name)===coachRoutineCleanName(x.name));
+      if(existing)continue;
+      const item={id:'coach_custom_'+Date.now().toString(36)+'_'+created.length+'_'+Math.random().toString(36).slice(2,7),
+        name:String(x.name).trim().slice(0,110),tipo:x.tipo,zone:String(x.zone||'General').trim().slice(0,60),
+        equipment:String(x.equipment||'Sin material').trim().slice(0,80),modalidad:'personalizado',
+        instructions:String(x.instructions||'').trim().slice(0,500),icon:'🧘',coachCreated:true};
+      if(!item.name)throw Error('El nombre no puede estar vacío.');
+      db.coachCustomExercises.push(item);created.push(item);
+    }
+    save(); // Persistir primero; si falla, no modificar la vista previa.
+    mh134SyncCustomCatalog();
+    const all=[];
+    for(const item of pending.pendingEntries){
+      const x=mh132ExactCatalog(item.label);
+      if(!x)throw Error('No se ha encontrado después de guardar: '+item.label);
+      const cardio=x.tipo==='cardio';
+      all.push({tipo:x.tipo,ej:x.name,exerciseId:x.id,dia:'Sesión única',
+        series:coachRoutineSafeNum(item.series,1,12,cardio?1:3),reps:cardio?null:coachRoutineSafeNum(item.repeticiones,1,100,12),kg:null,
+        tiempo:cardio?coachRoutineSafeNum(item.minutos,1,240,15):null,unidadTiempo:'min',
+        duracion:cardio?coachRoutineSafeNum(item.minutos,1,240,15):6,intensidad:'moderada',modalidad:x.modalidad,equipo:x.equipment,
+        cardioActividad:cardio?cardioActivityForExercise({ej:x.name,equipo:x.equipment}):null,categoriaManual:null,
+        comentario:exercisePersistentComment(x.name)});
+    }
+    pending.draft.ejercicios=all;pending.newItems=[];pending.missing=[];
+    coachRoutineRenderPreview();coachRoutineImportMessage('✓ Ejercicios incorporados al catálogo. Revisa la rutina antes de guardarla o enviarla a Mi día.');
+  }catch(e){
+    db.coachCustomExercises=JSON.parse(before);
+    // Revertir la lista temporal si el guardado falló.
+    for(const x of created){const i=EXERCISE_CATALOG.findIndex(y=>y.id===x.id);if(i>=0)EXERCISE_CATALOG.splice(i,1);}
+    coachRoutineImportMessage('No se pudieron añadir los ejercicios: '+(e?.message||e));
+  }
 }
 function coachRoutineSetMetric(i,v){
   const ex=coachRoutinePending?.draft?.ejercicios?.[i];if(!ex)return;
@@ -7113,6 +7166,7 @@ function coachRoutineRemoveExercise(i){
 function coachRoutineCancel(){coachRoutinePending=null;coachRoutineRenderPreview();coachRoutineImportMessage('Propuesta descartada. No se ha guardado ninguna rutina.');}
 function coachRoutineConfirmSave(){
   if(!coachRoutinePending)return;
+  if(coachRoutinePending.newItems?.length){coachRoutineImportMessage('Confirma primero los ejercicios nuevos.');return;}
   const d=coachRoutinePending.draft;
   d.nombre=String(d.nombre||'Rutina Coach').trim().slice(0,80);
   if(!d.nombre||!d.ejercicios.length){coachRoutineImportMessage('Escribe un nombre y deja al menos un ejercicio.');return;}
@@ -7180,7 +7234,7 @@ function mh133ExtractTitles(reply){
 function mh132ExactCatalog(label){
   const clean=coachRoutineCleanName(label);
   if(!clean)return null;
-  const catalog=EXERCISE_CATALOG||[];
+  const catalog=visibleExerciseCatalog();
   const aliases={'cat camel':'cat camel','estiramiento de aductores tumbado':'estiramiento aductores tumbado','rotacion toracica en cuadrupedia':'rotacion toracica en cuadrupedia'};
   const wanted=aliases[clean]||clean;
   const exact=catalog.filter(x=>coachRoutineCleanName(x.name)===wanted);
@@ -7218,14 +7272,23 @@ async function coachCreateRoutineFromReply(createdAt){
     coachRoutineImportMessage('La respuesta del Coach no contiene una lista de ejercicios identificable. Pídele una lista numerada con el nombre exacto de cada ejercicio. No se ha generado nada nuevo.');
     coachRoutineFocusPanel();return;
   }
-  if((requested&&!requested.perDay&&entries.length!==requested.count)||missing.length){
-    coachRoutineImportMessage('No se ha creado la rutina: '+
-      (requested&&!requested.perDay&&entries.length!==requested.count?'la respuesta enumera '+entries.length+' ejercicios y se pidieron '+requested.count+'. ':'')+
-      (missing.length?'Ejercicios que no coinciden exactamente con el catálogo: '+missing.join('; ')+'. ':'')+
-      'No se añadirá ningún ejercicio distinto. Pide al Coach que escriba los nombres exactos del catálogo o crea esos ejercicios manualmente.');
+  if(requested&&!requested.perDay&&entries.length!==requested.count){
+    coachRoutineImportMessage('No se ha creado la rutina: la respuesta enumera '+entries.length+' ejercicios y se pidieron '+requested.count+'. No se añadirá ninguno distinto.');
     coachRoutineFocusPanel();return;
   }
-  const result={draft:{id:'r'+Date.now(),nombre:'Rutina de la respuesta del Coach',objetivoSemanal:null,ejercicios:exercises},missing:[]};
+  if(missing.length&&row.catalogOnly){
+    coachRoutineImportMessage('Pediste solo ejercicios del catálogo. Estos no coinciden con el catálogo permitido: '+missing.join('; ')+'. No se añadirá ninguno sin una nueva petición que permita ejercicios nuevos.');
+    coachRoutineFocusPanel();return;
+  }
+  const chatRows=Array.isArray(db.assistantChat)?db.assistantChat:[];
+  const pos=chatRows.findIndex(m=>m.role==='assistant'&&Number(m.createdAt)===Number(row.createdAt));
+  const requestText=pos>0?String(chatRows.slice(0,pos).reverse().find(m=>m.role==='user')?.text||''):'';
+  const context=coachRoutineCleanName(requestText+' '+String(row.text||'').slice(0,240));
+  const inferredType=/\b(?:estiramientos?|estirar)\b/.test(context)?'estiramientos':/\b(?:cardio|aerobico)\b/.test(context)?'cardio':/\b(?:fuerza|musculacion)\b/.test(context)?'fuerza':/\b(?:equilibrio|estabilidad)\b/.test(context)?'equilibrio':'movilidad';
+  const newItems=missing.map(name=>({name,tipo:inferredType,zone:'General',equipment:'Sin material',instructions:''}));
+  // No se descartan los ejercicios faltantes ni se sustituyen: se prepara su aprobación.
+  const result={draft:{id:'r'+Date.now(),nombre:'Rutina de la respuesta del Coach',objetivoSemanal:null,ejercicios:exercises},missing:missing.slice(),newItems,
+    pendingEntries:selected.map(item=>({label:item.label,series:item.series,repeticiones:item.repeticiones,minutos:item.minutos}))};
   if(requested)result.requestedCount=requested;
   coachRoutineOpenEditor(result);
 }
@@ -12872,7 +12935,16 @@ const CATALOG_DUPLICATE_ALIASES={
 };
 const CATALOG_HIDDEN_IDS=new Set(Object.keys(CATALOG_DUPLICATE_ALIASES));
 
+// v22.3.134: catálogo de ejercicios aprobados por el usuario, persistente en db.
+function mh134SyncCustomCatalog(){
+  const items=Array.isArray(db?.coachCustomExercises)?db.coachCustomExercises:[];
+  for(const raw of items){
+    if(!raw||!raw.id||!raw.name||EXERCISE_CATALOG.some(x=>x.id===raw.id))continue;
+    EXERCISE_CATALOG.push({...raw,coachCreated:true});
+  }
+}
 function visibleExerciseCatalog(){
+  mh134SyncCustomCatalog();
   return EXERCISE_CATALOG.filter(x=>!CATALOG_HIDDEN_IDS.has(x.id));
 }
 function canonicalExerciseId(id){
