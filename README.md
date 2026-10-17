@@ -1,5 +1,5 @@
-MicroHealth v22.3.130 — Respeto al número de ejercicios del Coach
+MicroHealth v22.3.131 — Coach: limitar la conversión de una respuesta de N ejercicios.
 
-Esta entrega parte de v22.3.129. Si pides N ejercicios, el Coach recibe una instrucción explícita y la propuesta temporal se limita a N en total, o N por día si lo indicas. No modifica rutinas ya guardadas ni registros diarios.
+Corrige peticiones elípticas como «ponme 4», y usa la cantidad confirmada al principio de la respuesta del Coach cuando no estaba explícita en el mensaje. El límite se aplica al borrador de la conversión antes de guardar, sin modificar rutinas anteriores ni ejercicios diarios.
 
-Antes de publicar: copia de seguridad completa. Después: probar la propuesta antes de guardarla.
+Haz una copia de seguridad antes de publicar. Prueba primero «ponme 4» y después «Crear rutina con esta recomendación»; confirma que la vista previa contiene como máximo 4 ejercicios.

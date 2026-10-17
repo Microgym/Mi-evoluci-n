@@ -7000,7 +7000,7 @@ function coachRoutineReadJson(reply){
   if(!obj){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{obj=JSON.parse(raw.slice(a,b+1))}catch{}}}
   return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null;
 }
-// v22.3.130: extrae solo la cantidad expresamente solicitada de ejercicios.
+// v22.3.131: interpreta también las peticiones elípticas y la cantidad confirmada en la respuesta.
 // Distingue ejercicios de días, series y repeticiones; no presupone cantidades.
 function mh130RequestedExerciseCount(text){
   const words={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20};
@@ -7016,8 +7016,26 @@ function mh130FindRequestForReply(row){
   if(row?.requestedExerciseCount)return {count:Number(row.requestedExerciseCount),perDay:!!row.requestedExercisesPerDay};
   const messages=Array.isArray(db.assistantChat)?db.assistantChat:[];
   const i=messages.findIndex(m=>m.role==='assistant'&&Number(m.createdAt)===Number(row?.createdAt));
-  for(let k=i-1;k>=0;k--){if(messages[k].role==='user')return mh130RequestedExerciseCount(messages[k].text);}
-  return null;
+  for(let k=i-1;k>=0;k--){
+    if(messages[k].role==='user'){
+      const userText=String(messages[k].text||'');
+      const explicit=mh130RequestedExerciseCount(userText);
+      if(explicit)return explicit;
+      // El usuario puede decir «ponme 4» o «quiero cuatro» sin repetir «ejercicios».
+      const simple=userText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .match(/\b(?:ponme|hazme|quiero|incluye|dame|solo|solamente|unicamente)\s+(?:solo\s+)?(\d{1,2}|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\b/);
+      if(simple){
+        const words={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
+        const count=/^\d+$/.test(simple[1])?Number(simple[1]):words[simple[1]];
+        if(count>=1&&count<=45)return {count,perDay:false};
+      }
+      break;
+    }
+  }
+  // La propia respuesta seleccionada puede confirmar «4 ejercicios» aunque
+  // la petición fuese elíptica («ponme cuatro»). Solo leer su encabezado,
+  // no menciones posteriores que podrían referirse a series o planes alternativos.
+  return mh130RequestedExerciseCount(String(row?.text||'').slice(0,900));
 }
 function coachRoutineSafeNum(value,min,max,fallback){
   const n=Number(value);
