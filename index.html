@@ -7000,7 +7000,7 @@ function coachRoutineReadJson(reply){
   if(!obj){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{obj=JSON.parse(raw.slice(a,b+1))}catch{}}}
   return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null;
 }
-// v22.3.132: interpreta también las peticiones elípticas y la cantidad confirmada en la respuesta.
+// v22.3.133: interpreta también las peticiones elípticas y la cantidad confirmada en la respuesta.
 // Distingue ejercicios de días, series y repeticiones; no presupone cantidades.
 function mh130RequestedExerciseCount(text){
   const words={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20};
@@ -7134,7 +7134,7 @@ function coachRoutineConfirmSave(){
     coachRoutineImportMessage('✓ '+toSave.length+' rutina(s) de «'+d.nombre+'» guardada(s) en Entreno → Mis rutinas.');
   }catch(e){coachRoutineImportMessage('No se ha podido confirmar el guardado: '+(e?.message||e));}
 }
-// v22.3.132 — conversión local y literal: no se vuelve a consultar a la IA.
+// v22.3.133 — conversión local y literal: no se vuelve a consultar a la IA.
 // Solo se extraen entradas enumeradas o viñetas de la respuesta elegida.
 function mh132ExtractRecommendationEntries(reply){
   const lines=String(reply||'').split(/\r?\n/), found=[];
@@ -7154,12 +7154,37 @@ function mh132ExtractRecommendationEntries(reply){
   }
   return found;
 }
+// v22.3.133 — listado verificable de catálogo en las solicitudes del Coach.
+function mh133CatalogForRequest(message){
+ const q=coachRoutineCleanName(message);
+ const catalog=typeof visibleExerciseCatalog==='function'?visibleExerciseCatalog():EXERCISE_CATALOG;
+ const category=q.includes('movilidad')||q.includes('estiramiento')?'movilidad':q.includes('cardio')?'cardio':q.includes('fuerza')?'fuerza':null;
+ const noMachines=/\b(?:sin maquinas|sin maquina|no use maquina|no usen maquinas|sin aparatos|en casa|sin material)\b/.test(q);
+ let pool=catalog.filter(x=>!category||x.tipo===category);
+ if(noMachines)pool=pool.filter(x=>!/(maquina|polea|cable|eliptica|cinta|remo ergometro|prensa)/.test(coachRoutineCleanName([x.modalidad,x.equipment,x.name].join(' '))));
+ const seen=new Set();pool=pool.filter(x=>{const k=coachRoutineCleanName(x.name);if(seen.has(k))return false;seen.add(k);return true;});
+ return pool.map(x=>({id:x.id,name:x.name,tipo:x.tipo}));
+}
+function mh133OnlyCatalogRequest(message){return /\b(?:catalogo|del catalogo|en el catalogo|solo ejercicios existentes|ejercicios registrados)\b/i.test(coachRoutineCleanName(message));}
+function mh133ExtractTitles(reply){
+ const lines=String(reply||'').split(/\r?\n/),numbered=[],bullets=[];
+ for(const raw of lines){
+  let line=raw.trim().replace(/^>\s*/, '');
+  let m=line.match(/^(?:#{1,5}\s*)?(?:\*\*)?(\d{1,2})[.)](?:\*\*)?\s+(.+)$/);
+  if(m){let label=m[2].replace(/\*\*/g,'').replace(/__/g,'').split(/\s+[—–:]\s+|\s+[-–]\s+/)[0].trim().replace(/[.;,]+$/,'');if(label.length>=3&&label.length<=110)numbered.push({n:Number(m[1]),label});continue;}
+  m=line.match(/^[-•*]\s+(.+)$/);
+  if(m){let label=m[1].replace(/\*\*/g,'').trim();if(label.length>=3&&label.length<=110&&!/^(?:\d+\s*series|\d+\s*min|\d+\s*repeticiones|mueve|mant[eé]n|apoya|gira|alterna|respira|realiza|si aparece|sin |durante )/i.test(label))bullets.push({label});}
+ }
+ return numbered.length?numbered.sort((a,b)=>a.n-b.n).map(x=>({label:x.label})):bullets;
+}
 function mh132ExactCatalog(label){
   const clean=coachRoutineCleanName(label);
   if(!clean)return null;
   const catalog=EXERCISE_CATALOG||[];
-  const exact=catalog.filter(x=>coachRoutineCleanName(x.name)===clean);
-  return exact.length===1?exact[0]:null;
+  const aliases={'cat camel':'cat camel','estiramiento de aductores tumbado':'estiramiento aductores tumbado','rotacion toracica en cuadrupedia':'rotacion toracica en cuadrupedia'};
+  const wanted=aliases[clean]||clean;
+  const exact=catalog.filter(x=>coachRoutineCleanName(x.name)===wanted);
+  return exact.length?exact[0]:null;
 }
 async function coachCreateRoutineFromReply(createdAt){
   if(coachRoutineImportBusy)return;
@@ -7170,13 +7195,13 @@ async function coachCreateRoutineFromReply(createdAt){
   if(coachRoutinePending&&!confirm('Hay una propuesta sin guardar. ¿Quieres sustituirla?'))return;
   coachRoutinePending=null;coachRoutineRenderPreview();
   const requested=mh130FindRequestForReply(row);
-  const entries=mh132ExtractRecommendationEntries(row.text);
+  const entries=mh133ExtractTitles(row.text);
   const limit=requested?.count||entries.length;
   const selected=entries.slice(0,limit);
   const missing=[],exercises=[];
   for(const item of selected){
     const catalog=mh132ExactCatalog(item.label);
-    if(!catalog){missing.push(item.label);continue;}
+    if(!catalog||(row.catalogOnly&&Array.isArray(row.allowedCatalogIds)&&!row.allowedCatalogIds.includes(catalog.id))){missing.push(item.label);continue;}
     const isCardio=catalog.tipo==='cardio';
     exercises.push({tipo:catalog.tipo,ej:catalog.name,exerciseId:catalog.id,dia:'Sesión única',
       series:coachRoutineSafeNum(item.series,1,12,isCardio?1:3),
@@ -7387,6 +7412,11 @@ async function sendAssistantMessage(){
   const coachMessage=independentRoutine
     ?'NUEVA RUTINA INDEPENDIENTE. Crea una unica propuesta desde cero para esta solicitud. No acumules, repitas ni combines ejercicios o sesiones de recomendaciones previas. La nueva propuesta ha de ajustarse al numero de dias y ejercicios que pido. Solicitud: '+message
     :message;
+  const onlyCatalog=mh133OnlyCatalogRequest(message);
+  const allowedCatalog=onlyCatalog?mh133CatalogForRequest(message):[];
+  const catalogInstruction=onlyCatalog
+    ?'MODO SOLO CATALOGO. Esta es la lista REAL de ejercicios permitidos, en formato ID|NOMBRE|TIPO: '+allowedCatalog.map(x=>x.id+'|'+x.name+'|'+x.tipo).join('; ')+'. Selecciona SOLO nombres literales de esta lista, sin crear nombres nuevos ni sustituir categorías. Escribe los elegidos en una lista numerada (1. Nombre, 2. Nombre). Puedes incluir explicaciones debajo de cada título. Si no hay suficientes ejercicios, dilo explícitamente y no inventes. '
+    :'';
   const coachMessageWithCount=requestedExerciseCount
     ?'INSTRUCCIÓN OBLIGATORIA: incluye EXACTAMENTE '+requestedExerciseCount.count+' ejercicios '+(requestedExerciseCount.perDay?'POR DÍA':'EN TOTAL')+'; no agregues ejercicios adicionales, variantes ni calentamientos en la lista. '+coachMessage
     :coachMessage;
@@ -7399,7 +7429,7 @@ async function sendAssistantMessage(){
       mode:'cors',
       cache:'no-store',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({message:coachMessageWithCount,snapshot,history,context:{days:temporal.days,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
+      body:JSON.stringify({message:catalogInstruction+coachMessageWithCount,snapshot,history,context:{days:temporal.days,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
       signal:controller.signal
     });
     const raw=await response.text();
@@ -7424,6 +7454,8 @@ async function sendAssistantMessage(){
       role:'assistant',
       text:reply,
       requestedExerciseCount:requestedExerciseCount?.count||null,
+      catalogOnly:onlyCatalog,
+      allowedCatalogIds:onlyCatalog?allowedCatalog.map(x=>x.id):null,
       requestedExercisesPerDay:!!requestedExerciseCount?.perDay,
       time:assistantChatTimestamp(),
       createdAt:Date.now(),
