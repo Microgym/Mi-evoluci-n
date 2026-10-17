@@ -1,5 +1,5 @@
-MicroHealth v22.3.131 — Coach: limitar la conversión de una respuesta de N ejercicios.
+MicroHealth v22.3.132 — Coach: conversión literal de la recomendación.
 
-Corrige peticiones elípticas como «ponme 4», y usa la cantidad confirmada al principio de la respuesta del Coach cuando no estaba explícita en el mensaje. El límite se aplica al borrador de la conversión antes de guardar, sin modificar rutinas anteriores ni ejercicios diarios.
+El botón «Crear rutina con esta recomendación» ya NO llama de nuevo a la IA. Extrae las líneas enumeradas de la respuesta elegida, utiliza solo coincidencias exactas con el catálogo y cancela la conversión si una línea no se reconoce o el número es distinto al pedido. No guarda ni cambia datos hasta confirmar manualmente.
 
-Haz una copia de seguridad antes de publicar. Prueba primero «ponme 4» y después «Crear rutina con esta recomendación»; confirma que la vista previa contiene como máximo 4 ejercicios.
+Antes de actualizar, realiza una copia de seguridad completa. Prueba una lista de 4 nombres exactos del catálogo. Si el Coach usa nombres no registrados se mostrará un aviso y no se inventarán sustituciones.

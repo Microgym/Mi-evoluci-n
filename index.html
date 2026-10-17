@@ -7000,7 +7000,7 @@ function coachRoutineReadJson(reply){
   if(!obj){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a){try{obj=JSON.parse(raw.slice(a,b+1))}catch{}}}
   return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null;
 }
-// v22.3.131: interpreta también las peticiones elípticas y la cantidad confirmada en la respuesta.
+// v22.3.132: interpreta también las peticiones elípticas y la cantidad confirmada en la respuesta.
 // Distingue ejercicios de días, series y repeticiones; no presupone cantidades.
 function mh130RequestedExerciseCount(text){
   const words={un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20};
@@ -7134,84 +7134,77 @@ function coachRoutineConfirmSave(){
     coachRoutineImportMessage('✓ '+toSave.length+' rutina(s) de «'+d.nombre+'» guardada(s) en Entreno → Mis rutinas.');
   }catch(e){coachRoutineImportMessage('No se ha podido confirmar el guardado: '+(e?.message||e));}
 }
+// v22.3.132 — conversión local y literal: no se vuelve a consultar a la IA.
+// Solo se extraen entradas enumeradas o viñetas de la respuesta elegida.
+function mh132ExtractRecommendationEntries(reply){
+  const lines=String(reply||'').split(/\r?\n/), found=[];
+  for(const raw of lines){
+    let line=raw.trim().replace(/^>\s*/, '');
+    const marker=line.match(/^(?:#{1,5}\s*)?(?:(?:\*\*)?\d{1,2}[.)](?:\*\*)?\s*|[-•*]\s+)(.+)$/);
+    if(!marker)continue;
+    line=marker[1].replace(/\*\*/g,'').replace(/__/g,'').trim();
+    if(!line||/^(?:dia|día|sesion|sesión|semana|bloque|objetivo|calentamiento|descanso|nota|consejo)\b/i.test(line))continue;
+    // El nombre termina antes de las instrucciones de series, duración o descripción.
+    const label=line.split(/\s+[—–:]\s+|\s+[-–]\s+|\s*\(\s*\d+\s*(?:series|min|reps)|\s+\d+\s*[x×]\s*\d+/i)[0]
+      .replace(/\s*\(\s*\d+\s*(?:series|min|reps).*$/i,'').replace(/[.;,\s]+$/,'').trim();
+    if(label.length<3||label.length>110)continue;
+    const sets=line.match(/\b(\d{1,2})\s*(?:series|x|×)\s*(\d{1,3})\b/i);
+    const mins=line.match(/\b(\d{1,3})\s*(?:minutos?|min\b)/i);
+    found.push({label,series:sets?Number(sets[1]):undefined,repeticiones:sets?Number(sets[2]):undefined,minutos:mins?Number(mins[1]):undefined});
+  }
+  return found;
+}
+function mh132ExactCatalog(label){
+  const clean=coachRoutineCleanName(label);
+  if(!clean)return null;
+  const catalog=EXERCISE_CATALOG||[];
+  const exact=catalog.filter(x=>coachRoutineCleanName(x.name)===clean);
+  return exact.length===1?exact[0]:null;
+}
 async function coachCreateRoutineFromReply(createdAt){
-  if(coachRoutineImportBusy){coachRoutineImportMessage('La rutina ya se está preparando. Espera un momento…');coachRoutineFocusPanel();return;}
+  if(coachRoutineImportBusy)return;
   const row=(db.assistantChat||[]).find(m=>m.role==='assistant'&&Number(m.createdAt)===Number(createdAt));
   if(!row||!String(row.text||'').trim()){
-    coachRoutineImportMessage('No encuentro esta respuesta en el historial. Vuelve a pedir al Coach la rutina e inténtalo otra vez.');coachRoutineFocusPanel();return;
+    coachRoutineImportMessage('No se encuentra la respuesta seleccionada. No se ha creado ninguna rutina.');coachRoutineFocusPanel();return;
   }
-  if(coachRoutinePending&&!confirm('Hay una propuesta del Coach sin guardar. ¿Quieres sustituirla?'))return;
-  coachRoutinePending=null;
-  coachRoutineRenderPreview();
-  coachRoutineImportBusy=true;
-  coachRoutineImportMessage('Preparando la rutina recomendada y comprobando ejercicios del catálogo…');
-  coachRoutineFocusPanel();
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),60000);
-  try{
-    const recent=buildCoachSnapshot(28);
-    const exerciseNames=[...new Set(EXERCISE_CATALOG.map(x=>x.name).filter(Boolean))];
-    const original=String(row.text||''); // Solo la recomendación seleccionada: no mezclar sesiones anteriores.
-    const requestedCount=mh130FindRequestForReply(row);
-    async function requestPlan(complete){
-      const message=(complete?'COMPLETA LA RECOMENDACIÓN PARA QUE SEA UNA RUTINA UTILIZABLE. Si faltan ejercicios específicos, elige ejercicios apropiados del catálogo, según el objetivo y la distribución del Coach. No afirmes que fueron recomendados literalmente. ':'CONVIERTE LA RECOMENDACIÓN EN RUTINA. ')+
-        'Devuelve ÚNICAMENTE JSON válido, sin Markdown, con esta estructura: '+
-        '{"nombre":"Plan del Coach","diasSemana":3,"dias":[{"nombre":"Día 1 - Tren superior","ejercicios":[{"nombre":"nombre exacto del catálogo","series":3,"repeticiones":12}]}]}. '+
-        'OBLIGATORIO: si diasSemana es N, el array dias debe tener EXACTAMENTE N elementos, cada uno con un nombre distinto y su propia lista de ejercicios. Nunca pongas todos los ejercicios en una sola sesión. Si el texto solo dice la distribución semanal, propón ejercicios concretos apropiados del catálogo para cada día. '+
-        'No inventes pesos, historial, lesiones ni equipamiento. Los nombres de ejercicios DEBEN coincidir con el catálogo. '+
-        (requestedCount?'LÍMITE ESTRICTO: el usuario pidió '+requestedCount.count+' ejercicios '+(requestedCount.perDay?'POR DÍA':'EN TOTAL')+'. Devuelve EXACTAMENTE esa cantidad, sin extras ni calentamientos como ejercicios añadidos. ':'')+
-        'CATÁLOGO: '+JSON.stringify(exerciseNames).slice(0,23000)+'. '+
-        'CONTEXTO DE RECOMENDACIONES: '+original.slice(0,12500);
-      const response=await fetch(getAiBackendUrl()+'/assistant-chat',{
-        method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({message,snapshot:recent,history:[],coachMode:'coach360',context:{days:28,label:'Últimas 4 semanas'}}),signal:controller.signal
-      });
-      const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}
-      if(!response.ok)throw new Error(data.error||'Error del Coach (HTTP '+response.status+').');
-      return coachRoutineReadJson(data.reply||data.result?.reply||'');
-    }
-    let plan=await requestPlan(false);
-    let result=coachRoutineBuildDraft(plan||{},row.text);
-    // Una frecuencia semanal no equivale a una única sesión. No mostrar una
-    // propuesta de cuatro días si la IA ha mezclado los ejercicios en uno.
-    function distinctDays(r){return new Set(r.draft.ejercicios.map(x=>x.dia||'Sesión única')).size;}
-    function expectedDays(p,r){
-      const explicit=Array.isArray(p?.dias)?p.dias:Array.isArray(p?.sesiones)?p.sesiones:[];
-      const n=Number(p?.diasSemana||r.draft.objetivoSemanal||0);
-      return Math.min(7,Math.max(explicit.length,Number.isInteger(n)?n:0));
-    }
-    if(!result.draft.ejercicios.length || (expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result))){
-      coachRoutineImportMessage('El Coach no ha separado correctamente las sesiones. Solicitando una distribución por días…');
-      plan=await requestPlan(true);
-      result=coachRoutineBuildDraft(plan||{},row.text);
-    }
-    // El texto generado no basta: imponer el límite en la propia propuesta.
-    // Solo filtramos esta propuesta temporal; nunca alteramos rutinas guardadas.
-    if(requestedCount){
-      const limit=requestedCount.perDay?null:requestedCount.count;
-      if(limit){result.draft.ejercicios=result.draft.ejercicios.slice(0,limit);}
-      else{
-        const perDaySeen=new Map();
-        result.draft.ejercicios=result.draft.ejercicios.filter(ex=>{
-          const day=String(ex.dia||'Sesión única');const n=perDaySeen.get(day)||0;
-          if(n>=requestedCount.count)return false;perDaySeen.set(day,n+1);return true;
-        });
-      }
-    }
-    if(requestedCount){
-      result.requestedCount=requestedCount;
-      result.wasCountLimited=true;
-    }
-    if(!result.draft.ejercicios.length)throw new Error('El Coach no ha proporcionado ejercicios reconocibles. No se ha guardado nada.');
-    if(!requestedCount && expectedDays(plan,result)>1 && distinctDays(result)<expectedDays(plan,result)){
-      throw new Error('El Coach ha indicado '+expectedDays(plan,result)+' días pero no ha distribuido los ejercicios en sesiones diferentes. No se ha guardado ninguna rutina. Vuelve a intentarlo.');
-    }
-    coachRoutineOpenEditor(result);
-  }catch(e){
-    coachRoutineImportMessage('No se ha creado ninguna rutina: '+(e?.name==='AbortError'?'la consulta tardó demasiado.':(e?.message||e))+' Puedes pedir al Coach: «Dame una rutina con ejercicios concretos, series y repeticiones».');
-    coachRoutineFocusPanel();
-  }finally{clearTimeout(timer);coachRoutineImportBusy=false;}
+  if(coachRoutinePending&&!confirm('Hay una propuesta sin guardar. ¿Quieres sustituirla?'))return;
+  coachRoutinePending=null;coachRoutineRenderPreview();
+  const requested=mh130FindRequestForReply(row);
+  const entries=mh132ExtractRecommendationEntries(row.text);
+  const limit=requested?.count||entries.length;
+  const selected=entries.slice(0,limit);
+  const missing=[],exercises=[];
+  for(const item of selected){
+    const catalog=mh132ExactCatalog(item.label);
+    if(!catalog){missing.push(item.label);continue;}
+    const isCardio=catalog.tipo==='cardio';
+    exercises.push({tipo:catalog.tipo,ej:catalog.name,exerciseId:catalog.id,dia:'Sesión única',
+      series:coachRoutineSafeNum(item.series,1,12,isCardio?1:3),
+      reps:isCardio?null:coachRoutineSafeNum(item.repeticiones,1,100,12),kg:null,
+      tiempo:isCardio?coachRoutineSafeNum(item.minutos,1,240,15):null,
+      unidadTiempo:'min',duracion:isCardio?coachRoutineSafeNum(item.minutos,1,240,15):6,
+      intensidad:'moderada',modalidad:catalog.modalidad,equipo:catalog.equipment,
+      cardioActividad:isCardio?cardioActivityForExercise({ej:catalog.name,equipo:catalog.equipment}):null,
+      categoriaManual:null,comentario:exercisePersistentComment(catalog.name)});
+  }
+  // No guardar una rutina con sustituciones silenciosas, nombres distintos,
+  // menos elementos de los pedidos ni ejercicios de otra naturaleza.
+  if(!entries.length){
+    coachRoutineImportMessage('La respuesta del Coach no contiene una lista de ejercicios identificable. Pídele una lista numerada con el nombre exacto de cada ejercicio. No se ha generado nada nuevo.');
+    coachRoutineFocusPanel();return;
+  }
+  if((requested&&!requested.perDay&&entries.length!==requested.count)||missing.length){
+    coachRoutineImportMessage('No se ha creado la rutina: '+
+      (requested&&!requested.perDay&&entries.length!==requested.count?'la respuesta enumera '+entries.length+' ejercicios y se pidieron '+requested.count+'. ':'')+
+      (missing.length?'Ejercicios que no coinciden exactamente con el catálogo: '+missing.join('; ')+'. ':'')+
+      'No se añadirá ningún ejercicio distinto. Pide al Coach que escriba los nombres exactos del catálogo o crea esos ejercicios manualmente.');
+    coachRoutineFocusPanel();return;
+  }
+  const result={draft:{id:'r'+Date.now(),nombre:'Rutina de la respuesta del Coach',objetivoSemanal:null,ejercicios:exercises},missing:[]};
+  if(requested)result.requestedCount=requested;
+  coachRoutineOpenEditor(result);
 }
+
 function renderAssistantChat(){
   const feed=document.getElementById('assistantChatFeed');
   if(!feed)return;
