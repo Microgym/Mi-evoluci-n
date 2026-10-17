@@ -334,3 +334,15 @@ v22.3.126: PDF usa recorrido y color elegidos. Rechaza tarjetas sin datos; no ca
 
 
 v22.3.127: copiar una rutina a ejercicios diarios y copiar propuesta del Coach; agrupación desplegable en Mi día; sin modificar rutinas originales.
+
+
+## v22.3.128
+- El Coach convierte solamente la respuesta seleccionada, sin acumular las últimas cuatro recomendaciones.
+- Una nueva rutina diaria del Coach sustituye los ejercicios diarios procedentes de una propuesta anterior del Coach; respeta rutinas manuales y el historial diario realizado.
+- Se limpia la propuesta temporal al importar.
+
+
+## v22.3.129
+- Peticiones de nueva rutina en el chat del Coach sin arrastrar mensajes anteriores; se conserva el resumen de actividad para personalizar.
+- Al generar una nueva vista previa se descarta la propuesta previa y se eliminan duplicados exactos de ejercicio por sesion.
+- No se modifica ni elimina ninguna rutina guardada, ejercicio diario o historial.
