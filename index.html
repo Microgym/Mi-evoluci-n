@@ -7219,7 +7219,19 @@ function mh133CatalogForRequest(message){
  const seen=new Set();pool=pool.filter(x=>{const k=coachRoutineCleanName(x.name);if(seen.has(k))return false;seen.add(k);return true;});
  return pool.map(x=>({id:x.id,name:x.name,tipo:x.tipo}));
 }
-function mh133OnlyCatalogRequest(message){return /\b(?:catalogo|del catalogo|en el catalogo|solo ejercicios existentes|ejercicios registrados)\b/i.test(coachRoutineCleanName(message));}
+function mh135AllowsNewExercises(message){
+ const q=coachRoutineCleanName(message);
+ // La mención del catálogo no equivale a exigir solo catálogo.
+ // Ej.: «Puedes incluir ejercicios que todavía no estén en mi catálogo».
+ return /(?:puedes? (?:incluir|anadir|crear|usar|proponer)|permite|permitir|admite|admitir|incluye|incluir|anade|anadir|incorpora|incorporar|agrega|agregar)/.test(q)
+   && /(?:nuevos?|no (?:esten|estan|existan|existen)|fuera del catalogo|no (?:este|esta) en (?:el|mi) catalogo)/.test(q)
+   || /(?:ejercicios? (?:nuevos|que no esten|que no estan|fuera del catalogo)|aunque no esten en (?:el|mi) catalogo|si no (?:estan|esta|existen) en (?:el|mi) catalogo|puedes inventar)/.test(q);
+}
+function mh133OnlyCatalogRequest(message){
+ const q=coachRoutineCleanName(message);
+ if(mh135AllowsNewExercises(message))return false;
+ return /\b(?:catalogo|del catalogo|en el catalogo|solo ejercicios existentes|ejercicios registrados)\b/i.test(q);
+}
 function mh133ExtractTitles(reply){
  const lines=String(reply||'').split(/\r?\n/),numbered=[],bullets=[];
  for(const raw of lines){
@@ -7277,8 +7289,13 @@ async function coachCreateRoutineFromReply(createdAt){
     coachRoutineFocusPanel();return;
   }
   if(missing.length&&row.catalogOnly){
-    coachRoutineImportMessage('Pediste solo ejercicios del catálogo. Estos no coinciden con el catálogo permitido: '+missing.join('; ')+'. No se añadirá ninguno sin una nueva petición que permita ejercicios nuevos.');
-    coachRoutineFocusPanel();return;
+    // El modo solo catálogo nunca se elude automáticamente: una confirmación
+    // expresa autoriza exclusivamente la propuesta actualmente seleccionada.
+    const permit=confirm('La recomendación contiene '+missing.length+' ejercicio(s) que no coinciden con el catálogo permitido: '+missing.join('; ')+'.\n\n¿Quieres revisarlos como ejercicios NUEVOS para añadirlos al catálogo? Ninguno se añadirá hasta que apruebes sus fichas.\n\nCancelar mantiene el modo solo catálogo.');
+    if(!permit){
+      coachRoutineImportMessage('No se ha creado la rutina. Se mantiene tu elección de solo ejercicios del catálogo.');
+      coachRoutineFocusPanel();return;
+    }
   }
   const chatRows=Array.isArray(db.assistantChat)?db.assistantChat:[];
   const pos=chatRows.findIndex(m=>m.role==='assistant'&&Number(m.createdAt)===Number(row.createdAt));
@@ -12935,7 +12952,7 @@ const CATALOG_DUPLICATE_ALIASES={
 };
 const CATALOG_HIDDEN_IDS=new Set(Object.keys(CATALOG_DUPLICATE_ALIASES));
 
-// v22.3.134: catálogo de ejercicios aprobados por el usuario, persistente en db.
+// v22.3.135: catálogo de ejercicios aprobados por el usuario, persistente en db.
 function mh134SyncCustomCatalog(){
   const items=Array.isArray(db?.coachCustomExercises)?db.coachCustomExercises:[];
   for(const raw of items){
