@@ -1,1 +1,1 @@
-MicroHealth v22.3.134 — Alta supervisada de ejercicios nuevos del Coach. Partiendo de v22.3.133. No borra rutinas ni historial; las imágenes IA no se generan todavía.
+MicroHealth v22.3.135 — Coach: permitir nuevos ejercicios aunque se mencione catálogo; en respuestas marcadas solo catálogo, preguntar explícitamente antes de crear nuevas fichas. Sin cambios de datos automáticos.
