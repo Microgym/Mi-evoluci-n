@@ -1,1 +1,1 @@
-MicroHealth v22.3.135 — Coach: permitir nuevos ejercicios aunque se mencione catálogo; en respuestas marcadas solo catálogo, preguntar explícitamente antes de crear nuevas fichas. Sin cambios de datos automáticos.
+MicroHealth v22.3.136 — Confirmar ejercicios nuevos guarda las fichas sin re-render global, verifica todas las referencias antes de persistir, informa errores, y prioriza movilidad en la clasificación cuando el usuario la pide. No cambia registros históricos.\n

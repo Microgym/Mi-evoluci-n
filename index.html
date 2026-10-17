@@ -7112,46 +7112,67 @@ function coachRoutineRenderPreview(){
     <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="mh127FromCoach()">☀️ Usar como ejercicios diarios</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
 }
 function mh134ApproveNewExercises(){
+  // v22.3.136: guardar las fichas primero, sin un render() global que cierre el editor.
   const pending=coachRoutinePending;
-  if(!pending?.newItems?.length)return;
-  if(!confirm('¿Añadir estos '+pending.newItems.length+' ejercicios al catálogo de MicroHealth? Podrás usarlos en futuras rutinas.'))return;
-  const before=JSON.stringify(Array.isArray(db.coachCustomExercises)?db.coachCustomExercises:[]);
+  if(!pending || !Array.isArray(pending.newItems) || !pending.newItems.length){
+    coachRoutineImportMessage('No hay ejercicios nuevos pendientes de confirmar.');return;
+  }
+  const oldCustom=Array.isArray(db.coachCustomExercises)?db.coachCustomExercises.slice():[];
+  const oldCatalogIds=new Set(EXERCISE_CATALOG.map(x=>x.id));
+  const newCatalog=oldCustom.slice();
   const created=[];
   try{
-    if(!Array.isArray(db.coachCustomExercises))db.coachCustomExercises=[];
+    const names=new Set(visibleExerciseCatalog().map(x=>coachRoutineCleanName(x.name)));
     for(const x of pending.newItems){
-      const existing=visibleExerciseCatalog().find(e=>coachRoutineCleanName(e.name)===coachRoutineCleanName(x.name));
-      if(existing)continue;
-      const item={id:'coach_custom_'+Date.now().toString(36)+'_'+created.length+'_'+Math.random().toString(36).slice(2,7),
-        name:String(x.name).trim().slice(0,110),tipo:x.tipo,zone:String(x.zone||'General').trim().slice(0,60),
+      const name=String(x.name||'').trim().slice(0,110);
+      if(!name)throw Error('Hay un ejercicio sin nombre.');
+      const normalized=coachRoutineCleanName(name);
+      if(names.has(normalized))continue;
+      names.add(normalized);
+      const tipo=['fuerza','movilidad','cardio','estiramientos','equilibrio'].includes(x.tipo)?x.tipo:'movilidad';
+      const item={id:'coach_custom_'+Date.now().toString(36)+'_'+created.length+'_'+Math.random().toString(36).slice(2,8),
+        name,tipo,zone:String(x.zone||'General').trim().slice(0,60),
         equipment:String(x.equipment||'Sin material').trim().slice(0,80),modalidad:'personalizado',
         instructions:String(x.instructions||'').trim().slice(0,500),icon:'🧘',coachCreated:true};
-      if(!item.name)throw Error('El nombre no puede estar vacío.');
-      db.coachCustomExercises.push(item);created.push(item);
+      newCatalog.push(item);created.push(item);
     }
-    save(); // Persistir primero; si falla, no modificar la vista previa.
-    mh134SyncCustomCatalog();
+    // Validar las referencias a TODOS los ejercicios ANTES de escribir datos.
+    const lookup=new Map(visibleExerciseCatalog().map(x=>[coachRoutineCleanName(x.name),x]));
+    for(const item of created)lookup.set(coachRoutineCleanName(item.name),item);
     const all=[];
-    for(const item of pending.pendingEntries){
-      const x=mh132ExactCatalog(item.label);
-      if(!x)throw Error('No se ha encontrado después de guardar: '+item.label);
+    for(const item of pending.pendingEntries||[]){
+      const x=lookup.get(coachRoutineCleanName(item.label));
+      if(!x)throw Error('No se reconoce el ejercicio: '+item.label);
       const cardio=x.tipo==='cardio';
       all.push({tipo:x.tipo,ej:x.name,exerciseId:x.id,dia:'Sesión única',
-        series:coachRoutineSafeNum(item.series,1,12,cardio?1:3),reps:cardio?null:coachRoutineSafeNum(item.repeticiones,1,100,12),kg:null,
+        series:coachRoutineSafeNum(item.series,1,12,cardio?1:3),
+        reps:cardio?null:coachRoutineSafeNum(item.repeticiones,1,100,12),kg:null,
         tiempo:cardio?coachRoutineSafeNum(item.minutos,1,240,15):null,unidadTiempo:'min',
-        duracion:cardio?coachRoutineSafeNum(item.minutos,1,240,15):6,intensidad:'moderada',modalidad:x.modalidad,equipo:x.equipment,
-        cardioActividad:cardio?cardioActivityForExercise({ej:x.name,equipo:x.equipment}):null,categoriaManual:null,
-        comentario:exercisePersistentComment(x.name)});
+        duracion:cardio?coachRoutineSafeNum(item.minutos,1,240,15):6,
+        intensidad:'moderada',modalidad:x.modalidad,equipo:x.equipment,
+        cardioActividad:cardio?cardioActivityForExercise({ej:x.name,equipo:x.equipment}):null,
+        categoriaManual:null,comentario:exercisePersistentComment(x.name)});
     }
-    pending.draft.ejercicios=all;pending.newItems=[];pending.missing=[];
-    coachRoutineRenderPreview();coachRoutineImportMessage('✓ Ejercicios incorporados al catálogo. Revisa la rutina antes de guardarla o enviarla a Mi día.');
+    if(!all.length)throw Error('La propuesta no tiene ejercicios para guardar.');
+    db.coachCustomExercises=newCatalog;
+    // Guardado persistente sin repintar ni cerrar el formulario de confirmación.
+    localStorage.setItem(KEY,JSON.stringify(db));
+    mh134SyncCustomCatalog();
+    pending.draft.ejercicios=all;
+    pending.newItems=[];pending.missing=[];
+    coachRoutineRenderPreview();
+    coachRoutineImportMessage('✓ '+created.length+' ejercicio(s) nuevos guardados en el catálogo. Ya puedes guardar la rutina o enviarla a Mi día.');
+    coachRoutineFocusPanel();
   }catch(e){
-    db.coachCustomExercises=JSON.parse(before);
-    // Revertir la lista temporal si el guardado falló.
-    for(const x of created){const i=EXERCISE_CATALOG.findIndex(y=>y.id===x.id);if(i>=0)EXERCISE_CATALOG.splice(i,1);}
-    coachRoutineImportMessage('No se pudieron añadir los ejercicios: '+(e?.message||e));
+    db.coachCustomExercises=oldCustom;
+    for(let i=EXERCISE_CATALOG.length-1;i>=0;i--){
+      if(!oldCatalogIds.has(EXERCISE_CATALOG[i].id))EXERCISE_CATALOG.splice(i,1);
+    }
+    coachRoutineImportMessage('No se han podido añadir los ejercicios: '+String(e&&e.message||e)+'. La propuesta sigue disponible.');
+    coachRoutineFocusPanel();
   }
 }
+
 function coachRoutineSetMetric(i,v){
   const ex=coachRoutinePending?.draft?.ejercicios?.[i];if(!ex)return;
   const n=Number(v);if(!Number.isFinite(n)||n<1)return;
@@ -7300,8 +7321,8 @@ async function coachCreateRoutineFromReply(createdAt){
   const chatRows=Array.isArray(db.assistantChat)?db.assistantChat:[];
   const pos=chatRows.findIndex(m=>m.role==='assistant'&&Number(m.createdAt)===Number(row.createdAt));
   const requestText=pos>0?String(chatRows.slice(0,pos).reverse().find(m=>m.role==='user')?.text||''):'';
-  const context=coachRoutineCleanName(requestText+' '+String(row.text||'').slice(0,240));
-  const inferredType=/\b(?:estiramientos?|estirar)\b/.test(context)?'estiramientos':/\b(?:cardio|aerobico)\b/.test(context)?'cardio':/\b(?:fuerza|musculacion)\b/.test(context)?'fuerza':/\b(?:equilibrio|estabilidad)\b/.test(context)?'equilibrio':'movilidad';
+  const context=coachRoutineCleanName(requestText);
+  const inferredType=/\bmovilidad\b/.test(context)?'movilidad':/\b(?:estiramientos?|estirar)\b/.test(context)?'estiramientos':/\b(?:cardio|aerobico)\b/.test(context)?'cardio':/\b(?:equilibrio|estabilidad)\b/.test(context)?'equilibrio':/\b(?:fuerza|musculacion)\b/.test(context)?'fuerza':'movilidad';
   const newItems=missing.map(name=>({name,tipo:inferredType,zone:'General',equipment:'Sin material',instructions:''}));
   // No se descartan los ejercicios faltantes ni se sustituyen: se prepara su aprobación.
   const result={draft:{id:'r'+Date.now(),nombre:'Rutina de la respuesta del Coach',objetivoSemanal:null,ejercicios:exercises},missing:missing.slice(),newItems,
@@ -12952,7 +12973,7 @@ const CATALOG_DUPLICATE_ALIASES={
 };
 const CATALOG_HIDDEN_IDS=new Set(Object.keys(CATALOG_DUPLICATE_ALIASES));
 
-// v22.3.135: catálogo de ejercicios aprobados por el usuario, persistente en db.
+// v22.3.136: catálogo de ejercicios aprobados por el usuario, persistente en db.
 function mh134SyncCustomCatalog(){
   const items=Array.isArray(db?.coachCustomExercises)?db.coachCustomExercises:[];
   for(const raw of items){
