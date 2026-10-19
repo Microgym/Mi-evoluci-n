@@ -1,1 +1,1 @@
-MicroHealth v22.3.138 · Entrenar: lista simplificada, detalle con pestañas, histórico y protección de cambios de series. No cambia Mi día ni el esquema de registros. Realizar copia de seguridad antes de instalar.
+MicroHealth v22.3.139. Ampliación del catálogo: 215 ejercicios añadidos (sin imágenes). Categorías: {'fuerza': 101, 'movilidad': 49, 'estiramiento': 28, 'core': 14, 'equilibrio': 13, 'cardio': 10}. Se conservan IDs originales, datos, rutinas, historial y Coach. Crear copia de seguridad antes de publicar.
