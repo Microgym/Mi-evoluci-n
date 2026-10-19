@@ -18,6 +18,25 @@
 @keyframes mh111-move{from{transform:translateX(0)}to{transform:translateX(190%)}}
 #mh111-boot.mh111-done{opacity:0;pointer-events:none;transition:opacity .18s ease}
 @media(prefers-reduced-motion:reduce){#mh111-boot .bar::after{animation:none}}
+
+/* v22.3.138 · Lista limpia, detalle individual y pestañas. Solo rutina activa. */
+#activeRoutineList{gap:12px}
+#activeRoutineList details.active-routine-item{border-radius:16px;border:1px solid #dbe6e5;border-left:5px solid #187e71;box-shadow:none;background:#fff}
+#activeRoutineList details.active-routine-item>summary{background:#fff!important;display:flex;flex-wrap:wrap;gap:8px;padding:16px;cursor:pointer}
+#activeRoutineList details.active-routine-item>summary .active-routine-exercise-head{flex:1 1 100%;min-width:0}
+#activeRoutineList details.active-routine-item>summary .active-routine-title-wrap:after{display:none}
+#activeRoutineList details.active-routine-item>summary .active-routine-title-wrap>div:first-child>b{font-size:clamp(17px,3vw,21px)}
+#activeRoutineList .mh138-detail-label{border:1px solid #cce5df;background:#f2faf7;color:#175f57;border-radius:10px;padding:9px 14px;font-weight:800;display:inline-block;max-width:100%;text-align:center}
+#activeRoutineList details.active-routine-item.validated{border-left-color:#30a268}
+#activeRoutineList details.active-routine-item.routine-focus-open>summary{padding:18px!important}
+#activeRoutineList .mh138-tabbar{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+#activeRoutineList .mh138-tab{font-size:13px!important;font-weight:750!important;border-radius:999px!important;padding:10px 12px!important;background:#f2f6f6!important;border:1px solid #dbe7e5!important;color:#365e5b!important;flex:1 1 auto}
+#activeRoutineList .mh138-tab.is-active{background:#186e63!important;color:#fff!important}
+#activeRoutineList [hidden]{display:none!important}
+#activeRoutineList .mh138-panel{padding:16px;border-radius:12px;background:#f7faf9;line-height:1.6}
+#activeRoutineList .routine-validation-actions{position:sticky;bottom:0;background:#fff;padding:12px 4px;z-index:4;border-top:1px solid #e2ebe9;display:flex;gap:8px}
+#activeRoutineList .routine-validation-actions button{flex:1;min-height:45px}
+@media(max-width:550px){#activeRoutineList .routine-validation-actions{flex-direction:column}}
 </style>
 
 
@@ -15217,6 +15236,7 @@ function ensureSetData(ex){
    }));
  }
 }function addRoutineSet(i){
+ try{captureActiveRoutineInputs()}catch(e){}
  const a=db.rutinaActiva;if(!a||!a.items[i])return;
  const ex=a.items[i];ensureSetData(ex);
  const last=ex.sets[ex.sets.length-1]||{reps:ex.reps||null,kg:null,tiempo:null,unidadTiempo:'min'};
@@ -15227,6 +15247,7 @@ function ensureSetData(ex){
  ex.series=ex.sets.length;save();renderRoutines();populateManualRoutineSelect();
 }
 function removeRoutineSet(i,j){
+ try{captureActiveRoutineInputs()}catch(e){}
  const a=db.rutinaActiva;if(!a||!a.items[i])return;
  const ex=a.items[i];ensureSetData(ex);
  if(ex.sets.length<=1)return alert('El ejercicio debe conservar al menos una serie.');
@@ -15712,6 +15733,28 @@ function toggleRoutineFavorite(id){
 }
 
 
+// v22.3.138: pestañas de detalle sin tocar el registro de entrenamientos.
+function mh138Tab(btn,tab){
+ const body=btn.closest('.active-routine-body');if(!body)return;
+ body.querySelectorAll('.mh138-tab').forEach(b=>b.classList.toggle('is-active',b===btn));
+ body.querySelectorAll('[data-mh138-tab]').forEach(el=>{el.hidden=el.dataset.mh138Tab!==tab});
+ const comments=body.querySelector('.exercise-comment-box');
+ if(comments)comments.hidden=tab!=='notes';
+ const compare=body.querySelector('.routine-compare,.last-load,.previous-session-legend');
+ if(compare)compare.hidden=tab!=='history';
+}
+function mh138ShowCatalogExercise(i){
+ const ex=db.rutinaActiva?.items?.[i];if(!ex)return;
+ const id=resolveExerciseAliasId(ex)||canonicalExerciseId(ex.exerciseId);
+ if(id){closeRoutineExerciseFocus(i);openExerciseDetail(id)}
+ else alert('Este ejercicio todavía no tiene una ficha identificada en el catálogo.');
+}
+function mh138InitRoutineTabs(){
+ document.querySelectorAll('details.active-routine-item .active-routine-body').forEach(body=>{
+  const notes=body.querySelector('.exercise-comment-box');if(notes)notes.hidden=true;
+  const compare=body.querySelector('.routine-compare,.last-load,.previous-session-legend');if(compare)compare.hidden=true;
+ });
+}
 let routineExerciseFocusIndex=null;
 
 function clearRoutineExerciseFocus(){
@@ -15722,6 +15765,7 @@ function clearRoutineExerciseFocus(){
 
 function handleActiveRoutineToggle(el,index){
   if(!el)return;
+  if(el.open && routineExerciseFocusIndex!==null && routineExerciseFocusIndex!==index){try{readRoutineSets(routineExerciseFocusIndex)}catch(e){}}
   if(el.open){
     // Solo puede haber un ejercicio abierto. La rutina completa queda visible
     // como lista compacta cuando se cierra el modo foco.
@@ -15877,6 +15921,7 @@ function renderRoutines(){
         </div>
         ${routineExerciseImageHtml(ex)}
       </div>
+      <span class="mh138-detail-label">${ex.hecho?'✓ Completado':'Ver detalles →'}</span>
     </summary>
     <div class="active-routine-body">
     <div class="routine-focus-toolbar">
@@ -15895,7 +15940,16 @@ function renderRoutines(){
       const hasCopied=ex.sets.some(s=>s._fromPreviousKg||s._fromPreviousReps||s._fromPreviousTiempo||s._fromPreviousUnidad);
       return `${prevHtml}
       ${hasCopied?`<div class="previous-session-legend"><span class="previous-session-swatch"></span><span>Amarillo = valor copiado de tu última sesión. Al modificarlo vuelve a color normal.</span></div>`:''}
-      <div class="routine-meta">Los valores son editables. Guardar el ejercicio registra los números que queden finalmente en los campos.</div>
+      <div class="mh138-tabbar" role="tablist" aria-label="Información del ejercicio">
+        <button type="button" class="mh138-tab is-active" onclick="mh138Tab(this,'series')">Series</button>
+        <button type="button" class="mh138-tab" onclick="mh138Tab(this,'history')">Histórico</button>
+        <button type="button" class="mh138-tab" onclick="mh138Tab(this,'notes')">Observaciones</button>
+        <button type="button" class="mh138-tab" onclick="mh138Tab(this,'description')">Descripción</button>
+      </div>
+      <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}</div>
+      <div class="mh138-panel" data-mh138-tab="description" hidden>Consulta las instrucciones y las imágenes en la ficha del catálogo de este ejercicio. <button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
+      <div class="mh138-panel" data-mh138-tab="notes" hidden>Las observaciones que escribas aquí se guardarán junto al ejercicio.</div>
+      <div class="mh138-series-panel" data-mh138-tab="series"><div class="routine-meta">Introduce los valores reales de cada serie y después pulsa «Validar ejercicio».</div>
       <div class="exercise-comment-box ${currentExerciseComment(ex)?'has-comment':''}">
         <label>💬 Comentario fijo ${currentExerciseComment(ex)?'· recuerda esto':''}</label>
         <textarea id="routineComment_${i}" placeholder="Añade una nota que quieras ver siempre en este ejercicio." onchange="updateActiveExerciseComment(${i},this.value)">${escapeMealText(currentExerciseComment(ex))}</textarea>
@@ -15910,7 +15964,7 @@ function renderRoutines(){
         <div class="unit-field"><label>Unidad</label><select class="${previousValueClass(s,'unidad')}" id="setUnit_${i}_${j}" onchange="markRoutinePreviousValueEdited(${i},${j},'unidad',this)"><option value="min" ${s.unidadTiempo!=='seg'?'selected':''}>min</option><option value="seg" ${s.unidadTiempo==='seg'?'selected':''}>seg</option></select></div>
         <button class="set-remove" onclick="removeRoutineSet(${i},${j})">Eliminar</button>
       </div>`).join('')}</div>
-      <div class="routine-actions routine-validation-actions"><button class="set-add" onclick="addRoutineSet(${i})">+ Añadir serie</button><button class="primary-small ${ex.hecho?'validated-btn':''}" onclick="routineSaveItem(${i})" title="${ex.hecho?'Pulsa para invalidar este ejercicio':'Pulsa para validar este ejercicio'}">${ex.hecho?'✓ Validado · pulsar para invalidar':'✓ Validar y volver a la lista'}</button></div>`;
+      </div><div class="routine-actions routine-validation-actions"><button class="set-add" onclick="addRoutineSet(${i})">+ Añadir otra serie</button><button class="primary-small ${ex.hecho?'validated-btn':''}" onclick="routineSaveItem(${i})" title="${ex.hecho?'Pulsa para invalidar este ejercicio':'Pulsa para validar este ejercicio'}">${ex.hecho?'✓ Validado · pulsar para invalidar':'✓ Validar y volver a la lista'}</button></div>`;
      })()}
     </div>
    </details>`;
@@ -15929,6 +15983,7 @@ function renderRoutines(){
      <button class="set-remove" onclick="cancelActiveRoutine()">Cancelar rutina</button>
    </div>
  </div>`;
+ mh138InitRoutineTabs();
 }
 function deleteTrainingIndex(i){
  if(i<0||i>=db.entreno.length)return;
