@@ -1,1 +1,1 @@
-MicroHealth v22.3.141 — Acceso directo al catálogo de ejercicios desde Entrenar. Filtros por tipo, zona, material y texto. Fichas de solo lectura. Basado en v22.3.140. No altera ejercicios ni datos guardados.
+MicroHealth v22.3.142 — El catálogo directo muestra una sola ficha por nombre normalizado (incluye Cat-Camel / Cat Camel / Gato-Vaca). Todos los registros originales, identificadores, rutinas, fotos e historial siguen intactos; deduplicación solo visual. Parte de v22.3.141.\n

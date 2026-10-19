@@ -23064,10 +23064,28 @@ function mh141OpenCatalog(){
  box.style.display='block';mh141RenderCatalog();box.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function mh141CloseCatalog(){const box=document.getElementById('mh141-catalog');if(box)box.style.display='none';}
+/* v22.3.142: Solo unificar tarjetas VISIBLES. Nunca eliminar ni cambiar IDs del catálogo ni db. */
+function mh142CatalogDisplayKey(ex){
+ const n=String(ex?.name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+ if(['cat camel','gato vaca','gato y vaca','gato vaca cat camel'].includes(n))return 'cat camel';
+ return n || 'id:'+String(ex?.id||'');
+}
+function mh142CatalogUniqueView(exercises){
+ const selected=new Map();
+ for(const ex of exercises){
+  const key=mh142CatalogDisplayKey(ex), existing=selected.get(key);
+  if(!existing){selected.set(key,ex);continue;}
+  // Imagen específica de la versión ilustrada tiene prioridad; respetar el resto de los identificadores.
+  const score=x=>(String(x.id||'').startsWith('mh139_')?4:0)+(typeof MH140_ILLUSTRATIONS!=='undefined'&&MH140_ILLUSTRATIONS[x.id]?10:0)+(x.image||x.images?.length?1:0);
+  if(score(ex)>score(existing))selected.set(key,ex);
+ }
+ return [...selected.values()];
+}
 function mh141RenderCatalog(){
  const result=document.getElementById('mh141-results'), counter=document.getElementById('mh141-count');if(!result)return;
  try{
-  const all=visibleExerciseCatalog();
+  const originals=visibleExerciseCatalog();
+  const all=mh142CatalogUniqueView(originals);
   const zoneEl=document.getElementById('mh141-zone'), current=zoneEl.value;
   const zones=[...new Set(all.map(x=>String(x.zone||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
   zoneEl.replaceChildren(new Option('Todas las zonas',''),...zones.map(z=>new Option(z,z)));
@@ -23079,7 +23097,7 @@ function mh141RenderCatalog(){
    const wanted=type==='estiramiento'?(tipo.includes('estir')||name.includes('estir')):type==='movilidad'?(tipo.includes('movil')||name.includes('movil')):type==='core'?(tipo.includes('core')||zone.includes('abdomen')):type==='equilibrio'?(tipo.includes('equilibrio')||name.includes('equilibrio')):!type||tipo===type;
    return wanted&&(!zoneEl.value||x.zone===zoneEl.value)&&(!q||normText([x.name,x.zone,x.equipment,x.tipo].join(' ')).includes(q))&&(!material||equip.includes(material));
   });
-  counter.textContent=list.length+' ejercicios encontrados de '+all.length+'.';
+  counter.textContent=list.length+' ejercicios distintos encontrados de '+all.length+' (registros conservados: '+originals.length+').';
   const frag=document.createDocumentFragment();
   for(const ex of list){
    const button=document.createElement('button');button.type='button';button.className='exercise-card';
