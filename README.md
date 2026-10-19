@@ -1,1 +1,3 @@
-MicroHealth v22.3.139. Ampliación del catálogo: 215 ejercicios añadidos (sin imágenes). Categorías: {'fuerza': 101, 'movilidad': 49, 'estiramiento': 28, 'core': 14, 'equilibrio': 13, 'cardio': 10}. Se conservan IDs originales, datos, rutinas, historial y Coach. Crear copia de seguridad antes de publicar.
+MicroHealth v22.3.140 — Primer lote de imágenes de movilidad y estiramientos
+
+12 ejercicios existentes de la v22.3.139 reciben ilustraciones. No se duplica ni se elimina ningún ejercicio. Los restantes ejercicios siguen sin imagen nueva. Haz una copia de seguridad antes de subir los archivos a GitHub.
