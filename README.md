@@ -1,1 +1,1 @@
-MicroHealth v22.3.137 — Corrige la contradicción entre reconocimiento en la propuesta y al confirmar: utiliza los mismos alias verificados del catálogo, conserva IDs existentes y evita duplicados. No modifica ejercicios guardados hasta confirmación.
+MicroHealth v22.3.138 · Entrenar: lista simplificada, detalle con pestañas, histórico y protección de cambios de series. No cambia Mi día ni el esquema de registros. Realizar copia de seguridad antes de instalar.
