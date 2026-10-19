@@ -7112,7 +7112,7 @@ function coachRoutineRenderPreview(){
     <div class="row"><button type="button" class="primary" onclick="coachRoutineConfirmSave()">✓ Guardar en Mis rutinas</button><button type="button" class="secondary" onclick="mh127FromCoach()">☀️ Usar como ejercicios diarios</button><button type="button" class="secondary" onclick="coachRoutineCancel()">Cancelar</button></div>`;
 }
 function mh134ApproveNewExercises(){
-  // v22.3.136: guardar las fichas primero, sin un render() global que cierre el editor.
+  // v22.3.137: guardar las fichas primero, sin un render() global que cierre el editor.
   const pending=coachRoutinePending;
   if(!pending || !Array.isArray(pending.newItems) || !pending.newItems.length){
     coachRoutineImportMessage('No hay ejercicios nuevos pendientes de confirmar.');return;
@@ -7127,7 +7127,9 @@ function mh134ApproveNewExercises(){
       const name=String(x.name||'').trim().slice(0,110);
       if(!name)throw Error('Hay un ejercicio sin nombre.');
       const normalized=coachRoutineCleanName(name);
-      if(names.has(normalized))continue;
+      // Usar la misma equivalencia validada en la vista previa: evita duplicar
+      // ejercicios del catálogo cuyo nombre en la respuesta era una variante.
+      if(names.has(normalized) || mh132ExactCatalog(name))continue;
       names.add(normalized);
       const tipo=['fuerza','movilidad','cardio','estiramientos','equilibrio'].includes(x.tipo)?x.tipo:'movilidad';
       const item={id:'coach_custom_'+Date.now().toString(36)+'_'+created.length+'_'+Math.random().toString(36).slice(2,8),
@@ -7141,8 +7143,11 @@ function mh134ApproveNewExercises(){
     for(const item of created)lookup.set(coachRoutineCleanName(item.name),item);
     const all=[];
     for(const item of pending.pendingEntries||[]){
-      const x=lookup.get(coachRoutineCleanName(item.label));
-      if(!x)throw Error('No se reconoce el ejercicio: '+item.label);
+      // La preparación utiliza mh132ExactCatalog (incluye alias seguros).
+      // No exigir aquí un nombre literalmente idéntico: el usuario ya revisó
+      // y aprobó los nombres nuevos; los existentes conservan su ID original.
+      const x=mh132ExactCatalog(item.label) || lookup.get(coachRoutineCleanName(item.label));
+      if(!x)throw Error('No se reconoce el ejercicio: '+item.label+'. Revisa la ficha pendiente y vuelve a intentarlo.');
       const cardio=x.tipo==='cardio';
       all.push({tipo:x.tipo,ej:x.name,exerciseId:x.id,dia:'Sesión única',
         series:coachRoutineSafeNum(item.series,1,12,cardio?1:3),
@@ -12973,7 +12978,7 @@ const CATALOG_DUPLICATE_ALIASES={
 };
 const CATALOG_HIDDEN_IDS=new Set(Object.keys(CATALOG_DUPLICATE_ALIASES));
 
-// v22.3.136: catálogo de ejercicios aprobados por el usuario, persistente en db.
+// v22.3.137: catálogo de ejercicios aprobados por el usuario, persistente en db.
 function mh134SyncCustomCatalog(){
   const items=Array.isArray(db?.coachCustomExercises)?db.coachCustomExercises:[];
   for(const raw of items){
