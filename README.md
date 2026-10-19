@@ -1,1 +1,1 @@
-MicroHealth v22.3.136 — Confirmar ejercicios nuevos guarda las fichas sin re-render global, verifica todas las referencias antes de persistir, informa errores, y prioriza movilidad en la clasificación cuando el usuario la pide. No cambia registros históricos.\n
+MicroHealth v22.3.137 — Corrige la contradicción entre reconocimiento en la propuesta y al confirmar: utiliza los mismos alias verificados del catálogo, conserva IDs existentes y evita duplicados. No modifica ejercicios guardados hasta confirmación.
