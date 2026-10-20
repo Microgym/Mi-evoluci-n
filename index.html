@@ -13711,6 +13711,21 @@ function generateExerciseTechnicalDataUri(x){
 
 function ensureExerciseImages(x){
   if(!x)return [];
+  // v22.3.143: mantener las imágenes antiguas, pero insertar la ilustración real
+  // de la ficha ilustrada al inicio, aunque la galería se hubiera generado antes.
+  const illustration=(typeof MH140_ILLUSTRATIONS!=='undefined' && MH140_ILLUSTRATIONS[x.id])||'';
+  if(illustration){
+    if(!Array.isArray(x.images) || !x.images.length){
+      x.images=[{src:illustration,label:'Inicio y final'},
+        {src:generateExerciseTechnicalDataUri(x),label:'Esquema'},
+        {src:generateExerciseMuscleDataUri(x),label:'Zona muscular'}];
+    }else{
+      x.images=x.images.filter(im=>im && im.src!==illustration);
+      x.images.unshift({src:illustration,label:'Inicio y final'});
+    }
+    x.image=illustration;
+    return x.images;
+  }
   if(Array.isArray(x.images) && x.images.length>=3)return x.images;
   const primary=x.image||generateExerciseCardDataUri(x);
   x.images=[
@@ -23103,7 +23118,7 @@ function mh141RenderCatalog(){
    const button=document.createElement('button');button.type='button';button.className='exercise-card';
    button.style.cssText='min-height:180px;text-align:center;cursor:pointer';
    const pic=document.createElement('div');pic.className='pic';
-   const src=exerciseSelectedImage(ex);
+   const src=(typeof MH140_ILLUSTRATIONS!=='undefined' && MH140_ILLUSTRATIONS[ex.id]) || exerciseSelectedImage(ex);
    if(src){const img=document.createElement('img');img.src=src;img.alt=ex.name||'Ejercicio';img.loading='lazy';pic.appendChild(img);}
    else{pic.innerHTML=exerciseIllustration(ex);}
    const name=document.createElement('b');name.textContent=ex.name||'Ejercicio';

@@ -1,1 +1,1 @@
-MicroHealth v22.3.142 — El catálogo directo muestra una sola ficha por nombre normalizado (incluye Cat-Camel / Cat Camel / Gato-Vaca). Todos los registros originales, identificadores, rutinas, fotos e historial siguen intactos; deduplicación solo visual. Parte de v22.3.141.\n
+MicroHealth v22.3.143 — Reparación de ilustraciones en Catálogo. La imagen Inicio y final tiene prioridad en la tarjeta y ficha de los ejercicios ilustrados. No elimina duplicados reales ni modifica IDs, rutinas, historial o datos. Partiendo de v22.3.142.
