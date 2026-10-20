@@ -4410,7 +4410,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
       <div class="meal-editor-top">
         <div><label>Tipo de comida</label><select id="mealEditorType" onchange="mealEditorTypeChanged()"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="comida">Comida</option><option value="merienda">Merienda</option><option value="cena">Cena</option></select></div>
         <div><label>Fecha</label><input id="mealEditorDate" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa" onchange="mealEditorDateChanged()"></div>
-        <div><label>Hora</label><input id="mealEditorTime" type="time"></div>
+        <div><label>Hora</label><input id="mealEditorTime" type="time" onchange="mealEditorTimeChanged()"></div>
       </div>
       <div id="mealEditorContent"></div>
       <div class="meal-editor-actions"><button type="button" class="primary" onclick="saveMealEditor()">Guardar comida</button><button type="button" class="secondary" onclick="closeMealRegistration()">Cancelar</button></div>
@@ -11055,6 +11055,24 @@ function mealEditorDateChanged(){
   const timeEl=document.getElementById('mealEditorTime');
   if(timeEl)timeEl.value=mealEditorState.hora;
   renderMealEditor();
+}
+
+// Si el usuario cambia la hora, actualizamos el tipo propuesto sin modificar las comidas guardadas.
+function mealEditorTimeChanged(){
+  const timeEl=document.getElementById('mealEditorTime');
+  const typeEl=document.getElementById('mealEditorType');
+  if(!timeEl || !typeEl || !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeEl.value))return;
+  const nuevoTipo=mealTypeForLocalTime(timeEl.value);
+  mealEditorState.hora=timeEl.value;
+  if(typeEl.value!==nuevoTipo){
+    typeEl.value=nuevoTipo;
+    mealEditorState.tipo=nuevoTipo;
+    // Actualiza el encabezado y los campos del nuevo tipo como al cambiarlo manualmente.
+    renderMealEditor();
+  }else{
+    const hiddenHora=document.getElementById('hora_'+nuevoTipo);
+    if(hiddenHora)hiddenHora.value=timeEl.value;
+  }
 }
 
 function mealEditorTypeChanged(){
