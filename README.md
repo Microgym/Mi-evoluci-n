@@ -1,1 +1,1 @@
-MicroHealth v22.3.143 — Reparación de ilustraciones en Catálogo. La imagen Inicio y final tiene prioridad en la tarjeta y ficha de los ejercicios ilustrados. No elimina duplicados reales ni modifica IDs, rutinas, historial o datos. Partiendo de v22.3.142.
+MicroHealth v22.3.144 — Imágenes incorporadas directamente en index.html. El catálogo ya no depende de archivos de imagen separados para las 12 fichas ilustradas. Conserva datos, IDs y rutinas; versión basada en 22.3.143.
