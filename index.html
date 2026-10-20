@@ -3794,6 +3794,11 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #mh78-detail .mh114-route strong{color:#225c45}
 #mh78-detail .mh114-route span{font-size:12px;color:#526c62}
 </style>
+<style id="mh148-daily-collapse-css">
+#mh91-daily-manage.mh148-daily-collapse{display:block}
+#mh91-daily-manage.mh148-daily-collapse>summary{cursor:pointer;font-weight:750;font-size:1.08rem;list-style-position:inside;padding:8px 0;user-select:none}
+#mh91-daily-manage.mh148-daily-collapse>summary:focus-visible{outline:2px solid #267c65;outline-offset:3px;border-radius:6px}
+</style>
 </head>
 <body>
 <div id="mh111-boot" role="status" aria-label="Abriendo MicroHealth">
@@ -4452,8 +4457,8 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 </section>
 
 <section id="entreno">
-<div id="mh91-daily-manage" class="mh91-panel">
-<h3>☀️ Mis ejercicios diarios</h3><p class="muted">Uno o dos ejercicios cortos para cada mañana. No cuentan como entrenamiento completo.</p>
+<details id="mh91-daily-manage" class="mh91-panel mh148-daily-collapse">
+<summary>☀️ Mis ejercicios diarios</summary><p class="muted">Uno o dos ejercicios cortos para cada mañana. No cuentan como entrenamiento completo.</p>
 <div id="mh127-import" class="mh127-import"><label for="mh127-routine">Copiar una rutina completa a mis ejercicios diarios</label><select id="mh127-routine"></select><button type="button" class="secondary" id="mh127-copy">＋ Añadir rutina a ejercicios diarios</button><p class="muted" id="mh127-info" role="status">Se copia sin modificar la rutina original.</p></div><div id="mh127-manage"></div><div id="mh91-manage-list"></div>
 <details id="mh91-add-detail"><summary>＋ Añadir ejercicio diario</summary>
 <div class="mh91-form"><label>Ejercicio</label><input id="mh91-name" list="mh91-suggestions" placeholder="Ej. Flexiones" maxlength="90"><datalist id="mh91-suggestions"></datalist>
@@ -4462,7 +4467,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <div class="row"><div><label>Peso adicional (kg, opcional)</label><input id="mh91-load" type="number" min="0" step="0.5" placeholder="0"></div><div><label>Franja</label><select id="mh91-daypart"><option value="mañana">Mañana</option><option value="tarde">Tarde</option><option value="noche">Noche</option></select></div></div>
 <p class="muted">Los kilos de ejercicios con peso corporal son una estimación; puedes revisar las repeticiones realmente hechas cada día.</p>
 <button type="button" class="primary" onclick="mh91Add()">Guardar ejercicio diario</button><div id="mh91-error" role="status"></div></div></details>
-</div>
+</details>
 <div class="training-screen-head">
   <div class="training-screen-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></div>
   <div><h2>Entrenamiento</h2><div class="muted">Registra sesiones, progresa en fuerza y organiza tus rutinas.</div></div>
