@@ -1,1 +1,1 @@
-MicroHealth v22.3.144 — Imágenes incorporadas directamente en index.html. El catálogo ya no depende de archivos de imagen separados para las 12 fichas ilustradas. Conserva datos, IDs y rutinas; versión basada en 22.3.143.
+MicroHealth v22.3.146 — Registrar comida propone la hora local actual y el tipo según franjas configuradas: hasta 10:00 desayuno; 10:01–13:00 almuerzo; 13:01–16:00 comida; 16:01–19:00 merienda; 19:01–00:00 cena. Ambos son editables. Edición de comidas existentes conserva su hora. Basada en v22.3.145. No modifica datos existentes ni otros módulos.
