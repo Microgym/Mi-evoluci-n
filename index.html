@@ -4294,7 +4294,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <div><h2>Comidas</h2><p>Alimentación consciente, una vida mejor</p></div>
   </div>
 
-  <button type="button" class="primary food-register-main" onclick="startMealRegistration('comida',foodViewISO())"><span class="plus">＋</span>Registrar comida</button>
+  <button type="button" class="primary food-register-main" onclick="startMealRegistration(null,foodViewISO())"><span class="plus">＋</span>Registrar comida</button>
 
   <div class="food-water-card">
     <details id="foodWaterDetails">
@@ -10976,8 +10976,27 @@ function defaultMealTime(tipo){
   return (MEALS.find(m=>m.key===tipo)||{}).time||'14:00';
 }
 
-function startMealRegistration(tipo='comida',fecha=today()){
-  mealEditorState={open:true,editing:false,tipo,fecha,hora:defaultMealTime(tipo)};
+// Franja por hora local; el tipo se propone solo al abrir un registro NUEVO.
+function mealTypeForLocalTime(hhmm){
+  const parts=String(hhmm||'').split(':');
+  const minutes=Number(parts[0])*60+Number(parts[1]);
+  if(!Number.isFinite(minutes))return 'comida';
+  if(minutes===0)return 'cena'; // 00:00, último minuto de la franja de cena.
+  if(minutes<=600)return 'desayuno'; // Hasta las 10:00 incluidas.
+  if(minutes<=780)return 'almuerzo'; // 10:01–13:00.
+  if(minutes<=960)return 'comida';   // 13:01–16:00.
+  if(minutes<=1140)return 'merienda';// 16:01–19:00.
+  return 'cena';                    // 19:01–23:59.
+}
+function localMealNow(){
+  const d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function startMealRegistration(tipo=null,fecha=today()){
+  const now=localMealNow();
+  // La propuesta automática solo afecta al botón de registro; el usuario puede cambiarla.
+  tipo=tipo||mealTypeForLocalTime(now);
+  mealEditorState={open:true,editing:false,tipo,fecha,hora:now};
   const shell=document.getElementById('mealEditorShell');
   if(shell)shell.classList.add('show');
   const editorCard=document.getElementById('foodEditorCard'); if(editorCard)editorCard.style.display='block';
@@ -10986,14 +11005,14 @@ function startMealRegistration(tipo='comida',fecha=today()){
   const timeEl=document.getElementById('mealEditorTime');
   if(typeEl)typeEl.value=tipo;
   if(dateEl)dateEl.value=fechaES(fecha);
-  if(timeEl)timeEl.value=defaultMealTime(tipo);
+  if(timeEl)timeEl.value=now;
 
   // Preparamos un registro limpio solo para el editor si no existe aún.
   const key=mealKey(fecha,tipo);
   const existing=db.meals[key];
   if(!existing || !(String(existing.desc||'').trim() || Number(existing.kcal)>0 || Number(existing.prot)>0 || (existing.dishes||[]).some(d=>String(d?.text||'').trim()))){
     db.meals[key]={
-      ...(existing||{}),fecha,tipo,hora:defaultMealTime(tipo),
+      ...(existing||{}),fecha,tipo,hora:now,
       desc:'',kcal:0,prot:0,carbs:0,sugars:0,breakdown:[],dishes:[normalizeDish({text:'',source:''})],
       writtenParts:existing?.writtenParts||[],photoParts:existing?.photoParts||[]
     };
@@ -11044,7 +11063,7 @@ function mealEditorTypeChanged(){
   mealEditorState.tipo=tipo;
   mealEditorState.fecha=d;
   const m=getMeal(d,tipo);
-  const t=m.hora||defaultMealTime(tipo);
+  const t=document.getElementById('mealEditorTime')?.value||m.hora||defaultMealTime(tipo);
   mealEditorState.hora=t;
   const timeEl=document.getElementById('mealEditorTime');
   if(timeEl)timeEl.value=t;
@@ -23008,6 +23027,8 @@ window.mh84CardCrop=async function(file,range){
 (function(){
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const info=()=>document.getElementById('mh127-info');
+ // En Mi día, las rutinas empiezan plegadas; se respeta la apertura manual durante la sesión.
+ const mh145OpenGroups=new Set();
  const todayDate=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
  function groups(){if(!Array.isArray(db.dailyRoutineGroups))db.dailyRoutineGroups=[];return db.dailyRoutineGroups;}
  function persist(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){alert('No se pudieron guardar los ejercicios diarios.');return false;}}
@@ -23055,7 +23076,7 @@ window.mh84CardCrop=async function(file,range){
    out.innerHTML='';const rows=[...host.querySelectorAll('.mh91-item')];
    for(const g of ownGroups){
       const ids=new Set(g.exerciseIds),subset=daily.filter(x=>ids.has(x.id)),done=subset.filter(x=>dayLogs[x.id]).length;
-      const box=document.createElement('details');box.className='mh127-group';box.open=done!==subset.length;
+      const box=document.createElement('details');box.className='mh127-group';box.open=mh145OpenGroups.has(String(g.id));box.addEventListener('toggle',()=>{if(box.open)mh145OpenGroups.add(String(g.id));else mh145OpenGroups.delete(String(g.id));});
       const summary=document.createElement('summary');summary.textContent='☀️ '+g.name+' · '+done+' de '+subset.length+' hechos';box.append(summary);
       const actions=document.createElement('div');actions.className='mh127-actions';
       const all=document.createElement('button');all.type='button';all.className='secondary';all.textContent='✓ Marcar toda la rutina como hecha';all.onclick=()=>{if(!confirm('¿Marcar todos los ejercicios pendientes de esta rutina como hechos hoy?'))return;const logs=db.dailyExerciseLogs||(db.dailyExerciseLogs={});const d=logs[todayDate()]||(logs[todayDate()]={});subset.forEach(x=>{if(!d[x.id])d[x.id]={reps:x.sets*x.reps,volume:null,muscles:'',at:new Date().toISOString()};});if(persist())window.mh91Refresh?.();};actions.append(all);box.append(actions);
