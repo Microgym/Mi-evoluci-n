@@ -11959,15 +11959,25 @@ function golfCardSnapshot(trainingIndex=null){
  const course=golfCurrentCourse();
  return {whsRating:golfRatingForCurrent()?{...golfRatingForCurrent()}:null,course:course.name,tee:course.tee||'',routes:Object.fromEntries(Object.entries(course.routes).map(([k,v])=>[k,v.name])),holes:golfSelectedHoles().map(h=>({...h,lifted:h.score==='X'})),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,date:document.getElementById('eFecha')?.value||'',time:document.getElementById('eHora')?.value||'',saved:false};
 }
+/* v22.3.150: el visor estaba dentro de #entreno (oculto al navegar por Golf).
+   Mover SOLO el elemento visual a <body> permite abrir tarjetas guardadas desde
+   «Mis partidas» sin tocar ni reescribir los registros de la partida. */
+function golfEnsureCardViewerOnTop(){
+ const panel=document.getElementById('golfCardViewer');
+ if(!panel)throw new Error('No se encuentra el visor de tarjetas.');
+ if(panel.parentElement!==document.body)document.body.appendChild(panel);
+ return panel;
+}
 function golfOpenCardViewer(trainingIndex=null){
  try{
-  if(trainingIndex===null)golfPersistDraft();
+  const panel=golfEnsureCardViewerOnTop();
+  if(trainingIndex===null&&golfPersistDraft()===false)console.warn('No se pudo actualizar el borrador antes de ver la tarjeta.');
   golfCardViewerData=golfCardSnapshot(trainingIndex);
   golfRenderCardViewer();
-  const panel=document.getElementById('golfCardViewer');panel.hidden=false;
+  panel.hidden=false;
   document.body.classList.add('golf-card-open');
   panel.querySelector('.golf-view-body')?.scrollTo?.(0,0);
- }catch(err){console.error(err);alert('No se pudo abrir la tarjeta: '+err.message);}
+ }catch(err){console.error('Error al abrir tarjeta de Golf:',err);alert('No se pudo abrir la tarjeta: '+err.message);}
 }
 function golfCloseCardViewer(){
  const panel=document.getElementById('golfCardViewer');if(panel)panel.hidden=true;
