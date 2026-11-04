@@ -4662,6 +4662,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
         <div class="golf-round-start-actions"><button type="button" class="primary" id="golfStartButton" onclick="golfStartRound()">⛳ Iniciar partida</button><p class="muted">Puedes guardar un borrador y continuar otro día. Los golpes se conservan mientras juegas.</p></div>
         </div>
         <input id="eGolfHoles" type="hidden" value="9"><input id="eGolfClub" type="hidden" value="Club de Golf Escorpión">
+        <p id="golfDraftSaveWarning" role="alert" hidden style="color:#9d2525;font-weight:700;padding:10px;border:1px solid #e9b8b8;border-radius:10px">⚠️ No se está pudiendo guardar el borrador en este dispositivo. Mantén abierta la partida y libera espacio de almacenamiento antes de continuar. No borres los datos de Safari.</p>
         <div id="golfRoundLive" class="golf-round-live" hidden aria-live="polite">
           <div id="golfLiveHole"></div>
           <div class="golf-round-navigation">
@@ -4672,10 +4673,10 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
             <button type="button" class="secondary" onclick="golfSaveDraftAndExit()">💾 Guardar para continuar luego</button>
             <button type="button" class="secondary" onclick="golfOpenCardViewer()">📋 Ver tarjeta completa</button>
             <button type="button" class="secondary" onclick="golfReturnToSetup()">Cambiar recorridos</button>
-            <button type="button" class="primary" onclick="golfFinishRound()">🏁 Finalizar partida</button>
+            <button type="button" class="primary" onclick="golfFinishRound()">🏁 Finalizar y guardar partida</button>
             <button type="button" class="golf-discard-round" onclick="golfDiscardCurrentRound()">🗑️ Eliminar partida</button>
           </div>
-          <p class="muted">El borrador se guarda al anotar cada hoyo. «Finalizar» permite guardar una partida incompleta, que podrás editar después.</p>
+          <p class="muted">El borrador se guarda al anotar cada hoyo. «Finalizar y guardar partida» registra la vuelta en Mis partidas y confirma el guardado. Si falla, permanece abierta para reintentar.</p>
         </div>
         <div id="golfScoreSummary" class="golf-score-summary" aria-live="polite"></div>
         <div id="golfScoreTable" class="golf-score-scroll"></div>
@@ -11699,7 +11700,15 @@ function golfPersistDraft(){
  if(!Object.keys(golfCourseMap()).length)return false;
  if(editingTrainingIndex!=null)return;
  db.golfDraft={courseId:golfCurrentCourseId(),routes:golfSelectedRoutes(),handicap:Number(document.getElementById('golfRoundHandicap')?.value)||0,scores:JSON.parse(JSON.stringify(golfScores)),extras:JSON.parse(JSON.stringify(golfExtras)),minutes:document.getElementById('eGolfMinutes')?.value||'',fecha:document.getElementById('eFecha')?.value||'',holeCursor:golfHoleCursor,playing:golfPlaying,hora:document.getElementById('eHora')?.value||''};
- try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(err){console.warn('No se pudo conservar el borrador de golf',err);return false;}
+ try{
+  localStorage.setItem(KEY,JSON.stringify(db));
+  const warning=document.getElementById('golfDraftSaveWarning');if(warning)warning.hidden=true;
+  return true;
+ }catch(err){
+  console.warn('No se pudo conservar el borrador de golf',err);
+  const warning=document.getElementById('golfDraftSaveWarning');if(warning)warning.hidden=false;
+  return false;
+ }
 }
 function golfSetup(record=null){
  golfConfig();const a=document.getElementById('golfRoute1'),b=document.getElementById('golfRoute2'),h=document.getElementById('golfRoundHandicap');if(!a||!b||!h)return;
@@ -11862,13 +11871,25 @@ function golfDiscardCurrentRound(){
  closeTrainingEditor();
  if(typeof window.mh23Open==='function')window.mh23Open('golf');
 }
+/* v22.3.149: Finalizar Golf debe GUARDAR la vuelta, no limitarse a abrir la revisión. */
 function golfFinishRound(){
- const data=golfRecordData(true);if(data.error){setWorkoutWizardError(data.error);return;}
+ if(wizardSaveInProgress)return;
+ const data=golfRecordData(true);
+ if(data.error){setWorkoutWizardError(data.error);return;}
  if(!data.stats.played){setWorkoutWizardError('Anota al menos un hoyo, o usa «Guardar para continuar luego».');return;}
  if(data.stats.played<data.stats.total){
   if(!confirm(`Llevas ${data.stats.played} de ${data.stats.total} hoyos. ¿Finalizar y guardar esta partida incompleta? Podrás editarla después.`))return;
  }
- golfAllowPartialFinish=true;setWorkoutWizardError();wizardNext();
+ // Mantener los golpes en pantalla hasta que localStorage confirme el guardado.
+ golfAllowPartialFinish=true;
+ setWorkoutWizardError();
+ wizardNext(); // Comprueba fecha, hoyos y duración y prepara el registro.
+ if(workoutWizardStep!==4){
+  // El asistente ha detectado un dato pendiente: no cerrar ni perder la tarjeta.
+  return;
+ }
+ // En Golf, «Finalizar y guardar» es la última acción. No se exige otro botón oculto.
+ wizardSaveSport(); // Solo cierra la partida si la escritura ha tenido éxito.
 }
 function golfRenderConfig(){
  const route=document.getElementById('golfConfigRoute')?.value||golfSelectedRoutes()[0],host=document.getElementById('golfConfigTable');if(!host)return;
