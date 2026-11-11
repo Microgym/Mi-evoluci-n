@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.151: Coach con fechas históricas en chat y evolución de todo el intervalo -->
 <!-- v22.3.111: portada ligera durante el procesamiento inicial; no altera datos -->
 <style id="mh111-startup-style">
 #mh111-boot{position:fixed;inset:0;z-index:2147483646;background:#f6f7f9;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center;padding:24px}
@@ -5057,6 +5058,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
       <textarea id="assistantChatInput" placeholder="Ej. ¿Sigo definiendo o me conviene ganar músculo? Hazme la dieta de mañana. ¿Qué ceno hoy?" onkeydown="assistantChatKeydown(event)"></textarea>
       <button id="assistantChatSend" type="button" class="assistant-chat-send" onclick="sendAssistantMessage()">Enviar</button>
     </div>
+    <details class="mh151-chat-range" style="margin:8px 0;padding:9px 11px;border:1px solid #d6e7e5;border-radius:12px"><summary style="cursor:pointer;font-weight:700">📅 Elegir fechas para el chat (opcional)</summary><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:end"><label style="flex:1;min-width:125px">Desde <input type="date" id="assistantRangeStart" style="width:100%"></label><label style="flex:1;min-width:125px">Hasta <input type="date" id="assistantRangeEnd" style="width:100%"></label><button type="button" class="secondary" onclick="mh151ClearChatDates()">Quitar fechas</button></div><small>Las fechas elegidas se aplican a las siguientes preguntas. Si las dejas vacías, puedes escribir «desde agosto» o «del 1 de agosto al 31 de octubre».</small></details>
     <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
     <div class="assistant-context-note">Cada pregunta usa un contexto compacto del periodo que estás consultando para responder con tus datos sin gastar tokens innecesarios. El chat se guarda solo en este dispositivo dentro de los datos de Micro Health.</div>
   </div>
@@ -5067,7 +5069,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <div class="mh36-period">
       <label for="mh36Period">Período de evaluación</label>
       <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="custom">Elegir fechas</option></select>
-      <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start"></label><label>Hasta <input type="date" id="mh36End"></label></div>
+      <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start" onchange="renderCoachLocalSummary()"></label><label>Hasta <input type="date" id="mh36End" onchange="renderCoachLocalSummary()"></label></div>
     </div>
     <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
@@ -6719,8 +6721,8 @@ function coachNutritionPreferences(){
   };
 }
 
-function coachLatestBody(){
-  const rows=(db.peso||[]).filter(r=>r&&r.fecha).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+function coachLatestBody(through=null){
+  const rows=(db.peso||[]).filter(r=>r&&r.fecha&&(!through||r.fecha<=through)).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
   const r=rows.at(-1)||null;
   if(!r)return null;
   const keys=['peso','imc','grasa','grasaPerimetros','musculoPct','humedad','masaOsea','bmr','proteinaPct','visceral','grasaSubcutanea','grasaKg','pesoMuscular','proteinaKg','cintura','cuello','cadera'];
@@ -6758,6 +6760,7 @@ function coachContract(){
       'El objetivo declarado por el usuario es una preferencia, no una orden. Contrástalo con los datos y recomienda definir, recomposición, mantenimiento o ganancia muscular según las tendencias.',
       'Utiliza goal.goalGuidance y nutritionPreferences.goalGuidance para orientar las recomendaciones y la evaluación al objetivo actual. Si propones otro, explica por qué y pide confirmación; no modifiques objetivos de kcal, proteína, peso ni rutinas guardadas.',
       'No cambies una estrategia importante por una sola medición BIA o un solo día. Prioriza tendencias de varias semanas, cintura, peso, grasa, fuerza, adherencia, actividad y recuperación.',
+      'Si period.start y period.end señalan un intervalo histórico, analiza ese intervalo exacto, no solo las últimas cuatro semanas. historicalTrend resume TODOS los meses o bloques del intervalo; coverage cuenta los registros reales. No afirmes que faltan datos históricos si coverage muestra que existen.',
       'Distingue claramente datos registrados, estimaciones y recomendaciones. No inventes registros que no existan.',
       'Cuando el usuario pida una dieta o qué comer, propón alimentos concretos y cantidades, distribuidos por comidas, con kcal, proteína, hidratos, grasas y fibra aproximados y total del plan. Considera azúcares libres cuando sea relevante.',
       'Para completar el día, descuenta lo ya comido y usa el TDEE/balance solo como estimación; no compares un día incompleto con un día terminado como si fueran equivalentes.',
@@ -6767,6 +6770,26 @@ function coachContract(){
       'No diagnostiques enfermedades ni sustituyas atención médica. Señala cuándo un hallazgo merece consulta profesional.'
     ]
   };
+}
+
+/* Resumen de TODO el intervalo, incluso cuando supera varias semanas. */
+function mh151HistoricalTrend(start,end,weights,workouts,nutritionDays,stepRows,sleepRows){
+  const months=(Number(end.slice(0,4))-Number(start.slice(0,4)))*12+Number(end.slice(5,7))-Number(start.slice(5,7))+1;
+  const span=Math.max(1,Math.ceil(months/18));
+  const key=date=>Math.floor(((Number(date.slice(0,4))-Number(start.slice(0,4)))*12+Number(date.slice(5,7))-Number(start.slice(5,7)))/span);
+  const groups=new Map();
+  function group(date){const k=key(date);if(!groups.has(k))groups.set(k,{from:date,to:date,weights:[],workouts:0,food:[],steps:[],sleep:[]});const g=groups.get(k);if(date<g.from)g.from=date;if(date>g.to)g.to=date;return g;}
+  weights.forEach(r=>group(r.fecha).weights.push(r));
+  workouts.forEach(r=>group(r.fecha).workouts++);
+  nutritionDays.forEach(r=>group(r.fecha).food.push(r));
+  stepRows.forEach(r=>group(r.fecha).steps.push(r.steps));
+  sleepRows.forEach(r=>{if(Number.isFinite(r.hours))group(r.fecha).sleep.push(r.hours);});
+  return [...groups.entries()].sort((a,b)=>a[0]-b[0]).map(([i,g])=>({
+    period:`${new Date(Date.UTC(Number(start.slice(0,4)),Number(start.slice(5,7))-1+i*span,1)).toISOString().slice(0,7)}${span>1?'…'+new Date(Date.UTC(Number(start.slice(0,4)),Number(start.slice(5,7))-1+(i+1)*span,0)).toISOString().slice(0,7):''}`,
+    measurements:g.weights.length,firstWeight:g.weights.length?Number(g.weights[0].peso)||null:null,lastWeight:g.weights.length?Number(g.weights.at(-1).peso)||null:null,
+    sessions:g.workouts,foodDays:g.food.length,avgCalories:avgNums(g.food.map(x=>x.kcal)),avgProtein:avgNums(g.food.map(x=>x.prot)),
+    stepDays:g.steps.length,avgSteps:avgNums(g.steps),sleepDays:g.sleep.length,avgSleep:avgNums(g.sleep)
+  }));
 }
 
 function buildCoachSnapshot(days=28,range=null){
@@ -6780,7 +6803,7 @@ function buildCoachSnapshot(days=28,range=null){
   const periodWeightRows=(db.peso||[]).filter(x=>x.fecha>=start&&x.fecha<=end&&Number(x.peso)>0)
     .slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const allWeightRows=(db.peso||[]).filter(x=>x&&x.fecha&&Number(x.peso)>0).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  const latestBody=coachLatestBody();
+  const latestBody=periodWeightRows.length ? coachLatestBody(end) : null;
 
   const mealRows=coachMealRowsBetween(start,end);
   const dayMap={};
@@ -6840,6 +6863,8 @@ function buildCoachSnapshot(days=28,range=null){
   return {
     schemaVersion:'coach-360-v1',generatedForDate:end,contract:coachContract(),
     period:{start,end,days,previousStart,previousEnd},
+    historicalTrend:mh151HistoricalTrend(start,end,periodWeightRows,workouts,nutritionDays,stepRows,sleepRows),
+    coverage:{measurements:periodWeightRows.length,workouts:workouts.length,foodDays:nutritionDays.length,stepDays:stepRows.length,sleepDays:sleepRows.length,waterDays:waterRows.length},
     profile:{name:String(p.nombre||''),age:Number(p.edad)||null,sex:String(p.sexo||''),heightCm:Number(p.alturaCm)||null,weightGoalKg:weightGoal()},
     goal:{
       declared:p.objetivoCoach||'coach',declaredLabel:coachGoalLabel(p.objetivoCoach||'coach'),goalGuidance:coachGoalGuidance(p.objetivoCoach||'coach'),
@@ -6848,9 +6873,11 @@ function buildCoachSnapshot(days=28,range=null){
     },
     nutritionPreferences:coachNutritionPreferences(),personalContext:assistantPersonalContext(),
     body:{
-      latest:latestBody,latestWeight:latestBody?.values?.peso??latestBodyWeightKg(),latestFatPct:latestBody?.values?.grasa??null,
+      latest:latestBody,latestWeight:latestBody?.values?.peso??null,latestFatPct:latestBody?.values?.grasa??null,
       measurements:periodWeightRows.length,totalMeasurements:allWeightRows.length,weightChangeKg:weightChange,weeklyWeightChangeKg:weeklyWeightChange,fatPctChange:fatChange,
-      recentMeasurements:periodWeightRows.slice(-12).map(r=>({date:r.fecha,weightKg:Number(r.peso)||null,fatPct:Number(r.grasa)||null,musclePct:Number(r.musculoPct)||null,waistCm:Number(r.cintura)||null}))
+      firstMeasurement:periodWeightRows.length?{date:periodWeightRows[0].fecha,weightKg:Number(periodWeightRows[0].peso)||null,fatPct:Number(periodWeightRows[0].grasa)||null,waistCm:Number(periodWeightRows[0].cintura)||null}:null,
+      lastMeasurement:periodWeightRows.length?{date:periodWeightRows.at(-1).fecha,weightKg:Number(periodWeightRows.at(-1).peso)||null,fatPct:Number(periodWeightRows.at(-1).grasa)||null,waistCm:Number(periodWeightRows.at(-1).cintura)||null}:null,
+      recentMeasurements:periodWeightRows.length<=16?periodWeightRows.map(r=>({date:r.fecha,weightKg:Number(r.peso)||null,fatPct:Number(r.grasa)||null,musclePct:Number(r.musculoPct)||null,waistCm:Number(r.cintura)||null})):Array.from({length:16},(_,i)=>periodWeightRows[Math.round(i*(periodWeightRows.length-1)/15)]).map(r=>({date:r.fecha,weightKg:Number(r.peso)||null,fatPct:Number(r.grasa)||null,musclePct:Number(r.musculoPct)||null,waistCm:Number(r.cintura)||null}))
     },
     nutrition:{
       loggedDays:nutritionDays.length,averageCalories:avgKcal,averageProteinG:avgProt,averageCarbsG:avg('carbs'),averageFatG:avg('fat'),averageFiberG:avg('fiber'),averageSugarsG:avg('sugars'),
@@ -6885,10 +6912,11 @@ function formatCoachNum(v,digits=0,suffix=''){
   return Number(v).toFixed(digits).replace('.',',')+suffix;
 }
 
-function renderCoachLocalSummary(){
+function renderCoachLocalSummary(range=null){
   const host=document.getElementById('coachLocalSummary');
   if(!host)return;
-  const s=buildCoachSnapshot(28);
+  if(!range){try{range=mh36SelectedRange();}catch(e){range=null;}}
+  const s=buildCoachSnapshot(28,range);
   const target=s.goal.workoutsPerWeek;
   const w=s.body.weeklyWeightChangeKg;
   const pct=s.body.fatPctChange;
@@ -6910,9 +6938,9 @@ function renderCoachLocalSummary(){
       <small>Orientación general. Cambiar el objetivo no modifica automáticamente tus calorías, proteínas, rutinas ni registros.</small>
     </div>
     <div class="coach-local-section">
-      <h3>Tendencia corporal</h3>
+      <h3>Tendencia corporal · ${fechaES(s.period.start)} a ${fechaES(s.period.end)}</h3>
       <div class="kpiLine"><span>Peso · ritmo semanal</span><b>${formatCoachNum(w,2,' kg/sem')}</b></div>
-      <div class="kpiLine"><span>% grasa · cambio 28 días</span><b>${formatCoachNum(pct,1,' pp')}</b></div>
+      <div class="kpiLine"><span>% grasa · cambio en el período</span><b>${formatCoachNum(pct,1,' pp')}</b></div>
     </div>
     <div class="coach-local-section">
       <h3>Nutrición</h3>
@@ -7416,15 +7444,115 @@ function assistantChatKeydown(event){
     sendAssistantMessage();
   }
 }
+/* v22.3.151 — El chat respeta fechas históricas explícitas en vez de imponer 28 días. */
+const MH151_MONTHS={enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,setiembre:9,octubre:10,noviembre:11,diciembre:12};
+function mh151Iso(y,m,d){
+  y=Number(y);m=Number(m);d=Number(d);
+  if(y<1900||y>2200||m<1||m>12||d<1||d>31)return null;
+  const date=new Date(Date.UTC(y,m-1,d));
+  if(date.getUTCFullYear()!==y||date.getUTCMonth()+1!==m||date.getUTCDate()!==d)return null;
+  return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function mh151DayCount(start,end){return Math.round((Date.parse(end+'T12:00:00Z')-Date.parse(start+'T12:00:00Z'))/86400000)+1;}
+function mh151Range(start,end,label){
+  const now=today();
+  if(!start||!end||!mh151Iso(...start.split('-').map(Number))||!mh151Iso(...end.split('-').map(Number)))throw Error('Revisa las fechas indicadas.');
+  if(start>end)throw Error('La fecha inicial es posterior a la final.');
+  if(end>now)throw Error('No se pueden analizar fechas futuras.');
+  const days=mh151DayCount(start,end);
+  if(days>3650)throw Error('Selecciona un período máximo de 10 años.');
+  return {days,start,end,range:{start,end},label:label||`Del ${fechaES(start)} al ${fechaES(end)}`};
+}
+function mh151EarliestDate(){
+  const dates=[];
+  (db.peso||[]).forEach(x=>dates.push(storedDateISO(x?.fecha)));
+  (db.entreno||[]).forEach(x=>dates.push(storedDateISO(x?.fecha)));
+  (db.rutinaSesiones||[]).forEach(x=>dates.push(storedDateISO(x?.fecha)));
+  Object.keys(db.meals||{}).forEach(x=>dates.push(storedDateISO(x)));
+  for(const key of ['stepsDaily','sleepDaily','waterDaily','dailyExerciseLogs'])Object.keys(db[key]||{}).forEach(x=>dates.push(storedDateISO(x)));
+  return dates.filter(Boolean).sort()[0]||null;
+}
+function mh151ChatDateRange(){
+  const start=document.getElementById('assistantRangeStart')?.value||'';
+  const end=document.getElementById('assistantRangeEnd')?.value||'';
+  if(!start&&!end)return null;
+  if(!start)throw Error('Selecciona la fecha «Desde» para el chat.');
+  return mh151Range(start,end||today());
+}
+function mh151ClearChatDates(){
+  for(const id of ['assistantRangeStart','assistantRangeEnd']){const el=document.getElementById(id);if(el)el.value='';}
+  const note=document.getElementById('assistantChatStatus');if(note)note.textContent='Fechas del chat desactivadas. Puedes pedir un período escribiéndolo en tu pregunta.';
+}
 function assistantTemporalContext(message){
+  const manual=mh151ChatDateRange();
+  if(manual)return manual;
   const q=normText(message||'');
+  const now=today(), currentYear=Number(now.slice(0,4));
+  const months=Object.keys(MH151_MONTHS).join('|');
+  const dates=[];
+  // Formatos 01/08/2026, 2026-08-01, 1 de agosto de 2026, agosto de 2026.
+  const token=new RegExp(`\\b(?:\\d{4}-\\d{2}-\\d{2}|\\d{1,2}[/-]\\d{1,2}[/-]\\d{4}|(?:\\d{1,2}\\s+(?:de\\s+)?)?(?:${months})(?:\\s+de\\s+\\d{4}|\\s+\\d{4})?)\\b`,'g');
+  for(const match of q.matchAll(token)){
+    const raw=match[0];let y=null,m=null,d=null,monthOnly=false;
+    let a=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(a){y=Number(a[1]);m=Number(a[2]);d=Number(a[3]);}
+    else if((a=raw.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/))){d=Number(a[1]);m=Number(a[2]);y=Number(a[3]);}
+    else {
+      a=raw.match(new RegExp(`^(?:(\\d{1,2})\\s+(?:de\\s+)?)?(${months})(?:\\s+(?:de\\s+)?(\\d{4}))?$`));
+      if(!a)continue;
+      d=a[1]?Number(a[1]):1;m=MH151_MONTHS[a[2]];monthOnly=!a[1];
+      y=a[3]?Number(a[3]):(m>Number(now.slice(5,7))?currentYear-1:currentYear);
+    }
+    const iso=mh151Iso(y,m,d);
+    if(iso)dates.push({iso,y,m,d,monthOnly,index:match.index,raw});
+  }
+  // «Desde agosto» empieza el día 1; «en agosto» cubre todo el mes.
+  if(dates.length){
+    const first=dates[0],second=dates[1];
+    const prefix=q.slice(Math.max(0,first.index-32),first.index);
+    const since=/\b(desde|a partir de|a partir del|del|entre)\s*(?:el|de|la)?\s*$/.test(prefix);
+    const inMonth=/\b(en|durante)\s*(?:el mes de)?\s*$/.test(prefix);
+    if(second){
+      let end=second.iso;
+      if(second.monthOnly)end=mh151Iso(second.y,second.m+1,0)||new Date(Date.UTC(second.y,second.m,0)).toISOString().slice(0,10);
+      // Si ambos meses son sin año, interpreta el intervalo cronológicamente.
+      let start=first.iso;
+      if(start>end && !/\b\d{4}\b/.test(first.raw)&&!/\b\d{4}\b/.test(second.raw))start=mh151Iso(first.y-1,first.m,first.d);
+      return mh151Range(start,end);
+    }
+    if(since)return mh151Range(first.iso,now);
+    if(first.monthOnly&&inMonth){
+      const last=new Date(Date.UTC(first.y,first.m,0)).toISOString().slice(0,10);
+      return mh151Range(first.iso,last>now?now:last);
+    }
+    // Fecha explícita aislada: analizar desde ella hasta hoy.
+    return mh151Range(first.iso,now);
+  }
+  if(/\b(desde (?:el )?(?:ano|año) )\s*(\d{4})\b/.test(q)){
+    const y=Number(q.match(/\bdesde (?:el )?(?:ano|año)\s+(\d{4})\b/)[1]);
+    return mh151Range(mh151Iso(y,1,1),now);
+  }
+  if(/\b(desde que empece|todo mi historial|desde el principio|desde mis primeros registros|toda mi evolucion)\b/.test(q)){
+    const earliest=mh151EarliestDate();
+    if(earliest)return mh151Range(earliest,now);
+  }
+  let relative=q.match(/\b(?:ultim[oa]s?|pasad[oa]s?|hace)\s+(\d{1,3})\s+(dias?|semanas?|meses?|anos?)\b/);
+  if(relative){
+    const n=Number(relative[1]),unit=relative[2];
+    const d=new Date(now+'T12:00:00Z');
+    if(unit.startsWith('dia'))d.setUTCDate(d.getUTCDate()-(n-1));
+    else if(unit.startsWith('semana'))d.setUTCDate(d.getUTCDate()-(n*7-1));
+    else if(unit.startsWith('mes'))d.setUTCMonth(d.getUTCMonth()-n);
+    else d.setUTCFullYear(d.getUTCFullYear()-n);
+    return mh151Range(d.toISOString().slice(0,10),now);
+  }
   if(/\b(manana|dieta de manana|plan de manana)\b/.test(q))return {days:28,label:'Contexto para mañana'};
   if(/\b(hoy|esta manana|esta tarde|esta noche|que ceno|que como)\b/.test(q))return {days:28,label:'Hoy + últimas 4 semanas'};
   if(/\b(ayer|ultimo entreno|ultimo entrenamiento|ultima sesion|mi rutina)\b/.test(q))return {days:7,label:'Últimos 7 días'};
   if(/\b(esta semana|semana actual|ultimos 7 dias|como voy esta semana)\b/.test(q))return {days:7,label:'Últimos 7 días'};
-  if(/\b(2 semanas|dos semanas|quincena|ultimos 14 dias)\b/.test(q))return {days:14,label:'Últimos 14 días'};
-  if(/\b(3 meses|tres meses|90 dias|ultimo trimestre)\b/.test(q))return {days:90,label:'Últimos 90 días'};
-  if(/\b(mes|4 semanas|cuatro semanas|28 dias|30 dias)\b/.test(q))return {days:28,label:'Últimas 4 semanas'};
+  if(/\b(2 semanas|quincena|ultimos 14 dias)\b/.test(q))return {days:14,label:'Últimos 14 días'};
+  if(/\b(3 meses|90 dias|ultimo trimestre)\b/.test(q))return {days:90,label:'Últimos 90 días'};
+  if(/\b(mes|4 semanas|28 dias|30 dias)\b/.test(q))return {days:28,label:'Últimas 4 semanas'};
   return {days:28,label:'Últimas 4 semanas'};
 }
 function assistantTopic(message){
@@ -7477,7 +7605,7 @@ function assistantBuildMetricCard(message,snapshot,contextLabel){
   }else if(topic==='body'){
     title='Peso y composición';
     items=[
-      ['Peso actual',assistantMetricValue(s.body.latestWeight,1,' kg')],
+      [s.period?.end===today()?'Peso actual':'Último peso del período',assistantMetricValue(s.body.latestWeight,1,' kg')],
       ['Cambio periodo',assistantMetricValue(s.body.weightChangeKg,1,' kg')],
       ['Ritmo semanal',assistantMetricValue(s.body.weeklyWeightChangeKg,2,' kg/sem')],
       ['Grasa actual',assistantMetricValue(s.body.latestFatPct,1,'%')]
@@ -7527,6 +7655,8 @@ async function sendAssistantMessage(){
   const status=document.getElementById('assistantChatStatus');
   const message=String(input?.value||'').trim();
   if(!message)return;
+  let temporal;
+  try{temporal=assistantTemporalContext(message);}catch(e){if(status)status.textContent=e.message||'Revisa el período solicitado.';return;}
 
   if(!Array.isArray(db.assistantChat))db.assistantChat=[];
   db.assistantChat.push({role:'user',text:message,time:assistantChatTimestamp(),createdAt:Date.now()});
@@ -7537,8 +7667,7 @@ async function sendAssistantMessage(){
   if(send)send.disabled=true;
   if(status)status.textContent='Analizando '+assistantTemporalContext(message).label.toLowerCase()+' con tus datos actuales…';
 
-  const temporal=assistantTemporalContext(message);
-  const snapshot=buildCoachSnapshot(temporal.days);
+  const snapshot=buildCoachSnapshot(temporal.days,temporal.range||null);
   const metricCard=assistantBuildMetricCard(message,snapshot,temporal.label);
   // v22.3.129: una peticion de NUEVA rutina debe ser independiente de
   // las propuestas previas del Coach. Solo conserva historia si el usuario
@@ -7560,6 +7689,9 @@ async function sendAssistantMessage(){
   const coachMessageWithCount=requestedExerciseCount
     ?'INSTRUCCIÓN OBLIGATORIA: incluye EXACTAMENTE '+requestedExerciseCount.count+' ejercicios '+(requestedExerciseCount.perDay?'POR DÍA':'EN TOTAL')+'; no agregues ejercicios adicionales, variantes ni calentamientos en la lista. '+coachMessage
     :coachMessage;
+  const datedCoachMessage=temporal.range
+    ?`PERÍODO SOLICITADO: ${snapshot.period.start} a ${snapshot.period.end} (${snapshot.period.days} días). Analiza todos los registros de ese período, incluyendo historicalTrend y coverage; no sustituyas este intervalo por los últimos 28 días. `+coachMessageWithCount
+    :coachMessageWithCount;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),60000);
 
@@ -7569,7 +7701,7 @@ async function sendAssistantMessage(){
       mode:'cors',
       cache:'no-store',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({message:catalogInstruction+coachMessageWithCount,snapshot,history,context:{days:temporal.days,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
+      body:JSON.stringify({message:catalogInstruction+datedCoachMessage,snapshot,history,context:{days:temporal.days,start:snapshot.period.start,end:snapshot.period.end,label:temporal.label},coachMode:'coach360',responseGuidance:snapshot.contract}),
       signal:controller.signal
     });
     const raw=await response.text();
@@ -7752,6 +7884,7 @@ function mh36PeriodChanged(){
   const end=document.getElementById('mh36End'),start=document.getElementById('mh36Start');
   if(end&&!end.value)end.value=todayIso;
   if(start&&!start.value)start.value=isoDaysAgo(27);
+  renderCoachLocalSummary();
 }
 function mh36SelectedRange(){
   const mode=document.getElementById('mh36Period')?.value||'28';
@@ -7775,6 +7908,7 @@ async function runCoachAnalysis(focus='week'){
   let range;
   try{range=mh36SelectedRange();}catch(e){if(status)status.textContent=e.message;return;}
   if(status)status.textContent='Analizando del '+range.start+' al '+range.end+'…';
+  renderCoachLocalSummary(range);
 
   const snapshot=buildCoachSnapshot(28,range);
   const base=getAiBackendUrl();
