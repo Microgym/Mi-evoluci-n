@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
-<!-- v22.3.161: Vídeos demostrativos específicos para los 10 ejercicios de la rutina 3, sin modificar el historial -->
+<!-- v22.3.162: Navegación anterior/siguiente de vídeos y acceso directo durante las rutinas, sin modificar el historial -->
 <!-- v22.3.159: Añadidas rutinas de gimnasio 1 y 2 con 16 ejercicios, sin duplicados, y cuatro fichas visuales nuevas -->
 <!-- v22.3.158: Añadido Gemelo en máquina Nº 4 con fotografía de rutina 2, separado del ejercicio genérico -->
 <!-- v22.3.157: Añadida prensa inclinada máquina Nº 27 con miniatura de la rutina 2, sin alterar prensa 45º -->
@@ -13509,21 +13509,61 @@ function mh161ToggleVideo(btn,id){
   tools.insertAdjacentElement('afterend',box);
   btn.textContent='✕ Cerrar vídeo';
 }
+/* v22.3.162 — Navegador de vídeos: un ejercicio por pantalla, con acceso
+   directo desde cada ejercicio de una sesión activa. Sin cambios en los datos. */
+let mh162VideoEntries=[];
+let mh162VideoRoutineTitle='';
+function mh162ShowRoutineVideoAt(index){
+  if(!mh162VideoEntries.length)return;
+  const i=Math.max(0,Math.min(mh162VideoEntries.length-1,Number(index)||0));
+  const ex=mh162VideoEntries[i];
+  const n=mh162VideoEntries.length;
+  const videoId=mh161VideoId(ex.exerciseId);
+  if(!videoId)return;
+  exerciseDetailContent.innerHTML=`
+    <div class="exercise-detail-title">🎬 Vídeos · ${escapeMealText(mh162VideoRoutineTitle)}</div>
+    <p class="muted" style="margin:8px 0">Vídeo ${i+1} de ${n}. Usa «Siguiente» para pasar al próximo ejercicio.</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0">
+      <button class="set-add" type="button" onclick="mh162ShowRoutineVideoAt(${i-1})" ${i===0?'disabled':''}>← Anterior</button>
+      <button class="primary-small" type="button" onclick="mh162ShowRoutineVideoAt(${i+1})" ${i===n-1?'disabled':''}>Siguiente →</button>
+      <span class="muted" style="font-weight:700">${i+1} / ${n}</span>
+    </div>
+    <label for="mh162VideoSelect" style="display:block;margin:8px 0 4px">Elegir ejercicio</label>
+    <select id="mh162VideoSelect" aria-label="Elegir vídeo de ejercicio" onchange="mh162ShowRoutineVideoAt(this.value)" style="width:100%;max-width:100%;padding:10px;border-radius:10px;border:1px solid #c8d5e2">
+      ${mh162VideoEntries.map((entry,j)=>`<option value="${j}" ${j===i?'selected':''}>${j+1}. ${escapeMealText(entry.ej)}</option>`).join('')}
+    </select>
+    <h3 style="margin:14px 0 8px">${i+1}. ${escapeMealText(ex.ej)}</h3>
+    ${mh161VideoHtml(ex.exerciseId,true)}
+    <p class="muted">Demostración de referencia: la máquina y el agarre pueden diferir de los de tu gimnasio.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">
+      <button class="set-add" type="button" onclick="mh162ShowRoutineVideoAt(${i-1})" ${i===0?'disabled':''}>← Anterior</button>
+      <button class="primary-small" type="button" onclick="mh162ShowRoutineVideoAt(${i+1})" ${i===n-1?'disabled':''}>Siguiente ejercicio →</button>
+    </div>
+    <div class="exercise-detail-actions"><button class="set-add" onclick="closeExerciseDetail()">Cerrar vídeos</button></div>`;
+  exerciseDetailModal.classList.add('open');
+  const sheet=exerciseDetailModal.querySelector('.exercise-modal-sheet');
+  if(sheet)sheet.scrollTop=0;
+  document.body.style.overflow='hidden';
+}
 function mh161OpenRoutineVideos(routineId){
   const r=(db.rutinas||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  const entries=(r.ejercicios||[]).filter(x=>mh161VideoId(x.exerciseId));
-  if(!entries.length){alert('Todavía no hay vídeos verificados para esta rutina.');return;}
-  exerciseDetailContent.innerHTML=`
-    <div class="exercise-detail-title">🎬 Vídeos · ${escapeMealText(r.nombre)}</div>
-    <p class="muted">Toca «Reproducir vídeo aquí» para ver cada demostración, o ábrela en YouTube. Las máquinas y agarres pueden diferir de los de tu gimnasio.</p>
-    ${entries.map((ex,i)=>`<div style="padding:10px 0;border-bottom:1px solid #dce5ef">
-      <b>${i+1}. ${escapeMealText(ex.ej)}</b>
-      ${mh161VideoHtml(ex.exerciseId,true)}
-    </div>`).join('')}
-    <div class="exercise-detail-actions"><button class="primary-small" onclick="closeExerciseDetail()">Cerrar</button></div>`;
-  exerciseDetailModal.classList.add('open');
-  document.body.style.overflow='hidden';
+  mh162VideoEntries=(r.ejercicios||[]).filter(x=>mh161VideoId(x.exerciseId));
+  if(!mh162VideoEntries.length){alert('Todavía no hay vídeos para esta rutina.');return;}
+  mh162VideoRoutineTitle=r.nombre;
+  mh162ShowRoutineVideoAt(0);
+}
+function mh162OpenActiveExerciseVideo(i){
+  const ex=db.rutinaActiva?.items?.[i];
+  if(!ex)return;
+  const id=mh161VideoId(ex.exerciseId)?ex.exerciseId:resolveExerciseAliasId(ex);
+  if(!mh161VideoId(id)){
+    alert('Este ejercicio todavía no tiene un vídeo demostrativo asociado.');
+    return;
+  }
+  mh162VideoEntries=[{exerciseId:id,ej:ex.ej}];
+  mh162VideoRoutineTitle=db.rutinaActiva?.nombre||'Rutina en curso';
+  mh162ShowRoutineVideoAt(0);
 }
 
 function exerciseGuideHtml(id){
@@ -16607,6 +16647,7 @@ function renderRoutines(){
         </div>
         ${routineExerciseImageHtml(ex)}
       </div>
+      ${mh161VideoId(ex.exerciseId)?`<button type="button" class="set-add" style="margin:6px 0" onclick="event.preventDefault();event.stopPropagation();mh162OpenActiveExerciseVideo(${i})">🎬 Ver vídeo</button>`:''}
       <span class="mh138-detail-label">${ex.hecho?'✓ Completado':'Ver detalles →'}</span>
     </summary>
     <div class="active-routine-body">
@@ -16633,7 +16674,7 @@ function renderRoutines(){
         <button type="button" class="mh138-tab" onclick="mh138Tab(this,'description')">Descripción</button>
       </div>
       <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}</div>
-      <div class="mh138-panel" data-mh138-tab="description" hidden>Consulta las instrucciones y las imágenes en la ficha del catálogo de este ejercicio. <button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button>${mh161VideoHtml(ex.exerciseId)}</div>
+      <div class="mh138-panel" data-mh138-tab="description" hidden><b>🎬 Vídeo demostrativo</b><p class="muted">Puedes reproducirlo aquí o abrir la ficha con las imágenes y las instrucciones.</p>${mh161VideoHtml(ex.exerciseId)}<button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
       <div class="mh138-panel" data-mh138-tab="notes" hidden>Las observaciones que escribas aquí se guardarán junto al ejercicio.</div>
       <div class="mh138-series-panel" data-mh138-tab="series"><div class="routine-meta">Introduce los valores reales de cada serie y después pulsa «Validar ejercicio».</div>
       <div class="exercise-comment-box ${currentExerciseComment(ex)?'has-comment':''}">
