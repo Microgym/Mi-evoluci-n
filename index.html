@@ -7,6 +7,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.154: Rutinas · ficha imprimible y guardar como PDF -->
+<!-- v22.3.153: Farmacia · tensión arterial, foto, análisis y seguimiento -->
 <!-- v22.3.151: Coach con fechas históricas en chat y evolución de todo el intervalo -->
 <!-- v22.3.111: portada ligera durante el procesamiento inicial; no altera datos -->
 <style id="mh111-startup-style">
@@ -3955,6 +3957,32 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <button type="button" id="mh52-make-pdf" class="mh52-primary">Preparar informe para PDF</button><p id="mh52-report-error" role="status"></p>
 <small>Se abrirá un informe imprimible. En iPhone puedes usar Compartir desde la vista de impresión para guardar el PDF.</small>
 </details></div>
+<details id="mh153-bp" class="mh153-bp">
+<summary>🩺 Mi tensión arterial · Registrar y seguimiento</summary>
+<p class="mh153-help">Registra cuándo y dónde te has tomado la tensión, adjunta una foto del tensiómetro y consulta tu evolución. Las cifras deben revisarse antes de guardar.</p>
+<form id="mh153-form" class="mh153-form">
+<input type="hidden" id="mh153-id">
+<div class="mh153-fields">
+<label>Fecha <input id="mh153-date" type="date" required></label>
+<label>Hora <input id="mh153-time" type="time" required></label>
+<label>Lugar <input id="mh153-place" type="text" maxlength="100" placeholder="Casa, farmacia, consulta…" required></label>
+<label>Sistólica (alta) · mmHg <input id="mh153-sys" type="number" min="50" max="280" step="1" inputmode="numeric" required placeholder="120"></label>
+<label>Diastólica (baja) · mmHg <input id="mh153-dia" type="number" min="30" max="180" step="1" inputmode="numeric" required placeholder="80"></label>
+<label>Pulso · lpm (opcional) <input id="mh153-pulse" type="number" min="25" max="220" step="1" inputmode="numeric" placeholder="70"></label>
+</div>
+<label>Notas / circunstancias <textarea id="mh153-note" rows="2" maxlength="500" placeholder="Reposo, después de caminar, síntomas, brazo utilizado…"></textarea></label>
+<label>Fotografía del tensiómetro (opcional) <input id="mh153-photo" type="file" accept="image/*"></label>
+<div class="mh153-actions"><button type="button" id="mh153-read-photo">✨ Leer cifras de la foto con IA</button><button type="button" id="mh153-preview">Ver foto guardada</button></div>
+<p id="mh153-photo-status" class="mh153-help" role="status">La fotografía se guardará en este dispositivo, separada de los registros. La lectura automática requiere que el servicio de IA esté actualizado y que autorices el envío de la imagen.</p>
+<div class="mh153-actions"><button type="submit" class="mh153-primary">Guardar medición</button><button type="button" id="mh153-cancel">Cancelar edición</button></div>
+</form>
+<div id="mh153-message" role="status" aria-live="polite"></div>
+<div class="mh153-summary" id="mh153-summary"></div>
+<div class="mh153-range"><label>Desde <input type="date" id="mh153-from"></label><label>Hasta <input type="date" id="mh153-to"></label><button type="button" id="mh153-pdf">Informe / PDF</button></div>
+<div id="mh153-chart" class="mh153-chart" aria-label="Gráfico de evolución de tensión arterial"></div>
+<div id="mh153-list" class="mh153-list"></div>
+<p class="mh153-help">Interpretación orientativa; una medición aislada no establece un diagnóstico. Para comparar resultados, mide tras 5 minutos sentado y en condiciones similares. Si hay síntomas graves (dolor torácico, dificultad respiratoria, debilidad repentina), solicita asistencia urgente.</p>
+</details>
 <details class="mh47-appointments"><summary>📅 Mis citas médicas · Añadir y gestionar</summary>
 <form id="mh47-appointment-form" class="mh47-form">
 <input type="hidden" id="mh47-appointment-id">
@@ -4520,6 +4548,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <details class="training-fold"><summary><span class="training-section-label"><span class="training-section-dot"><svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg></span>Mis rutinas</span></summary><div class="training-fold-body"><div class="card">
   <h2>Rutinas</h2>
   <p class="muted">El orden de esta lista define la rotación recomendada. Puedes cambiarlo cuando quieras con ↑ y ↓. Al terminar una rutina, la app te propondrá automáticamente la siguiente.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px"><button type="button" class="set-add" onclick="mh154OpenRoutinePrintAll()">📄 PDF de todas mis rutinas</button></div>
   <div id="routineList"></div>
   <!-- v22.2.93: restore actual routine editor markup; it was absent in v22.2.93 -->
   <details id="routineBuilderSection" style="margin-top:14px;border:1px solid #cde4e2;border-radius:16px;padding:12px;background:#f8fcfc">
@@ -16077,6 +16106,109 @@ function addExerciseToActiveRoutine(id){
   const target=document.querySelector(`[data-routine-index="${n}"]`);
   if(target){target.open=true;target.scrollIntoView({behavior:'smooth',block:'start'});}
 }
+
+/* v22.3.154 · Exportar rutinas creadas a ficha A4 imprimible (Guardar como PDF). */
+function mh154Esc(value){
+ return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function mh154Text(value,fallback='—'){
+ return value===undefined||value===null||String(value).trim()===''?fallback:String(value).trim();
+}
+function mh154ExercisePrescription(ex){
+ const parts=[];
+ const sets=Number(ex?.series);
+ if(Number.isFinite(sets)&&sets>0)parts.push(sets+' serie'+(sets===1?'':'s'));
+ const range=ex?.repsLabel || ((ex?.repsMin!=null && ex?.repsMax!=null)?ex.repsMin+'–'+ex.repsMax:ex?.reps);
+ if(range!=null && String(range).trim()!=='')parts.push(String(range)+' rep.');
+ if(ex?.tiempo!=null && Number(ex.tiempo)>0)parts.push(String(ex.tiempo)+' '+mh154Text(ex.unidadTiempo,'min'));
+ if((ex?.tipo==='cardio'||ex?.tipo==='movilidad'||!parts.length) && ex?.duracion!=null && Number(ex.duracion)>0 && !(ex?.tiempo!=null && Number(ex.tiempo)>0))parts.push(String(ex.duracion)+' min');
+ return parts.join(' × ') || '—';
+}
+function mh154PrintableRoutine(r,number){
+ const exs=Array.isArray(r?.ejercicios)?r.ejercicios:[];
+ const goal=Number(r?.objetivoSemanal);
+ const goalText=Number.isFinite(goal)&&goal>=1?goal+' día'+(goal===1?'':'s')+' / semana':'No definido';
+ const totalMins=exs.reduce((sum,ex)=>sum+(Number(ex?.duracion)>0?Number(ex.duracion):0),0);
+ const rows=exs.map((ex,i)=>{
+  const category=typeof routineExerciseCategoryLabel==='function'?routineExerciseCategoryLabel(ex):mh154Text(ex?.tipo,'Actividad');
+  const name=mh154Esc(mh154Text(ex?.ej,'Ejercicio'));
+  const equip=mh154Esc(mh154Text(ex?.equipo));
+  const load=ex?.kg!=null && ex.kg!==''?mh154Esc(String(ex.kg)+' kg'):'________';
+  const note=mh154Text(ex?.comentario,'');
+  const detail=[ex?.intensidad ? 'Intensidad: '+ex.intensidad : '',note].filter(Boolean).join(' · ');
+  return `<tr><td class="mh154-num">${i+1}</td><td><strong>${name}</strong><div class="mh154-muted">${mh154Esc(category)}${detail?'<br>'+mh154Esc(detail):''}</div></td><td>${mh154Esc(mh154ExercisePrescription(ex))}</td><td>${equip}</td><td>${load}</td><td class="mh154-done">□</td></tr>`;
+ }).join('');
+ return `<section class="mh154-sheet">
+   <div class="mh154-brand">MicroHealth <span>· Ficha de entrenamiento</span></div>
+   <h1>${mh154Esc(mh154Text(r?.nombre,'Rutina'))}</h1>
+   <div class="mh154-meta"><span><b>Rutina:</b> ${number}</span><span><b>Ejercicios:</b> ${exs.length}</span><span><b>Objetivo:</b> ${mh154Esc(goalText)}</span>${totalMins?`<span><b>Duración orientativa:</b> ${Math.round(totalMins)} min</span>`:''}</div>
+   <div class="mh154-fields"><span>Fecha: ___________________</span><span>Lugar: ___________________</span></div>
+   <table><thead><tr><th>Nº</th><th>Ejercicio</th><th>Series / repeticiones / tiempo</th><th>Equipo</th><th>Carga</th><th>✓</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No hay ejercicios en esta rutina.</td></tr>'}</tbody></table>
+   <div class="mh154-notes"><strong>Notas de la sesión</strong><div class="mh154-note-lines">________________________________________________________________________________<br>________________________________________________________________________________</div></div>
+ </section>`;
+}
+function mh154EnsurePrintCss(){
+ if(document.getElementById('mh154RoutinePrintStyle'))return;
+ const css=document.createElement('style');css.id='mh154RoutinePrintStyle';css.textContent=`
+ #mh154RoutinePrintModal{position:fixed;inset:0;z-index:2147483000;overflow:auto;background:#edf3f4;color:#1b2b33;padding:14px;font-family:Arial,Helvetica,sans-serif}
+ #mh154RoutinePrintModal .mh154-toolbar{position:sticky;top:0;z-index:2;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #cbdcdd;border-radius:12px;padding:12px;max-width:900px;margin:0 auto 14px;box-shadow:0 4px 16px #0001}
+ #mh154RoutinePrintModal .mh154-toolbar button{padding:10px 16px;border:1px solid #c7d9d8;border-radius:9px;background:white;color:#1b2b33;font-weight:700;cursor:pointer}
+ #mh154RoutinePrintModal .mh154-toolbar .mh154-primary{background:#137e72;color:white;border-color:#137e72}
+ #mh154RoutinePrintModal .mh154-toolbar small{color:#516773;flex-basis:100%}
+ #mh154RoutinePrintModal .mh154-sheet{background:#fff;max-width:900px;margin:0 auto 18px;padding:30px 34px;box-shadow:0 2px 14px #0002;box-sizing:border-box}
+ #mh154RoutinePrintModal .mh154-brand{color:#0b7165;font-size:13px;font-weight:800;border-bottom:3px solid #168879;padding-bottom:9px}
+ #mh154RoutinePrintModal .mh154-brand span{font-weight:400;color:#5d7078}
+ #mh154RoutinePrintModal h1{font-size:23px;color:#142d35;margin:14px 0 10px;line-height:1.2}
+ #mh154RoutinePrintModal .mh154-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;margin:0 0 16px;color:#43545e}
+ #mh154RoutinePrintModal .mh154-fields{display:flex;justify-content:space-between;gap:12px;font-size:11px;margin-bottom:14px}
+ #mh154RoutinePrintModal table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}
+ #mh154RoutinePrintModal th{background:#e8f3f0;color:#165b53;text-align:left;padding:8px 5px;border-bottom:1px solid #a9cbc4}
+ #mh154RoutinePrintModal td{padding:9px 5px;vertical-align:top;border-bottom:1px solid #dce5e6;overflow-wrap:anywhere;line-height:1.35}
+ #mh154RoutinePrintModal th:nth-child(1){width:5%}#mh154RoutinePrintModal th:nth-child(2){width:33%}#mh154RoutinePrintModal th:nth-child(3){width:25%}#mh154RoutinePrintModal th:nth-child(4){width:19%}#mh154RoutinePrintModal th:nth-child(5){width:13%}#mh154RoutinePrintModal th:nth-child(6){width:5%}
+ #mh154RoutinePrintModal .mh154-muted{color:#5a7077;font-size:9px;margin-top:4px}
+ #mh154RoutinePrintModal .mh154-done{font-size:18px;line-height:1}
+ #mh154RoutinePrintModal .mh154-notes{font-size:11px;margin-top:20px;break-inside:avoid}
+ #mh154RoutinePrintModal .mh154-note-lines{font-size:10px;line-height:2.4;color:#84939a;overflow:hidden;white-space:nowrap}
+ @media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:white!important;margin:0!important;padding:0!important;overflow:visible!important;height:auto!important}
+  body > :not(#mh154RoutinePrintModal){display:none!important}
+  #mh154RoutinePrintModal{position:static!important;inset:auto!important;z-index:auto!important;display:block!important;overflow:visible!important;background:white!important;margin:0!important;padding:0!important}
+  #mh154RoutinePrintModal .mh154-toolbar{display:none!important}
+  #mh154RoutinePrintModal .mh154-sheet{max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;break-after:page;page-break-after:always}
+  #mh154RoutinePrintModal .mh154-sheet:last-child{break-after:auto;page-break-after:auto}
+  #mh154RoutinePrintModal thead{display:table-header-group}
+  #mh154RoutinePrintModal tr{break-inside:avoid;page-break-inside:avoid}
+  #mh154RoutinePrintModal *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ }`;
+ document.head.appendChild(css);
+}
+function mh154CloseRoutinePrint(){
+ const modal=document.getElementById('mh154RoutinePrintModal');
+ if(modal)modal.remove();
+}
+function mh154OpenRoutinePrintByIndex(index){
+ ensureRoutines();
+ const r=(db.rutinas||[])[Number(index)];
+ if(!r)return alert('No se ha encontrado la rutina. Actualiza la lista e inténtalo de nuevo.');
+ mh154ShowRoutinePrint([r]);
+}
+function mh154OpenRoutinePrintAll(){
+ ensureRoutines();
+ const routines=db.rutinas||[];
+ if(!routines.length)return alert('Todavía no hay rutinas creadas.');
+ mh154ShowRoutinePrint(routines);
+}
+function mh154ShowRoutinePrint(routines){
+ mh154EnsurePrintCss();
+ mh154CloseRoutinePrint();
+ const modal=document.createElement('section');modal.id='mh154RoutinePrintModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Vista previa para imprimir rutinas');
+ const pages=routines.map((r,i)=>mh154PrintableRoutine(r,i+1)).join('');
+ modal.innerHTML=`<div class="mh154-toolbar"><strong>📄 ${routines.length===1?'Ficha de rutina':'Todas mis rutinas'} · vista previa</strong><button class="mh154-primary" type="button" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button><button type="button" onclick="mh154CloseRoutinePrint()">✕ Cerrar</button><small>En la ventana de impresión elige «Guardar como PDF» si quieres descargar el archivo, o selecciona tu impresora.</small></div>${pages}`;
+ document.body.appendChild(modal);
+ const close=modal.querySelector('.mh154-toolbar button:last-of-type');if(close)close.focus();
+}
+
 function renderRoutines(){
  clearRoutineExerciseFocus();
  ensureRoutines();
@@ -16104,6 +16236,7 @@ function renderRoutines(){
      </div>
      <div class="routine-actions">
        <button class="primary-small" onclick="startRoutine('${r.id}')">Iniciar rutina</button>
+       <button class="set-add" type="button" onclick="mh154OpenRoutinePrintByIndex(${idx})" title="Preparar la ficha de esta rutina para imprimir o guardar como PDF">📄 PDF / Imprimir</button>
        <button class="set-add" onclick="editSavedRoutine('${r.id}')">✎ Modificar · añadir ejercicios</button>
        <button class="set-remove" onclick="deleteRoutine('${r.id}')">Eliminar</button>
      </div>
@@ -20634,6 +20767,7 @@ const MAIN_KEY='miguel-evolucion-v4';
 const MED_KEY='micro-health-medicacion-v1';
 const PDB='mi-evolucion-progress-photos', PSTORE='photos';
 const DDB='micro-health-medication-files-v1', DSTORE='files';
+const BPKEY='micro-health-blood-pressure-v1', BPDB='micro-health-bp-photos-v1', BPSTORE='photos';
 const $=id=>document.getElementById(id);
 const status=$('mh40BackupStatus'), check=$('mh40Check'), exportBtn=$('mh40Export'), importBtn=$('mh40ImportBtn'),fileInput=$('mh40ImportFile');
 if(!status||!check||!exportBtn||!importBtn||!fileInput)return;
@@ -20703,15 +20837,15 @@ const download=(blob,name)=>{
 async function review(){
  const main=safeParse(getStorage(MAIN_KEY),'datos generales');
  const med=safeParse(getStorage(MED_KEY),'medicación');
- const [photos,docs]=await Promise.all([readStore(PDB,PSTORE,true,true),readStore(DDB,DSTORE,false,true)]);
+ const [photos,docs,bpPhotos]=await Promise.all([readStore(PDB,PSTORE,true,true),readStore(DDB,DSTORE,false,true),readStore(BPDB,BPSTORE,false,true)]);
  const saved=localStorage.getItem('mh40-full-backup-generated-v1');
- return {main,med,photos,docs,saved};
+ return {main,med,photos,docs,bpPhotos,bp:JSON.parse(getStorage(BPKEY)||'[]'),saved};
 }
 check.addEventListener('click',async()=>{
  check.disabled=true;setStatus('Comprobando los cuatro almacenamientos…');
  try{
   const r=await review();
-  setStatus('Datos generales: '+(r.main?'disponibles':'sin registros')+'\nMedicación: '+(r.med&&Array.isArray(r.med.medications)?r.med.medications.length+' medicamentos':'sin registros')+'\nFotos de progreso: '+r.photos+'\nDocumentos de medicación: '+r.docs+'\nÚltima copia completa preparada: '+(r.saved?new Date(r.saved).toLocaleString('es-ES'):'no consta')+'\n\nLa fecha solo indica que se preparó la descarga; comprueba que el archivo está guardado fuera de la app.');
+  setStatus('Datos generales: '+(r.main?'disponibles':'sin registros')+'\nMedicación: '+(r.med&&Array.isArray(r.med.medications)?r.med.medications.length+' medicamentos':'sin registros')+'\nFotos de progreso: '+r.photos+'\nDocumentos de medicación: '+r.docs+'\nRegistros de tensión: '+r.bp.length+'\nFotos de tensión: '+r.bpPhotos+'\nÚltima copia completa preparada: '+(r.saved?new Date(r.saved).toLocaleString('es-ES'):'no consta')+'\n\nLa fecha solo indica que se preparó la descarga; comprueba que el archivo está guardado fuera de la app.');
  }catch(e){setStatus('⚠️ No se ha podido comprobar todo: '+e.message)}finally{check.disabled=false}
 });
 exportBtn.addEventListener('click',async()=>{
@@ -20721,12 +20855,15 @@ exportBtn.addEventListener('click',async()=>{
   const medication=safeParse(getStorage(MED_KEY),'medicación')||{version:1,medications:[],events:[]};
   if(!main)throw Error('Aún no hay datos generales guardados.');
   if(!Array.isArray(medication.medications)||!Array.isArray(medication.events))throw Error('La agenda de medicación está incompleta.');
-  const [photoRows,docRows]=await Promise.all([readStore(PDB,PSTORE,true),readStore(DDB,DSTORE,false)]);
-  const totalMB=[...photoRows,...docRows].reduce((n,x)=>n+(x.blob instanceof Blob?x.blob.size:0),0)/1048576;
+  const [photoRows,docRows,bpPhotoRows]=await Promise.all([readStore(PDB,PSTORE,true),readStore(DDB,DSTORE,false),readStore(BPDB,BPSTORE,false)]);
+  const totalMB=[...photoRows,...docRows,...bpPhotoRows].reduce((n,x)=>n+(x.blob instanceof Blob?x.blob.size:0),0)/1048576;
   if(totalMB>100&&!confirm('Las fotos y documentos ocupan alrededor de '+totalMB.toFixed(0)+' MB. El archivo completo puede ser grande y el iPhone necesitará memoria adicional. ¿Intentar exportarlo?'))return;
   const photos=await encodeRows(photoRows,'Foto');
   const documents=await encodeRows(docRows,'Documento');
-  const payload={app:'Micro Health',type:'micro-health-full-backup',format:1,exportedAt:new Date().toISOString(),general:main,medication,progressPhotos:photos,medicationDocuments:documents};
+  const bloodPressure=safeParse(getStorage(BPKEY),'tensión arterial')||[];
+  if(!Array.isArray(bloodPressure))throw Error('Los registros de tensión no son válidos.');
+  const bloodPressurePhotos=await encodeRows(bpPhotoRows,'Foto de tensión');
+  const payload={app:'Micro Health',type:'micro-health-full-backup',format:1,exportedAt:new Date().toISOString(),general:main,medication,progressPhotos:photos,medicationDocuments:documents,bloodPressure,bloodPressurePhotos};
   const file=new Blob([JSON.stringify(payload)],{type:'application/json'});
   const day=new Date().toISOString().slice(0,10);
   download(file,'MicroHealth_Copia_Completa_'+day+'.json');
@@ -20744,19 +20881,23 @@ fileInput.addEventListener('change',async()=>{
   const b=JSON.parse((await f.text()).replace(/^\uFEFF/,''));
   if(b.type!=='micro-health-full-backup'||b.format!==1||!b.general||typeof b.general!=='object'||Array.isArray(b.general)||!b.medication||!Array.isArray(b.medication.medications)||!Array.isArray(b.medication.events))throw Error('No es una copia completa válida de Micro Health.');
   if(!Array.isArray(b.progressPhotos)||!Array.isArray(b.medicationDocuments))throw Error('A la copia le faltan fotos o documentos, aunque las listas estén vacías.');
-  const [photos,docs]=await Promise.all([decodeRows(b.progressPhotos,'fotos'),decodeRows(b.medicationDocuments,'documentos')]);
+  if(b.bloodPressure!==undefined&&!Array.isArray(b.bloodPressure))throw Error('Registros de tensión incorrectos.');
+  const [photos,docs,bpPhotos]=await Promise.all([decodeRows(b.progressPhotos,'fotos'),decodeRows(b.medicationDocuments,'documentos'),decodeRows(b.bloodPressurePhotos||[],'fotos de tensión')]);
   if(!confirm('¿Restaurar esta copia completa del '+(b.exportedAt||'fecha no indicada')+'?\n\nSUSTITUIRÁ tus datos generales y agenda actuales. Añadirá o actualizará las fotos y documentos de la copia, sin borrar otros archivos.\n\nSi tienes registros más recientes, exporta una copia antes de continuar.'))return;
   setStatus('Guardando fotos y documentos… No cierres la aplicación.');
   // File writes are transactional per store; the main localStorage keys are committed last.
   await writeStore(PDB,PSTORE,true,photos);
   await writeStore(DDB,DSTORE,false,docs);
-  const oldGeneral=getStorage(MAIN_KEY),oldMedication=getStorage(MED_KEY);
+  await writeStore(BPDB,BPSTORE,false,bpPhotos);
+  const oldGeneral=getStorage(MAIN_KEY),oldMedication=getStorage(MED_KEY),oldBP=getStorage(BPKEY);
   try{
    localStorage.setItem(MAIN_KEY,JSON.stringify(b.general));
    localStorage.setItem(MED_KEY,JSON.stringify(b.medication));
+   if(b.bloodPressure!==undefined)localStorage.setItem(BPKEY,JSON.stringify(b.bloodPressure));
   }catch(e){
    try{if(oldGeneral===null)localStorage.removeItem(MAIN_KEY);else localStorage.setItem(MAIN_KEY,oldGeneral)}catch(_){}
    try{if(oldMedication===null)localStorage.removeItem(MED_KEY);else localStorage.setItem(MED_KEY,oldMedication)}catch(_){}
+   try{if(oldBP===null)localStorage.removeItem(BPKEY);else localStorage.setItem(BPKEY,oldBP)}catch(_){}
    throw Error('No se pudieron guardar los registros principales. Revisa el espacio disponible.');
   }
   setStatus('✓ Copia restaurada. Actualizando la aplicación…');
@@ -22559,8 +22700,12 @@ window.mh84CardCrop=async function(file,range){
   function volume(x,total){const n=x.name.toLocaleLowerCase('es');const factor=/flexion|flexión|push.up/.test(n)?.64:/sentadilla|squat|zancada/.test(n)?.75:/dominada|pull.up/.test(n)?1:0;const kg=Number(x.load||0)+bodyWeight()*factor;return kg>0?Math.round(kg*total):null;}
   function fillSuggestions(){const host=document.getElementById('mh91-suggestions');if(!host)return;const names=[...new Set((db.entreno||[]).map(r=>r.ej).filter(Boolean))].slice(-80);host.innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');}
   function renderManage(){const host=document.getElementById('mh91-manage-list');if(!host)return;host.innerHTML=items().length?items().map(x=>'<div class="mh91-item"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' × '+x.reps+' · '+esc(x.daypart||'mañana')+' · '+esc(x.start||'')+(x.end?' → '+esc(x.end):' · sin fecha de fin')+'</small><small>'+esc(muscle(x.name))+'</small><div class="mh91-controls"><button type="button" class="secondary" data-remove="'+esc(x.id)+'">Eliminar</button></div></div>').join(''):'<p class="muted">Aún no has configurado ejercicios diarios.</p>';host.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('¿Eliminar este ejercicio diario y sus recordatorios futuros? El historial realizado se conservará.'))return;db.dailyExercises=items().filter(x=>x.id!==b.dataset.remove);store();refresh();}));fillSuggestions();}
-  function renderDay(){const host=document.getElementById('mh91-day-list'),stats=document.getElementById('mh91-day-stats');if(!host)return;const d=date(),configured=items().filter(x=>active(x,d)),dayLogs=logs()[d]||{};
-   host.innerHTML=configured.length?configured.map(x=>{const l=dayLogs[x.id],done=!!l;return '<div class="mh91-item '+(done?'mh91-done':'')+'"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' series × '+x.reps+' repeticiones · '+esc(muscle(x.name))+'</small><div class="mh91-controls">'+(done?'<span class="mh97-done-label">✅ HECHO</span><small class="mh97-done-summary">'+l.reps+' rep. · '+(l.volume==null?'volumen no estimado':l.volume+' kg estimados')+'</small><button type="button" class="secondary mh97-undo" data-undo="'+esc(x.id)+'">Desmarcar</button>':'<button type="button" class="primary" data-done="'+esc(x.id)+'">✓ Hecho</button><label>Reps. reales <input aria-label="Repeticiones reales" type="number" min="1" max="4000" value="'+(x.sets*x.reps)+'" data-actual="'+esc(x.id)+'"></label><button type="button" class="secondary" data-save="'+esc(x.id)+'">Registrar reales</button>')+'</div></div>'}).join(''):'<p class="muted">No tienes ejercicios diarios programados para este día. Puedes añadirlos desde Entrenar.</p>';
+  function renderDay(){const host=document.getElementById('mh91-day-list'),stats=document.getElementById('mh91-day-stats');if(!host)return;const d=date(),all=items(),configured=all.filter(x=>active(x,d)),expired=all.filter(x=>x.end&&x.end<d),upcoming=all.filter(x=>x.start&&x.start>d),dayLogs=logs()[d]||{};
+   host.innerHTML=configured.length?configured.map(x=>{const l=dayLogs[x.id],done=!!l;return '<div class="mh91-item '+(done?'mh91-done':'')+'"><strong>'+esc(x.name)+'</strong><small>'+x.sets+' series × '+x.reps+' repeticiones · '+esc(muscle(x.name))+'</small><div class="mh91-controls">'+(done?'<span class="mh97-done-label">✅ HECHO</span><small class="mh97-done-summary">'+l.reps+' rep. · '+(l.volume==null?'volumen no estimado':l.volume+' kg estimados')+'</small><button type="button" class="secondary mh97-undo" data-undo="'+esc(x.id)+'">Desmarcar</button>':'<button type="button" class="primary" data-done="'+esc(x.id)+'">✓ Hecho</button><label>Reps. reales <input aria-label="Repeticiones reales" type="number" min="1" max="4000" value="'+(x.sets*x.reps)+'" data-actual="'+esc(x.id)+'"></label><button type="button" class="secondary" data-save="'+esc(x.id)+'">Registrar reales</button>')+'</div></div>'}).join(''):'<p class="muted">No hay ejercicios diarios activos hoy.</p>';
+   // Nunca ocultar silenciosamente un ejercicio configurado: explicar su fecha y permitir reactivarlo.
+   if(expired.length){host.insertAdjacentHTML('beforeend','<div class="mh152-inactive"><strong>📅 Ejercicios con fecha finalizada</strong><p>Estos ejercicios siguen guardados, pero su programación terminó. Puedes reactivarlos sin perder lo realizado.</p>'+expired.map(x=>'<div class="mh152-inactive-row"><span><b>'+esc(x.name)+'</b><small>Finalizó el '+esc(x.end)+'</small></span><button type="button" class="secondary" data-reactivate="'+esc(x.id)+'">Reactivar</button></div>').join('')+'</div>');}
+   if(upcoming.length){host.insertAdjacentHTML('beforeend','<div class="mh152-inactive"><strong>🗓️ Próximos ejercicios</strong>'+upcoming.map(x=>'<div class="mh152-inactive-row"><span><b>'+esc(x.name)+'</b><small>Empieza el '+esc(x.start)+'</small></span></div>').join('')+'</div>');}
+   host.querySelectorAll('[data-reactivate]').forEach(b=>b.addEventListener('click',()=>{const x=items().find(y=>y.id===b.dataset.reactivate);if(!x||!x.end||x.end>=d)return;const previous=x.end;x.end='';if(store()){window.mh91Refresh?.();}else{x.end=previous;}}));
    host.querySelectorAll('[data-done],[data-save],[data-undo]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.done||b.dataset.save||b.dataset.undo,x=items().find(y=>y.id===id);if(!x)return;const day=logs()[d]||{};if(b.dataset.undo){delete day[id];}else{const total=b.dataset.done?x.sets*x.reps:Number(host.querySelector('[data-actual="'+id+'"]')?.value);if(!Number.isInteger(total)||total<1||total>4000){alert('Indica cuántas repeticiones has hecho realmente.');return;}day[id]={reps:total,volume:volume(x,total),muscles:muscle(x.name),at:new Date().toISOString()};}logs()[d]=day;if(store())refresh();}));
    if(stats){const count=configured.filter(x=>dayLogs[x.id]).length;const kg=configured.reduce((n,x)=>n+(Number(dayLogs[x.id]?.volume)||0),0);stats.textContent=count+' de '+configured.length+' completados · '+(kg?kg.toLocaleString('es-ES')+' kg estimados movilizados · ':'')+'no cuentan como entrenamiento completo';}
   }
@@ -22583,6 +22728,16 @@ window.mh84CardCrop=async function(file,range){
 })();
 </script>
 
+<style id="mh152-daily-status">
+#mh91-day .mh152-inactive{border:1px solid #e4d9b6;background:#fffaf0;border-radius:12px;padding:12px;margin:12px 0}
+#mh91-day .mh152-inactive>strong{display:block;font-size:14px;color:#78571c}
+#mh91-day .mh152-inactive>p{font-size:12px;color:#78684d;margin:6px 0 9px}
+#mh91-day .mh152-inactive-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #eee2c6}
+#mh91-day .mh152-inactive-row span{min-width:0;overflow-wrap:anywhere}
+#mh91-day .mh152-inactive-row b{display:block;font-size:13px}
+#mh91-day .mh152-inactive-row small{display:block;color:#796d56;font-size:12px;margin-top:3px}
+#mh91-day .mh152-inactive-row button{flex-shrink:0;min-height:36px}
+</style>
 <style id="mh94-daily-visibility">
 #miDia #mh91-day{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;}
 #miDia #mh91-day .mh91-item{display:block!important;}
@@ -23265,7 +23420,7 @@ window.mh84CardCrop=async function(file,range){
    for(const g of ownGroups){
       const ids=new Set(g.exerciseIds),subset=daily.filter(x=>ids.has(x.id)),done=subset.filter(x=>dayLogs[x.id]).length;
       const box=document.createElement('details');box.className='mh127-group';box.open=mh145OpenGroups.has(String(g.id));box.addEventListener('toggle',()=>{if(box.open)mh145OpenGroups.add(String(g.id));else mh145OpenGroups.delete(String(g.id));});
-      const summary=document.createElement('summary');summary.textContent='☀️ '+g.name+' · '+done+' de '+subset.length+' hechos';box.append(summary);
+      const summary=document.createElement('summary');summary.textContent='☀️ '+g.name+' · '+done+' de '+subset.length+' hechos · '+subset.map(x=>x.name).join(', ');box.append(summary);
       const actions=document.createElement('div');actions.className='mh127-actions';
       const all=document.createElement('button');all.type='button';all.className='secondary';all.textContent='✓ Marcar toda la rutina como hecha';all.onclick=()=>{if(!confirm('¿Marcar todos los ejercicios pendientes de esta rutina como hechos hoy?'))return;const logs=db.dailyExerciseLogs||(db.dailyExerciseLogs={});const d=logs[todayDate()]||(logs[todayDate()]={});subset.forEach(x=>{if(!d[x.id])d[x.id]={reps:x.sets*x.reps,volume:null,muscles:'',at:new Date().toISOString()};});if(persist())window.mh91Refresh?.();};actions.append(all);box.append(actions);
       rows.forEach(row=>{const btn=row.querySelector('[data-done],[data-save],[data-undo]');const id=btn?.dataset.done||btn?.dataset.save||btn?.dataset.undo;if(ids.has(id))box.append(row);});out.append(box);
@@ -23339,4 +23494,57 @@ function mh141RenderCatalog(){
  }catch(err){console.error('mh141 catalog',err);counter.textContent='No se pudo cargar el catálogo.';}
 }
 </script>
+<style id="mh153-bp-style">
+#mh153-bp{margin:14px 0;padding:14px;border:1px solid #d3e5de;border-radius:14px;background:#f9fcfb;color:#193f38}
+#mh153-bp>summary{font-size:17px;font-weight:800;cursor:pointer;padding:6px 0}
+#mh153-bp .mh153-help{font-size:13px;color:#536963;line-height:1.55}
+#mh153-bp label{display:flex;flex-direction:column;gap:5px;font-weight:650;font-size:13px}
+#mh153-bp input,#mh153-bp textarea{box-sizing:border-box;width:100%;padding:11px;border:1px solid #bfd2ca;border-radius:9px;background:white;color:#193f38;font:inherit}
+#mh153-bp .mh153-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+#mh153-bp .mh153-form>label{margin:10px 0}
+#mh153-bp button{padding:10px 13px;border-radius:9px;border:1px solid #c3d8cf;background:white;color:#155e51;font-weight:700;cursor:pointer}
+#mh153-bp .mh153-primary{background:#167865;color:white;border-color:#167865}
+#mh153-bp .mh153-actions,#mh153-bp .mh153-range{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:12px 0}
+#mh153-bp .mh153-range label{flex:1 1 125px}
+#mh153-bp .mh153-summary{margin:15px 0;padding:12px;background:#edf6f2;border-radius:12px;line-height:1.6}
+#mh153-bp .mh153-chart{overflow-x:auto;margin:12px 0}
+#mh153-bp .mh153-chart svg{max-width:100%;height:auto;min-width:300px}
+#mh153-bp .mh153-record{border-bottom:1px solid #dce8e3;padding:12px 2px}
+#mh153-bp .mh153-record strong{font-size:16px}
+#mh153-bp .mh153-record p{margin:5px 0;font-size:13px}
+#mh153-bp .mh153-record button{font-size:12px;padding:7px 10px;margin:3px}
+#mh153-message{font-size:13px;font-weight:650;min-height:18px}
+</style>
+<script id="mh153-blood-pressure-script">
+(()=>{'use strict';
+const KEY='micro-health-blood-pressure-v1',DB='micro-health-bp-photos-v1',STORE='photos';
+const $=id=>document.getElementById(id),pad=x=>String(x).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const fmt=d=>d?d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4):'';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let records=[];
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');records=Array.isArray(v)?v:[]}catch(e){records=[];msg('No se pudieron leer los registros de tensión. No se han modificado.')}}
+function msg(t){if($('mh153-message'))$('mh153-message').textContent=t}
+function openDB(){return new Promise((ok,fail)=>{if(!window.indexedDB)return fail(Error('IndexedDB no disponible'));const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE,{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>fail(r.error||Error('Error al abrir las fotos'))})}
+async function photoOp(mode,id,blob){const db=await openDB();try{return await new Promise((ok,fail)=>{const t=db.transaction(STORE,mode==='get'?'readonly':'readwrite'),st=t.objectStore(STORE);let req;if(mode==='get')req=st.get(id);else if(mode==='delete')req=st.delete(id);else req=st.put({id,blob});let result;req.onsuccess=()=>{result=req.result};t.oncomplete=()=>ok(result);t.onerror=()=>fail(t.error||Error('Error de almacenamiento de foto'));t.onabort=()=>fail(t.error||Error('Foto no guardada'))})}finally{db.close()}}
+async function compactPhoto(file){if(!file)return null;if(!file.type.startsWith('image/'))throw Error('Selecciona una imagen.');if(file.size>18*1048576)throw Error('La foto supera 18 MB. Usa una captura de pantalla.');const src=URL.createObjectURL(file);try{const image=new Image();await new Promise((ok,fail)=>{image.onload=ok;image.onerror=()=>fail(Error('No se pudo abrir la foto. Si es HEIC, prueba con una captura de pantalla.'));image.src=src});const ratio=Math.min(1,1600/Math.max(image.naturalWidth,image.naturalHeight)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(image.naturalWidth*ratio));c.height=Math.max(1,Math.round(image.naturalHeight*ratio));c.getContext('2d').drawImage(image,0,0,c.width,c.height);return await new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(Error('No se pudo preparar la foto')),'image/jpeg',0.8))}finally{URL.revokeObjectURL(src)}}
+async function dataURL(blob){return new Promise((ok,fail)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>fail(Error('No se pudo leer la imagen'));r.readAsDataURL(blob)})}
+function saveRows(rows){localStorage.setItem(KEY,JSON.stringify(rows))}
+function values(){return records.filter(x=>x&&Number.isFinite(Number(x.sys))&&Number.isFinite(Number(x.dia))).sort((a,b)=>(a.date+'T'+a.time).localeCompare(b.date+'T'+b.time))}
+function selected(){const a=$('mh153-from').value,b=$('mh153-to').value;return values().filter(x=>(!a||x.date>=a)&&(!b||x.date<=b))}
+function assess(sys,dia,place){if(sys>=180||dia>=120)return 'Muy elevada: repite tras unos minutos de reposo; si persiste, busca valoración médica urgente. Con síntomas graves, llama a emergencias.';if(sys<90||dia<60)return 'Cifra baja: si hay mareo, desmayo o malestar, consulta con un profesional.';const clinic=/consulta|centro|m[eé]dic|hospital/i.test(place||'');const limitS=clinic?140:135,limitD=clinic?90:85;if(sys>=limitS||dia>=limitD)return 'Por encima del umbral orientativo '+limitS+'/'+limitD+' para este lugar. Repite mediciones en reposo y consulta la tendencia con un profesional.';return 'Por debajo del umbral orientativo del lugar indicado. No descarta problemas; importa la tendencia y el contexto.'}
+function drawChart(rows){const host=$('mh153-chart');host.replaceChildren();if(rows.length<2){host.textContent='Registra al menos dos mediciones para ver la evolución.';return}const last=rows.slice(-40),w=600,h=215,lo=Math.min(50,...last.map(x=>Number(x.dia)))-8,hi=Math.max(160,...last.map(x=>Number(x.sys)))+8;const sx=i=>36+i*540/Math.max(1,last.length-1),sy=v=>180-(v-lo)/(hi-lo)*155;const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 '+w+' '+h);svg.setAttribute('role','img');svg.setAttribute('aria-label','Tensión sistólica y diastólica en orden cronológico');const line=(x1,y1,x2,y2,color,sw)=>{const e=document.createElementNS(ns,'line');Object.entries({x1,y1,x2,y2,stroke:color,'stroke-width':sw}).forEach(([k,v])=>e.setAttribute(k,v));svg.append(e)};line(36,180,576,180,'#c5d8d0',1);for(const [key,color] of [['sys','#b15b36'],['dia','#168b80']]){const poly=document.createElementNS(ns,'polyline');poly.setAttribute('points',last.map((x,i)=>sx(i)+','+sy(Number(x[key]))).join(' '));poly.setAttribute('fill','none');poly.setAttribute('stroke',color);poly.setAttribute('stroke-width','2.8');poly.setAttribute('stroke-linejoin','round');svg.append(poly);last.forEach((x,i)=>{const dot=document.createElementNS(ns,'circle');dot.setAttribute('cx',sx(i));dot.setAttribute('cy',sy(Number(x[key])));dot.setAttribute('r','3');dot.setAttribute('fill',color);const title=document.createElementNS(ns,'title');title.textContent=fmt(x.date)+' '+x.time+' · '+x.sys+'/'+x.dia;dot.append(title);svg.append(dot)})}const t=document.createElementNS(ns,'text');t.setAttribute('x','36');t.setAttribute('y','205');t.setAttribute('fill','#49655c');t.setAttribute('font-size','12');t.textContent='● Sistólica (naranja)    ● Diastólica (verde)    ·    mmHg';svg.append(t);host.append(svg)}
+function draw(){const rows=selected(),sum=$('mh153-summary'),list=$('mh153-list');if(!sum||!list)return;sum.replaceChildren();list.replaceChildren();if(!rows.length){sum.textContent='No hay mediciones guardadas en este período.';drawChart(rows);return}const avg=k=>Math.round(rows.reduce((a,x)=>a+Number(x[k]),0)/rows.length);const latest=rows[rows.length-1];const s=document.createElement('div');s.innerHTML='<strong>'+rows.length+' mediciones</strong> · Media: <strong>'+avg('sys')+'/'+avg('dia')+' mmHg</strong><br>Última: '+esc(fmt(latest.date))+' '+esc(latest.time)+' · '+esc(latest.sys)+'/'+esc(latest.dia)+(latest.pulse?' · '+esc(latest.pulse)+' lpm':'')+'<br><small>Media descriptiva de los registros seleccionados; no equivale a diagnóstico ni a una media clínica protocolizada.</small>';sum.append(s);if(rows.length>=4){const mid=Math.floor(rows.length/2),first=rows.slice(0,mid),last=rows.slice(mid),mean=(arr,k)=>arr.reduce((n,x)=>n+Number(x[k]),0)/arr.length,ds=Math.round(mean(last,'sys')-mean(first,'sys')),dd=Math.round(mean(last,'dia')-mean(first,'dia'));const trend=document.createElement('p');trend.style.margin='8px 0 0';trend.textContent='Tendencia en este período: sistólica '+(ds>0?'+':'')+ds+' mmHg; diastólica '+(dd>0?'+':'')+dd+' mmHg (segunda mitad frente a primera). Las diferencias pueden depender de hora, lugar y condiciones de medición.';sum.append(trend)}drawChart(rows);for(const x of rows.slice().reverse()){const box=document.createElement('div');box.className='mh153-record';const title=document.createElement('strong');title.textContent=fmt(x.date)+' '+x.time+' · '+x.sys+'/'+x.dia+' mmHg';const meta=document.createElement('p');meta.textContent=x.place+(x.pulse?' · Pulso '+x.pulse+' lpm':'');const analysis=document.createElement('p');analysis.textContent=assess(Number(x.sys),Number(x.dia),x.place);box.append(title,meta,analysis);if(x.note){const note=document.createElement('p');note.textContent=x.note;box.append(note)}const edit=document.createElement('button');edit.textContent='Editar';edit.onclick=()=>editRow(x);box.append(edit);if(x.hasPhoto){const show=document.createElement('button');show.textContent='📷 Ver foto';show.onclick=()=>showPhoto(x.id);box.append(show)}const del=document.createElement('button');del.textContent='Eliminar';del.onclick=()=>removeRow(x);box.append(del);list.append(box)}}
+function reset(){const d=new Date();$('mh153-id').value='';$('mh153-date').value=iso(d);$('mh153-time').value=pad(d.getHours())+':'+pad(d.getMinutes());$('mh153-place').value='Casa';for(const id of ['sys','dia','pulse','note'])$('mh153-'+id).value='';$('mh153-photo').value='';$('mh153-photo-status').textContent='Puedes añadir una foto; se guarda en el dispositivo. Revisa siempre las cifras antes de guardar.'}
+function editRow(x){$('mh153-id').value=x.id;for(const k of ['date','time','place','sys','dia','pulse','note'])$('mh153-'+k).value=x[k]??'';$('mh153-photo').value='';$('mh153-photo-status').textContent=x.hasPhoto?'Esta medición tiene foto guardada. Seleccionar otra la sustituirá.':'Esta medición no tiene foto.';$('mh153-bp').open=true;$('mh153-form').scrollIntoView({behavior:'smooth',block:'center'})}
+async function showPhoto(id){try{const row=await photoOp('get',id);if(!row?.blob)throw Error('La foto no está disponible en este dispositivo.');const url=URL.createObjectURL(row.blob),overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.87);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px';const img=document.createElement('img');img.src=url;img.alt='Foto de tensiómetro';img.style.cssText='max-width:96%;max-height:82vh;object-fit:contain';const close=document.createElement('button');close.textContent='Cerrar foto';close.style.cssText='margin:12px;padding:12px 24px';const dismiss=()=>{overlay.remove();URL.revokeObjectURL(url)};close.onclick=dismiss;overlay.addEventListener('click',e=>{if(e.target===overlay)dismiss()});overlay.append(img,close);document.body.append(overlay)}catch(e){msg(e.message)}}
+async function removeRow(x){if(!confirm('¿Eliminar esta medición de '+fmt(x.date)+'? No se puede deshacer.'))return;const next=records.filter(r=>r.id!==x.id);try{saveRows(next);records=next;draw();msg('Medición eliminada.');if(x.hasPhoto)await photoOp('delete',x.id)}catch(e){msg('No se pudo eliminar: '+e.message)}}
+async function onSave(e){e.preventDefault();const sys=Number($('mh153-sys').value),dia=Number($('mh153-dia').value),pulse=$('mh153-pulse').value?Number($('mh153-pulse').value):null;if(!Number.isInteger(sys)||sys<50||sys>280||!Number.isInteger(dia)||dia<30||dia>180||sys<=dia){msg('Comprueba las cifras: la sistólica debe ser mayor que la diastólica.');return}if(pulse!==null&&(!Number.isInteger(pulse)||pulse<25||pulse>220)){msg('Pulso fuera del rango admitido.');return}const id=$('mh153-id').value||'bp_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),old=records.find(x=>x.id===id),file=$('mh153-photo').files?.[0];const row={id,date:$('mh153-date').value,time:$('mh153-time').value,place:$('mh153-place').value.trim(),sys,dia,pulse,note:$('mh153-note').value.trim(),hasPhoto:!!old?.hasPhoto};if(!row.date||!row.time||!row.place){msg('Indica fecha, hora y lugar.');return}const btn=$('mh153-form').querySelector('[type="submit"]');btn.disabled=true;let blob=null;try{if(file){blob=await compactPhoto(file);await photoOp('put',id,blob);row.hasPhoto=true}const next=records.filter(x=>x.id!==id).concat(row);saveRows(next);records=next;reset();draw();msg('✓ Medición guardada. '+assess(sys,dia,row.place))}catch(err){msg('No se pudo guardar: '+err.message+'. Comprueba el espacio disponible.')}finally{btn.disabled=false}}
+async function readPhoto(){const file=$('mh153-photo').files?.[0];if(!file){msg('Selecciona primero una fotografía del tensiómetro.');return}if(!confirm('¿Enviar esta fotografía al servicio de IA para leer sistólica, diastólica y pulso? La imagen se enviará al proveedor del servicio; no se guardará hasta que confirmes la medición.'))return;const btn=$('mh153-read-photo');btn.disabled=true;$('mh153-photo-status').textContent='Leyendo la foto…';try{const blob=await compactPhoto(file),imageDataUrl=await dataURL(blob),ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),45000);let r;try{r=await fetch(getAiBackendUrl()+'/analyze-blood-pressure',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl}),signal:ctrl.signal})}finally{clearTimeout(timer)}const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(r.status===404?'El Worker aún no tiene activada la lectura de tensión. Introduce las cifras manualmente o actualiza el Worker.':data.error||'Servicio no disponible');const v=data.result||{};if(!Number.isInteger(v.systolic)||!Number.isInteger(v.diastolic)||v.systolic<=v.diastolic)throw Error('No se han podido leer con seguridad las dos cifras. Introdúcelas manualmente.');$('mh153-sys').value=v.systolic;$('mh153-dia').value=v.diastolic;if(Number.isInteger(v.pulse))$('mh153-pulse').value=v.pulse;$('mh153-photo-status').textContent='Lectura propuesta: '+v.systolic+'/'+v.diastolic+(v.pulse?' · '+v.pulse+' lpm':'')+'. Revisa los números con la pantalla y pulsa Guardar medición.';msg('Lectura recibida. Verifica los valores antes de guardar.')}catch(err){$('mh153-photo-status').textContent='No se pudo leer la foto: '+(err.name==='AbortError'?'tiempo de espera agotado':err.message)+' Los valores se pueden introducir manualmente.'}finally{btn.disabled=false}}
+function pdf(){const rows=selected();if(!rows.length){msg('No hay registros en estas fechas para el informe.');return}const a=$('mh153-from').value,b=$('mh153-to').value;const avg=k=>Math.round(rows.reduce((s,x)=>s+Number(x[k]),0)/rows.length);const html='<!doctype html><html lang="es"><meta charset="utf-8"><title>MicroHealth · Tensión arterial</title><style>body{font:14px Arial,sans-serif;color:#193f38;margin:25px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}button{padding:12px;border:0;background:#167865;color:white;border-radius:8px}@media print{button{display:none}}</style><h1>MicroHealth · Seguimiento de tensión arterial</h1><p>Período: '+esc(fmt(a)||'Todos')+' a '+esc(fmt(b)||'Hoy')+'</p><p>Mediciones: '+rows.length+' · Media: '+avg('sys')+'/'+avg('dia')+' mmHg</p><p>Registro descriptivo; no equivale a diagnóstico ni sustituye una valoración médica. Las fotos no se incluyen en el PDF.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button><table><thead><tr><th>Fecha</th><th>Hora</th><th>Lugar</th><th>mmHg</th><th>Pulso</th><th>Notas</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(fmt(x.date))+'</td><td>'+esc(x.time)+'</td><td>'+esc(x.place)+'</td><td>'+esc(x.sys+'/'+x.dia)+'</td><td>'+esc(x.pulse||'—')+'</td><td>'+esc(x.note||'')+'</td></tr>').join('')+'</tbody></table>';const w=window.open('','_blank');if(!w){msg('Permite ventanas emergentes para abrir el informe.');return}w.document.open();w.document.write(html);w.document.close()}
+function init(){if(!$('mh153-form'))return;load();reset();draw();$('mh153-form').addEventListener('submit',onSave);$('mh153-cancel').addEventListener('click',()=>{reset();msg('Edición cancelada.')});$('mh153-read-photo').addEventListener('click',readPhoto);$('mh153-preview').addEventListener('click',()=>{const id=$('mh153-id').value;if(id)showPhoto(id);else msg('Selecciona una medición guardada con foto para verla.')});for(const id of ['mh153-from','mh153-to'])$(id).addEventListener('change',draw);$('mh153-pdf').addEventListener('click',pdf);window.addEventListener('storage',e=>{if(e.key===KEY){load();draw()}});window.mh153RefreshBP=()=>{load();draw()}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body></html>
