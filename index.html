@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.163: Visor independiente de vídeos con controles móviles y navegación completa en sesión activa -->
 <!-- v22.3.162: Navegación anterior/siguiente de vídeos y acceso directo durante las rutinas, sin modificar el historial -->
 <!-- v22.3.159: Añadidas rutinas de gimnasio 1 y 2 con 16 ejercicios, sin duplicados, y cuatro fichas visuales nuevas -->
 <!-- v22.3.158: Añadido Gemelo en máquina Nº 4 con fotografía de rutina 2, separado del ejercicio genérico -->
@@ -13513,57 +13514,133 @@ function mh161ToggleVideo(btn,id){
    directo desde cada ejercicio de una sesión activa. Sin cambios en los datos. */
 let mh162VideoEntries=[];
 let mh162VideoRoutineTitle='';
+/* v22.3.163 — Visor independiente de vídeos, controles permanentes y navegación
+   desde toda la rutina activa. No modifica ni guarda datos del usuario. */
+let mh163VideoIndex=0;
+let mh163VideoModal=null;
+function mh163EnsureVideoModal(){
+  if(mh163VideoModal && mh163VideoModal.isConnected)return mh163VideoModal;
+  let modal=document.getElementById('mh163VideoModal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='mh163VideoModal';
+    modal.className='exercise-modal';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.setAttribute('aria-label','Vídeos de ejercicios');
+    modal.innerHTML=`<div class="exercise-modal-sheet" style="width:min(650px,100%);max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;padding:18px">
+      <button type="button" id="mh163VideoClose" class="exercise-modal-close" aria-label="Cerrar vídeos">×</button>
+      <div id="mh163VideoRoutine" class="muted" style="font-size:13px;padding-right:42px"></div>
+      <h3 id="mh163VideoTitle" style="margin:10px 38px 6px 0;line-height:1.3"></h3>
+      <p id="mh163VideoCounter" class="muted" style="margin:0 0 12px"></p>
+      <div style="display:flex;gap:10px;align-items:center;margin:12px 0">
+        <button type="button" id="mh163VideoPrev" class="set-add" style="flex:1;min-height:48px;touch-action:manipulation">← Anterior</button>
+        <button type="button" id="mh163VideoNext" class="primary-small" style="flex:1;min-height:48px;touch-action:manipulation">Siguiente →</button>
+      </div>
+      <label for="mh163VideoSelect" style="display:block;margin:12px 0 6px">Ir a otro ejercicio</label>
+      <select id="mh163VideoSelect" style="width:100%;min-height:46px;padding:10px;border-radius:10px;border:1px solid #c8d5e2;background:#fff"></select>
+      <div id="mh163VideoPlayer" style="margin:14px 0 10px;min-height:190px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#0a1932;overflow:hidden"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">
+        <button type="button" id="mh163VideoPlay" class="set-add" style="min-height:44px">▶ Reproducir aquí</button>
+        <a id="mh163VideoYoutube" class="set-add" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;min-height:44px">↗ Abrir en YouTube</a>
+      </div>
+      <p class="muted" style="font-size:12px;margin:8px 0">Los vídeos son demostraciones de referencia; la máquina puede variar. Si el reproductor no funciona en tu móvil, utiliza «Abrir en YouTube».</p>
+    </div>`;
+    document.body.appendChild(modal);
+  }
+  mh163VideoModal=modal;
+  modal.querySelector('#mh163VideoClose').addEventListener('click',mh163CloseRoutineVideos);
+  modal.addEventListener('click',e=>{if(e.target===modal)mh163CloseRoutineVideos();});
+  modal.querySelector('#mh163VideoPrev').addEventListener('click',()=>mh162ShowRoutineVideoAt(mh163VideoIndex-1));
+  modal.querySelector('#mh163VideoNext').addEventListener('click',()=>mh162ShowRoutineVideoAt(mh163VideoIndex+1));
+  modal.querySelector('#mh163VideoSelect').addEventListener('change',e=>mh162ShowRoutineVideoAt(Number(e.target.value)));
+  modal.querySelector('#mh163VideoPlay').addEventListener('click',mh163PlayCurrentVideo);
+  return modal;
+}
+function mh163CloseRoutineVideos(){
+  const modal=mh163VideoModal||document.getElementById('mh163VideoModal');
+  if(!modal)return;
+  modal.classList.remove('open');
+  const player=modal.querySelector('#mh163VideoPlayer');
+  if(player)player.replaceChildren();
+  document.body.style.overflow='';
+}
+function mh163PlayCurrentVideo(){
+  const modal=mh163VideoModal;
+  const ex=mh162VideoEntries[mh163VideoIndex];
+  const id=ex&&mh161VideoId(ex.exerciseId);
+  if(!modal||!id)return;
+  const player=modal.querySelector('#mh163VideoPlayer');
+  const frame=document.createElement('iframe');
+  frame.src='https://www.youtube-nocookie.com/embed/'+id+'?rel=0&playsinline=1';
+  frame.title='Demostración: '+String(ex.ej||'ejercicio');
+  frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  frame.allowFullscreen=true;
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  frame.style.cssText='width:100%;aspect-ratio:16/9;border:0;display:block';
+  player.replaceChildren(frame);
+  modal.querySelector('#mh163VideoPlay').textContent='↻ Reiniciar vídeo';
+}
 function mh162ShowRoutineVideoAt(index){
   if(!mh162VideoEntries.length)return;
-  const i=Math.max(0,Math.min(mh162VideoEntries.length-1,Number(index)||0));
-  const ex=mh162VideoEntries[i];
+  const modal=mh163EnsureVideoModal();
   const n=mh162VideoEntries.length;
-  const videoId=mh161VideoId(ex.exerciseId);
-  if(!videoId)return;
-  exerciseDetailContent.innerHTML=`
-    <div class="exercise-detail-title">🎬 Vídeos · ${escapeMealText(mh162VideoRoutineTitle)}</div>
-    <p class="muted" style="margin:8px 0">Vídeo ${i+1} de ${n}. Usa «Siguiente» para pasar al próximo ejercicio.</p>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0">
-      <button class="set-add" type="button" onclick="mh162ShowRoutineVideoAt(${i-1})" ${i===0?'disabled':''}>← Anterior</button>
-      <button class="primary-small" type="button" onclick="mh162ShowRoutineVideoAt(${i+1})" ${i===n-1?'disabled':''}>Siguiente →</button>
-      <span class="muted" style="font-weight:700">${i+1} / ${n}</span>
-    </div>
-    <label for="mh162VideoSelect" style="display:block;margin:8px 0 4px">Elegir ejercicio</label>
-    <select id="mh162VideoSelect" aria-label="Elegir vídeo de ejercicio" onchange="mh162ShowRoutineVideoAt(this.value)" style="width:100%;max-width:100%;padding:10px;border-radius:10px;border:1px solid #c8d5e2">
-      ${mh162VideoEntries.map((entry,j)=>`<option value="${j}" ${j===i?'selected':''}>${j+1}. ${escapeMealText(entry.ej)}</option>`).join('')}
-    </select>
-    <h3 style="margin:14px 0 8px">${i+1}. ${escapeMealText(ex.ej)}</h3>
-    ${mh161VideoHtml(ex.exerciseId,true)}
-    <p class="muted">Demostración de referencia: la máquina y el agarre pueden diferir de los de tu gimnasio.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">
-      <button class="set-add" type="button" onclick="mh162ShowRoutineVideoAt(${i-1})" ${i===0?'disabled':''}>← Anterior</button>
-      <button class="primary-small" type="button" onclick="mh162ShowRoutineVideoAt(${i+1})" ${i===n-1?'disabled':''}>Siguiente ejercicio →</button>
-    </div>
-    <div class="exercise-detail-actions"><button class="set-add" onclick="closeExerciseDetail()">Cerrar vídeos</button></div>`;
-  exerciseDetailModal.classList.add('open');
-  const sheet=exerciseDetailModal.querySelector('.exercise-modal-sheet');
+  const number=Number(index);
+  const i=Math.max(0,Math.min(n-1,Number.isFinite(number)?Math.trunc(number):0));
+  const ex=mh162VideoEntries[i];
+  const id=mh161VideoId(ex.exerciseId);
+  if(!id)return;
+  mh163VideoIndex=i;
+  modal.querySelector('#mh163VideoRoutine').textContent=mh162VideoRoutineTitle||'Rutina';
+  modal.querySelector('#mh163VideoTitle').textContent=ex.ej||'Ejercicio';
+  modal.querySelector('#mh163VideoCounter').textContent='Vídeo '+(i+1)+' de '+n;
+  modal.querySelector('#mh163VideoPrev').disabled=(i===0);
+  modal.querySelector('#mh163VideoNext').disabled=(i===n-1);
+  const select=modal.querySelector('#mh163VideoSelect');
+  if(select.options.length!==n || select.dataset.videoNames!==mh162VideoEntries.map(x=>x.ej).join('|')){
+    select.replaceChildren();
+    mh162VideoEntries.forEach((entry,j)=>{
+      const opt=document.createElement('option');
+      opt.value=String(j);
+      opt.textContent=(j+1)+'. '+String(entry.ej||'Ejercicio');
+      select.appendChild(opt);
+    });
+    select.dataset.videoNames=mh162VideoEntries.map(x=>x.ej).join('|');
+  }
+  select.value=String(i);
+  const player=modal.querySelector('#mh163VideoPlayer');
+  player.replaceChildren();
+  const thumb=document.createElement('img');
+  thumb.src='https://img.youtube.com/vi/'+id+'/hqdefault.jpg';
+  thumb.alt='Vista previa del vídeo de '+String(ex.ej||'ejercicio');
+  thumb.loading='lazy';
+  thumb.style.cssText='display:block;width:100%;max-height:300px;object-fit:contain';
+  player.appendChild(thumb);
+  modal.querySelector('#mh163VideoPlay').textContent='▶ Reproducir aquí';
+  modal.querySelector('#mh163VideoYoutube').href='https://www.youtube.com/watch?v='+id;
+  modal.classList.add('open');
+  const sheet=modal.querySelector('.exercise-modal-sheet');
   if(sheet)sheet.scrollTop=0;
   document.body.style.overflow='hidden';
 }
 function mh161OpenRoutineVideos(routineId){
   const r=(db.rutinas||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  mh162VideoEntries=(r.ejercicios||[]).filter(x=>mh161VideoId(x.exerciseId));
+  mh162VideoEntries=(r.ejercicios||[]).map(x=>({exerciseId:mh161VideoId(x.exerciseId)?x.exerciseId:resolveExerciseAliasId(x),ej:x.ej})).filter(x=>mh161VideoId(x.exerciseId));
   if(!mh162VideoEntries.length){alert('Todavía no hay vídeos para esta rutina.');return;}
   mh162VideoRoutineTitle=r.nombre;
   mh162ShowRoutineVideoAt(0);
 }
 function mh162OpenActiveExerciseVideo(i){
-  const ex=db.rutinaActiva?.items?.[i];
-  if(!ex)return;
-  const id=mh161VideoId(ex.exerciseId)?ex.exerciseId:resolveExerciseAliasId(ex);
-  if(!mh161VideoId(id)){
-    alert('Este ejercicio todavía no tiene un vídeo demostrativo asociado.');
-    return;
-  }
-  mh162VideoEntries=[{exerciseId:id,ej:ex.ej}];
+  const items=db.rutinaActiva?.items||[];
+  const selected=items[Number(i)];
+  if(!selected)return;
+  const entries=items.map((ex,index)=>({exerciseId:mh161VideoId(ex.exerciseId)?ex.exerciseId:resolveExerciseAliasId(ex),ej:ex.ej,originalIndex:index})).filter(x=>mh161VideoId(x.exerciseId));
+  const position=entries.findIndex(x=>x.originalIndex===Number(i));
+  if(position<0){alert('Este ejercicio todavía no tiene un vídeo demostrativo asociado.');return;}
+  mh162VideoEntries=entries;
   mh162VideoRoutineTitle=db.rutinaActiva?.nombre||'Rutina en curso';
-  mh162ShowRoutineVideoAt(0);
+  mh162ShowRoutineVideoAt(position);
 }
 
 function exerciseGuideHtml(id){
