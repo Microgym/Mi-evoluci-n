@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.156: PDF real descargable, imprimible y compartible de rutinas (sin window.print) -->
 <!-- v22.3.155: Corrección de vista previa PDF de rutinas (secciones ocultas) -->
 <!-- v22.3.154: Rutinas · ficha imprimible y guardar como PDF -->
 <!-- v22.3.153: Farmacia · tensión arterial, foto, análisis y seguimiento -->
@@ -16205,9 +16206,185 @@ function mh154ShowRoutinePrint(routines){
  mh154CloseRoutinePrint();
  const modal=document.createElement('div');modal.id='mh154RoutinePrintModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Vista previa para imprimir rutinas');
  const pages=routines.map((r,i)=>mh154PrintableRoutine(r,i+1)).join('');
- modal.innerHTML=`<div class="mh154-toolbar"><strong>📄 ${routines.length===1?'Ficha de rutina':'Todas mis rutinas'} · vista previa</strong><button class="mh154-primary" type="button" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button><button type="button" onclick="mh154CloseRoutinePrint()">✕ Cerrar</button><small>En la ventana de impresión elige «Guardar como PDF» si quieres descargar el archivo, o selecciona tu impresora.</small></div>${pages}`;
+ mh156SelectedRoutines=routines.slice();
+ modal.innerHTML=`<div class="mh154-toolbar"><strong>📄 ${routines.length===1?'Ficha de rutina':'Todas mis rutinas'} · vista previa</strong><button class="mh154-primary" type="button" onclick="mh156DownloadRoutinePdf()">⬇️ Descargar PDF</button><button type="button" onclick="mh156ShareRoutinePdf()">📤 Compartir PDF</button><button type="button" onclick="mh156OpenRoutinePdf()">🖨️ Abrir / Imprimir PDF</button><button type="button" onclick="mh154CloseRoutinePrint()">✕ Cerrar</button><small>El PDF se genera en tu dispositivo. «Compartir» abre WhatsApp, Mail u otras apps compatibles cuando el dispositivo lo permite; en ordenador también puedes descargarlo y adjuntarlo.</small></div>${pages}`;
  document.body.appendChild(modal);
  const close=modal.querySelector('.mh154-toolbar button:last-of-type');if(close)close.focus();
+}
+
+
+/* v22.3.156 · PDF real generado en el navegador, sin dependencias externas ni subir datos. */
+let mh156SelectedRoutines=[];
+function mh156PdfFileName(){
+ const routines=mh156SelectedRoutines;
+ const label=routines.length===1?('Rutina_'+mh154Text(routines[0]?.nombre,'Entrenamiento')):'Todas_mis_rutinas';
+ const clean=label.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,75);
+ return 'MicroHealth_'+(clean||'Rutinas')+'.pdf';
+}
+function mh156PdfCanvasPages(routines){
+ const W=1240,H=1754,L=76,R=76,usable=W-L-R;
+ const widths=[48,340,248,205,165,82];
+ const columns=[];let running=L;for(const width of widths){columns.push(running);running+=width;}
+ const pages=[];
+ const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+ const ctx=canvas.getContext('2d');
+ if(!ctx)throw new Error('El navegador no permite crear el documento PDF.');
+ const teal='#137c70',ink='#1b3038',muted='#587078';
+ function font(size=20,bold=false){ctx.font=(bold?'bold ':'')+size+'px Arial, sans-serif';}
+ function wrap(text,maxWidth,size=20,bold=false,maxLines=16){
+  font(size,bold);const result=[];
+  const raw=String(text==null?'':text).replace(/\s+/g,' ').trim();
+  if(!raw)return [''];
+  let line='';
+  for(const word of raw.split(' ')){
+   const candidate=line?line+' '+word:word;
+   if(ctx.measureText(candidate).width<=maxWidth){line=candidate;continue;}
+   if(line){result.push(line);line='';}
+   if(ctx.measureText(word).width<=maxWidth){line=word;continue;}
+   let chunk='';
+   for(const letter of word){
+    if(chunk && ctx.measureText(chunk+letter).width>maxWidth){result.push(chunk);chunk='';}
+    chunk+=letter;
+   }
+   line=chunk;
+  }
+  if(line)result.push(line);
+  if(result.length>maxLines){const trimmed=result.slice(0,maxLines);trimmed[maxLines-1]=trimmed[maxLines-1].slice(0,-2)+'…';return trimmed;}
+  return result;
+ }
+ function textLines(lines,x,y,size=20,step=25,color=ink,bold=false){
+  font(size,bold);ctx.fillStyle=color;
+  for(let i=0;i<lines.length;i++)ctx.fillText(lines[i],x,y+i*step);
+ }
+ function startPage(r,pageNo){
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=teal;ctx.fillRect(L,69,usable,7);
+  textLines(['MicroHealth · Ficha de entrenamiento'],L,111,22,26,teal,true);
+  const title=wrap(mh154Text(r?.nombre,'Rutina'),usable,33,true,2);
+  textLines(title,L,168,33,37,ink,true);
+  const goal=Number(r?.objetivoSemanal);
+  const goalText=Number.isFinite(goal)&&goal>=1?goal+' días/semana':'Sin objetivo semanal';
+  textLines(['Ejercicios: '+(Array.isArray(r?.ejercicios)?r.ejercicios.length:0)+'   ·   '+goalText+(pageNo>1?'   ·   Continuación':'' )],L,222,20,26,muted);
+  textLines(['Fecha: _____________________     Lugar: _____________________'],L,266,19,25,ink);
+  ctx.fillStyle='#e8f3f0';ctx.fillRect(L,295,usable,49);
+  const heads=['Nº','Ejercicio','Series / rep. / tiempo','Equipo','Carga','✓'];
+  heads.forEach((h,i)=>textLines([h],columns[i]+8,325,18,22,'#165b53',true));
+  ctx.strokeStyle='#b6d5cf';ctx.beginPath();ctx.moveTo(L,344);ctx.lineTo(W-R,344);ctx.stroke();
+  return 344;
+ }
+ function drawRow(ex,idx,y){
+  const name=wrap(mh154Text(ex?.ej,'Ejercicio'),widths[1]-18,21,true,9);
+  const category=typeof routineExerciseCategoryLabel==='function'?routineExerciseCategoryLabel(ex):mh154Text(ex?.tipo,'Actividad');
+  const note=[category,ex?.intensidad?'Intensidad: '+ex.intensidad:'',ex?.comentario||''].filter(Boolean).join(' · ');
+  const details=wrap(note,widths[1]-18,17,false,10);
+  const dose=wrap(mh154ExercisePrescription(ex),widths[2]-16,19,false,9);
+  const equip=wrap(mh154Text(ex?.equipo),widths[3]-16,18,false,9);
+  const load=wrap(ex?.kg!=null&&ex.kg!==''?String(ex.kg)+' kg':'________',widths[4]-16,19,false,5);
+  const height=Math.max(76,26+name.length*26+details.length*22,27+dose.length*25,27+equip.length*24,27+load.length*24);
+  ctx.fillStyle=idx%2===0?'#fff':'#f7faf9';ctx.fillRect(L,y,usable,height);
+  ctx.strokeStyle='#dce5e6';ctx.beginPath();ctx.moveTo(L,y+height);ctx.lineTo(W-R,y+height);ctx.stroke();
+  textLines([String(idx+1)],columns[0]+8,y+29,20,24,ink,true);
+  textLines(name,columns[1]+8,y+29,21,26,ink,true);
+  textLines(details,columns[1]+8,y+29+name.length*26,17,22,muted);
+  textLines(dose,columns[2]+8,y+29,19,25,ink);
+  textLines(equip,columns[3]+8,y+29,18,24,ink);
+  textLines(load,columns[4]+8,y+29,19,24,ink);
+  ctx.strokeStyle=teal;ctx.lineWidth=2;ctx.strokeRect(columns[5]+24,y+19,22,22);ctx.lineWidth=1;
+  return height;
+ }
+ function footer(pageNo){
+  ctx.strokeStyle='#cbdcdd';ctx.beginPath();ctx.moveTo(L,1668);ctx.lineTo(W-R,1668);ctx.stroke();
+  textLines(['MicroHealth · Documento generado en tu dispositivo'],L,1700,17,22,muted);
+  textLines(['Página '+pageNo],W-R-95,1700,17,22,muted);
+ }
+ function finish(pageNo){
+  footer(pageNo);
+  const data=canvas.toDataURL('image/jpeg',0.83).split(',')[1];
+  const raw=atob(data);const bytes=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+  pages.push({bytes,width:W,height:H});
+ }
+ for(const r of routines){
+  let pageNo=1,y=startPage(r,pageNo);
+  const exercises=Array.isArray(r?.ejercicios)?r.ejercicios:[];
+  for(let i=0;i<exercises.length;i++){
+   const ex=exercises[i];
+   const name=wrap(mh154Text(ex?.ej,'Ejercicio'),widths[1]-18,21,true,9);
+   const category=typeof routineExerciseCategoryLabel==='function'?routineExerciseCategoryLabel(ex):mh154Text(ex?.tipo,'Actividad');
+   const details=wrap([category,ex?.intensidad?'Intensidad: '+ex.intensidad:'',ex?.comentario||''].filter(Boolean).join(' · '),widths[1]-18,17,false,10);
+   const dose=wrap(mh154ExercisePrescription(ex),widths[2]-16,19,false,9);
+   const equip=wrap(mh154Text(ex?.equipo),widths[3]-16,18,false,9);
+   const load=wrap(ex?.kg!=null&&ex.kg!==''?String(ex.kg)+' kg':'________',widths[4]-16,19,false,5);
+   const height=Math.max(76,26+name.length*26+details.length*22,27+dose.length*25,27+equip.length*24,27+load.length*24);
+   if(y+height>1480){finish(pageNo);pageNo++;y=startPage(r,pageNo);}
+   y+=drawRow(ex,i,y);
+  }
+  if(y>1450){finish(pageNo);pageNo++;y=startPage(r,pageNo);}
+  textLines(['Notas de la sesión'],L,y+54,21,26,ink,true);
+  ctx.strokeStyle='#b9cbd0';for(let k=0;k<2;k++){ctx.beginPath();ctx.moveTo(L,y+100+k*48);ctx.lineTo(W-R,y+100+k*48);ctx.stroke();}
+  finish(pageNo);
+ }
+ return pages;
+}
+function mh156PdfFromImages(pages){
+ // PDF A4 con páginas JPEG incrustadas. No requiere servicios ni bibliotecas externas.
+ const encoder=new TextEncoder(),chunks=[],offsets=[0];let pos=0;
+ function add(data){const bytes=typeof data==='string'?encoder.encode(data):data;chunks.push(bytes);pos+=bytes.length;}
+ function obj(n,head,stream){
+  offsets[n]=pos;add(n+' 0 obj\n'+head);
+  if(stream){add('\nstream\n');add(stream);add('\nendstream');}
+  add('\nendobj\n');
+ }
+ add(new Uint8Array([37,80,68,70,45,49,46,52,10,37,226,227,207,211,10]));
+ const kids=pages.map((_,i)=>(3+i*3)+' 0 R').join(' ');
+ obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+ obj(2,'<< /Type /Pages /Kids [ '+kids+' ] /Count '+pages.length+' >>');
+ for(let i=0;i<pages.length;i++){
+  const page=pages[i],p=3+i*3,img=p+1,content=p+2;
+  obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 '+img+' 0 R >> >> /Contents '+content+' 0 R >>');
+  obj(img,'<< /Type /XObject /Subtype /Image /Width '+page.width+' /Height '+page.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+page.bytes.length+' >>',page.bytes);
+  const commands=encoder.encode('q\n595.28 0 0 841.89 0 0 cm\n/Im0 Do\nQ\n');
+  obj(content,'<< /Length '+commands.length+' >>',commands);
+ }
+ const xref=pos,total=2+pages.length*3;
+ add('xref\n0 '+(total+1)+'\n0000000000 65535 f \n');
+ for(let n=1;n<=total;n++)add(String(offsets[n]).padStart(10,'0')+' 00000 n \n');
+ add('trailer\n<< /Size '+(total+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
+ return new Blob(chunks,{type:'application/pdf'});
+}
+function mh156CreateRoutinePdf(){
+ if(!mh156SelectedRoutines.length)throw new Error('Primero abre la ficha de una rutina.');
+ return mh156PdfFromImages(mh156PdfCanvasPages(mh156SelectedRoutines));
+}
+function mh156DownloadBlob(blob,name){
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
+function mh156DownloadRoutinePdf(){
+ try{mh156DownloadBlob(mh156CreateRoutinePdf(),mh156PdfFileName());}
+ catch(e){alert('No se ha podido generar el PDF: '+(e?.message||e));}
+}
+async function mh156ShareRoutinePdf(){
+ try{
+  const blob=mh156CreateRoutinePdf(),name=mh156PdfFileName();
+  const file=new File([blob],name,{type:'application/pdf'});
+  if(navigator.share && typeof navigator.canShare==='function' && navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:'Rutinas MicroHealth',text:'Ficha de entrenamiento de MicroHealth'});
+   return;
+  }
+  mh156DownloadBlob(blob,name);
+  alert('El navegador no permite compartir archivos directamente. Se ha descargado el PDF: puedes adjuntarlo en WhatsApp o en un correo.');
+ }catch(e){if(e?.name!=='AbortError')alert('No se ha podido compartir el PDF: '+(e?.message||e));}
+}
+function mh156OpenRoutinePdf(){
+ const tab=window.open('about:blank','_blank');
+ try{
+  const blob=mh156CreateRoutinePdf(),url=URL.createObjectURL(blob);
+  if(tab){tab.location.href=url;tab.focus();}
+  else{mh156DownloadBlob(blob,mh156PdfFileName());alert('El navegador bloqueó la pestaña del PDF. Se ha descargado el archivo para que puedas abrirlo e imprimirlo.');}
+  setTimeout(()=>URL.revokeObjectURL(url),300000);
+ }catch(e){if(tab)tab.close();alert('No se ha podido abrir el PDF: '+(e?.message||e));}
 }
 
 function renderRoutines(){
