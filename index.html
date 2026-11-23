@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.161: Vídeos demostrativos específicos para los 10 ejercicios de la rutina 3, sin modificar el historial -->
 <!-- v22.3.159: Añadidas rutinas de gimnasio 1 y 2 con 16 ejercicios, sin duplicados, y cuatro fichas visuales nuevas -->
 <!-- v22.3.158: Añadido Gemelo en máquina Nº 4 con fotografía de rutina 2, separado del ejercicio genérico -->
 <!-- v22.3.157: Añadida prensa inclinada máquina Nº 27 con miniatura de la rutina 2, sin alterar prensa 45º -->
@@ -13443,7 +13444,7 @@ function openHomeWorkoutPreview(templateId){
           <p class="home-preview-tip">Consejo: ${g.cue}</p>
           <div class="home-preview-actions">
             <button type="button" onclick="openExerciseInfo('${id}')">Ver ficha / imagen</button>
-            <a href="${homeExerciseDemoUrl(id)}" target="_blank" rel="noopener noreferrer">▶ Ver vídeo</a>
+            <a href="${mh161VideoId(id)?'https://www.youtube.com/watch?v='+mh161VideoId(id):homeExerciseDemoUrl(id)}" target="_blank" rel="noopener noreferrer">▶ ${mh161VideoId(id)?'Ver vídeo demostrativo':'Buscar demostración'}</a>
           </div>
         </div>
       </div>`;
@@ -13457,6 +13458,74 @@ function closeHomeWorkoutPreview(){
   document.body.style.overflow='';
 }
 
+/* v22.3.161 — Enlaces directos a demostraciones revisadas para la rutina 3.
+   Se muestran desde la ficha del catálogo, durante la sesión y desde Mis rutinas.
+   No se almacenan vídeos en localStorage ni se descargan materiales de terceros. */
+const MH161_GYM_VIDEOS = Object.freeze({
+  'pares_elliptical': 'JuIVGB2IBL0',
+  'pares_cat_camel': '0Arqk2cPS9s',
+  'mh139_rotacion_toracica_en_cuadrupedia': 'cLEI3hm98PA',
+  'gym_remo_tumbado_mancuernas': '_b6ch2nIchk',
+  'incline_db_press': 'sK4Rvug6ufo',
+  'gym_pullover_polea_alta': 'a2vmSFvvGJc',
+  'assisted_dips_chest': '4Ws56uyUst4',
+  'mh139_curl_inclinado_con_mancuernas': 'HhHHBj3qTJ4',
+  'gym_extension_codo_unilateral_izq_polea': 'Cp_bShvMY4c',
+  'mh139_crunch_invertido_controlado': 'YDvaOlhaA1U'
+});
+function mh161VideoId(exerciseId){
+  return MH161_GYM_VIDEOS[canonicalExerciseId(exerciseId)]||null;
+}
+function mh161VideoHtml(exerciseId, compact=false){
+  const id=mh161VideoId(exerciseId);
+  if(!id)return '';
+  const url='https://www.youtube.com/watch?v='+id;
+  return `<div class="mh161-video-tools" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0">
+    <button type="button" class="set-add" onclick="mh161ToggleVideo(this,'${id}')">▶ Reproducir vídeo aquí</button>
+    <a class="set-add" href="${url}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">↗ Abrir en YouTube</a>
+    ${compact?'':'<small class="muted">Vídeo externo de referencia; la máquina de tu gimnasio puede variar.</small>'}
+  </div>`;
+}
+function mh161ToggleVideo(btn,id){
+  if(!/^[A-Za-z0-9_-]{11}$/.test(id))return;
+  const tools=btn.closest('.mh161-video-tools');
+  if(!tools)return;
+  let box=tools.nextElementSibling;
+  if(box&&box.classList.contains('mh161-video-player')){
+    box.remove();btn.textContent='▶ Reproducir vídeo aquí';return;
+  }
+  box=document.createElement('div');
+  box.className='mh161-video-player';
+  box.style.cssText='position:relative;width:100%;max-width:620px;aspect-ratio:16/9;margin:8px 0 14px;border-radius:12px;overflow:hidden;background:#071c38';
+  const frame=document.createElement('iframe');
+  frame.src='https://www.youtube-nocookie.com/embed/'+id+'?rel=0';
+  frame.title='Vídeo demostrativo del ejercicio';
+  frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  frame.allowFullscreen=true;
+  frame.loading='lazy';
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  frame.style.cssText='border:0;width:100%;height:100%';
+  box.appendChild(frame);
+  tools.insertAdjacentElement('afterend',box);
+  btn.textContent='✕ Cerrar vídeo';
+}
+function mh161OpenRoutineVideos(routineId){
+  const r=(db.rutinas||[]).find(x=>String(x.id)===String(routineId));
+  if(!r)return;
+  const entries=(r.ejercicios||[]).filter(x=>mh161VideoId(x.exerciseId));
+  if(!entries.length){alert('Todavía no hay vídeos verificados para esta rutina.');return;}
+  exerciseDetailContent.innerHTML=`
+    <div class="exercise-detail-title">🎬 Vídeos · ${escapeMealText(r.nombre)}</div>
+    <p class="muted">Toca «Reproducir vídeo aquí» para ver cada demostración, o ábrela en YouTube. Las máquinas y agarres pueden diferir de los de tu gimnasio.</p>
+    ${entries.map((ex,i)=>`<div style="padding:10px 0;border-bottom:1px solid #dce5ef">
+      <b>${i+1}. ${escapeMealText(ex.ej)}</b>
+      ${mh161VideoHtml(ex.exerciseId,true)}
+    </div>`).join('')}
+    <div class="exercise-detail-actions"><button class="primary-small" onclick="closeExerciseDetail()">Cerrar</button></div>`;
+  exerciseDetailModal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
 function exerciseGuideHtml(id){
   const g=homeExerciseGuide(id);
   if(!g)return '';
@@ -13464,7 +13533,7 @@ function exerciseGuideHtml(id){
     <h4>Cómo hacerlo</h4>
     <p>${g.how}</p>
     <p class="tip">Consejo: ${g.cue}</p>
-    <a class="home-exercise-demo-link" href="${homeExerciseDemoUrl(id)}" target="_blank" rel="noopener noreferrer">▶ Ver vídeo demostrativo</a>
+    ${mh161VideoId(id)?mh161VideoHtml(id):`<a class="home-exercise-demo-link" href="${homeExerciseDemoUrl(id)}" target="_blank" rel="noopener noreferrer">▶ Buscar vídeo demostrativo</a>`}
   </div>`;
 }
 
@@ -14313,6 +14382,7 @@ function openExerciseDetail(id){
 
 function closeExerciseDetail(ev){
  if(ev && ev.target!==exerciseDetailModal)return;
+ exerciseDetailModal.querySelectorAll('.mh161-video-player').forEach(el=>el.remove());
  exerciseDetailModal.classList.remove('open');
  document.body.style.overflow='';
  selectedCatalogExerciseId=null;
@@ -15159,6 +15229,35 @@ function migrateGymFichas12(){
   }
 }
 
+
+/* v22.3.160 — Rutina 3 de gimnasio: 10 ejercicios; tres fichas nuevas con las
+   miniaturas originales. No altera rutinas 1 y 2 ni los registros históricos. */
+EXERCISE_CATALOG.push(...[{"id":"gym_remo_tumbado_mancuernas","name":"Remo tumbado con mancuernas","zone":"Espalda","icon":"🏋️","tipo":"fuerza","modalidad":"peso_libre","equipment":"Banco y mancuernas","image":"data:image/jpeg;base64,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"},{"id":"gym_pullover_polea_alta","name":"Pullover polea alta","zone":"Espalda","icon":"🏋️","tipo":"fuerza","modalidad":"polea","equipment":"Polea alta","image":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/2wBDAQcICAsJCxULCxUsHRkdLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCz/wAARCABYAEsDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAQHAQYCAwgF/8QAOBAAAQMDAgIGBwYHAAAAAAAAAQACAwQFEQYSITEHE0FRgZEUFSJSYXFyIzJCocHRCBZDYrHh8f/EABoBAQEBAQEBAQAAAAAAAAAAAAAEAwEFAgb/xAAhEQADAAICAgIDAAAAAAAAAAAAAQIDERIhBBMFMSJBUf/aAAwDAQACEQMRAD8A9D7HkcAVh/sYL+GeGfnyUtdVREJ4HxE/eHkgOrY/uKbH+6V2U0plga5w9ocHD4jmum6XGC0WqquNTv6ikidNJ1bC921oycAcTwQHLY/3Smx/ulVjQfxEaMrbxDRyMuFHDO4MZVVELWx5PLOHEgfEhWu0hzQQQQRkEdqAjbH+6U2P90qUiA+RdbiLXTMd1TpqiZ/Vwwjm937KE236nlaJH3eKFzuJjZCCG/DK7Lhj+eLX1v3Ook6v6/8Ai2BAEREBFb9jXOb+Gcbh9Q5/ljyKh6nfIzSlzdCwvkFNJho+kqdWRudBvYMyRHe0d5HZ4jI8VzBjqafOA+KVvaMgghcOp6ezyHe9D+tdrbU1u+omY0x5AZEHEDPmc/JetbTRerbNR0PWOl9FgZDvdzdtaBk+SqvpE07bdOTUU9oZDRSVrjCado9k4Gd4HeOR+YUS069u2mrrRUlwqxW22Z4bJ1g9uEHgHA9wKwVcHpl7we+ecF1osNILQQQQR2LKoPPPmXq0i60zNkhgqYHdZDKObXfsoDblqOJojlsrJnt4GRkoAd8QtiRAEREBg4P7KNTAQyy0/YDvZ8j/ALz+SlKJWfZvjqR/SOH/AEnn5cD4ICtemihqJJ9PVsfCOOofC53ulwBHnsKrPVFR6PLJECXyPiGT3K+tfwxS6OqTJFvMbo3s/tdvGCvPmpXNnvM2w7gGhviovI/F7P0XxMrM1DX1s9O2YvNioTJ9807N3z2jKmrW9CXunv2j6Gogdl0cbYZW9rXtABH6+K2RWS9rZ4OaXGSpf9CIi6ZhERAFxe0PYWkZa4YK5IUBXnSVcXQaUioy/a9tQBN9DAXZ8cNVOdHlqqNZPrbrc6aSmtYeRTyB201Dt3L6QBxK3/pRvdDXaujsczH+iNh21Uo5FzjjYMdoaePzXK12STWlW200TXUGmbf9hUSw5Z1uOHo8Lu7hh7vDnyycTb7LMfkZfHlet6bJ/Qa901Dqepg3G1Puz2ULnHILGtDSR8OH+Vayh2y2UVntkFvt9PHS0lOwMjijGGtAUwclolpaRLVO3yp9hERdPkIiIAsHksogKB1dBWRaouuGM61tW6RzJMgPjdxxw48Rw71dennUT9OUD7fTspqR0DTFEwYDG45BaN0sWosfQ3mEcc+jTH4Hi0+eR4radB1DajQ9te38MWwjuIJH6LKeqaKsjVY1SNj7ERFqShERAEREA7VwkcGMc48MAlEQfsru91Vbqq3+rhHI8Eh5NI9ojwOOXbvabxxwX0Ojez1tmtdQ2rYyPrnB7GBxLsZPPsHgiLNfZZmrjPFLo3cckRFoRhERAf/Z"},{"id":"gym_extension_codo_unilateral_izq_polea","name":"Extensión de codo unilateral (brazo izquierdo) en polea","zone":"Tríceps","icon":"🏋️","tipo":"fuerza","modalidad":"polea","equipment":"Polea · brazo izquierdo","image":"data:image/jpeg;base64,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"}]);
+const GYM_FICHA_3={"id":"gym_ficha_20261123_rutina_3","nombre":"Gimnasio · Rutina 3 · Tren superior","source":"gym_screenshots_20261123","favorita":false,"objetivoSemanal":null,"ejercicios":[{"exerciseId":"pares_elliptical","ej":"Elíptica - LifeFitness","tipo":"cardio","series":1,"reps":null,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":10,"intensidad":"moderada","categoriaManual":"cardio","comentario":"Ficha del gimnasio: duración [0, 10, 0], interpretada como 10 minutos.","cardioActividad":"eliptica","modalidad":"cardio","equipo":"LifeFitness"},{"exerciseId":"pares_cat_camel","ej":"Cat Camel","tipo":"movilidad","series":1,"reps":15,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"movilidad","comentario":""},{"exerciseId":"mh139_rotacion_toracica_en_cuadrupedia","ej":"Movilidad torácica en cuadrupedia","tipo":"movilidad","series":1,"reps":14,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"movilidad","comentario":"Ficha: 7+7 repeticiones."},{"exerciseId":"gym_remo_tumbado_mancuernas","ej":"Remo tumbado con mancuernas","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie. Variante tumbado sobre banco de la fotografía."},{"exerciseId":"incline_db_press","ej":"Press de banca inclinado con mancuernas","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie."},{"exerciseId":"gym_pullover_polea_alta","ej":"Pullover polea alta","tipo":"fuerza","series":3,"reps":10,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 10–12 repeticiones por serie. No confundir con pullover en máquina."},{"exerciseId":"assisted_dips_chest","ej":"Fondos de pecho asistidos en máquina","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie. Nº de máquina no legible en la captura; ejercicio equivalente del catálogo."},{"exerciseId":"mh139_curl_inclinado_con_mancuernas","ej":"Curl bíceps inclinado con mancuernas","tipo":"fuerza","series":3,"reps":12,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":""},{"exerciseId":"gym_extension_codo_unilateral_izq_polea","ej":"Extensión de codo unilateral (brazo izquierdo) en polea","tipo":"fuerza","series":3,"reps":12,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"La ficha dice «extensión de codo unilateral brazo izquierd…»; parte final del nombre no visible. Foto de la ficha."},{"exerciseId":"mh139_crunch_invertido_controlado","ej":"Crunch inverso","tipo":"fuerza","series":3,"reps":12,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Equivalente al crunch invertido controlado del catálogo."}]};
+const GYM_FICHA_3_KEY='microhealth-gym-ficha-3-v160';
+function migrateGymFicha3(){
+  if(localStorage.getItem(GYM_FICHA_3_KEY)==='1')return;
+  const old=db.rutinas;
+  if(!Array.isArray(old))return;
+  if(old.some(x=>String(x.id)===GYM_FICHA_3.id || (x.source===GYM_FICHA_3.source && x.nombre===GYM_FICHA_3.nombre))){
+    try{localStorage.setItem(GYM_FICHA_3_KEY,'1')}catch(e){}
+    return;
+  }
+  const prepared=JSON.parse(JSON.stringify(GYM_FICHA_3));
+  prepared.ejercicios.forEach(ex=>{
+    const cat=EXERCISE_CATALOG.find(x=>x.id===ex.exerciseId);
+    if(cat){ex.modalidad=cat.modalidad;ex.equipo=cat.equipment;}
+  });
+  db.rutinas=old.concat([prepared]);
+  try{
+    localStorage.setItem(KEY,JSON.stringify(db));
+    localStorage.setItem(GYM_FICHA_3_KEY,'1');
+  }catch(e){
+    db.rutinas=old;
+    console.warn('No se ha podido añadir la rutina 3 sin riesgo de perder datos:',e);
+  }
+}
+
 function ensureRoutines(){
  if(!db.rutinas){
    db.rutinas=[JSON.parse(JSON.stringify(SESSION18))];
@@ -15172,6 +15271,7 @@ function ensureRoutines(){
  migrateExerciseComments();
   migrateExerciseIdentity();
   migrateGymFichas12();
+  migrateGymFicha3();
   (db.rutinas||[]).forEach(r=>(r.ejercicios||[]).forEach(ex=>{
    if(ex.tipo==='cardio'&&!ex.cardioActividad)ex.cardioActividad=cardioActivityForExercise(ex);
  }));
@@ -16452,6 +16552,7 @@ function renderRoutines(){
      <div class="routine-actions">
        <button class="primary-small" onclick="startRoutine('${r.id}')">Iniciar rutina</button>
        <button class="set-add" type="button" onclick="mh154OpenRoutinePrintByIndex(${idx})" title="Preparar la ficha de esta rutina para imprimir o guardar como PDF">📄 PDF / Imprimir</button>
+       ${(r.ejercicios||[]).some(ex=>mh161VideoId(ex.exerciseId))?`<button class="set-add" type="button" onclick="mh161OpenRoutineVideos('${r.id}')">🎬 Vídeos de ejercicios</button>`:''}
        <button class="set-add" onclick="editSavedRoutine('${r.id}')">✎ Modificar · añadir ejercicios</button>
        <button class="set-remove" onclick="deleteRoutine('${r.id}')">Eliminar</button>
      </div>
@@ -16532,7 +16633,7 @@ function renderRoutines(){
         <button type="button" class="mh138-tab" onclick="mh138Tab(this,'description')">Descripción</button>
       </div>
       <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}</div>
-      <div class="mh138-panel" data-mh138-tab="description" hidden>Consulta las instrucciones y las imágenes en la ficha del catálogo de este ejercicio. <button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
+      <div class="mh138-panel" data-mh138-tab="description" hidden>Consulta las instrucciones y las imágenes en la ficha del catálogo de este ejercicio. <button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button>${mh161VideoHtml(ex.exerciseId)}</div>
       <div class="mh138-panel" data-mh138-tab="notes" hidden>Las observaciones que escribas aquí se guardarán junto al ejercicio.</div>
       <div class="mh138-series-panel" data-mh138-tab="series"><div class="routine-meta">Introduce los valores reales de cada serie y después pulsa «Validar ejercicio».</div>
       <div class="exercise-comment-box ${currentExerciseComment(ex)?'has-comment':''}">
