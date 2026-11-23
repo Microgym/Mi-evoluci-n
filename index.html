@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.165: Rutina 4 completa, fichas de imagen, vídeos y consulta de histórico transversal sin borrar sesiones -->
 <!-- v22.3.164: Vista de solo lectura de rutinas y vídeos navegables para las rutinas 1 y 2 -->
 <!-- v22.3.163: Visor independiente de vídeos con controles móviles y navegación completa en sesión activa -->
 <!-- v22.3.162: Navegación anterior/siguiente de vídeos y acceso directo durante las rutinas, sin modificar el historial -->
@@ -5154,11 +5155,13 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <div id="mh40BackupStatus" class="mh40-backup-status" role="status" aria-live="polite">Pulsa «Comprobar datos» para revisar qué está guardado en este dispositivo.</div>
     <div class="mh40-backup-actions">
       <button type="button" id="mh40Check">🔍 Comprobar datos</button>
-      <button type="button" id="mh40Export" class="primary-small">⬇️ Crear copia completa</button>
+      <button type="button" id="mh40Export" class="primary-small">1. Preparar copia completa</button>
+      <button type="button" id="mh40SavePrepared" class="primary-small" hidden>2. Guardar / Compartir copia</button>
       <button type="button" id="mh40ImportBtn">⬆️ Restaurar copia completa</button>
     </div>
     <input id="mh40ImportFile" type="file" accept=".json,application/json" hidden>
-    <p class="mh40-backup-note">Guarda el archivo en «Archivos» o fuera del iPhone y verifica que existe. Contiene información privada de salud, fotos y documentos: <strong>no lo subas a GitHub ni lo compartas públicamente</strong>. La restauración requiere tu confirmación y no borra otras fotos o documentos ya guardados.</p>
+    <p id="mh40DownloadAlternative" class="mh40-backup-note" hidden><a id="mh40PreparedLink" href="#" download>Descargar archivo directamente (alternativa)</a></p>
+    <p class="mh40-backup-note">Primero prepara la copia y después pulsa «Guardar / Compartir copia». En iPhone selecciona «Guardar en Archivos» en la hoja de compartir. Si no aparece, prueba el enlace de descarga alternativa. Guarda el archivo en «Archivos» o fuera del iPhone y verifica que existe. Contiene información privada de salud, fotos y documentos: <strong>no lo subas a GitHub ni lo compartas públicamente</strong>. La restauración requiere tu confirmación y no borra otras fotos o documentos ya guardados.</p>
   </div>
 </details>
 <div class="data-actions3"><div class="data-action-button" onclick="exportData()"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m8 7 4-4 4 4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Exportar JSON</b><small>Solo datos generales (sin fotos ni medicación)</small></div></div><div class="data-action-button" onclick="document.getElementById('importFile').click()"><span class="mock-icon blue"><svg viewBox="0 0 24 24"><path d="M12 15V3"></path><path d="m8 11 4 4 4-4"></path><path d="M5 14v5h14v-5"></path></svg></span><div><b>Importar JSON</b><small>Solo datos generales</small></div></div><div class="data-action-button" onclick="document.getElementById('syncConfig')?.toggleAttribute('open')"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M20 7h-5V2"></path><path d="M20 7a8 8 0 1 0 1 7"></path></svg></span><div><b>Sincronizar</b><small id="dataSyncSummary">No configurado</small></div></div></div><input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"><details id="syncConfig" class="data-edit-details"><summary>Configurar sincronización PC ↔ iPhone</summary><div class="data-edit-body" id="syncCard"><label>URL del Worker de sincronización</label><input id="syncBackendUrl" type="url" placeholder="https://mi-evolucion-sync....workers.dev"><div class="sync-grid"><div><label>Código</label><input id="syncCode"></div><div><label>PIN</label><input id="syncPin" type="password"></div></div><div class="sync-actions"><button class="primary-small" onclick="saveSyncConnection()">Guardar conexión</button><button class="set-add" onclick="generateSyncCode()">Generar código</button><button class="set-add" onclick="testSyncBackend()">Probar conexión</button></div><div class="sync-actions"><button class="secondary" onclick="uploadSyncCopy()">⬆️ Subir copia</button><button class="secondary" onclick="downloadSyncCopy()">⬇️ Descargar copia</button><button id="restoreSyncBackupBtn" class="set-add" onclick="restorePreSyncBackup()" style="display:none">↩️ Restaurar copia anterior</button></div><div class="sync-meta"><div><small>Última subida</small><b id="syncLastUpload">—</b></div><div><small>Última descarga</small><b id="syncLastDownload">—</b></div></div><div id="syncStatus" class="sync-status">Configura la URL del Worker, un código y un PIN.</div></div></details></div>
@@ -12608,7 +12611,9 @@ function catalogExerciseByName(name){
 const EXERCISE_CANONICAL_ID_OVERRIDES={
   // Variantes específicas de una rutina que deben compartir histórico.
   pares_leg_extension_20:'leg_extension',
-  pares_shoulder_press_17:'shoulder_press_machine'
+  pares_shoulder_press_17:'shoulder_press_machine',
+  gym_stepup_cajon_mancuernas:'mh139_step_up_con_mancuernas',
+  gym_adduccion_cadera_maquina_2:'adductor'
 };
 
 const EXERCISE_IDENTITY_DISPLAY={
@@ -12658,6 +12663,9 @@ const EXERCISE_ALIAS_RULES=[
       'extension triceps polea'
     ]
   },
+  {id:'mh139_step_up_con_mancuernas',aliases:['subida al cajon con mancuernas','step-up con mancuernas']},
+  {id:'adductor',aliases:['aduccion de cadera en maquina n 2','aductores en maquina']},
+  {id:'glute_kick',aliases:['patada gluteo en maquina n 5','patada de gluteo en maquina']},
   {
     id:'plank',
     aliases:[
@@ -13498,7 +13506,16 @@ const MH164_GYM_VIDEO_SEARCH=Object.freeze({
   'leg_curl':'curl femoral sentado máquina técnica',
   'gym_gemelo_maquina_4':'gemelos en máquina sentado elevación pantorrillas técnica',
   'gym_doble_kb_suitcase_farmer_walk':'double kettlebell suitcase farmer carry walk technique',
-  'mh139_rotacion_toracica_en_cuadrupedia':'movilidad torácica cuadrupedia rotación técnica'
+  'mh139_rotacion_toracica_en_cuadrupedia':'movilidad torácica cuadrupedia rotación técnica',
+  'nr1_hack_squat_26':'hack squat máquina jaca técnica',
+  'mh139_step_up_con_mancuernas':'step up cajón mancuernas técnica',
+  'glute_kick':'patada glúteo máquina gimnasio técnica',
+  'leg_extension':'extensión de cuádriceps máquina técnica',
+  'adductor':'aducción de cadera máquina aductores técnica',
+  'gym_elevaciones_talones_maquina_23':'elevación talones gemelos máquina sentado técnica',
+  'gym_contraccion_lateral_polea_alta':'flexión lateral tronco polea alta oblicuos técnica',
+  'pares_cat_camel':'cat camel movilidad columna ejercicio',
+  'supine_adductor_stretch':'estiramiento aductores tumbado movilidad'
 });
 function mh164VideoInfo(ex){
   const id=canonicalExerciseId(ex?.exerciseId)||resolveExerciseAliasId(ex);
@@ -15422,6 +15439,34 @@ function migrateGymFicha3(){
   }
 }
 
+
+/* v22.3.165 · Rutina 4 del gimnasio; solo se añade si no existe.
+   No se modifica db.entreno, db.rutinaSesiones ni los entrenamientos activos. */
+EXERCISE_CATALOG.push(...[{"id":"gym_stepup_cajon_mancuernas","name":"Subida al cajón con mancuernas","zone":"Pierna","icon":"🦵","tipo":"fuerza","modalidad":"peso_libre","equipment":"Cajón y mancuernas","image":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUEBAUEAwUFBAUGBgUGCA4JCAcHCBEMDQoOFBEVFBMRExMWGB8bFhceFxMTGyUcHiAhIyMjFRomKSYiKR8iIyL/2wBDAQYGBggHCBAJCRAiFhMWIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiL/wAARCACWAJYDASIAAhEBAxEB/8QAHQABAAEFAQEBAAAAAAAAAAAAAAQBAgMGCAUHCf/EAEEQAAEDAgMDCQQGCAcAAAAAAAEAAgMEEQUGIQcSMRMiQVFSYXGBoTIzkbEIFBVUk9EWFyM0coKU0iVCQ1Vk8PH/xAAaAQEAAgMBAAAAAAAAAAAAAAAAAgMBBAYF/8QAJBEBAQACAgAFBQEAAAAAAAAAAAECAxExBBITIUEFFSIjQmH/2gAMAwEAAhEDEQA/AOu0urmM33WUkQMAsRdBERTORZ2U5BnZ9UENFM5BnZ9U5BnZ9UENFM5BnZ9U5BnZ9UENFM5BnZ9U5BnZ9UENFM5BnZ9U5BnZ9UENVUvkGdn1TkWAg7vBB59TV0+HUEtbWycnTxN3i4jj3DvWl/pPmHMUz2ZXoGwUoNuXntc99ybfC6ZmD8yZ6pMvtcRRUwEswHA8Dr4afFfQKWmipaZkFPGI4WCzWN0ACDQ3UmfqX9qK2mqbD3Y3bnusQ35qbgedBWVow3Hab6hiPsjSzXHwPD5LdjdapnfL0WL4FNUMYBW0rTJHI3QkDUtv4D42Qe85pDuFkXkZRxZ+OZXp6ioN6hhMcp63Dp8xZEHuU45xPUpKj03FykICIiAiIgKhcG8VVWScEGp43tOyVlyudR43mjCaSrY7cfTvqW8o09RaNQfFbFhmLUGNYbBX4RWU9bRTtD4qinkD2PHWCNFxxtpy1QY7nnGMXoWQ0s5mdHVPYN4TBjQ0OtpzrsGh4/C+5/Q6o8Zpco5p+uNdHgjsRaKNjr2Eobabd7vdjxBUMM5n0t26ctWMt+XUN0uqDr1VQpqhUPBVVHDRB88wwim2xYoyb2qiEhhPg06fAr6GDckdS0fO2CVbqqlx3Bmk11Eee1vF7Br6XN+5ell7OWGY1TtDp2U9ZbnwSuDTfptfj/4g2dRcQmZBhlVLLbk2ROLr8LWV89XT00HK1E8cUVvbe4AfEr55mPMMmaKhuBZc3pWSOAnqQOba/AfM9YCCdswjc3K1Q9192SqcW+TWg+oKLZsOoIsGweloKb2IG2J6z0nzNyiCdTcXKQo9NxcpCAiIgIiICteeHSrla7iOpCvgm1nJtFg89RmmbFZGQul3n4e4gMu4AFzbC5N9fNeJse2yYJSVlNlKeCeBlVUv+qVLiLFzzvbrh0G5OvxWo/SAx+qx3ONdh0DyabC7RtY25u6288+oH8q+TYNlvFhnvLEUtHPEarEYGxaWJJeNR5XWnM/2WYuq+3Y6/B43fffKcx+jrXXGiuCxx+yLrItyOVs9xERBQi61nGMj4PjExmkgdBOeMlOd0nxWzog0GPZfhrZQ6asrJQDexcAfC4AW0UOF0OCQchhtMyEH2nAXc7xJ1K9ZRaj3vkgxE3N+lFREEim4uUhR6bi5SEBERAREQFZISG3HQLq9WSEhhtxSjiLaBXTYnnvHJKgR3iq5YwGMAuGuc0X719I2d4dBjO17BKicktosPkq4mHgXWYwHy3yfJfKM0F82csejHPqW1s5kjj1c28rtSBqB3r7FsRdDLtBl33XmiwNm4DxALmB3yC83RMvWtruvr1xngdUx7knz/josDRXBUHSgXpOFVREQEREBRaj3vkpSi1HvfJBhREQSKbi5SFHpuLlIQEREBERAVrxeyuVHeF0rFnLjfOdRT5Y+lvmd0I3oMYwyOObcGsMrogQQAOkxgn+NScn5hq8C+krg8jIgaPGKR1BLyku4Gb0rSCBbV12iw7z1FRdruRait2+5kx2CofEIKSikbC6O4qHSMdDzT3bgOi+B4TnaowDbph2LT1D5aLC8Ya8RyEva2ISAOAHXuk96hcfylX4bOMLL3X6hxm99Lf8AfmrgrWEEAhXBTUqoiICIiAotR73yUpRaj3vkgwoiIJFNxcpCj03FykICIiAiIgK117aK5UPUg+G7Z4JqDG8OxOjDWy1dP9XeZOcH8k8vj5vQWmRxB7yufczbKYsLyFgec8GgdUxV8ROKyhpc+GoL3Eu4aNud3ut3hdZ7W6KOfIjqlzWl9FOyRtxc2J3SB1e0D5LSNilU2ufmrLtXG2agIZO2KRu83nhzZAQdLGw08VT/AFY3MeJq9TjqvT2PbYKXOVDBg+LA02OU0LW7xJLKndbYuaevTUcdV9lBv4rkXOOVX7Oc4g4PCIxDK2ropmjVwB0aesj2T18eldZUNVHXUEFVTnehnjbIx173BFwb+alryt9qq34THjKdVJREVigREQFFqPe+SlKLUe98kGFERBIpuLlIUem4uUhAREJtbvQL2ReZjOP4bgFEKnFqptPETZtwSXHuAFytcG1LKmv+Iv8A6eT+1Buyo5aV+tPKn+4P/ppf7Vlp9pGWq6cRU1ZLI+xOlLKQAOk83RBl2iBp2dYyHAEcjcX694WXzzYBQNNFmbFbDeqK1tNpfhGwH5yFbJmzHn49hGIYbg9NBVUzoiyWqdVNADrXa1oZvOvfrAtZebsliGU2S5exeoj+0cSlfXwxMY7gRzhvHiRug6gcelV/3y27jcNFl+XtbVcCgxXJclVIA2ow93KMd1tJAc2/RceoCjbHsxyYllCLD6yNzH4feCGb/LMxvQO9osLeHevcz2+iny9Jh+IyN5KqID4Wk78jQbloaNTcgDq11IUfJOVn4Zh8ElWxsW6S+CBv+kDwB9dO9Z8vGSHMmjy5d/DeEVBp0WCqptcREQFFqPe+SlKLUe98kGFERBIpuLlIUem4uUhAWOYlsTnAX3QTbrWRY6j92k/hPyQc3Zixt+ZMUfV108u7ciKJsY3Y292q8J0FNf25D4sH5rEJOYPAfJWl90F7oaccHOP8g/NWM3YZRJBNLFI3g9gDSPMG/qsZerC9CWzp6r8fxVzt92K1u+dS7lCb20Fz06L0ck1L3bTcGq55pJqh0vJF7ySS1zSLak6a+i1Vz172R3X2gYGP+U1Dm3t0xJhlLPXx1k1Ox9VCC2OVwuWg62HUprQRxVUQ7EREBERAUWo975KUotR73yQYUREEim4uUhRIXhr9TYFSgQeCCqxVOlLL/Cfkst1Q6oOP+VG6BcXtwVnKgdIXXP2fSDQU0Fhw/Zt/JV+z6T7rB+G38kHIZlHaHxWN0o6x8V2B9n0f3Wn/AA2/kqfZ9H90p/w2/kg48Mg6x8VsGRZB+sPAucP3pvSuo/s6j+6U/wCE38lcyiponh8VNA17dQWxgH5IJAKqqDRVugIl0ugIl0ugKJP73yUokDiVDldvSG3BBYiIgG3Sq7xHAkIiBvntFN89ooiBvntFN89ooiBvntFN89ooiBvntFN89ooiBvntFN89ooiBvntFN89ooiBvntFN89ooiChcT0lNOhEQEREH/9k="},{"id":"gym_adduccion_cadera_maquina_2","name":"Aducción de cadera en máquina Nº 2","zone":"Pierna","icon":"🦵","tipo":"fuerza","modalidad":"maquina","equipment":"Máquina Nº 2","image":"data:image/jpeg;base64,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"},{"id":"gym_elevaciones_talones_maquina_23","name":"Elevaciones de talones en máquina Nº 23","zone":"Pierna","icon":"🦵","tipo":"fuerza","modalidad":"maquina","equipment":"Máquina Nº 23","image":"data:image/jpeg;base64,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"},{"id":"gym_contraccion_lateral_polea_alta","name":"Contracción lateral en polea alta","zone":"Abdomen","icon":"🎯","tipo":"fuerza","modalidad":"polea","equipment":"Polea alta","image":"data:image/jpeg;base64,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"}]);
+const GYM_FICHA_4={"id":"gym_ficha_20261123_rutina_4","nombre":"Gimnasio · Rutina 4 · Tren inferior","source":"gym_screenshots_20261123","favorita":false,"objetivoSemanal":null,"ejercicios":[{"exerciseId":"pares_elliptical","ej":"Elíptica - LifeFitness","tipo":"cardio","series":1,"reps":null,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":10,"intensidad":"moderada","categoriaManual":"cardio","comentario":"Calentamiento: 10 minutos.","cardioActividad":"eliptica","modalidad":"cardio","equipo":"LifeFitness"},{"exerciseId":"pares_cat_camel","ej":"Cat Camel","tipo":"movilidad","series":1,"reps":15,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"movilidad","comentario":""},{"exerciseId":"supine_adductor_stretch","ej":"Estiramiento aductores tumbado","tipo":"movilidad","series":1,"reps":15,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"movilidad","comentario":""},{"exerciseId":"gym_dorsiflexion_derecha_extension","ej":"Dorsiflexión de tobillo derecho con extensión (variante)","tipo":"movilidad","series":1,"reps":14,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"movilidad","comentario":"7+7 repeticiones. Misma ficha, fotografía e histórico que en la Rutina 2."},{"exerciseId":"nr1_hack_squat_26","ej":"Jaca en máquina Nº 26","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie.","repsMin":8,"repsMax":10,"repsLabel":"8–10"},{"exerciseId":"gym_stepup_cajon_mancuernas","ej":"Subida al cajón con mancuernas","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie.","repsMin":8,"repsMax":10,"repsLabel":"8–10"},{"exerciseId":"glute_kick","ej":"Patada Glúteo en máquina Nº 5","tipo":"fuerza","series":3,"reps":8,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 8–10 repeticiones por serie. Máquina Nº 5.","repsMin":8,"repsMax":10,"repsLabel":"8–10"},{"exerciseId":"pares_leg_extension_20","ej":"Leg Extension en máquina Nº 20","tipo":"fuerza","series":3,"reps":10,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 10–12 repeticiones por serie.","repsMin":10,"repsMax":12,"repsLabel":"10–12"},{"exerciseId":"gym_adduccion_cadera_maquina_2","ej":"Aducción de cadera en máquina Nº 2","tipo":"fuerza","series":3,"reps":10,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 10–12 repeticiones por serie.","repsMin":10,"repsMax":12,"repsLabel":"10–12"},{"exerciseId":"gym_elevaciones_talones_maquina_23","ej":"Elevaciones de talones en máquina Nº 23","tipo":"fuerza","series":3,"reps":12,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 12 repeticiones por serie. Máquina Nº 23, independiente de la máquina Nº 4."},{"exerciseId":"gym_contraccion_lateral_polea_alta","ej":"Contracción lateral en polea alta","tipo":"fuerza","series":3,"reps":12,"kg":null,"tiempo":null,"unidadTiempo":"min","duracion":6,"intensidad":"moderada","categoriaManual":"fuerza","comentario":"Objetivo: 12 repeticiones por serie."}]};
+const GYM_FICHA_4_KEY='microhealth-gym-ficha-4-v165';
+function migrateGymFicha4(){
+  if(localStorage.getItem(GYM_FICHA_4_KEY)==='1')return;
+  const old=db.rutinas;
+  if(!Array.isArray(old))return;
+  if(old.some(x=>String(x.id)===GYM_FICHA_4.id || x.nombre===GYM_FICHA_4.nombre)){
+    try{localStorage.setItem(GYM_FICHA_4_KEY,'1')}catch(e){}return;
+  }
+  const prepared=JSON.parse(JSON.stringify(GYM_FICHA_4));
+  prepared.ejercicios.forEach(ex=>{
+    const cat=EXERCISE_CATALOG.find(x=>x.id===ex.exerciseId);
+    if(cat){ex.modalidad=cat.modalidad;ex.equipo=cat.equipment;}
+  });
+  db.rutinas=old.concat([prepared]);
+  try{
+    localStorage.setItem(KEY,JSON.stringify(db));
+    localStorage.setItem(GYM_FICHA_4_KEY,'1');
+  }catch(e){
+    db.rutinas=old;
+    console.warn('No se ha podido incorporar la Rutina 4; no se han borrado datos:',e);
+  }
+}
+
 function ensureRoutines(){
  if(!db.rutinas){
    db.rutinas=[JSON.parse(JSON.stringify(SESSION18))];
@@ -15436,6 +15481,7 @@ function ensureRoutines(){
   migrateExerciseIdentity();
   migrateGymFichas12();
   migrateGymFicha3();
+ migrateGymFicha4();
   (db.rutinas||[]).forEach(r=>(r.ejercicios||[]).forEach(ex=>{
    if(ex.tipo==='cardio'&&!ex.cardioActividad)ex.cardioActividad=cardioActivityForExercise(ex);
  }));
@@ -15451,19 +15497,9 @@ function previousFinishedRoutineSession(active){
   return sessions[0]||null;
 }
 
-function previousRoutineRecord(active,exerciseName){
-  const sess=previousFinishedRoutineSession(active);
-  if(!sess)return lastRoutineExerciseRecord(active.id,active.nombre,exerciseName,active.gym);
-
-  const rows=(db.entreno||[]).filter(r=>
-    !r.esResumenRutina &&
-    String(r.rutinaSessionId||'')===String(sess.sessionId||'') &&
-    r.ej===exerciseName
-  );
-
-  if(!rows.length)return lastRoutineExerciseRecord(active.id,active.nombre,exerciseName,active.gym);
-  const r=rows[0];
-  return {...r,_session:sess};
+function previousRoutineRecord(active,exercise){
+  // One exercise, one history: routine 1/2/3/4, individual training and older records.
+  return lastRoutineExerciseRecord(active.id,active.nombre,exercise,active.gym);
 }
 
 function recordBestKg(r){
@@ -15562,66 +15598,30 @@ function sameExerciseName(a,b){
   return Boolean(ka && kb && ka===kb);
 }
 
-function lastRoutineExerciseRecord(routineId,routineName,exerciseName,gym=currentGym()){
-  // Buscar la última carga del EJERCICIO en el GIMNASIO, sin exigir que
-  // pertenezca a la misma rutina (también vale un entrenamiento individual).
-  const wantedGym=gymLabel(gym);
-  const exerciseHistory=(db.entreno||[])
-    .filter(r=>!r.esResumenRutina && recordGym(r)===wantedGym && sameExerciseName(r,exerciseName))
-    .filter(r=>Array.isArray(r.sets) && r.sets.some(s=>s.kg!=null || s.reps!=null) || r.kg!=null || r.reps!=null)
+function mh165ExerciseHistoryRows(ex){
+  return (db.entreno||[])
+    .filter(r=>r && !r.esResumenRutina && sameExerciseName(r,ex))
     .sort((a,b)=>{
-      const byDate=String(b.fecha||'').localeCompare(String(a.fecha||''));
-      if(byDate)return byDate;
-      return String(b.hora||'').localeCompare(String(a.hora||''));
+      const da=String(a.fecha||'')+' '+String(a.hora||'');
+      const dbb=String(b.fecha||'')+' '+String(b.hora||'');
+      return dbb.localeCompare(da);
     });
-  if(exerciseHistory.length)return {...exerciseHistory[0],_session:null};
-  const wantedName=normText(String(routineName||'')).trim();
-  const session=lastCompletedRoutineSessionForId(routineId,routineName,wantedGym);
-  const all=(db.entreno||[]).filter(r=>!r.esResumenRutina && recordGym(r)===wantedGym);
-
-  if(session?.sessionId){
-    const exact=all.find(r=>
-      String(r.rutinaSessionId||'')===String(session.sessionId) &&
-      sameExerciseName(r.ej,exerciseName)
-    );
-    if(exact)return {...exact,_session:session};
-  }
-
-  // Formato moderno: mismo ID de rutina.
-  const byRoutineId=all
-    .filter(r=>
-      String(r.rutinaId||'')===String(routineId) &&
-      sameExerciseName(r.ej,exerciseName)
-    )
-    .sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  if(byRoutineId.length)return {...byRoutineId[0],_session:session||null};
-
-  // Formato histórico: el registro podía no tener rutinaId, pero sí
-  // rutinaNombre o "Rutina: Segundo día" dentro de notas.
-  if(wantedName){
-    const byRoutineName=all
-      .filter(r=>
-        normText(String(routineNameFromLegacyRecord(r)||'')).trim()===wantedName &&
-        sameExerciseName(r.ej,exerciseName)
-      )
-      .sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-    if(byRoutineName.length)return {...byRoutineName[0],_session:session||null};
-  }
-
-  // Si conocemos la fecha de la última sesión histórica, úsala como último recurso.
-  if(session?.fecha){
-    const byDate=all
-      .filter(r=>r.fecha===session.fecha && sameExerciseName(r.ej,exerciseName))
-      .sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-    if(byDate.length)return {...byDate[0],_session:session};
-  }
-
-  return null;
+}
+function lastRoutineExerciseRecord(routineId,routineName,exercise,gym=currentGym()){
+  const rows=mh165ExerciseHistoryRows(exercise).filter(r=>
+    (Array.isArray(r.sets)&&r.sets.some(s=>s.kg!=null||s.reps!=null||s.tiempo!=null)) ||
+    r.kg!=null || r.reps!=null || r.duracion!=null
+  );
+  // Use the most recent actual record, even when it belongs to a different routine or gym.
+  const previous=rows[0];
+  if(!previous)return null;
+  const session=(db.rutinaSesiones||[]).find(s=>String(s.sessionId||'')===String(previous.rutinaSessionId||'')&&previous.rutinaSessionId)||null;
+  return {...previous,_session:session};
 }
 
 function preloadExerciseFromPrevious(template,routineId,routineName,index,gym=currentGym()){
   const ex={...template,orden:index,hecho:false};
-  const prev=lastRoutineExerciseRecord(routineId,routineName,template.ej,gym);
+  const prev=lastRoutineExerciseRecord(routineId,routineName,template,gym);
 
   // Keep planned values available to other logic even if today's inputs are prefilled.
   ex._plannedReps=template.reps??null;
@@ -15776,8 +15776,8 @@ function startRoutineAtGym(id,gym,targetDate=today()){
    const info=document.getElementById('activePrefillInfo');
    if(info){
      info.textContent=copied
-       ? `Últimos valores de ${selectedGym} cargados automáticamente en ${copied} ejercicio${copied===1?'':'s'}. Amarillo = sesión anterior en este gimnasio.`
-       : `No encontré datos anteriores de esta rutina en ${selectedGym}.`;
+       ? `Histórico disponible: últimos valores cargados en ${copied} ejercicio${copied===1?'':'s'} (también de otras rutinas o gimnasios). Amarillo = registro anterior.`
+       : `No encontré registros anteriores de estos ejercicios en el histórico guardado.`;
    }
    const card=document.getElementById('activeRoutineCard');
    if(card)card.scrollIntoView({behavior:'smooth',block:'start'});
@@ -16689,6 +16689,45 @@ function mh156OpenRoutinePdf(){
 }
 
 /* v22.3.164 — Consulta de rutinas sin iniciar ni modificar. No escribe en db. */
+
+/* v22.3.165 · Read-only cross-routine history. Uses existing saved records. */
+function mh165OpenExerciseHistory(ex){
+  const rows=mh165ExerciseHistoryRows(ex);
+  let modal=document.getElementById('mh165HistoryModal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='mh165HistoryModal';modal.className='exercise-modal';
+    modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
+    modal.innerHTML='<div class="exercise-modal-sheet" style="width:min(720px,100%);max-height:90dvh;overflow:auto;padding:18px"><button type="button" class="exercise-modal-close" onclick="mh165CloseExerciseHistory()" aria-label="Cerrar">×</button><h2 id="mh165HistoryTitle" style="margin:8px 36px 8px 0"></h2><p id="mh165HistoryCount" class="muted"></p><div id="mh165HistoryRows"></div><button type="button" class="set-add" onclick="mh165CloseExerciseHistory()" style="width:100%;min-height:44px;margin-top:16px">Cerrar histórico</button></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click',e=>{if(e.target===modal)mh165CloseExerciseHistory();});
+  }
+  modal.querySelector('#mh165HistoryTitle').textContent='Histórico · '+(ex.ej||ex.name||'Ejercicio');
+  modal.querySelector('#mh165HistoryCount').textContent=rows.length+' registro'+(rows.length===1?'':'s')+' encontrado'+(rows.length===1?'':'s')+' en todas las rutinas y entrenamientos individuales.';
+  modal.querySelector('#mh165HistoryRows').innerHTML=rows.length?rows.map(r=>{
+    const title=r.rutinaNombre||routineNameFromLegacyRecord(r)||'Entrenamiento individual';
+    const date=r.fecha?fechaES(r.fecha):'Sin fecha';
+    return '<div style="border:1px solid #d8e2e8;border-radius:10px;padding:11px;margin:8px 0;background:#fff"><b>'+mh154Esc(date)+'</b> · '+mh154Esc(title)+'<div class="muted" style="font-size:12px;margin:4px 0">'+mh154Esc(recordGym(r))+'</div><div>'+mh154Esc(routineSetSummary(r))+'</div></div>';
+  }).join(''):'<p>No hay registros guardados de este ejercicio en el historial del navegador. La rutina puede estar creada sin haberse realizado todavía.</p>';
+  modal.classList.add('open');
+  // Don't close the routine preview; the user can return to it.
+  document.body.style.overflow='hidden';
+}
+function mh165CloseExerciseHistory(){
+  const modal=document.getElementById('mh165HistoryModal');
+  if(modal)modal.classList.remove('open');
+  if(!document.getElementById('mh164RoutinePreview')?.classList.contains('open'))document.body.style.overflow='';
+}
+function mh165OpenHistoryFromRoutine(index,exerciseIndex){
+  const r=(db.rutinas||[])[Number(index)];
+  const ex=r?.ejercicios?.[Number(exerciseIndex)];
+  if(ex)mh165OpenExerciseHistory(ex);
+}
+function mh165OpenHistoryFromActive(index){
+  const ex=db.rutinaActiva?.items?.[Number(index)];
+  if(ex)mh165OpenExerciseHistory(ex);
+}
+
 function mh164EnsureRoutinePreview(){
   let modal=document.getElementById('mh164RoutinePreview');
   if(modal)return modal;
@@ -16729,6 +16768,7 @@ function mh164OpenRoutinePreview(index){
     const img=src?`<img src="${mh154Esc(src)}" alt="" loading="lazy" style="width:76px;height:76px;object-fit:contain;border-radius:9px;background:#f1f5f9;flex-shrink:0">`:'';
     const note=String(ex.comentario||'').trim();
     const video=mh164VideoInfo(ex);
+    const last=lastRoutineExerciseRecord(r.id,r.nombre,ex,currentGym());
     return `<div style="border:1px solid #d8e2e8;border-radius:12px;padding:12px;margin:10px 0;background:#fff">
       <div style="display:flex;align-items:center;gap:10px">
         ${img}
@@ -16739,6 +16779,8 @@ function mh164OpenRoutinePreview(index){
         </div>
       </div>
       ${note?`<div class="muted" style="font-size:12px;margin:8px 0">${mh154Esc(note)}</div>`:''}
+      ${last?`<div class="muted" style="font-size:12px;margin:8px 0">Última vez: ${mh154Esc(fechaES(last.fecha))} · ${mh154Esc(routineSetSummary(last))}</div>`:''}
+      <button type="button" class="set-add" style="margin-top:8px;min-height:42px" onclick="mh165OpenHistoryFromRoutine(${Number(index)},${i})">📊 Ver histórico</button>
       ${video?`<button type="button" class="set-add" style="margin-top:8px;min-height:42px" onclick="mh164OpenRoutineVideoAt(${Number(index)},${i})">🎬 ${video.id?'Ver vídeo':'Buscar demostración'}</button>`:''}
     </div>`;
   }).join('')||'<p>No hay ejercicios en esta rutina.</p>';
@@ -16850,7 +16892,7 @@ function renderRoutines(){
     </div>
     ${(()=>{
       ensureSetData(ex);
-      const prev=previousRoutineRecord(a,ex.ej);
+      const prev=previousRoutineRecord(a,ex);
       const prevHtml=prev ? `<div class="routine-compare">
         <div class="compare-title">Comparación con la sesión anterior · ${fechaES(prev._session?.fecha||prev.fecha)}</div>
         <div class="compare-prev">${routineSetSummary(prev)}</div>
@@ -16866,7 +16908,7 @@ function renderRoutines(){
         <button type="button" class="mh138-tab" onclick="mh138Tab(this,'notes')">Observaciones</button>
         <button type="button" class="mh138-tab" onclick="mh138Tab(this,'description')">Descripción</button>
       </div>
-      <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}</div>
+      <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}<p><button type="button" class="set-add" onclick="mh165OpenHistoryFromActive(${i})">📊 Ver histórico completo (todas las rutinas)</button></p></div>
       <div class="mh138-panel" data-mh138-tab="description" hidden><b>🎬 Vídeo demostrativo</b><p class="muted">Puedes reproducirlo aquí o abrir la ficha con las imágenes y las instrucciones.</p>${mh161VideoHtml(ex.exerciseId)}${mh164VideoInfo(ex)&&!mh161VideoId(ex.exerciseId)?`<button type="button" class="set-add" onclick="mh162OpenActiveExerciseVideo(${i})">🎬 Buscar demostración</button>`:''}<button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
       <div class="mh138-panel" data-mh138-tab="notes" hidden>Las observaciones que escribas aquí se guardarán junto al ejercicio.</div>
       <div class="mh138-series-panel" data-mh138-tab="series"><div class="routine-meta">Introduce los valores reales de cada serie y después pulsa «Validar ejercicio».</div>
@@ -21319,8 +21361,8 @@ const PDB='mi-evolucion-progress-photos', PSTORE='photos';
 const DDB='micro-health-medication-files-v1', DSTORE='files';
 const BPKEY='micro-health-blood-pressure-v1', BPDB='micro-health-bp-photos-v1', BPSTORE='photos';
 const $=id=>document.getElementById(id);
-const status=$('mh40BackupStatus'), check=$('mh40Check'), exportBtn=$('mh40Export'), importBtn=$('mh40ImportBtn'),fileInput=$('mh40ImportFile');
-if(!status||!check||!exportBtn||!importBtn||!fileInput)return;
+const status=$('mh40BackupStatus'), check=$('mh40Check'), exportBtn=$('mh40Export'), saveBtn=$('mh40SavePrepared'), alternative=$('mh40DownloadAlternative'), downloadLink=$('mh40PreparedLink'), importBtn=$('mh40ImportBtn'),fileInput=$('mh40ImportFile');
+if(!status||!check||!exportBtn||!saveBtn||!alternative||!downloadLink||!importBtn||!fileInput)return;
 const setStatus=s=>{status.textContent=s};
 const getStorage=(key)=>{try{return localStorage.getItem(key)}catch(e){throw Error('No se puede acceder al almacenamiento: '+e.message)}};
 const safeParse=(raw,desc)=>{if(raw===null)return null;try{return JSON.parse(raw)}catch(e){throw Error('Los datos de '+desc+' no tienen formato JSON válido. No se ha exportado una copia incompleta.')}};
@@ -21380,10 +21422,38 @@ const decodeRows=async(rows,description)=>{
  }
  return out;
 };
-const download=(blob,name)=>{
- const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;
- document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
+let preparedFile=null;
+let preparedUrl=null;
+const resetPrepared=()=>{
+ preparedFile=null;saveBtn.hidden=true;alternative.hidden=true;
+ downloadLink.removeAttribute('href');
+ if(preparedUrl){URL.revokeObjectURL(preparedUrl);preparedUrl=null;}
 };
+const triggerDownload=()=>{
+ if(!preparedFile)throw Error('Prepara primero la copia completa.');
+ // Keep the link attached to the page: on iOS this is more reliable than
+ // clicking a detached anchor after an asynchronous IndexedDB operation.
+ downloadLink.click();
+};
+saveBtn.addEventListener('click',()=>{
+ if(!preparedFile){setStatus('Primero pulsa «1. Preparar copia completa».');return;}
+ const name=preparedFile.name;
+ if(navigator.share && (!navigator.canShare || navigator.canShare({files:[preparedFile]}))){
+  // Call share() synchronously inside the tap: iOS requires user activation.
+  let sharePromise;
+  try{sharePromise=navigator.share({files:[preparedFile],title:'Copia completa de MicroHealth'});}
+  catch(e){setStatus('No se pudo abrir el menú de compartir: '+e.message+'\nUsa «Descargar archivo directamente (alternativa)».');return;}
+  Promise.resolve(sharePromise).then(()=>{
+   setStatus('Se ha cerrado el menú de compartir. Comprueba que «'+name+'» está guardado en Archivos o en la ubicación elegida.');
+  }).catch(e=>{
+   if(e&&e.name==='AbortError')setStatus('No se guardó la copia desde el menú de compartir. Pulsa «Guardar / Compartir copia» otra vez o usa la descarga alternativa.');
+   else setStatus('No se pudo compartir la copia: '+(e&&e.message||'Error desconocido')+'\nPrueba «Descargar archivo directamente (alternativa)».');
+  });
+ }else{
+  try{triggerDownload();setStatus('Se ha solicitado la descarga de «'+name+'». Comprueba en Descargas / Archivos que existe. Si el navegador no la permite, abre MicroHealth en Safari o Chrome e inténtalo de nuevo.');}
+  catch(e){setStatus('No se pudo iniciar la descarga: '+e.message);}
+ }
+});
 async function review(){
  const main=safeParse(getStorage(MAIN_KEY),'datos generales');
  const med=safeParse(getStorage(MED_KEY),'medicación');
@@ -21399,7 +21469,7 @@ check.addEventListener('click',async()=>{
  }catch(e){setStatus('⚠️ No se ha podido comprobar todo: '+e.message)}finally{check.disabled=false}
 });
 exportBtn.addEventListener('click',async()=>{
- exportBtn.disabled=true;setStatus('Preparando copia de registros, fotos y documentos… No cierres la aplicación.');
+ resetPrepared();exportBtn.disabled=true;setStatus('Preparando copia de registros, fotos y documentos… No cierres la aplicación.');
  try{
   const main=safeParse(getStorage(MAIN_KEY),'datos generales');
   const medication=safeParse(getStorage(MED_KEY),'medicación')||{version:1,medications:[],events:[]};
@@ -21414,11 +21484,15 @@ exportBtn.addEventListener('click',async()=>{
   if(!Array.isArray(bloodPressure))throw Error('Los registros de tensión no son válidos.');
   const bloodPressurePhotos=await encodeRows(bpPhotoRows,'Foto de tensión');
   const payload={app:'Micro Health',type:'micro-health-full-backup',format:1,exportedAt:new Date().toISOString(),general:main,medication,progressPhotos:photos,medicationDocuments:documents,bloodPressure,bloodPressurePhotos};
-  const file=new Blob([JSON.stringify(payload)],{type:'application/json'});
-  const day=new Date().toISOString().slice(0,10);
-  download(file,'MicroHealth_Copia_Completa_'+day+'.json');
+  const file=new File([JSON.stringify(payload)],'MicroHealth_Copia_Completa_'+new Date().toISOString().slice(0,10)+'.json',{type:'application/json'});
+  preparedFile=file;
+  preparedUrl=URL.createObjectURL(file);
+  downloadLink.href=preparedUrl;
+  downloadLink.download=file.name;
+  saveBtn.hidden=false;
+  alternative.hidden=false;
   try{localStorage.setItem('mh40-full-backup-generated-v1',payload.exportedAt)}catch(_){}
-  setStatus('✓ Descarga preparada: '+(file.size/1048576).toFixed(1)+' MB\nIncluye: datos generales, '+medication.medications.length+' medicamentos, '+photos.length+' fotos y '+documents.length+' documentos.\nIMPORTANTE: confirma que el archivo está realmente guardado en «Archivos» o en otra ubicación segura.');
+  setStatus('✓ Copia preparada: '+(file.size/1048576).toFixed(1)+' MB\nIncluye: datos generales, '+medication.medications.length+' medicamentos, '+photos.length+' fotos y '+documents.length+' documentos.\n\nAHORA PULSA «2. Guardar / Compartir copia» para guardarla en el móvil. La copia NO está guardada todavía.');
  }catch(e){setStatus('⚠️ No se pudo preparar una copia completa: '+e.message+'\nNo se ha cambiado ningún dato.')}finally{exportBtn.disabled=false}
 });
 importBtn.addEventListener('click',()=>fileInput.click());
