@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.155: Corrección de vista previa PDF de rutinas (secciones ocultas) -->
 <!-- v22.3.154: Rutinas · ficha imprimible y guardar como PDF -->
 <!-- v22.3.153: Farmacia · tensión arterial, foto, análisis y seguimiento -->
 <!-- v22.3.151: Coach con fechas históricas en chat y evolución de todo el intervalo -->
@@ -16138,14 +16139,14 @@ function mh154PrintableRoutine(r,number){
   const detail=[ex?.intensidad ? 'Intensidad: '+ex.intensidad : '',note].filter(Boolean).join(' · ');
   return `<tr><td class="mh154-num">${i+1}</td><td><strong>${name}</strong><div class="mh154-muted">${mh154Esc(category)}${detail?'<br>'+mh154Esc(detail):''}</div></td><td>${mh154Esc(mh154ExercisePrescription(ex))}</td><td>${equip}</td><td>${load}</td><td class="mh154-done">□</td></tr>`;
  }).join('');
- return `<section class="mh154-sheet">
+ return `<div class="mh154-sheet">
    <div class="mh154-brand">MicroHealth <span>· Ficha de entrenamiento</span></div>
    <h1>${mh154Esc(mh154Text(r?.nombre,'Rutina'))}</h1>
    <div class="mh154-meta"><span><b>Rutina:</b> ${number}</span><span><b>Ejercicios:</b> ${exs.length}</span><span><b>Objetivo:</b> ${mh154Esc(goalText)}</span>${totalMins?`<span><b>Duración orientativa:</b> ${Math.round(totalMins)} min</span>`:''}</div>
    <div class="mh154-fields"><span>Fecha: ___________________</span><span>Lugar: ___________________</span></div>
    <table><thead><tr><th>Nº</th><th>Ejercicio</th><th>Series / repeticiones / tiempo</th><th>Equipo</th><th>Carga</th><th>✓</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No hay ejercicios en esta rutina.</td></tr>'}</tbody></table>
    <div class="mh154-notes"><strong>Notas de la sesión</strong><div class="mh154-note-lines">________________________________________________________________________________<br>________________________________________________________________________________</div></div>
- </section>`;
+ </div>`;
 }
 function mh154EnsurePrintCss(){
  if(document.getElementById('mh154RoutinePrintStyle'))return;
@@ -16202,7 +16203,7 @@ function mh154OpenRoutinePrintAll(){
 function mh154ShowRoutinePrint(routines){
  mh154EnsurePrintCss();
  mh154CloseRoutinePrint();
- const modal=document.createElement('section');modal.id='mh154RoutinePrintModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Vista previa para imprimir rutinas');
+ const modal=document.createElement('div');modal.id='mh154RoutinePrintModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Vista previa para imprimir rutinas');
  const pages=routines.map((r,i)=>mh154PrintableRoutine(r,i+1)).join('');
  modal.innerHTML=`<div class="mh154-toolbar"><strong>📄 ${routines.length===1?'Ficha de rutina':'Todas mis rutinas'} · vista previa</strong><button class="mh154-primary" type="button" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button><button type="button" onclick="mh154CloseRoutinePrint()">✕ Cerrar</button><small>En la ventana de impresión elige «Guardar como PDF» si quieres descargar el archivo, o selecciona tu impresora.</small></div>${pages}`;
  document.body.appendChild(modal);
