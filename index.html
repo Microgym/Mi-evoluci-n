@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>MicroHealth</title>
+<!-- v22.3.164: Vista de solo lectura de rutinas y vídeos navegables para las rutinas 1 y 2 -->
 <!-- v22.3.163: Visor independiente de vídeos con controles móviles y navegación completa en sesión activa -->
 <!-- v22.3.162: Navegación anterior/siguiente de vídeos y acceso directo durante las rutinas, sin modificar el historial -->
 <!-- v22.3.159: Añadidas rutinas de gimnasio 1 y 2 con 16 ejercicios, sin duplicados, y cuatro fichas visuales nuevas -->
@@ -13474,8 +13475,41 @@ const MH161_GYM_VIDEOS = Object.freeze({
   'gym_extension_codo_unilateral_izq_polea': 'Cp_bShvMY4c',
   'mh139_crunch_invertido_controlado': 'YDvaOlhaA1U'
 });
+/* v22.3.164: vídeos comprobados y búsquedas específicas para las máquinas del gimnasio.
+   Si no hay una demostración contrastada de la variante exacta, no se asigna
+   un vídeo de otra máquina: se ofrece una búsqueda claramente identificada. */
+const MH164_GYM_VIDEO_IDS=Object.freeze({
+  'mh139_sentadilla_bulgara_con_mancuernas':'Xfa3Ql_NwmE',
+  'pares_hip_thrust_21':'-BfnlOg4ICs',
+  'abductor':'XVzKfO9HV10',
+  'military_dumbbell':'1AsDFWZ6olY',
+  'hammer_curl_dumbbell':'G0XLvtjFfA4'
+});
+const MH164_GYM_VIDEO_SEARCH=Object.freeze({
+  'bench_press_bar':'press banca plano con barra técnica correcta',
+  'gym_gironda_cerrado_24':'remo gironda sentado máquina agarre cerrado ejecución',
+  'military_dumbbell':'press militar sentado con mancuernas técnica',
+  'gym_jalon_unilateral_rodillas':'jalón unilateral de rodillas en polea alta técnica',
+  'overhead_triceps_cable':'extensión tríceps por encima de la cabeza polea técnica',
+  'hammer_curl_dumbbell':'curl martillo alterno mancuernas técnica',
+  'cable_crunch':'encogimientos abdominales polea alta crunch técnica',
+  'gym_dorsiflexion_derecha_extension':'movilidad dorsiflexión tobillo extensión rodilla movilidad',
+  'gym_prensa_inclinada_maquina_27':'prensa inclinada máquina piernas empuje de piernas técnica',
+  'leg_curl':'curl femoral sentado máquina técnica',
+  'gym_gemelo_maquina_4':'gemelos en máquina sentado elevación pantorrillas técnica',
+  'gym_doble_kb_suitcase_farmer_walk':'double kettlebell suitcase farmer carry walk technique',
+  'mh139_rotacion_toracica_en_cuadrupedia':'movilidad torácica cuadrupedia rotación técnica'
+});
+function mh164VideoInfo(ex){
+  const id=canonicalExerciseId(ex?.exerciseId)||resolveExerciseAliasId(ex);
+  const direct=(id==='leg_curl'&&normText(String(ex?.ej||'')).includes('sentado'))?'PpMZ-AA1Ksg':mh161VideoId(id);
+  if(direct)return {id:direct,url:'https://www.youtube.com/watch?v='+direct,kind:'video'};
+  const query=MH164_GYM_VIDEO_SEARCH[id];
+  if(!query)return null;
+  return {id:null,url:'https://www.youtube.com/results?search_query='+encodeURIComponent(query),kind:'search'};
+}
 function mh161VideoId(exerciseId){
-  return MH161_GYM_VIDEOS[canonicalExerciseId(exerciseId)]||null;
+  return MH161_GYM_VIDEOS[canonicalExerciseId(exerciseId)]||MH164_GYM_VIDEO_IDS[canonicalExerciseId(exerciseId)]||null;
 }
 function mh161VideoHtml(exerciseId, compact=false){
   const id=mh161VideoId(exerciseId);
@@ -13544,7 +13578,7 @@ function mh163EnsureVideoModal(){
         <button type="button" id="mh163VideoPlay" class="set-add" style="min-height:44px">▶ Reproducir aquí</button>
         <a id="mh163VideoYoutube" class="set-add" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;min-height:44px">↗ Abrir en YouTube</a>
       </div>
-      <p class="muted" style="font-size:12px;margin:8px 0">Los vídeos son demostraciones de referencia; la máquina puede variar. Si el reproductor no funciona en tu móvil, utiliza «Abrir en YouTube».</p>
+      <p class="muted" style="font-size:12px;margin:8px 0">Los vídeos son demostraciones de referencia. Cuando no hay vídeo verificado para la máquina exacta, se ofrece una búsqueda en YouTube en lugar de mostrar otra máquina.</p>
     </div>`;
     document.body.appendChild(modal);
   }
@@ -13568,7 +13602,8 @@ function mh163CloseRoutineVideos(){
 function mh163PlayCurrentVideo(){
   const modal=mh163VideoModal;
   const ex=mh162VideoEntries[mh163VideoIndex];
-  const id=ex&&mh161VideoId(ex.exerciseId);
+  const info=ex&&mh164VideoInfo(ex);
+  const id=info?.id;
   if(!modal||!id)return;
   const player=modal.querySelector('#mh163VideoPlayer');
   const frame=document.createElement('iframe');
@@ -13588,12 +13623,13 @@ function mh162ShowRoutineVideoAt(index){
   const number=Number(index);
   const i=Math.max(0,Math.min(n-1,Number.isFinite(number)?Math.trunc(number):0));
   const ex=mh162VideoEntries[i];
-  const id=mh161VideoId(ex.exerciseId);
-  if(!id)return;
+  const info=mh164VideoInfo(ex);
+  if(!info)return;
+  const id=info.id;
   mh163VideoIndex=i;
   modal.querySelector('#mh163VideoRoutine').textContent=mh162VideoRoutineTitle||'Rutina';
   modal.querySelector('#mh163VideoTitle').textContent=ex.ej||'Ejercicio';
-  modal.querySelector('#mh163VideoCounter').textContent='Vídeo '+(i+1)+' de '+n;
+  modal.querySelector('#mh163VideoCounter').textContent='Vídeo '+(i+1)+' de '+n+(id?'':' · Buscar demostración');
   modal.querySelector('#mh163VideoPrev').disabled=(i===0);
   modal.querySelector('#mh163VideoNext').disabled=(i===n-1);
   const select=modal.querySelector('#mh163VideoSelect');
@@ -13610,14 +13646,25 @@ function mh162ShowRoutineVideoAt(index){
   select.value=String(i);
   const player=modal.querySelector('#mh163VideoPlayer');
   player.replaceChildren();
-  const thumb=document.createElement('img');
-  thumb.src='https://img.youtube.com/vi/'+id+'/hqdefault.jpg';
-  thumb.alt='Vista previa del vídeo de '+String(ex.ej||'ejercicio');
-  thumb.loading='lazy';
-  thumb.style.cssText='display:block;width:100%;max-height:300px;object-fit:contain';
-  player.appendChild(thumb);
-  modal.querySelector('#mh163VideoPlay').textContent='▶ Reproducir aquí';
-  modal.querySelector('#mh163VideoYoutube').href='https://www.youtube.com/watch?v='+id;
+  if(id){
+    const thumb=document.createElement('img');
+    thumb.src='https://img.youtube.com/vi/'+id+'/hqdefault.jpg';
+    thumb.alt='Vista previa del vídeo de '+String(ex.ej||'ejercicio');
+    thumb.loading='lazy';
+    thumb.style.cssText='display:block;width:100%;max-height:300px;object-fit:contain';
+    player.appendChild(thumb);
+  }else{
+    const notice=document.createElement('div');
+    notice.style.cssText='padding:22px;color:white;text-align:center;line-height:1.6';
+    notice.textContent='Aún no hay un vídeo específico verificado para esta máquina. Puedes buscar demostraciones de este ejercicio en YouTube.';
+    player.appendChild(notice);
+  }
+  const play=modal.querySelector('#mh163VideoPlay');
+  play.hidden=!id;
+  play.textContent='▶ Reproducir aquí';
+  const link=modal.querySelector('#mh163VideoYoutube');
+  link.textContent=id?'↗ Abrir en YouTube':'↗ Buscar vídeo en YouTube';
+  link.href=info.url;
   modal.classList.add('open');
   const sheet=modal.querySelector('.exercise-modal-sheet');
   if(sheet)sheet.scrollTop=0;
@@ -13626,7 +13673,7 @@ function mh162ShowRoutineVideoAt(index){
 function mh161OpenRoutineVideos(routineId){
   const r=(db.rutinas||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  mh162VideoEntries=(r.ejercicios||[]).map(x=>({exerciseId:mh161VideoId(x.exerciseId)?x.exerciseId:resolveExerciseAliasId(x),ej:x.ej})).filter(x=>mh161VideoId(x.exerciseId));
+  mh162VideoEntries=(r.ejercicios||[]).map(x=>({exerciseId:x.exerciseId||resolveExerciseAliasId(x),ej:x.ej})).filter(x=>mh164VideoInfo(x));
   if(!mh162VideoEntries.length){alert('Todavía no hay vídeos para esta rutina.');return;}
   mh162VideoRoutineTitle=r.nombre;
   mh162ShowRoutineVideoAt(0);
@@ -13635,7 +13682,7 @@ function mh162OpenActiveExerciseVideo(i){
   const items=db.rutinaActiva?.items||[];
   const selected=items[Number(i)];
   if(!selected)return;
-  const entries=items.map((ex,index)=>({exerciseId:mh161VideoId(ex.exerciseId)?ex.exerciseId:resolveExerciseAliasId(ex),ej:ex.ej,originalIndex:index})).filter(x=>mh161VideoId(x.exerciseId));
+  const entries=items.map((ex,index)=>({exerciseId:ex.exerciseId||resolveExerciseAliasId(ex),ej:ex.ej,originalIndex:index})).filter(x=>mh164VideoInfo(x));
   const position=entries.findIndex(x=>x.originalIndex===Number(i));
   if(position<0){alert('Este ejercicio todavía no tiene un vídeo demostrativo asociado.');return;}
   mh162VideoEntries=entries;
@@ -16641,6 +16688,74 @@ function mh156OpenRoutinePdf(){
  }catch(e){if(tab)tab.close();alert('No se ha podido abrir el PDF: '+(e?.message||e));}
 }
 
+/* v22.3.164 — Consulta de rutinas sin iniciar ni modificar. No escribe en db. */
+function mh164EnsureRoutinePreview(){
+  let modal=document.getElementById('mh164RoutinePreview');
+  if(modal)return modal;
+  modal=document.createElement('div');
+  modal.id='mh164RoutinePreview';
+  modal.className='exercise-modal';
+  modal.setAttribute('role','dialog');
+  modal.setAttribute('aria-modal','true');
+  modal.setAttribute('aria-label','Ver rutina');
+  modal.innerHTML=`<div class="exercise-modal-sheet" style="width:min(720px,100%);max-height:92dvh;overflow:auto;overscroll-behavior:contain;padding:18px">
+    <button type="button" class="exercise-modal-close" id="mh164PreviewClose" aria-label="Cerrar rutina">×</button>
+    <h2 id="mh164PreviewTitle" style="margin:8px 40px 8px 0;font-size:21px"></h2>
+    <p id="mh164PreviewMeta" class="muted" style="margin:0 0 12px"></p>
+    <div id="mh164PreviewList"></div>
+    <button type="button" class="set-add" id="mh164PreviewCloseBottom" style="width:100%;min-height:46px;margin-top:12px">Cerrar</button>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#mh164PreviewClose').addEventListener('click',mh164CloseRoutinePreview);
+  modal.querySelector('#mh164PreviewCloseBottom').addEventListener('click',mh164CloseRoutinePreview);
+  modal.addEventListener('click',e=>{if(e.target===modal)mh164CloseRoutinePreview();});
+  return modal;
+}
+function mh164CloseRoutinePreview(){
+  const modal=document.getElementById('mh164RoutinePreview');
+  if(modal)modal.classList.remove('open');
+  document.body.style.overflow='';
+}
+function mh164OpenRoutinePreview(index){
+  const r=(db.rutinas||[])[Number(index)];
+  if(!r)return alert('No se ha encontrado la rutina.');
+  const modal=mh164EnsureRoutinePreview();
+  const exs=Array.isArray(r.ejercicios)?r.ejercicios:[];
+  modal.querySelector('#mh164PreviewTitle').textContent=r.nombre||'Rutina';
+  modal.querySelector('#mh164PreviewMeta').textContent=exs.length+' ejercicios · Solo lectura: no inicia el entrenamiento ni modifica datos';
+  modal.querySelector('#mh164PreviewList').innerHTML=exs.map((ex,i)=>{
+    const cat=catalogExerciseForRoutine(ex);
+    const src=cat?(typeof exerciseSelectedImage==='function'?exerciseSelectedImage(cat):cat.image):'';
+    const img=src?`<img src="${mh154Esc(src)}" alt="" loading="lazy" style="width:76px;height:76px;object-fit:contain;border-radius:9px;background:#f1f5f9;flex-shrink:0">`:'';
+    const note=String(ex.comentario||'').trim();
+    const video=mh164VideoInfo(ex);
+    return `<div style="border:1px solid #d8e2e8;border-radius:12px;padding:12px;margin:10px 0;background:#fff">
+      <div style="display:flex;align-items:center;gap:10px">
+        ${img}
+        <div style="min-width:0;flex:1">
+          <div style="font-weight:750;line-height:1.35">${i+1}. ${mh154Esc(ex.ej||'Ejercicio')}</div>
+          <div class="muted" style="font-size:12px;margin:4px 0">${mh154Esc(routineExerciseCategoryLabel(ex))}</div>
+          <div style="font-size:13px"><b>${mh154Esc(mh154ExercisePrescription(ex))}</b></div>
+        </div>
+      </div>
+      ${note?`<div class="muted" style="font-size:12px;margin:8px 0">${mh154Esc(note)}</div>`:''}
+      ${video?`<button type="button" class="set-add" style="margin-top:8px;min-height:42px" onclick="mh164OpenRoutineVideoAt(${Number(index)},${i})">🎬 ${video.id?'Ver vídeo':'Buscar demostración'}</button>`:''}
+    </div>`;
+  }).join('')||'<p>No hay ejercicios en esta rutina.</p>';
+  modal.classList.add('open');
+  modal.querySelector('.exercise-modal-sheet').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function mh164OpenRoutineVideoAt(routineIndex,exerciseIndex){
+  const r=(db.rutinas||[])[Number(routineIndex)];
+  if(!r)return;
+  const ex=r.ejercicios?.[Number(exerciseIndex)];
+  if(!ex||!mh164VideoInfo(ex))return;
+  mh164CloseRoutinePreview();
+  mh161OpenRoutineVideos(r.id);
+  const idx=(r.ejercicios||[]).slice(0,Number(exerciseIndex)).filter(x=>mh164VideoInfo(x)).length;
+  mh162ShowRoutineVideoAt(idx);
+}
 function renderRoutines(){
  clearRoutineExerciseFocus();
  ensureRoutines();
@@ -16668,8 +16783,9 @@ function renderRoutines(){
      </div>
      <div class="routine-actions">
        <button class="primary-small" onclick="startRoutine('${r.id}')">Iniciar rutina</button>
+       <button class="set-add" type="button" onclick="mh164OpenRoutinePreview(${idx})">👁 Ver rutina</button>
        <button class="set-add" type="button" onclick="mh154OpenRoutinePrintByIndex(${idx})" title="Preparar la ficha de esta rutina para imprimir o guardar como PDF">📄 PDF / Imprimir</button>
-       ${(r.ejercicios||[]).some(ex=>mh161VideoId(ex.exerciseId))?`<button class="set-add" type="button" onclick="mh161OpenRoutineVideos('${r.id}')">🎬 Vídeos de ejercicios</button>`:''}
+       ${(r.ejercicios||[]).some(ex=>mh164VideoInfo(ex))?`<button class="set-add" type="button" onclick="mh161OpenRoutineVideos('${r.id}')">🎬 Vídeos de ejercicios</button>`:''}
        <button class="set-add" onclick="editSavedRoutine('${r.id}')">✎ Modificar · añadir ejercicios</button>
        <button class="set-remove" onclick="deleteRoutine('${r.id}')">Eliminar</button>
      </div>
@@ -16724,7 +16840,7 @@ function renderRoutines(){
         </div>
         ${routineExerciseImageHtml(ex)}
       </div>
-      ${mh161VideoId(ex.exerciseId)?`<button type="button" class="set-add" style="margin:6px 0" onclick="event.preventDefault();event.stopPropagation();mh162OpenActiveExerciseVideo(${i})">🎬 Ver vídeo</button>`:''}
+      ${mh164VideoInfo(ex)?`<button type="button" class="set-add" style="margin:6px 0" onclick="event.preventDefault();event.stopPropagation();mh162OpenActiveExerciseVideo(${i})">🎬 Ver demostración</button>`:''}
       <span class="mh138-detail-label">${ex.hecho?'✓ Completado':'Ver detalles →'}</span>
     </summary>
     <div class="active-routine-body">
@@ -16751,7 +16867,7 @@ function renderRoutines(){
         <button type="button" class="mh138-tab" onclick="mh138Tab(this,'description')">Descripción</button>
       </div>
       <div class="mh138-panel" data-mh138-tab="history" hidden>${prev ? `<strong>Última sesión · ${fechaES(prev._session?.fecha||prev.fecha)}</strong><p>${routineSetSummary(prev)}</p>` : 'Todavía no hay una sesión anterior registrada para este ejercicio.'}</div>
-      <div class="mh138-panel" data-mh138-tab="description" hidden><b>🎬 Vídeo demostrativo</b><p class="muted">Puedes reproducirlo aquí o abrir la ficha con las imágenes y las instrucciones.</p>${mh161VideoHtml(ex.exerciseId)}<button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
+      <div class="mh138-panel" data-mh138-tab="description" hidden><b>🎬 Vídeo demostrativo</b><p class="muted">Puedes reproducirlo aquí o abrir la ficha con las imágenes y las instrucciones.</p>${mh161VideoHtml(ex.exerciseId)}${mh164VideoInfo(ex)&&!mh161VideoId(ex.exerciseId)?`<button type="button" class="set-add" onclick="mh162OpenActiveExerciseVideo(${i})">🎬 Buscar demostración</button>`:''}<button type="button" class="set-add" onclick="mh138ShowCatalogExercise(${i})">Abrir ficha del ejercicio</button></div>
       <div class="mh138-panel" data-mh138-tab="notes" hidden>Las observaciones que escribas aquí se guardarán junto al ejercicio.</div>
       <div class="mh138-series-panel" data-mh138-tab="series"><div class="routine-meta">Introduce los valores reales de cada serie y después pulsa «Validar ejercicio».</div>
       <div class="exercise-comment-box ${currentExerciseComment(ex)?'has-comment':''}">
