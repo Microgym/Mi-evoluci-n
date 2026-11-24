@@ -3811,6 +3811,22 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #mh91-daily-manage.mh148-daily-collapse>summary{cursor:pointer;font-weight:750;font-size:1.08rem;list-style-position:inside;padding:8px 0;user-select:none}
 #mh91-daily-manage.mh148-daily-collapse>summary:focus-visible{outline:2px solid #267c65;outline-offset:3px;border-radius:6px}
 </style>
+<style id="mh168-weight-stages-style">
+/* v22.3.169 — peso por etapas; hábitos ocultos únicamente en Mi día */
+#miDia #mh23-day-habits{display:none!important}
+#miDia .mh168-weight-stages{display:grid;gap:5px;margin-top:10px;font-size:11px;line-height:1.4}
+#miDia .mh168-stage-row{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;flex-wrap:wrap}
+#miDia .mh168-stage-row span{color:var(--muted,#60726f)}
+#miDia .mh168-stage-row strong{font-size:11px;font-weight:700}
+#miDia .mh168-goal-edit{border:1px solid #b7d6cf;border-radius:9px;background:#eff8f5;color:#195c51;font-size:11px;font-weight:700;padding:7px 9px;margin-top:9px;max-width:100%;text-align:left;cursor:pointer}
+#miDia .mh168-weight-editor{margin-top:9px;display:grid;gap:7px;max-width:100%}
+#miDia .mh168-weight-editor[hidden],#miDia .mh168-goal-edit[hidden]{display:none!important}
+#miDia .mh168-weight-editor label{font-size:12px;font-weight:650}
+#miDia .mh168-weight-editor input{width:100%;min-width:0;box-sizing:border-box;border:1px solid #b7cfc9;border-radius:8px;padding:9px;background:#fff;color:#173b35;font-size:16px}
+#miDia .mh168-weight-actions{display:flex;gap:6px;flex-wrap:wrap}
+#miDia .mh168-weight-actions button{border:1px solid #b7d6cf;border-radius:8px;padding:7px 9px;font-size:12px;background:#edf7f3;color:#174f45;cursor:pointer}
+#miDia #mh168GoalError{color:#a52c25}
+</style>
 </head>
 <body>
 <div id="mh111-boot" role="status" aria-label="Abriendo MicroHealth">
@@ -3932,7 +3948,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 <div class="mh47-next-dose" id="mh47-day-dose" aria-live="polite"></div><div id="mh47-day-appointment" aria-live="polite"></div>
 <div class="mh23-day-group" id="mh43-goals"><h3>⚖️ Mi peso y mis objetivos</h3></div>
 <div class="mh23-day-group mh91-panel" id="mh91-day"><h3>☀️ Mis ejercicios diarios</h3><div id="mh127-day-groups"></div><div id="mh91-day-list"></div><p id="mh91-day-stats" class="muted"></p></div>
-<div class="mh23-day-group" id="mh23-day-habits"><h3>🌿 Mis pequeños hábitos</h3></div>
+<div class="mh23-day-group" id="mh23-day-habits" hidden aria-hidden="true"></div>
 <div class="mh23-day-group" id="mh23-day-summary"><h3>📋 Resumen del día</h3></div>
 <div class="mh23-day-group" id="mh23-day-nutrition"><h3>🍽️ Orientación nutricional</h3></div>
 <div class="mh23-day-group" id="mh43-workout-today">
@@ -4075,6 +4091,14 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <b class="home-goal-number" id="homeWeightGoalValue">—</b>
     <div class="home-mini-progress"><div id="homeWeightGoalBar"></div></div>
     <div class="home-sub" id="homeWeightGoalLeft">—</div>
+    <div id="mh168WeightStages" class="mh168-weight-stages" aria-live="polite"></div>
+    <button type="button" class="mh168-goal-edit" id="mh168GoalEditBtn" onclick="mh168ToggleSecondWeightGoal()">+ Añadir 2.ª etapa</button>
+    <div id="mh168WeightEditor" class="mh168-weight-editor" hidden>
+      <label for="mh168GoalInput">Segundo objetivo de peso (kg)</label>
+      <input id="mh168GoalInput" type="number" min="30" max="300" step="0.1" inputmode="decimal" placeholder="Ej. 85,0">
+      <div class="mh168-weight-actions"><button type="button" onclick="mh168SaveSecondWeightGoal()">Guardar</button><button type="button" onclick="mh168ToggleSecondWeightGoal(false)">Cancelar</button></div>
+      <small id="mh168GoalError" role="status"></small>
+    </div>
   </div>
   <button class="home-chevron" type="button" onclick="goSection('peso')" aria-label="Ver peso">›</button>
   <span id="mGrasa" style="display:none">—</span><span id="mGrasaDif" style="display:none"></span>
@@ -5106,10 +5130,11 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <div id="coachLocalSummary" class="coach-summary"></div>
     <div class="mh36-period">
       <label for="mh36Period">Período de evaluación</label>
-      <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="custom">Elegir fechas</option></select>
+      <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="all">Desde el inicio</option><option value="custom">Elegir fechas</option></select>
       <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start" onchange="renderCoachLocalSummary()"></label><label>Hasta <input type="date" id="mh36End" onchange="renderCoachLocalSummary()"></label></div>
     </div>
     <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
+    <div style="margin:12px 0"><button type="button" class="primary" onclick="mh169ExportConsultation()">PDF informe para consulta</button><div id="mh169PdfStatus" role="status" class="muted" style="margin-top:6px">Informe visual del período seleccionado, sin necesidad de consultar al Coach.</div></div>
     <div id="coachStatus" class="muted" style="margin-top:8px"></div>
     <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Mi objetivo (elegido por mí)</small><b id="mh38DeclaredGoal">—</b></div><div class="coach-decision"><small>Estrategia sugerida (Coach)</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><p class="mh38-coach-note">Tu objetivo lo decides tú. La estrategia es una propuesta del Coach, no cambia automáticamente calorías, proteínas ni rutinas.</p><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
     <details id="mh39NutritionPanel" class="mh36-more mh39-nutrition">
@@ -5124,7 +5149,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 
 <section id="datos" class="mock-page">
   <div class="mock-page-title"><h2>Datos</h2><p>Tu perfil, objetivos y sincronización</p></div>
-  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg></span><div><h3>Perfil</h3><p>Tu información personal</p></div></div><button class="mock-panel-link" type="button" onclick="document.getElementById('profileEdit')?.toggleAttribute('open')">Editar ›</button></div><div class="profile-photo-panel"><div class="profile-photo-preview"><img id="profilePhotoPreview" alt="Foto de perfil" hidden><svg id="profilePhotoFallback" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"/></svg></div><div class="profile-photo-controls"><b>Mi foto de perfil</b><small>Se guarda únicamente en este dispositivo. Puedes cambiarla o quitarla cuando quieras.</small><div class="profile-photo-buttons"><label class="profile-photo-upload" for="profilePhotoFile">Elegir foto</label><input id="profilePhotoFile" type="file" accept="image/*" style="display:none" onchange="saveProfilePhoto(event)"><button type="button" class="secondary" onclick="removeProfilePhoto()">Eliminar foto</button></div><small id="profilePhotoStatus" role="status"></small></div></div><div id="dataProfileSummary" class="data-summary-grid"></div><details id="profileEdit" class="data-edit-details"><summary>Editar perfil y objetivos</summary><div class="data-edit-body"><div class="row"><div><label>Nombre</label><input id="profileName" placeholder="Tu nombre"></div><div><label>Edad</label><input id="profileAge" type="number" min="12" max="100" placeholder="Edad"></div></div><div class="row"><div><label>Sexo</label><select id="profileSex"><option value="">Prefiero no indicarlo</option><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option><option value="Otro">Otro</option></select></div><div><label>Altura (cm)</label><input id="profileHeight" type="number" min="120" max="230" placeholder="Ej. 184"></div></div><div class="row"><div><label>Objetivo de peso (kg) <span class="onboard-optional">opcional</span></label><input id="profileWeightGoal" type="number" min="30" max="300" step="0.1" placeholder="Ej. 75"></div><div><label>Objetivo kcal/día <span class="onboard-optional">opcional</span></label><input id="profileKcal" type="number" min="800" max="6000" step="50" placeholder="Sin definir"></div></div><div class="row"><div><label>Objetivo proteína (g/día) <span class="onboard-optional">opcional</span></label><input id="profileProtein" type="number" min="20" max="400" step="5" placeholder="Sin definir"></div></div><div class="row"><div><label>Objetivo hidratos (g/día)</label><input id="profileCarbs" type="number" min="0" max="1500" step="1" placeholder="Sin definir"></div><div><label>Objetivo fibra (g/día)</label><input id="profileFiber" type="number" min="0" max="200" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Límite de azúcares totales (g/día)</label><input id="profileSugars" type="number" min="0" max="500" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Entrenamientos/semana <span class="onboard-optional">opcional</span></label><input id="profileStrengthDays" type="number" min="0" max="14" placeholder="Sin definir"></div></div><div class="row"><div><label>Pasos/día <span class="onboard-optional">opcional</span></label><input id="profileSteps" type="number" min="0" step="500" placeholder="Sin definir"></div><div><label>Objetivo principal</label><select id="profileCoachGoal"><option value="coach">Que el Coach me proponga</option><option value="definir">Definir / perder grasa</option><option value="recomposicion">Recomposición corporal</option><option value="musculo">Ganar músculo</option><option value="mantener">Mantener</option></select></div></div><details class="data-edit-details" style="margin:10px 0"><summary>Preferencias para el Coach y las dietas</summary><div class="data-edit-body"><div class="row"><div><label>Comidas habituales al día</label><input id="profileMealsPerDay" type="number" min="1" max="8" step="1" placeholder="Ej. 4"></div><div><label>Tipo de alimentación <span class="onboard-optional">opcional</span></label><input id="profileDietStyle" placeholder="Ej. omnívora, vegetariana..."></div></div><div class="row"><div><label>Alimentos que me gustan / quiero priorizar</label><textarea id="profileFoodLikes" rows="3" placeholder="Ej. pollo, arroz, yogur, fruta..."></textarea></div><div><label>Alimentos que no me gustan / quiero evitar</label><textarea id="profileFoodAvoid" rows="3" placeholder="Preferencias, no alergias"></textarea></div></div><div><label>Alergias o intolerancias</label><textarea id="profileFoodRestrictions" rows="2" placeholder="Se tratarán como restricciones estrictas"></textarea></div></div></details><button class="primary" onclick="saveProfileFromForm()">Guardar perfil y objetivos</button><div id="profileSummary"></div></div></details></div>
+  <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg></span><div><h3>Perfil</h3><p>Tu información personal</p></div></div><button class="mock-panel-link" type="button" onclick="document.getElementById('profileEdit')?.toggleAttribute('open')">Editar ›</button></div><div class="profile-photo-panel"><div class="profile-photo-preview"><img id="profilePhotoPreview" alt="Foto de perfil" hidden><svg id="profilePhotoFallback" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"/></svg></div><div class="profile-photo-controls"><b>Mi foto de perfil</b><small>Se guarda únicamente en este dispositivo. Puedes cambiarla o quitarla cuando quieras.</small><div class="profile-photo-buttons"><label class="profile-photo-upload" for="profilePhotoFile">Elegir foto</label><input id="profilePhotoFile" type="file" accept="image/*" style="display:none" onchange="saveProfilePhoto(event)"><button type="button" class="secondary" onclick="removeProfilePhoto()">Eliminar foto</button></div><small id="profilePhotoStatus" role="status"></small></div></div><div id="dataProfileSummary" class="data-summary-grid"></div><details id="profileEdit" class="data-edit-details"><summary>Editar perfil y objetivos</summary><div class="data-edit-body"><div class="row"><div><label>Nombre</label><input id="profileName" placeholder="Tu nombre"></div><div><label>Edad</label><input id="profileAge" type="number" min="12" max="100" placeholder="Edad"></div></div><div class="row"><div><label>Sexo</label><select id="profileSex"><option value="">Prefiero no indicarlo</option><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option><option value="Otro">Otro</option></select></div><div><label>Altura (cm)</label><input id="profileHeight" type="number" min="120" max="230" placeholder="Ej. 184"></div></div><div class="row"><div><label>Primer objetivo de peso (kg) <span class="onboard-optional">se conserva</span></label><input id="profileWeightGoal" type="number" min="30" max="300" step="0.1" placeholder="Ej. 88,5"></div><div><label>Objetivo kcal/día <span class="onboard-optional">opcional</span></label><input id="profileKcal" type="number" min="800" max="6000" step="50" placeholder="Sin definir"></div></div><div class="row"><div><label>Segundo objetivo de peso (kg) <span class="onboard-optional">nueva etapa</span></label><input id="profileWeightGoal2" type="number" min="30" max="300" step="0.1" placeholder="Ej. 85"><small>El primer objetivo permanece guardado como hito.</small></div></div><div class="row"><div><label>Objetivo proteína (g/día) <span class="onboard-optional">opcional</span></label><input id="profileProtein" type="number" min="20" max="400" step="5" placeholder="Sin definir"></div></div><div class="row"><div><label>Objetivo hidratos (g/día)</label><input id="profileCarbs" type="number" min="0" max="1500" step="1" placeholder="Sin definir"></div><div><label>Objetivo fibra (g/día)</label><input id="profileFiber" type="number" min="0" max="200" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Límite de azúcares totales (g/día)</label><input id="profileSugars" type="number" min="0" max="500" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Entrenamientos/semana <span class="onboard-optional">opcional</span></label><input id="profileStrengthDays" type="number" min="0" max="14" placeholder="Sin definir"></div></div><div class="row"><div><label>Pasos/día <span class="onboard-optional">opcional</span></label><input id="profileSteps" type="number" min="0" step="500" placeholder="Sin definir"></div><div><label>Objetivo principal</label><select id="profileCoachGoal"><option value="coach">Que el Coach me proponga</option><option value="definir">Definir / perder grasa</option><option value="recomposicion">Recomposición corporal</option><option value="musculo">Ganar músculo</option><option value="mantener">Mantener</option></select></div></div><details class="data-edit-details" style="margin:10px 0"><summary>Preferencias para el Coach y las dietas</summary><div class="data-edit-body"><div class="row"><div><label>Comidas habituales al día</label><input id="profileMealsPerDay" type="number" min="1" max="8" step="1" placeholder="Ej. 4"></div><div><label>Tipo de alimentación <span class="onboard-optional">opcional</span></label><input id="profileDietStyle" placeholder="Ej. omnívora, vegetariana..."></div></div><div class="row"><div><label>Alimentos que me gustan / quiero priorizar</label><textarea id="profileFoodLikes" rows="3" placeholder="Ej. pollo, arroz, yogur, fruta..."></textarea></div><div><label>Alimentos que no me gustan / quiero evitar</label><textarea id="profileFoodAvoid" rows="3" placeholder="Preferencias, no alergias"></textarea></div></div><div><label>Alergias o intolerancias</label><textarea id="profileFoodRestrictions" rows="2" placeholder="Se tratarán como restricciones estrictas"></textarea></div></div></details><button class="primary" onclick="saveProfileFromForm()">Guardar perfil y objetivos</button><div id="profileSummary"></div></div></details></div>
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3"></path><path d="M19 12h3"></path></svg></span><div><h3>Objetivos diarios</h3><p>Tus objetivos personalizados</p></div></div></div><div id="dataGoalsSummary" class="data-goals3"></div></div>
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><div><h3>Objetivo semanal de entrenamientos</h3><p>Mantén la constancia</p></div></div></div><div class="week-goal-head"><div><div class="metric-small" id="dataWorkoutGoalText">—</div><div class="muted" id="dataWorkoutGoalSub">—</div></div><div class="week-goal-pct" id="dataWorkoutGoalPct">—</div></div><div class="week-goal-progress"><div id="dataWorkoutGoalBar"></div></div></div>
   <div class="mock-panel pdf-report-card">
@@ -5544,11 +5569,76 @@ function profile(){
 }
 function kcalTarget(){return Number(profile().kcalObjetivo)||2000}
 function proteinTarget(){return Number(profile().proteinaObjetivo)||120}
-function weightGoal(){
-  const n=Number(profile().pesoObjetivo);
-  return Number.isFinite(n)&&n>0?n:null;
+function mh168ValidWeightGoal(value){
+  if(value==null || value==='')return null;
+  const n=Number(value);
+  return Number.isFinite(n)&&n>=30&&n<=300?n:null;
+}
+function firstWeightGoal(){return mh168ValidWeightGoal(profile().pesoObjetivo);}
+function secondWeightGoal(){return mh168ValidWeightGoal(profile().pesoObjetivo2);}
+function weightGoal(){return secondWeightGoal()??firstWeightGoal();}
+function mh168Kg(value){return Number(value).toFixed(1).replace('.',',')+' kg';}
+function mh168FirstReached(first,current){
+  const p=profile();
+  return first!=null && ((p.pesoObjetivo1AlcanzadoValor===first && !!p.pesoObjetivo1AlcanzadoFecha) || (Number.isFinite(current)&&current<=first));
+}
+function mh168ToggleSecondWeightGoal(open){
+  const panel=document.getElementById('mh168WeightEditor');
+  const input=document.getElementById('mh168GoalInput');
+  if(!panel||!input)return;
+  const shouldOpen=typeof open==='boolean'?open:panel.hidden;
+  panel.hidden=!shouldOpen;
+  if(shouldOpen){
+    input.value=secondWeightGoal()??'';
+    const err=document.getElementById('mh168GoalError');if(err)err.textContent='';
+    input.focus();
+  }
+}
+function mh168SaveSecondWeightGoal(){
+  const input=document.getElementById('mh168GoalInput');
+  const err=document.getElementById('mh168GoalError');
+  const first=firstWeightGoal();
+  const second=mh168ValidWeightGoal(input?.value);
+  if(first==null){if(err)err.textContent='Define primero tu primer objetivo en Datos → Perfil.';return;}
+  if(second==null || !input?.value){if(err)err.textContent='Introduce un peso válido entre 30 y 300 kg.';return;}
+  if(Math.abs(second-first)<0.001){if(err)err.textContent='El segundo objetivo debe ser distinto del primero.';return;}
+  if(!db.profile)db.profile={};
+  db.profile.pesoObjetivo2=second;
+  try{localStorage.setItem(KEY,JSON.stringify(db));}
+  catch(e){if(err)err.textContent='No se pudo guardar. Comprueba el espacio disponible.';return;}
+  mh168ToggleSecondWeightGoal(false);
+  renderProfile();
+  renderHomeMockupExtras();
+  try{renderHealthMockup();}catch(e){console.warn('Actualización del gráfico de peso',e);}
+}
+function mh168RenderWeightStages(current,lastDate){
+  const first=firstWeightGoal(),second=secondWeightGoal();
+  const stages=document.getElementById('mh168WeightStages');
+  const button=document.getElementById('mh168GoalEditBtn');
+  if(button){button.textContent=second==null?'+ Añadir 2.ª etapa':'✎ Cambiar 2.ª etapa';button.hidden=first==null;}
+  if(!stages)return;
+  if(first==null){stages.textContent='Define tu primer objetivo en Datos → Perfil.';return;}
+  const reached=mh168FirstReached(first,current);
+  if(reached && !profile().pesoObjetivo1AlcanzadoFecha && lastDate){
+    db.profile.pesoObjetivo1AlcanzadoFecha=lastDate;
+    db.profile.pesoObjetivo1AlcanzadoValor=first;
+    try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){console.warn('No se pudo guardar el hito de peso',e);}
+  }
+  const row1=document.createElement('div');row1.className='mh168-stage-row';
+  const name1=document.createElement('span');name1.textContent='1.ª etapa · '+mh168Kg(first);
+  const state1=document.createElement('strong');state1.textContent=reached?'✓ Conseguida':'En curso';
+  row1.append(name1,state1);stages.replaceChildren(row1);
+  if(second!=null){
+    const row2=document.createElement('div');row2.className='mh168-stage-row';
+    const name2=document.createElement('span');name2.textContent='2.ª etapa · '+mh168Kg(second);
+    const state2=document.createElement('strong');
+    const achieved=Number.isFinite(current) && (second<first?current<=second:current>=second);
+    state2.textContent=achieved?'✓ Conseguida':'Objetivo actual';
+    row2.append(name2,state2);stages.append(row2);
+  }
 }
 function saveProfileFromForm(){
+  const oldFirst=firstWeightGoal();
   db.profile={
     ...(db.profile||{}),
     nombre:(profileName.value||'').trim(),
@@ -5556,6 +5646,7 @@ function saveProfileFromForm(){
     sexo:profileSex.value||'',
     alturaCm:profileHeight.value===''?null:Number(profileHeight.value),
     pesoObjetivo:profileWeightGoal.value===''?null:Number(profileWeightGoal.value),
+    pesoObjetivo2:document.getElementById('profileWeightGoal2')?.value===''?null:Number(document.getElementById('profileWeightGoal2')?.value),
     kcalObjetivo:profileKcal.value===''?null:Number(profileKcal.value),
     proteinaObjetivo:profileProtein.value===''?null:Number(profileProtein.value),
     hidratosObjetivo:document.getElementById('profileCarbs')?.value===''?null:Number(document.getElementById('profileCarbs')?.value),
@@ -5571,6 +5662,10 @@ function saveProfileFromForm(){
     restriccionesAlimentarias:String(document.getElementById('profileFoodRestrictions')?.value||'').trim(),
     configurado:true
   };
+  if(firstWeightGoal()!==oldFirst){
+    delete db.profile.pesoObjetivo1AlcanzadoFecha;
+    delete db.profile.pesoObjetivo1AlcanzadoValor;
+  }
   save();
 }
 function completeOnboarding(){
@@ -6291,7 +6386,7 @@ function renderProfile(){
 
   const fields={
     profileName:p.nombre||'', profileAge:p.edad??'', profileSex:p.sexo||'',
-    profileHeight:p.alturaCm??'', profileWeightGoal:p.pesoObjetivo??'',
+    profileHeight:p.alturaCm??'', profileWeightGoal:p.pesoObjetivo??'', profileWeightGoal2:p.pesoObjetivo2??'',
     profileKcal:p.kcalObjetivo??'', profileProtein:p.proteinaObjetivo??'',
     profileCarbs:p.hidratosObjetivo??'',profileFiber:p.fibraObjetivo??'',profileSugars:p.azucaresObjetivo??'',
     profileStrengthDays:p.fuerzaDias??'', profileSteps:p.pasosDia??'',
@@ -6313,7 +6408,8 @@ function renderProfile(){
   const ps=document.getElementById('profileSummary');
   if(ps){
     ps.innerHTML=`<p>${bits.map(x=>`<span class="pill">${x}</span>`).join('')}</p>
-      <div class="kpiLine"><span>Peso objetivo</span><b>${weightGoal()!=null?String(weightGoal()).replace('.',',')+' kg':'No definido'}</b></div>
+      <div class="kpiLine"><span>Primer objetivo de peso</span><b>${firstWeightGoal()!=null?mh168Kg(firstWeightGoal()):'No definido'}</b></div>
+      <div class="kpiLine"><span>Segundo objetivo de peso</span><b>${secondWeightGoal()!=null?mh168Kg(secondWeightGoal()):'No definido'}</b></div>
       <div class="kpiLine"><span>Kcal objetivo</span><b>${p.kcalObjetivo!=null?Number(p.kcalObjetivo).toLocaleString('es-ES')+'/día':'No definido'}</b></div>
       <div class="kpiLine"><span>Proteína objetivo</span><b>${p.proteinaObjetivo!=null?Number(p.proteinaObjetivo)+' g/día':'No definido'}</b></div>
       ${p.primerControl?`<div class="kpiLine"><span>Primer control</span><b>${p.primerControl}</b></div>`:''}
@@ -7894,6 +7990,77 @@ function mhPdfBuildCoachDocument(doc){
   let out='%PDF-1.4\n%âãÏÓ\n',offsets=[0];const maxId=objects.length-1;for(let id=1;id<=maxId;id++){offsets[id]=out.length;out+=`${id} 0 obj\n${objects[id]}\nendobj\n`}const xref=out.length;out+=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`;for(let id=1;id<=maxId;id++)out+=String(offsets[id]).padStart(10,'0')+' 00000 n \n';out+=`trailer\n<< /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return bytes;
 }
+function mh169ConsultationPdf(s,weights,sessions,meals){
+  const W=595.28,H=841.89,M=36,contentW=W-M*2;
+  const navy=[.08,.22,.25],teal=[.09,.47,.49],muted=[.32,.40,.42],light=[.91,.95,.95],linec=[.83,.89,.89];
+  const pages=[];let page=null,y=0,heading='',sectionNo=0;
+  const fmt=(v,d=1)=>v==null||v===''||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const val=(v,u='',d=1)=>fmt(v,d)==='—'?'—':fmt(v,d)+u;
+  const date=v=>v?String(v).slice(8,10)+'/'+String(v).slice(5,7)+'/'+String(v).slice(0,4):'—';
+  const short=v=>v?date(v).slice(0,5):'—';
+  const num=v=>v==null||v===''||!Number.isFinite(Number(v))?null:Number(v);
+  const signed=(v,u)=>v==null?'—':(v>0?'+':'')+fmt(v)+u;
+    const safe=x=>String(x??'').replace(/[–—]/g,'-').replace(/→/g,'->').replace(/•/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/€/g,'EUR').split('').map(ch=>ch.charCodeAt(0)>255?'?':ch).join('').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/[\r\n]+/g,' ');
+  const n=v=>Number(v).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+  const col=a=>`${n(a[0])} ${n(a[1])} ${n(a[2])}`;
+  const yp=t=>H-t;
+  function text(x,top,str,size=10,bold=false,color=navy,align='left'){
+    const ss=safe(str),approx=ss.length*size*.50;let xx=x;if(align==='right')xx=x-approx;else if(align==='center')xx=x-approx/2;
+    page.ops.push(`BT /${bold?'F2':'F1'} ${n(size)} Tf ${col(color)} rg 1 0 0 1 ${n(xx)} ${n(yp(top))} Tm (${ss}) Tj ET\n`);
+  }
+  function line(x1,t1,x2,t2,color=linec,width=.7){page.ops.push(`${col(color)} RG ${n(width)} w ${n(x1)} ${n(yp(t1))} m ${n(x2)} ${n(yp(t2))} l S\n`)}
+  function rect(x,top,w,h,fill=null,stroke=null,rw=.7){if(fill)page.ops.push(`${col(fill)} rg ${n(x)} ${n(yp(top+h))} ${n(w)} ${n(h)} re f\n`);if(stroke)page.ops.push(`${col(stroke)} RG ${n(rw)} w ${n(x)} ${n(yp(top+h))} ${n(w)} ${n(h)} re S\n`)}
+
+  function newPage(title,continuation=false){heading=title;page={ops:[]};pages.push(page);text(M,30,'SEGUIMIENTO PERSONAL / '+String(sectionNo).padStart(2,'0'),9,false,muted);text(M,64,title+(continuation?' (cont.)':''),23,true,navy);y=85;}
+  function start(title){sectionNo++;newPage(title)}
+  function ensure(h){if(y+h>H-52)newPage(heading,true)}
+  function wrap(v,w,size){const out=[];let cur='';for(const word of String(v??'').split(/\s+/)){if(cur&&(cur+' '+word).length*size*.53>w){out.push(cur);cur=word}else cur+=(cur?' ':'')+word;}if(cur)out.push(cur);return out.length?out:[''];}
+  function para(v,size=10,color=navy){for(const l of wrap(v,contentW,size)){ensure(size+5);text(M,y,l,size,false,color);y+=size+4}y+=5}
+  function sub(v){ensure(42);y+=10;text(M,y,v,15,true,teal);y+=17}
+  function table(headers,rows,widths){const xs=[M];widths.forEach(w=>xs.push(xs.at(-1)+w*contentW));function row(cells,head,i){const lines=cells.map((v,j)=>wrap(v,xs[j+1]-xs[j]-14,9));const h=Math.max(23,Math.max(...lines.map(l=>l.length))*12+9);if(!head&&y+h>H-52){newPage(heading,true);row(headers,true,0)}rect(M,y,contentW,h,head?navy:i%2===0?light:null);lines.forEach((ls,j)=>ls.forEach((l,k)=>text(xs[j]+7,y+14+k*12,l,9,head,head?[1,1,1]:navy)));y+=h;}ensure(50);row(headers,true,0);rows.forEach((r,i)=>row(r,false,i));y+=8;}
+  function series(key){return weights.map(r=>({date:r.fecha,v:num(r[key])})).filter(r=>r.v!=null&&r.v>0)}
+  const w=series('peso'),f=series('grasa'),c=series('cintura');
+  const change=a=>a.length>1?a.at(-1).v-a[0].v:null;
+  const ends=(a,u)=>a.length?val(a[0].v,u)+' → '+val(a.at(-1).v,u):'Sin registros';
+  function trends(){ensure(125);const top=y+10,bottom=y+88,cw=contentW/3;[[w,'Peso',' kg'],[f,'Grasa BIA',' %'],[c,'Cintura',' cm']].forEach(([a,label,u],i)=>{const x=M+i*cw+8,ww=cw-20;text(x,top,label,10,true,teal);if(!a.length){text(x,top+30,'Sin datos',9,false,muted);return}const min=Math.min(...a.map(r=>r.v)),max=Math.max(...a.map(r=>r.v)),span=max-min||1;const t0=Date.parse(a[0].date),dt=Date.parse(a.at(-1).date)-t0||1;const pts=a.map(r=>[x+5+(Date.parse(r.date)-t0)/dt*(ww-10),bottom-10-(r.v-min)/span*44]);for(let j=0;j<3;j++)line(x,top+22+j*23,x+ww,top+22+j*23,linec);pts.forEach(([xx,yy],j)=>{if(j)line(...pts[j-1],xx,yy,teal,1.8);rect(xx-2,yy-2,4,4,teal)});text(x,top+17,val(a[0].v,u),8,false,navy);text(x+ww,bottom+4,val(a.at(-1).v,u),8,false,navy,'right');text(x,bottom+17,short(a[0].date),8,false,muted);text(x+ww,bottom+17,short(a.at(-1).date),8,false,muted,'right')});y+=120;}
+  const g=s.goal||{},b=s.body||{},nt=s.nutrition||{},act=s.activity||{},rec=s.recovery||{},latest=b.latest?.values||{},hist=s.historicalTrend||[],p=s.profile||{};
+  const current=w.at(-1)?.v??null,first=firstWeightGoal(),second=secondWeightGoal();
+  const reached=(target,stage)=>target!=null&&((stage===1&&profile().pesoObjetivo1AlcanzadoValor===target&&profile().pesoObjetivo1AlcanzadoFecha&&profile().pesoObjetivo1AlcanzadoFecha<=s.period.end)||w.some(r=>r.v<=target));
+  const goalStatus=(target,stage)=>target==null?'Sin definir':reached(target,stage)?'Conseguido':current==null?'Sin medición':val(Math.max(0,current-target),' kg')+' hasta meta';
+  start('Evolución corporal');para((p.name?p.name+' | ':'')+'Consulta de seguimiento · '+date(today()),10,muted);para('Período analizado: '+date(s.period.start)+' – '+date(s.period.end)+' ('+s.period.days+' días).');
+  table(['PESO','GRASA BIA','CINTURA','META ACTIVA'],[[signed(change(w),' kg'),signed(change(f),' puntos'),signed(change(c),' cm'),val(second??first,' kg')],[ends(w,' kg'),ends(f,' %'),ends(c,' cm'),goalStatus(second??first,second!=null?2:1)]],[.25,.25,.25,.25]);
+  sub('Tendencias de las mediciones');trends();para('Eje temporal proporcional a las fechas de registro. BIA: estimación orientativa.',8.5,muted);
+  table(['Fecha','Peso (kg)','Grasa BIA (%)','Cintura (cm)','Músculo BIA (%)'],weights.length?weights.map(r=>[date(r.fecha),fmt(r.peso),fmt(r.grasa),fmt(r.cintura),fmt(r.musculoPct)]):[['Sin registros','—','—','—','—']],[.20,.19,.21,.19,.21]);
+  sub('Última evaluación');para('IMC: '+fmt(latest.imc)+' · Grasa visceral BIA: '+fmt(latest.visceral,0)+' · Grasa estimada: '+val(latest.grasaKg,' kg')+' · Peso muscular informado: '+val(latest.pesoMuscular,' kg')+'.');para('Ritmo medio entre mediciones: '+signed(b.weeklyWeightChangeKg,' kg/semana')+'. La BIA depende de hidratación, comida, hora y entrenamiento.',9,muted);
+  para('Etapa 1: '+val(first,' kg')+' — '+goalStatus(first,1)+'. Etapa 2: '+val(second,' kg')+' — '+goalStatus(second,2)+'.');
+  start('Alimentación registrada');para((nt.loggedDays||0)+' días con registros. Los promedios describen lo anotado, no necesariamente toda la ingesta. Pueden existir días parciales.');sub('Promedios diarios y objetivos guardados');
+  table(['Indicador','Media registrada','Objetivo guardado'],[['Energía',val(nt.averageCalories,' kcal',0),val(g.calories,' kcal',0)],['Proteína',val(nt.averageProteinG,' g'),val(g.protein,' g',0)],['Hidratos',val(nt.averageCarbsG,' g'),'—'],['Grasas',val(nt.averageFatG,' g'),'—'],['Fibra',val(nt.averageFiberG,' g'),'—'],['Azúcares totales',val(nt.averageSugarsG,' g'),'—'],['Azúcares libres',val(nt.averageFreeSugarsG,' g'),'—']],[.35,.33,.32]);
+  para('Días dentro del margen energético del Coach (±15%): '+(nt.calorieAdherenceDays||0)+'/'+(nt.loggedDays||0)+'. Días con al menos el 93% de la meta proteica: '+(nt.proteinHitDays||0)+'/'+(nt.loggedDays||0)+'. Azúcares libres: solo registros con dato disponible.',9,muted);
+  sub('Evolución mensual');table(['Mes / período','Días','kcal/día','Proteína/día'],hist.length?hist.map(r=>[r.period,r.foodDays,fmt(r.avgCalories,0),val(r.avgProtein,' g')]):[['Sin registros','0','—','—']],[.34,.16,.25,.25]);
+  sub('Ejemplos recientes');const days=(nt.recentDays||[]).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(-3);table(['Fecha','Energía','Proteína','Alimentos registrados'],days.length?days.map(r=>[short(r.fecha),val(r.kcal,' kcal',0),val(r.prot,' g',0),(r.items||[]).map(i=>i.description).join('; ').slice(0,160)||'—']):[['—','—','—','Sin registros']],[.13,.19,.17,.51]);
+  para('Para consulta: revisar la suficiencia de energía, proteína y fibra, y la representatividad de los registros.',9,muted);
+  start('Entrenamiento y recuperación');para((act.workouts||0)+' sesiones registradas · '+val(act.averageWorkoutsPerWeek,' sesiones/semana')+'.');sub('Sesiones por mes / período');
+  const bars=hist.slice(-18);if(bars.length){ensure(140);const top=y+5,base=top+90,ww=contentW/bars.length,max=Math.max(1,...bars.map(r=>r.sessions||0));bars.forEach((r,i)=>{const x=M+i*ww+ww*.18,h=(r.sessions||0)/max*70;rect(x,base-h,ww*.64,Math.max(h,.5),teal);text(x+ww*.32,base-h-5,String(r.sessions||0),8,false,navy,'center');text(x+ww*.32,base+12,r.period.slice(0,7),bars.length>10?6:8,false,muted,'center')});y+=120;}else para('Sin sesiones registradas.');
+  sub('Últimas sesiones');table(['Fecha','Sesión','Duración'],sessions.length?sessions.slice(-5).map(r=>[date(r.fecha),r.nombre,val(r.duration,' min',0)]):[['—','Sin sesiones','—']],[.21,.59,.20]);
+  const exercises=[...new Set((s.recentExerciseRows||[]).map(r=>r.ejercicio).filter(Boolean))];sub('Ejercicios registrados');para(exercises.slice(-18).join(', ')||'Sin detalle de ejercicios.');para('Ejercicios con registros comparables según el Coach: '+(s.strength?.trackedExercises||0)+'. Los cambios de carga y repeticiones requieren registros consistentes.',9,muted);
+  sub('Actividad diaria y descanso');table(['Indicador','Registro'],[['Pasos ('+(act.stepDays||0)+' días)',val(act.averageSteps,' pasos/día',0)],['Objetivo de pasos',val(g.stepsPerDay,' pasos/día',0)],['Sueño ('+(rec.sleepLoggedDays||0)+' días)',val(rec.averageSleepHours,' horas/día')],['Agua ('+(rec.waterLoggedDays||0)+' días)',val(rec.averageWaterMl,' ml/día',0)]],[.50,.50]);
+  start('Prioridades para la consulta');para('Objetivo personal guardado: '+(g.declaredLabel||'No indicado')+'. Meta de peso activa: '+val(second??first,' kg')+'.');sub('Resumen para el profesional');para('Peso: '+ends(w,' kg')+'; grasa BIA: '+ends(f,' %')+'; cintura: '+ends(c,' cm')+'. Sesiones: '+(act.workouts||0)+'. En '+(nt.loggedDays||0)+' días con alimentación registrada, la media fue de '+val(nt.averageCalories,' kcal',0)+', '+val(nt.averageProteinG,' g de proteína')+' y '+val(nt.averageFiberG,' g de fibra')+'.');
+  sub('Preguntas para resolver');['¿Es adecuada la ingesta registrada para mi objetivo y actividad?','¿Qué objetivo de proteína recomienda para mi peso y entrenamiento?','¿Cómo mejorar la fibra y la calidad de la alimentación?','¿Conviene mantener el peso o continuar hacia la siguiente etapa?','¿Cómo distribuir la alimentación alrededor del entrenamiento?','¿Qué controles de salud y recuperación recomienda?'].forEach((q,i)=>para(String(i+1).padStart(2,'0')+'. '+q));
+  sub('Aspectos a valorar con el profesional');para('Revisar la evolución corporal, la calidad de los registros, el rendimiento y el descanso antes de ajustar las metas. Este informe automático no constituye una pauta nutricional prescrita.',10,muted);sub('Notas de la consulta');for(let i=0;i<5;i++){ensure(24);line(M,y+12,W-M,y+12,linec);y+=24;}
+  const total=pages.length;pages.forEach((pg,i)=>{page=pg;line(M,H-32,W-M,H-32,teal,.7);text(M,H-18,'Micro Health · Coach 360º | Datos hasta '+date(s.period.end),8,false,muted);text(W-M,H-18,String(i+1)+' / '+total,8,false,muted,'right')});
+    const objects=[];const pageIds=[],contentIds=[];for(let i=0;i<pages.length;i++){pageIds.push(5+i*2);contentIds.push(6+i*2)}
+  objects[1]='<< /Type /Catalog /Pages 2 0 R >>';objects[2]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] /Count ${pages.length} >>`;objects[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';objects[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  pages.forEach((pg,i)=>{const stream=pg.ops.join('');objects[pageIds[i]]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n(W)} ${n(H)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentIds[i]} 0 R >>`;objects[contentIds[i]]=`<< /Length ${stream.length} >>\nstream\n${stream}endstream`});
+  let out='%PDF-1.4\n%âãÏÓ\n',offsets=[0];const maxId=objects.length-1;for(let id=1;id<=maxId;id++){offsets[id]=out.length;out+=`${id} 0 obj\n${objects[id]}\nendobj\n`}const xref=out.length;out+=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`;for(let id=1;id<=maxId;id++)out+=String(offsets[id]).padStart(10,'0')+' 00000 n \n';out+=`trailer\n<< /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return bytes;
+
+}
+function mh169ExportConsultation(){
+  const status=document.getElementById('mh169PdfStatus');
+  try{const range=mh36SelectedRange(),s=buildCoachSnapshot(28,range),weights=(db.peso||[]).filter(r=>r.fecha>=range.start&&r.fecha<=range.end&&Number(r.peso)>0).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));const sessions=coachWorkoutSessionsBetween(range.start,range.end).map(r=>{const raw=r.sessionId?(db.rutinaSesiones||[]).find(x=>x.sessionId===r.sessionId):r.recordIndex!=null?db.entreno[r.recordIndex]:null;return {...r,duration:Number(raw?.duracionTotal||raw?.duracion||raw?.minutos)||null}});const bytes=mh169ConsultationPdf(s,weights,sessions),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MicroHealth_Informe_Consulta_'+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);status.textContent='Informe generado. Si se abre en el iPhone, usa Compartir para guardarlo en Archivos.';}catch(e){console.error(e);status.textContent='No se pudo generar el informe: '+(e?.message||e)}
+}
+function mh169AllRange(){const dates=[...(db.peso||[]).map(r=>r.fecha),...(db.entreno||[]).map(r=>r.fecha),...(db.rutinaSesiones||[]).map(r=>r.fecha),...Object.keys(db.meals||{}).map(k=>k.match(/\d{4}-\d{2}-\d{2}/)?.[0]),...Object.keys(db.stepsDaily||{}),...Object.keys(db.sleepDaily||{}),...Object.keys(db.waterDaily||{})].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')&&d<=today()).sort();return {start:dates[0]||today(),end:today()};}
+
 function exportCoachPdf(mode='last'){
   const status=document.getElementById('coachPdfStatus');
   try{
@@ -7928,6 +8095,7 @@ function mh36PeriodChanged(){
 }
 function mh36SelectedRange(){
   const mode=document.getElementById('mh36Period')?.value||'28';
+  if(mode==='all')return mh169AllRange();
   if(mode!=='custom'){
     const days=Number(mode)||28;
     return {start:isoDaysAgo(days-1),end:today()};
@@ -8405,20 +8573,25 @@ function renderHomeMockupExtras(){
     const left=document.getElementById('homeWeightGoalLeft');
 
     if(target!=null){
-      if(goalValue)goalValue.textContent=String(target).replace('.',',')+' kg';
-      const denom=Math.max(.1,Math.abs(start-target));
-      const travelled=Math.abs(start-current);
-      const pct=Math.max(0,Math.min(100,travelled/denom*100));
+      const firstGoal=firstWeightGoal(), secondGoal=secondWeightGoal();
+      const isSecond=secondGoal!=null;
+      const baseline=isSecond?firstGoal:start;
+      const downward=isSecond?secondGoal<firstGoal:true;
+      const achieved=downward?current<=target:current>=target;
+      if(goalValue)goalValue.textContent=mh168Kg(target);
+      const denom=Math.abs(baseline-target);
+      const pct=achieved?100:(denom>0.001?Math.max(0,Math.min(100,((current-baseline)/(target-baseline))*100)):0);
       if(bar)bar.style.width=pct+'%';
       if(left){
-        const remaining=Math.abs(current-target);
-        left.textContent=remaining<=0.5?'Objetivo prácticamente alcanzado':`Faltan ${remaining.toFixed(1).replace('.',',')} kg`;
+        if(achieved)left.textContent=isSecond?'✓ Segunda etapa conseguida':'✓ Primer objetivo conseguido';
+        else left.textContent=`Faltan ${mh168Kg(Math.abs(current-target))} para la ${isSecond?'2.ª':'1.ª'} etapa`;
       }
     }else{
       if(goalValue)goalValue.textContent='Sin definir';
       if(bar)bar.style.width='0%';
       if(left)left.textContent='Puedes definirlo en Datos → Perfil';
     }
+    mh168RenderWeightStages(current,last.fecha);
 
     const weekCut=addIsoDays(last.fecha,-7);
     const weekRef=rows.filter(x=>x.fecha<=weekCut).at(-1) || rows[Math.max(0,rows.length-2)];
@@ -8453,6 +8626,7 @@ function renderHomeMockupExtras(){
     const left=document.getElementById('homeWeightGoalLeft');
     if(left)left.textContent='Añade tu primer peso para ver el progreso';
     const bar=document.getElementById('homeWeightGoalBar'); if(bar)bar.style.width='0%';
+    mh168RenderWeightStages(NaN,null);
   }
 
   const d=today();
@@ -18195,10 +18369,12 @@ function renderCustomEvolution(){
 
 
 function renderTargets(){
- let last=db.peso.at(-1);if(!last)return;let rate=Math.max(.2,Math.min(1,Number(document.getElementById('rate').value)||.6));
+ const rateInput=document.getElementById('rate'),projection=document.getElementById('proyeccion');
+ if(!rateInput || !projection)return;
+ let last=db.peso.at(-1);if(!last)return;let rate=Math.max(.2,Math.min(1,Number(rateInput.value)||.6));
  let lean= last.masaMagra || (last.grasa!=null ? last.peso*(1-last.grasa/100) : 70.8);
  let targets=[22,20,18].map(g=>{let w=lean/(1-g/100),kg=last.peso-w,weeks=Math.max(0,kg/rate);let d=new Date(last.fecha);d.setDate(d.getDate()+Math.round(weeks*7));return {g,w,kg,weeks,d:d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}});
- proyeccion.innerHTML='<table><tr><th>Grasa</th><th>Peso</th><th>Faltan</th><th>Horizonte</th></tr>'+targets.map(x=>`<tr><td>${x.g}%</td><td>${x.w.toFixed(1)} kg</td><td>${x.kg.toFixed(1)} kg</td><td>~${Math.round(x.weeks)} sem · ${x.d}</td></tr>`).join('')+'</table>'
+ projection.innerHTML='<table><tr><th>Grasa</th><th>Peso</th><th>Faltan</th><th>Horizonte</th></tr>'+targets.map(x=>`<tr><td>${x.g}%</td><td>${x.w.toFixed(1)} kg</td><td>${x.kg.toFixed(1)} kg</td><td>~${Math.round(x.weeks)} sem · ${x.d}</td></tr>`).join('')+'</table>'
 }
 
 
@@ -20949,6 +21125,7 @@ window.mh23TrainingJump=function(destination){
 #mh25-medication .mh35-subsection[open]>summary{margin-bottom:12px}
 </style>
 <!-- MicroHealth v22.3.167: tomas olvidadas y cierre de avisos -->
+<!-- MicroHealth v22.3.169: peso en dos etapas y sin hábitos en Mi día -->
 <script id="mh25-medication-script">
 (function(){
 'use strict';
