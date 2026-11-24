@@ -3812,7 +3812,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #mh91-daily-manage.mh148-daily-collapse>summary:focus-visible{outline:2px solid #267c65;outline-offset:3px;border-radius:6px}
 </style>
 <style id="mh168-weight-stages-style">
-/* v22.3.169 — peso por etapas; hábitos ocultos únicamente en Mi día */
+/* v22.3.170 — peso por etapas; hábitos ocultos únicamente en Mi día */
 #miDia #mh23-day-habits{display:none!important}
 #miDia .mh168-weight-stages{display:grid;gap:5px;margin-top:10px;font-size:11px;line-height:1.4}
 #miDia .mh168-stage-row{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;flex-wrap:wrap}
@@ -8019,10 +8019,10 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   function sub(v){ensure(42);y+=10;text(M,y,v,15,true,teal);y+=17}
   function table(headers,rows,widths){const xs=[M];widths.forEach(w=>xs.push(xs.at(-1)+w*contentW));function row(cells,head,i){const lines=cells.map((v,j)=>wrap(v,xs[j+1]-xs[j]-14,9));const h=Math.max(23,Math.max(...lines.map(l=>l.length))*12+9);if(!head&&y+h>H-52){newPage(heading,true);row(headers,true,0)}rect(M,y,contentW,h,head?navy:i%2===0?light:null);lines.forEach((ls,j)=>ls.forEach((l,k)=>text(xs[j]+7,y+14+k*12,l,9,head,head?[1,1,1]:navy)));y+=h;}ensure(50);row(headers,true,0);rows.forEach((r,i)=>row(r,false,i));y+=8;}
   function series(key){return weights.map(r=>({date:r.fecha,v:num(r[key])})).filter(r=>r.v!=null&&r.v>0)}
-  const w=series('peso'),f=series('grasa'),c=series('cintura');
+  const w=series('peso'),f=series('grasa'),c=series('cintura'),gp=series('grasaPerimetros');
   const change=a=>a.length>1?a.at(-1).v-a[0].v:null;
   const ends=(a,u)=>a.length?val(a[0].v,u)+' → '+val(a.at(-1).v,u):'Sin registros';
-  function trends(){ensure(125);const top=y+10,bottom=y+88,cw=contentW/3;[[w,'Peso',' kg'],[f,'Grasa BIA',' %'],[c,'Cintura',' cm']].forEach(([a,label,u],i)=>{const x=M+i*cw+8,ww=cw-20;text(x,top,label,10,true,teal);if(!a.length){text(x,top+30,'Sin datos',9,false,muted);return}const min=Math.min(...a.map(r=>r.v)),max=Math.max(...a.map(r=>r.v)),span=max-min||1;const t0=Date.parse(a[0].date),dt=Date.parse(a.at(-1).date)-t0||1;const pts=a.map(r=>[x+5+(Date.parse(r.date)-t0)/dt*(ww-10),bottom-10-(r.v-min)/span*44]);for(let j=0;j<3;j++)line(x,top+22+j*23,x+ww,top+22+j*23,linec);pts.forEach(([xx,yy],j)=>{if(j)line(...pts[j-1],xx,yy,teal,1.8);rect(xx-2,yy-2,4,4,teal)});text(x,top+17,val(a[0].v,u),8,false,navy);text(x+ww,bottom+4,val(a.at(-1).v,u),8,false,navy,'right');text(x,bottom+17,short(a[0].date),8,false,muted);text(x+ww,bottom+17,short(a.at(-1).date),8,false,muted,'right')});y+=120;}
+  function trends(){ensure(245);const cw=contentW/2;[[w,'Peso',' kg'],[f,'Grasa BIA',' %'],[c,'Cintura',' cm'],[gp,'Grasa por perímetros',' %']].forEach(([a,label,u],i)=>{const top=y+10+Math.floor(i/2)*120,bottom=top+78,x=M+(i%2)*cw+8,ww=cw-20;text(x,top,label,10,true,teal);if(!a.length){text(x,top+30,'Sin datos',9,false,muted);return}const min=Math.min(...a.map(r=>r.v)),max=Math.max(...a.map(r=>r.v)),span=max-min||1;const t0=Date.parse(a[0].date),dt=Date.parse(a.at(-1).date)-t0||1;const pts=a.map(r=>[x+5+(Date.parse(r.date)-t0)/dt*(ww-10),bottom-10-(r.v-min)/span*44]);for(let j=0;j<3;j++)line(x,top+22+j*23,x+ww,top+22+j*23,linec);pts.forEach(([xx,yy],j)=>{if(j)line(...pts[j-1],xx,yy,teal,1.8);rect(xx-2,yy-2,4,4,teal)});text(x,top+17,val(a[0].v,u),8,false,navy);text(x+ww,bottom+4,val(a.at(-1).v,u),8,false,navy,'right');text(x,bottom+17,short(a[0].date),8,false,muted);text(x+ww,bottom+17,short(a.at(-1).date),8,false,muted,'right')});y+=240;}
   const g=s.goal||{},b=s.body||{},nt=s.nutrition||{},act=s.activity||{},rec=s.recovery||{},latest=b.latest?.values||{},hist=s.historicalTrend||[],p=s.profile||{};
   const current=w.at(-1)?.v??null,first=firstWeightGoal(),second=secondWeightGoal();
   const reached=(target,stage)=>target!=null&&((stage===1&&profile().pesoObjetivo1AlcanzadoValor===target&&profile().pesoObjetivo1AlcanzadoFecha&&profile().pesoObjetivo1AlcanzadoFecha<=s.period.end)||w.some(r=>r.v<=target));
@@ -8033,6 +8033,24 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   table(['Fecha','Peso (kg)','Grasa BIA (%)','Cintura (cm)','Músculo BIA (%)'],weights.length?weights.map(r=>[date(r.fecha),fmt(r.peso),fmt(r.grasa),fmt(r.cintura),fmt(r.musculoPct)]):[['Sin registros','—','—','—','—']],[.20,.19,.21,.19,.21]);
   sub('Última evaluación');para('IMC: '+fmt(latest.imc)+' · Grasa visceral BIA: '+fmt(latest.visceral,0)+' · Grasa estimada: '+val(latest.grasaKg,' kg')+' · Peso muscular informado: '+val(latest.pesoMuscular,' kg')+'.');para('Ritmo medio entre mediciones: '+signed(b.weeklyWeightChangeKg,' kg/semana')+'. La BIA depende de hidratación, comida, hora y entrenamiento.',9,muted);
   para('Etapa 1: '+val(first,' kg')+' — '+goalStatus(first,1)+'. Etapa 2: '+val(second,' kg')+' — '+goalStatus(second,2)+'.');
+  newPage('Evolución corporal: detalle');
+  sub('Comparación de todos los indicadores');
+  const metricGroups=[
+    ['Composición corporal',['peso','imc','grasa','grasaKg','musculoPct','pesoMuscular','masaMagra']],
+    ['Otros indicadores de la báscula',['humedad','masaOsea','bmr','proteinaPct','proteinaKg','edadCuerpo','visceral','grasaSubcutanea']],
+    ['Perímetros y estimación antropométrica',['cintura','cuello','cadera','grasaPerimetros']]
+  ];
+  const meta=k=>({...BODY_EVOLUTION_METRICS[k],label:({grasa:'Grasa corporal BIA',grasaKg:'Grasa corporal (masa)',musculoPct:'Músculo BIA',visceral:'Grasa visceral (índice)',bmr:'Metabolismo basal (BMR)'})[k]||BODY_EVOLUTION_METRICS[k].label});
+  const mv=(v,k)=>{const m=meta(k);return val(v,m.unit?' '+m.unit:'',m.dec)};
+  const ms=k=>weights.map(r=>({date:r.fecha,v:num(r[k])})).filter(r=>r.v!=null);
+  const groups=metricGroups.flatMap(x=>x[1]);
+  table(['Indicador','Primera medición','Última medición','Variación'],groups.map(k=>{const a=ms(k),m=meta(k),lo=a[0],hi=a.at(-1),d=change(a);return [m.label,lo?mv(lo.v,k)+' ('+date(lo.date)+')':'—',hi?mv(hi.v,k)+' ('+date(hi.date)+')':'—',d==null?'—':(d>0?'+':'')+fmt(d,m.dec)+(m.unit==='%'?' pp':m.unit?' '+m.unit:'')]}),[.34,.25,.25,.16]);
+  para('Primera y última medición disponible de cada indicador dentro del período. pp = puntos porcentuales. Un guion indica dato no registrado o variación no calculable. Las estimaciones BIA y por perímetros son métodos distintos y no son directamente intercambiables.',9,muted);
+  newPage('Evolución corporal: histórico');
+  para('Todas las mediciones del período, agrupadas para facilitar la lectura. Se muestran los valores guardados, sin rellenar datos ausentes.',9,muted);
+  for(const [label,keys] of metricGroups){
+    for(let i=0;i<keys.length;i+=4){const ks=keys.slice(i,i+4);sub(label+(i?' (cont.)':''));const rows=weights.length?weights.map(r=>[date(r.fecha),...ks.map(k=>mv(r[k],k))]):[['Sin registros',...ks.map(()=> '—')]];table(['Fecha',...ks.map(k=>meta(k).label)],rows,[.20,...ks.map(()=>.80/ks.length)]);}
+  }
   start('Alimentación registrada');para((nt.loggedDays||0)+' días con registros. Los promedios describen lo anotado, no necesariamente toda la ingesta. Pueden existir días parciales.');sub('Promedios diarios y objetivos guardados');
   table(['Indicador','Media registrada','Objetivo guardado'],[['Energía',val(nt.averageCalories,' kcal',0),val(g.calories,' kcal',0)],['Proteína',val(nt.averageProteinG,' g'),val(g.protein,' g',0)],['Hidratos',val(nt.averageCarbsG,' g'),'—'],['Grasas',val(nt.averageFatG,' g'),'—'],['Fibra',val(nt.averageFiberG,' g'),'—'],['Azúcares totales',val(nt.averageSugarsG,' g'),'—'],['Azúcares libres',val(nt.averageFreeSugarsG,' g'),'—']],[.35,.33,.32]);
   para('Días dentro del margen energético del Coach (±15%): '+(nt.calorieAdherenceDays||0)+'/'+(nt.loggedDays||0)+'. Días con al menos el 93% de la meta proteica: '+(nt.proteinHitDays||0)+'/'+(nt.loggedDays||0)+'. Azúcares libres: solo registros con dato disponible.',9,muted);
@@ -8057,7 +8075,7 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
 }
 function mh169ExportConsultation(){
   const status=document.getElementById('mh169PdfStatus');
-  try{const range=mh36SelectedRange(),s=buildCoachSnapshot(28,range),weights=(db.peso||[]).filter(r=>r.fecha>=range.start&&r.fecha<=range.end&&Number(r.peso)>0).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));const sessions=coachWorkoutSessionsBetween(range.start,range.end).map(r=>{const raw=r.sessionId?(db.rutinaSesiones||[]).find(x=>x.sessionId===r.sessionId):r.recordIndex!=null?db.entreno[r.recordIndex]:null;return {...r,duration:Number(raw?.duracionTotal||raw?.duracion||raw?.minutos)||null}});const bytes=mh169ConsultationPdf(s,weights,sessions),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MicroHealth_Informe_Consulta_'+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);status.textContent='Informe generado. Si se abre en el iPhone, usa Compartir para guardarlo en Archivos.';}catch(e){console.error(e);status.textContent='No se pudo generar el informe: '+(e?.message||e)}
+  try{const range=mh36SelectedRange(),s=buildCoachSnapshot(28,range),weights=(db.peso||[]).filter(r=>r.fecha>=range.start&&r.fecha<=range.end&&Object.keys(BODY_EVOLUTION_METRICS).some(k=>k!=='distancia'&&r[k]!=null&&r[k]!==''&&Number.isFinite(Number(r[k])))).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));const sessions=coachWorkoutSessionsBetween(range.start,range.end).map(r=>{const raw=r.sessionId?(db.rutinaSesiones||[]).find(x=>x.sessionId===r.sessionId):r.recordIndex!=null?db.entreno[r.recordIndex]:null;return {...r,duration:Number(raw?.duracionTotal||raw?.duracion||raw?.minutos)||null}});const bytes=mh169ConsultationPdf(s,weights,sessions),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MicroHealth_Informe_Consulta_'+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);status.textContent='Informe generado. Si se abre en el iPhone, usa Compartir para guardarlo en Archivos.';}catch(e){console.error(e);status.textContent='No se pudo generar el informe: '+(e?.message||e)}
 }
 function mh169AllRange(){const dates=[...(db.peso||[]).map(r=>r.fecha),...(db.entreno||[]).map(r=>r.fecha),...(db.rutinaSesiones||[]).map(r=>r.fecha),...Object.keys(db.meals||{}).map(k=>k.match(/\d{4}-\d{2}-\d{2}/)?.[0]),...Object.keys(db.stepsDaily||{}),...Object.keys(db.sleepDaily||{}),...Object.keys(db.waterDaily||{})].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')&&d<=today()).sort();return {start:dates[0]||today(),end:today()};}
 
@@ -21125,7 +21143,7 @@ window.mh23TrainingJump=function(destination){
 #mh25-medication .mh35-subsection[open]>summary{margin-bottom:12px}
 </style>
 <!-- MicroHealth v22.3.167: tomas olvidadas y cierre de avisos -->
-<!-- MicroHealth v22.3.169: peso en dos etapas y sin hábitos en Mi día -->
+<!-- MicroHealth v22.3.170: peso en dos etapas y sin hábitos en Mi día -->
 <script id="mh25-medication-script">
 (function(){
 'use strict';
