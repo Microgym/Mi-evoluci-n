@@ -3812,7 +3812,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #mh91-daily-manage.mh148-daily-collapse>summary:focus-visible{outline:2px solid #267c65;outline-offset:3px;border-radius:6px}
 </style>
 <style id="mh168-weight-stages-style">
-/* v22.3.170 — peso por etapas; hábitos ocultos únicamente en Mi día */
+/* v22.3.171 — peso por etapas; hábitos ocultos únicamente en Mi día */
 #miDia #mh23-day-habits{display:none!important}
 #miDia .mh168-weight-stages{display:grid;gap:5px;margin-top:10px;font-size:11px;line-height:1.4}
 #miDia .mh168-stage-row{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;flex-wrap:wrap}
@@ -5082,16 +5082,31 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #asistente .mh39-nutrition p{line-height:1.45}
 </style>
 <section id="asistente" class="mock-page">
-  <div class="mock-page-title"><h2>Coach 360º</h2><p>Tu coach de salud, nutrición y entrenamiento con IA</p></div>
-
-  <div class="mock-panel assistant-hero">
-    <div class="assistant-hero-grid">
-      <div class="assistant-bot" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="11" y="18" width="42" height="31" rx="14"></rect><path d="M32 18V10"></path><circle cx="32" cy="8" r="3"></circle><path d="M21 32c2-4 6-4 8 0"></path><path d="M35 32c2-4 6-4 8 0"></path><path d="M27 42c3 2 7 2 10 0"></path></svg></div>
-      <div><h3>¿En qué quieres que te ayude hoy?</h3><p>Puedo conversar contigo usando peso, nutrición, pasos, entrenamientos, rutinas y gimnasios guardados.</p></div>
+  <div class="mock-page-title"><h2>Coach 360º</h2><p>Evolución, informes y ayuda personalizada</p></div>
+<div class="mock-panel assistant-analysis">
+    <h3 style="margin:0 0 10px">1. Mi evolución</h3>
+    
+    <div class="mh36-period">
+      <label for="mh36Period">Período de evaluación</label>
+      <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="all">Desde el inicio</option><option value="custom">Elegir fechas</option></select>
+      <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start" onchange="renderCoachLocalSummary()"></label><label>Hasta <input type="date" id="mh36End" onchange="renderCoachLocalSummary()"></label></div>
     </div>
+    <div id="coachLocalSummary" class="coach-summary"></div>
   </div>
-
-  <div class="mock-panel assistant-chat-panel">
+  <div class="mock-panel" id="mh171Reports"><h3 style="margin:0 0 6px">2. Informes PDF</h3><p class="muted">Usan las fechas elegidas arriba. No necesitan IA.</p><label for="mh171ReportKind">Tipo de informe</label><select id="mh171ReportKind" onchange="mh171ReportChanged()"><option value="consult">Consulta · resumen visual</option><option value="detail">Consulta · con histórico completo</option><option value="sport">Evolución técnica · fuerza y gráficos detallados</option></select><div id="mh171ReportHelp" class="muted" style="margin:8px 0">Incluye los 19 indicadores, gráficas, alimentación, entrenamiento y preguntas para consulta.</div><button type="button" class="primary" style="width:100%" onclick="mh171ExportReport()">Generar PDF</button><div id="mh169PdfStatus" role="status" class="muted" style="margin-top:8px"></div></div>
+  <div class="mock-panel assistant-analysis"><h3 style="margin:0 0 6px">3. Evaluación con IA</h3><p class="muted">Interpretación del período y propuestas personalizadas. Usa tu conexión de IA.</p><div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">Analizar con el Coach</button></div><details class="mh36-more"><summary>Exportar evaluación guardada</summary><p id="mh171SavedEvaluation" class="muted"></p><button type="button" onclick="exportCoachPdf('evaluation')">PDF de la última evaluación IA</button><div id="mh171EvalStatus" class="muted" role="status"></div></details>
+    
+    <div id="coachStatus" class="muted" style="margin-top:8px"></div>
+    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Mi objetivo (elegido por mí)</small><b id="mh38DeclaredGoal">—</b></div><div class="coach-decision"><small>Estrategia sugerida (Coach)</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><p class="mh38-coach-note">Tu objetivo lo decides tú. La estrategia es una propuesta del Coach, no cambia automáticamente calorías, proteínas ni rutinas.</p><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
+    <details id="mh39NutritionPanel" class="mh36-more mh39-nutrition">
+      <summary>🥗 Mi recomendación nutricional</summary>
+      <p class="muted">Estimaciones orientativas según tu objetivo, evolución y registros del período elegido. Nunca se aplican solas.</p>
+      <div id="mh39NutritionContent" aria-live="polite">Pulsa «Analizar período» para preparar la recomendación.</div>
+      <div class="mh39-apply-actions"><button type="button" id="mh39ApplyTargets" onclick="mh39ApplyTargets()" hidden>Aplicar calorías y proteínas recomendadas</button><span id="mh39ApplyStatus" class="muted"></span></div>
+    </details>
+    <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
+  </div>
+<details class="mock-panel mh171-chat" id="mh171Chat"><summary style="font-size:1.12rem;font-weight:800;cursor:pointer">4. Hablar con mi Coach</summary><div class="assistant-chat-panel" style="margin-top:12px">
     <div class="assistant-chat-head">
       <div><h3>Habla con tu Coach</h3><small>Responde usando tus datos actuales de Micro Health</small></div>
       <details class="mh36-more"><summary>Opciones del chat</summary><div class="coach-pdf-actions"><button type="button" onclick="exportCoachPdf('last')">PDF última consulta</button><button type="button" onclick="exportCoachPdf('conversation')">PDF conversación</button><button type="button" class="set-add" onclick="clearAssistantChat()">Limpiar chat</button></div></details>
@@ -5123,28 +5138,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
     <details class="mh151-chat-range" style="margin:8px 0;padding:9px 11px;border:1px solid #d6e7e5;border-radius:12px"><summary style="cursor:pointer;font-weight:700">📅 Elegir fechas para el chat (opcional)</summary><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:end"><label style="flex:1;min-width:125px">Desde <input type="date" id="assistantRangeStart" style="width:100%"></label><label style="flex:1;min-width:125px">Hasta <input type="date" id="assistantRangeEnd" style="width:100%"></label><button type="button" class="secondary" onclick="mh151ClearChatDates()">Quitar fechas</button></div><small>Las fechas elegidas se aplican a las siguientes preguntas. Si las dejas vacías, puedes escribir «desde agosto» o «del 1 de agosto al 31 de octubre».</small></details>
     <div id="assistantChatStatus" class="assistant-chat-status"></div><div id="coachPdfStatus" class="coach-pdf-status"></div>
     <div class="assistant-context-note">Cada pregunta usa un contexto compacto del periodo que estás consultando para responder con tus datos sin gastar tokens innecesarios. El chat se guarda solo en este dispositivo dentro de los datos de Micro Health.</div>
-  </div>
-
-  <div class="mock-panel assistant-analysis">
-    <div class="assistant-chatlike"><div class="assistant-avatar"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 0 1 8 0v5a4 4 0 0 1-8 0Z"></path><path d="M12 5V3"></path><circle cx="12" cy="2.5" r="1"></circle></svg></div><div class="assistant-bubble">Evalúa tu evolución en el período que elijas.</div></div>
-    <div id="coachLocalSummary" class="coach-summary"></div>
-    <div class="mh36-period">
-      <label for="mh36Period">Período de evaluación</label>
-      <select id="mh36Period" onchange="mh36PeriodChanged()"><option value="28">Últimas 4 semanas</option><option value="7">Últimos 7 días</option><option value="90">Últimos 3 meses</option><option value="all">Desde el inicio</option><option value="custom">Elegir fechas</option></select>
-      <div id="mh36Dates" class="mh36-dates" hidden><label>Desde <input type="date" id="mh36Start" onchange="renderCoachLocalSummary()"></label><label>Hasta <input type="date" id="mh36End" onchange="renderCoachLocalSummary()"></label></div>
-    </div>
-    <div class="coach-actions"><button type="button" class="primary" onclick="runCoachAnalysis('week')">✨ Analizar período</button><button type="button" onclick="exportCoachPdf('evaluation')">PDF evaluación</button></div>
-    <div style="margin:12px 0"><button type="button" class="primary" onclick="mh169ExportConsultation()">PDF informe para consulta</button><div id="mh169PdfStatus" role="status" class="muted" style="margin-top:6px">Informe visual del período seleccionado, sin necesidad de consultar al Coach.</div></div>
-    <div id="coachStatus" class="muted" style="margin-top:8px"></div>
-    <div id="coachResult" class="coach-result"><div class="coach-decision-grid"><div class="coach-decision"><small>Mi objetivo (elegido por mí)</small><b id="mh38DeclaredGoal">—</b></div><div class="coach-decision"><small>Estrategia sugerida (Coach)</small><b id="coachStrategyDecision">—</b></div><div class="coach-decision"><small>Calorías</small><b id="coachCalorieDecision">—</b></div><div class="coach-decision"><small>Proteína</small><b id="coachProteinDecision">—</b></div><div class="coach-decision"><small>Entrenamientos</small><b id="coachWorkoutDecision">—</b></div></div><p class="mh38-coach-note">Tu objetivo lo decides tú. La estrategia es una propuesta del Coach, no cambia automáticamente calorías, proteínas ni rutinas.</p><div class="coach-section"><h3>Resumen de mi situación</h3><div id="coachSituation"></div></div><details class="mh36-result-details"><summary>Ver análisis completo</summary><div class="coach-section"><h3>Estrategia recomendada</h3><div id="coachStrategyRationale">El Coach contrastará tu objetivo declarado con tus tendencias antes de recomendar una fase.</div></div><div class="coach-section"><h3>Nutrición</h3><div id="coachNutrition"></div></div><div class="coach-section"><h3>Entrenamiento</h3><div id="coachTraining"></div></div><div class="coach-section"><h3>Recuperación y actividad</h3><div id="coachRecovery">Se valorarán sueño, agua, pasos, actividad y balance energético cuando haya datos.</div></div><div class="coach-section"><h3>Prioridades</h3><div id="coachPriorities" class="coach-priority-list"></div></div><div class="coach-section"><h3>Próxima semana</h3><div id="coachNext"></div></div></details></div>
-    <details id="mh39NutritionPanel" class="mh36-more mh39-nutrition">
-      <summary>🥗 Mi recomendación nutricional</summary>
-      <p class="muted">Estimaciones orientativas según tu objetivo, evolución y registros del período elegido. Nunca se aplican solas.</p>
-      <div id="mh39NutritionContent" aria-live="polite">Pulsa «Analizar período» para preparar la recomendación.</div>
-      <div class="mh39-apply-actions"><button type="button" id="mh39ApplyTargets" onclick="mh39ApplyTargets()" hidden>Aplicar calorías y proteínas recomendadas</button><span id="mh39ApplyStatus" class="muted"></span></div>
-    </details>
-    <div class="coach-note">Orientación general basada en tus registros. No sustituye atención médica ni nutricional profesional.</div>
-  </div>
+  </div></details>
 </section>
 
 <section id="datos" class="mock-page">
@@ -5152,26 +5146,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg></span><div><h3>Perfil</h3><p>Tu información personal</p></div></div><button class="mock-panel-link" type="button" onclick="document.getElementById('profileEdit')?.toggleAttribute('open')">Editar ›</button></div><div class="profile-photo-panel"><div class="profile-photo-preview"><img id="profilePhotoPreview" alt="Foto de perfil" hidden><svg id="profilePhotoFallback" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"/></svg></div><div class="profile-photo-controls"><b>Mi foto de perfil</b><small>Se guarda únicamente en este dispositivo. Puedes cambiarla o quitarla cuando quieras.</small><div class="profile-photo-buttons"><label class="profile-photo-upload" for="profilePhotoFile">Elegir foto</label><input id="profilePhotoFile" type="file" accept="image/*" style="display:none" onchange="saveProfilePhoto(event)"><button type="button" class="secondary" onclick="removeProfilePhoto()">Eliminar foto</button></div><small id="profilePhotoStatus" role="status"></small></div></div><div id="dataProfileSummary" class="data-summary-grid"></div><details id="profileEdit" class="data-edit-details"><summary>Editar perfil y objetivos</summary><div class="data-edit-body"><div class="row"><div><label>Nombre</label><input id="profileName" placeholder="Tu nombre"></div><div><label>Edad</label><input id="profileAge" type="number" min="12" max="100" placeholder="Edad"></div></div><div class="row"><div><label>Sexo</label><select id="profileSex"><option value="">Prefiero no indicarlo</option><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option><option value="Otro">Otro</option></select></div><div><label>Altura (cm)</label><input id="profileHeight" type="number" min="120" max="230" placeholder="Ej. 184"></div></div><div class="row"><div><label>Primer objetivo de peso (kg) <span class="onboard-optional">se conserva</span></label><input id="profileWeightGoal" type="number" min="30" max="300" step="0.1" placeholder="Ej. 88,5"></div><div><label>Objetivo kcal/día <span class="onboard-optional">opcional</span></label><input id="profileKcal" type="number" min="800" max="6000" step="50" placeholder="Sin definir"></div></div><div class="row"><div><label>Segundo objetivo de peso (kg) <span class="onboard-optional">nueva etapa</span></label><input id="profileWeightGoal2" type="number" min="30" max="300" step="0.1" placeholder="Ej. 85"><small>El primer objetivo permanece guardado como hito.</small></div></div><div class="row"><div><label>Objetivo proteína (g/día) <span class="onboard-optional">opcional</span></label><input id="profileProtein" type="number" min="20" max="400" step="5" placeholder="Sin definir"></div></div><div class="row"><div><label>Objetivo hidratos (g/día)</label><input id="profileCarbs" type="number" min="0" max="1500" step="1" placeholder="Sin definir"></div><div><label>Objetivo fibra (g/día)</label><input id="profileFiber" type="number" min="0" max="200" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Límite de azúcares totales (g/día)</label><input id="profileSugars" type="number" min="0" max="500" step="1" placeholder="Sin definir"></div></div><div class="row"><div><label>Entrenamientos/semana <span class="onboard-optional">opcional</span></label><input id="profileStrengthDays" type="number" min="0" max="14" placeholder="Sin definir"></div></div><div class="row"><div><label>Pasos/día <span class="onboard-optional">opcional</span></label><input id="profileSteps" type="number" min="0" step="500" placeholder="Sin definir"></div><div><label>Objetivo principal</label><select id="profileCoachGoal"><option value="coach">Que el Coach me proponga</option><option value="definir">Definir / perder grasa</option><option value="recomposicion">Recomposición corporal</option><option value="musculo">Ganar músculo</option><option value="mantener">Mantener</option></select></div></div><details class="data-edit-details" style="margin:10px 0"><summary>Preferencias para el Coach y las dietas</summary><div class="data-edit-body"><div class="row"><div><label>Comidas habituales al día</label><input id="profileMealsPerDay" type="number" min="1" max="8" step="1" placeholder="Ej. 4"></div><div><label>Tipo de alimentación <span class="onboard-optional">opcional</span></label><input id="profileDietStyle" placeholder="Ej. omnívora, vegetariana..."></div></div><div class="row"><div><label>Alimentos que me gustan / quiero priorizar</label><textarea id="profileFoodLikes" rows="3" placeholder="Ej. pollo, arroz, yogur, fruta..."></textarea></div><div><label>Alimentos que no me gustan / quiero evitar</label><textarea id="profileFoodAvoid" rows="3" placeholder="Preferencias, no alergias"></textarea></div></div><div><label>Alergias o intolerancias</label><textarea id="profileFoodRestrictions" rows="2" placeholder="Se tratarán como restricciones estrictas"></textarea></div></div></details><button class="primary" onclick="saveProfileFromForm()">Guardar perfil y objetivos</button><div id="profileSummary"></div></div></details></div>
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3"></path><path d="M19 12h3"></path></svg></span><div><h3>Objetivos diarios</h3><p>Tus objetivos personalizados</p></div></div></div><div id="dataGoalsSummary" class="data-goals3"></div></div>
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M3 10v4"></path><path d="M6 8v8"></path><path d="M18 8v8"></path><path d="M21 10v4"></path><path d="M6 12h12"></path></svg></span><div><h3>Objetivo semanal de entrenamientos</h3><p>Mantén la constancia</p></div></div></div><div class="week-goal-head"><div><div class="metric-small" id="dataWorkoutGoalText">—</div><div class="muted" id="dataWorkoutGoalSub">—</div></div><div class="week-goal-pct" id="dataWorkoutGoalPct">—</div></div><div class="week-goal-progress"><div id="dataWorkoutGoalBar"></div></div></div>
-  <div class="mock-panel pdf-report-card">
-    <div class="mock-panel-head">
-      <div class="mock-panel-title">
-        <span class="mock-icon blue"><svg viewBox="0 0 24 24"><path d="M6 2h9l4 4v16H6z"></path><path d="M15 2v5h5"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></span>
-        <div><h3>Informe PDF de evolución</h3><p>Resumen visual de salud, nutrición y entrenamiento entre dos fechas</p></div>
-      </div>
-    </div>
-    <div class="pdf-report-grid">
-      <div><label>Desde</label><input id="pdfReportFrom" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa"></div>
-      <div><label>Hasta</label><input id="pdfReportTo" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="dd/mm/aaaa"></div>
-    </div>
-    <div class="pdf-report-chips">
-      <button type="button" onclick="setPdfReportRange(30)">Últimos 30 días</button>
-      <button type="button" onclick="setPdfReportRange(90)">Últimos 90 días</button>
-      <button type="button" onclick="setPdfReportRange('all')">Todo el historial</button>
-    </div>
-    <div class="pdf-report-actions"><button type="button" class="primary" onclick="generateEvolutionPdf()">Generar PDF completo</button></div>
-    <div class="pdf-report-note">El PDF incluye resumen del periodo, gráficos de evolución corporal con los umbrales de referencia de tu báscula, nutrición media, frecuencia de entrenamiento, evolución de fuerza, distribución muscular y próximos hitos. No incluye el detalle de cada entrenamiento.</div>
-    <div id="pdfReportStatus" class="pdf-report-status"></div>
-  </div>
+  <div class="mock-panel"><h3>Informes de evolución</h3><p class="muted">Todos los informes de salud, nutrición y entrenamiento están centralizados en Coach 360º.</p><button type="button" onclick="mh171OpenReports()">Ir a informes ›</button><div hidden><input id="pdfReportFrom"><input id="pdfReportTo"><div id="pdfReportStatus"></div></div></div>
   <div class="mock-panel"><div class="mock-panel-head"><div class="mock-panel-title"><span class="mock-icon"><svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 0 1 .5-8A6 6 0 0 1 19 11a3 3 0 0 1-1 6H7Z"></path></svg></span><div><h3>Sincronización y copias de seguridad</h3><p>Gestiona tus datos</p></div></div></div>
 <details class="mh40-backup-panel" id="mh40BackupPanel">
   <summary>🛡️ Copia de seguridad completa (incluye fotos y documentos)</summary>
@@ -7051,6 +7026,7 @@ function formatCoachNum(v,digits=0,suffix=''){
 function renderCoachLocalSummary(range=null){
   const host=document.getElementById('coachLocalSummary');
   if(!host)return;
+  mh171SavedEvaluation();
   if(!range){try{range=mh36SelectedRange();}catch(e){range=null;}}
   const s=buildCoachSnapshot(28,range);
   const target=s.goal.workoutsPerWeek;
@@ -7066,13 +7042,13 @@ function renderCoachLocalSummary(range=null){
   const declared=profile()?.objetivoCoach||'coach';
   const guidance=coachGoalGuidance(declared);
   host.innerHTML=`
-    <div class="coach-local-section mh37-goal-focus">
-      <h3>🎯 Objetivo actual: ${guidance.focus}</h3>
+    <details class="coach-local-section mh37-goal-focus">
+      <summary><b>🎯 Objetivo actual: ${guidance.focus}</b></summary>
       <p><b>Alimentación:</b> ${guidance.nutrition}</p>
       <p><b>Entrenamiento:</b> ${guidance.training}</p>
       <p><b>En la evaluación:</b> ${guidance.evaluation}</p>
       <small>Orientación general. Cambiar el objetivo no modifica automáticamente tus calorías, proteínas, rutinas ni registros.</small>
-    </div>
+    </details>
     <div class="coach-local-section">
       <h3>Tendencia corporal · ${fechaES(s.period.start)} a ${fechaES(s.period.end)}</h3>
       <div class="kpiLine"><span>Peso · ritmo semanal</span><b>${formatCoachNum(w,2,' kg/sem')}</b></div>
@@ -7170,6 +7146,7 @@ function coachRoutineHidePanel(){
   document.getElementById('coachRoutineImportPanel').style.display='none';
 }
 function coachRoutineFocusPanel(){
+  document.getElementById('mh171Chat')?.setAttribute('open','');
   const panel=document.getElementById('coachRoutineImportPanel');
   if(panel){panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});}
 }
@@ -7570,6 +7547,7 @@ function clearAssistantChat(){
   if(status)status.textContent='';
 }
 function askAssistantQuick(text){
+  document.getElementById('mh171Chat')?.setAttribute('open','');
   const input=document.getElementById('assistantChatInput');
   if(input)input.value=text;
   sendAssistantMessage();
@@ -7786,6 +7764,7 @@ function assistantMetricCardHtml(card){
 }
 
 async function sendAssistantMessage(){
+  document.getElementById('mh171Chat')?.setAttribute('open','');
   const input=document.getElementById('assistantChatInput');
   const send=document.getElementById('assistantChatSend');
   const status=document.getElementById('assistantChatStatus');
@@ -7990,7 +7969,7 @@ function mhPdfBuildCoachDocument(doc){
   let out='%PDF-1.4\n%âãÏÓ\n',offsets=[0];const maxId=objects.length-1;for(let id=1;id<=maxId;id++){offsets[id]=out.length;out+=`${id} 0 obj\n${objects[id]}\nendobj\n`}const xref=out.length;out+=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`;for(let id=1;id<=maxId;id++)out+=String(offsets[id]).padStart(10,'0')+' 00000 n \n';out+=`trailer\n<< /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return bytes;
 }
-function mh169ConsultationPdf(s,weights,sessions,meals){
+function mh169ConsultationPdf(s,weights,sessions,meals,includeHistory=false){
   const W=595.28,H=841.89,M=36,contentW=W-M*2;
   const navy=[.08,.22,.25],teal=[.09,.47,.49],muted=[.32,.40,.42],light=[.91,.95,.95],linec=[.83,.89,.89];
   const pages=[];let page=null,y=0,heading='',sectionNo=0;
@@ -8030,8 +8009,7 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   start('Evolución corporal');para((p.name?p.name+' | ':'')+'Consulta de seguimiento · '+date(today()),10,muted);para('Período analizado: '+date(s.period.start)+' – '+date(s.period.end)+' ('+s.period.days+' días).');
   table(['PESO','GRASA BIA','CINTURA','META ACTIVA'],[[signed(change(w),' kg'),signed(change(f),' puntos'),signed(change(c),' cm'),val(second??first,' kg')],[ends(w,' kg'),ends(f,' %'),ends(c,' cm'),goalStatus(second??first,second!=null?2:1)]],[.25,.25,.25,.25]);
   sub('Tendencias de las mediciones');trends();para('Eje temporal proporcional a las fechas de registro. BIA: estimación orientativa.',8.5,muted);
-  table(['Fecha','Peso (kg)','Grasa BIA (%)','Cintura (cm)','Músculo BIA (%)'],weights.length?weights.map(r=>[date(r.fecha),fmt(r.peso),fmt(r.grasa),fmt(r.cintura),fmt(r.musculoPct)]):[['Sin registros','—','—','—','—']],[.20,.19,.21,.19,.21]);
-  sub('Última evaluación');para('IMC: '+fmt(latest.imc)+' · Grasa visceral BIA: '+fmt(latest.visceral,0)+' · Grasa estimada: '+val(latest.grasaKg,' kg')+' · Peso muscular informado: '+val(latest.pesoMuscular,' kg')+'.');para('Ritmo medio entre mediciones: '+signed(b.weeklyWeightChangeKg,' kg/semana')+'. La BIA depende de hidratación, comida, hora y entrenamiento.',9,muted);
+  para('Ritmo medio entre mediciones: '+signed(b.weeklyWeightChangeKg,' kg/semana')+'. La BIA depende de hidratación, comida, hora y entrenamiento.',9,muted);
   para('Etapa 1: '+val(first,' kg')+' — '+goalStatus(first,1)+'. Etapa 2: '+val(second,' kg')+' — '+goalStatus(second,2)+'.');
   newPage('Evolución corporal: detalle');
   sub('Comparación de todos los indicadores');
@@ -8046,11 +8024,6 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   const groups=metricGroups.flatMap(x=>x[1]);
   table(['Indicador','Primera medición','Última medición','Variación'],groups.map(k=>{const a=ms(k),m=meta(k),lo=a[0],hi=a.at(-1),d=change(a);return [m.label,lo?mv(lo.v,k)+' ('+date(lo.date)+')':'—',hi?mv(hi.v,k)+' ('+date(hi.date)+')':'—',d==null?'—':(d>0?'+':'')+fmt(d,m.dec)+(m.unit==='%'?' pp':m.unit?' '+m.unit:'')]}),[.34,.25,.25,.16]);
   para('Primera y última medición disponible de cada indicador dentro del período. pp = puntos porcentuales. Un guion indica dato no registrado o variación no calculable. Las estimaciones BIA y por perímetros son métodos distintos y no son directamente intercambiables.',9,muted);
-  newPage('Evolución corporal: histórico');
-  para('Todas las mediciones del período, agrupadas para facilitar la lectura. Se muestran los valores guardados, sin rellenar datos ausentes.',9,muted);
-  for(const [label,keys] of metricGroups){
-    for(let i=0;i<keys.length;i+=4){const ks=keys.slice(i,i+4);sub(label+(i?' (cont.)':''));const rows=weights.length?weights.map(r=>[date(r.fecha),...ks.map(k=>mv(r[k],k))]):[['Sin registros',...ks.map(()=> '—')]];table(['Fecha',...ks.map(k=>meta(k).label)],rows,[.20,...ks.map(()=>.80/ks.length)]);}
-  }
   start('Alimentación registrada');para((nt.loggedDays||0)+' días con registros. Los promedios describen lo anotado, no necesariamente toda la ingesta. Pueden existir días parciales.');sub('Promedios diarios y objetivos guardados');
   table(['Indicador','Media registrada','Objetivo guardado'],[['Energía',val(nt.averageCalories,' kcal',0),val(g.calories,' kcal',0)],['Proteína',val(nt.averageProteinG,' g'),val(g.protein,' g',0)],['Hidratos',val(nt.averageCarbsG,' g'),'—'],['Grasas',val(nt.averageFatG,' g'),'—'],['Fibra',val(nt.averageFiberG,' g'),'—'],['Azúcares totales',val(nt.averageSugarsG,' g'),'—'],['Azúcares libres',val(nt.averageFreeSugarsG,' g'),'—']],[.35,.33,.32]);
   para('Días dentro del margen energético del Coach (±15%): '+(nt.calorieAdherenceDays||0)+'/'+(nt.loggedDays||0)+'. Días con al menos el 93% de la meta proteica: '+(nt.proteinHitDays||0)+'/'+(nt.loggedDays||0)+'. Azúcares libres: solo registros con dato disponible.',9,muted);
@@ -8062,9 +8035,16 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   sub('Últimas sesiones');table(['Fecha','Sesión','Duración'],sessions.length?sessions.slice(-5).map(r=>[date(r.fecha),r.nombre,val(r.duration,' min',0)]):[['—','Sin sesiones','—']],[.21,.59,.20]);
   const exercises=[...new Set((s.recentExerciseRows||[]).map(r=>r.ejercicio).filter(Boolean))];sub('Ejercicios registrados');para(exercises.slice(-18).join(', ')||'Sin detalle de ejercicios.');para('Ejercicios con registros comparables según el Coach: '+(s.strength?.trackedExercises||0)+'. Los cambios de carga y repeticiones requieren registros consistentes.',9,muted);
   sub('Actividad diaria y descanso');table(['Indicador','Registro'],[['Pasos ('+(act.stepDays||0)+' días)',val(act.averageSteps,' pasos/día',0)],['Objetivo de pasos',val(g.stepsPerDay,' pasos/día',0)],['Sueño ('+(rec.sleepLoggedDays||0)+' días)',val(rec.averageSleepHours,' horas/día')],['Agua ('+(rec.waterLoggedDays||0)+' días)',val(rec.averageWaterMl,' ml/día',0)]],[.50,.50]);
-  start('Prioridades para la consulta');para('Objetivo personal guardado: '+(g.declaredLabel||'No indicado')+'. Meta de peso activa: '+val(second??first,' kg')+'.');sub('Resumen para el profesional');para('Peso: '+ends(w,' kg')+'; grasa BIA: '+ends(f,' %')+'; cintura: '+ends(c,' cm')+'. Sesiones: '+(act.workouts||0)+'. En '+(nt.loggedDays||0)+' días con alimentación registrada, la media fue de '+val(nt.averageCalories,' kcal',0)+', '+val(nt.averageProteinG,' g de proteína')+' y '+val(nt.averageFiberG,' g de fibra')+'.');
+  start('Prioridades para la consulta');para('Objetivo personal guardado: '+(g.declaredLabel||'No indicado')+'. Meta de peso activa: '+val(second??first,' kg')+'.');sub('Contexto para el profesional');para('Los cambios corporales, la alimentación registrada y la actividad se detallan en los apartados anteriores. Valorar las tendencias junto con la calidad de los registros.');
   sub('Preguntas para resolver');['¿Es adecuada la ingesta registrada para mi objetivo y actividad?','¿Qué objetivo de proteína recomienda para mi peso y entrenamiento?','¿Cómo mejorar la fibra y la calidad de la alimentación?','¿Conviene mantener el peso o continuar hacia la siguiente etapa?','¿Cómo distribuir la alimentación alrededor del entrenamiento?','¿Qué controles de salud y recuperación recomienda?'].forEach((q,i)=>para(String(i+1).padStart(2,'0')+'. '+q));
   sub('Aspectos a valorar con el profesional');para('Revisar la evolución corporal, la calidad de los registros, el rendimiento y el descanso antes de ajustar las metas. Este informe automático no constituye una pauta nutricional prescrita.',10,muted);sub('Notas de la consulta');for(let i=0;i<5;i++){ensure(24);line(M,y+12,W-M,y+12,linec);y+=24;}
+  if(includeHistory){
+  newPage('Evolución corporal: histórico');
+  para('Todas las mediciones del período, agrupadas para facilitar la lectura. Se muestran los valores guardados, sin rellenar datos ausentes.',9,muted);
+  for(const [label,keys] of metricGroups){
+    for(let i=0;i<keys.length;i+=4){const ks=keys.slice(i,i+4);sub(label+(i?' (cont.)':''));const rows=weights.length?weights.map(r=>[date(r.fecha),...ks.map(k=>mv(r[k],k))]):[['Sin registros',...ks.map(()=> '—')]];table(['Fecha',...ks.map(k=>meta(k).label)],rows,[.20,...ks.map(()=>.80/ks.length)]);}
+  }
+  }
   const total=pages.length;pages.forEach((pg,i)=>{page=pg;line(M,H-32,W-M,H-32,teal,.7);text(M,H-18,'Micro Health · Coach 360º | Datos hasta '+date(s.period.end),8,false,muted);text(W-M,H-18,String(i+1)+' / '+total,8,false,muted,'right')});
     const objects=[];const pageIds=[],contentIds=[];for(let i=0;i<pages.length;i++){pageIds.push(5+i*2);contentIds.push(6+i*2)}
   objects[1]='<< /Type /Catalog /Pages 2 0 R >>';objects[2]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] /Count ${pages.length} >>`;objects[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';objects[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
@@ -8073,19 +8053,38 @@ function mh169ConsultationPdf(s,weights,sessions,meals){
   const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return bytes;
 
 }
-function mh169ExportConsultation(){
+function mh169ExportConsultation(includeHistory=false){
   const status=document.getElementById('mh169PdfStatus');
-  try{const range=mh36SelectedRange(),s=buildCoachSnapshot(28,range),weights=(db.peso||[]).filter(r=>r.fecha>=range.start&&r.fecha<=range.end&&Object.keys(BODY_EVOLUTION_METRICS).some(k=>k!=='distancia'&&r[k]!=null&&r[k]!==''&&Number.isFinite(Number(r[k])))).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));const sessions=coachWorkoutSessionsBetween(range.start,range.end).map(r=>{const raw=r.sessionId?(db.rutinaSesiones||[]).find(x=>x.sessionId===r.sessionId):r.recordIndex!=null?db.entreno[r.recordIndex]:null;return {...r,duration:Number(raw?.duracionTotal||raw?.duracion||raw?.minutos)||null}});const bytes=mh169ConsultationPdf(s,weights,sessions),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MicroHealth_Informe_Consulta_'+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);status.textContent='Informe generado. Si se abre en el iPhone, usa Compartir para guardarlo en Archivos.';}catch(e){console.error(e);status.textContent='No se pudo generar el informe: '+(e?.message||e)}
+  try{const range=mh36SelectedRange(),s=buildCoachSnapshot(28,range),weights=(db.peso||[]).filter(r=>r.fecha>=range.start&&r.fecha<=range.end&&Object.keys(BODY_EVOLUTION_METRICS).some(k=>k!=='distancia'&&r[k]!=null&&r[k]!==''&&Number.isFinite(Number(r[k])))).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));const sessions=coachWorkoutSessionsBetween(range.start,range.end).map(r=>{const raw=r.sessionId?(db.rutinaSesiones||[]).find(x=>x.sessionId===r.sessionId):r.recordIndex!=null?db.entreno[r.recordIndex]:null;return {...r,duration:Number(raw?.duracionTotal||raw?.duracion||raw?.minutos)||null}});const bytes=mh169ConsultationPdf(s,weights,sessions,null,includeHistory),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MicroHealth_Informe_Consulta_'+(includeHistory?'Historico_':'')+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);status.textContent='Informe generado. Si se abre en el iPhone, usa Compartir para guardarlo en Archivos.';}catch(e){console.error(e);status.textContent='No se pudo generar el informe: '+(e?.message||e)}
 }
+
+function mh171ReportChanged(){
+  const k=document.getElementById('mh171ReportKind')?.value;
+  const h=document.getElementById('mh171ReportHelp');
+  if(h)h.textContent=({consult:'Incluye los 19 indicadores, gráficas, alimentación, entrenamiento y preguntas para consulta.',detail:'El mismo resumen de consulta, con un anexo de todas las mediciones por fechas.',sport:'Gráficas con referencias corporales, progresión de fuerza, distribución muscular y próximos hitos.'})[k]||'';
+  const st=document.getElementById('mh169PdfStatus');if(st)st.textContent='';
+}
+function mh171ExportReport(){
+  const status=document.getElementById('mh169PdfStatus');
+  try{
+    const range=mh36SelectedRange(),k=document.getElementById('mh171ReportKind')?.value;
+    if(k!=='sport')return mh169ExportConsultation(k==='detail');
+    const report=collectEvolutionPdfReport(range.start,range.end),bytes=mhPdfBuildReport(report),url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),a=document.createElement('a');
+    a.href=url;a.download='MicroHealth_Evolucion_Tecnica_'+range.start+'_'+range.end+'.pdf';a.target='_blank';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);
+    status.textContent='Informe generado. En iPhone, usa Compartir para guardarlo en Archivos.';
+  }catch(e){console.error(e);if(status)status.textContent='No se pudo generar el informe: '+(e?.message||e);}
+}
+function mh171OpenReports(){document.querySelector('button[data-sec="asistente"]')?.click();document.getElementById('mh171Reports')?.scrollIntoView({block:'start'});}
+function mh171SavedEvaluation(){const node=document.getElementById('mh171SavedEvaluation'),ev=db.lastCoachEvaluation;if(node)node.textContent=ev?.result?'Evaluación guardada: '+(ev.period?.start||'fecha no guardada')+' – '+(ev.period?.end||'fecha no guardada')+'. El PDF exporta esta evaluación, no necesariamente las fechas seleccionadas arriba.':'No hay evaluación de IA guardada. Primero pulsa Analizar con el Coach.';}
 function mh169AllRange(){const dates=[...(db.peso||[]).map(r=>r.fecha),...(db.entreno||[]).map(r=>r.fecha),...(db.rutinaSesiones||[]).map(r=>r.fecha),...Object.keys(db.meals||{}).map(k=>k.match(/\d{4}-\d{2}-\d{2}/)?.[0]),...Object.keys(db.stepsDaily||{}),...Object.keys(db.sleepDaily||{}),...Object.keys(db.waterDaily||{})].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')&&d<=today()).sort();return {start:dates[0]||today(),end:today()};}
 
 function exportCoachPdf(mode='last'){
-  const status=document.getElementById('coachPdfStatus');
+  const status=document.getElementById(mode==='evaluation'?'mh171EvalStatus':'coachPdfStatus');
   try{
     const p=profile()||{};let doc=null,stamp=Date.now();
     if(mode==='evaluation'){
       const ev=db.lastCoachEvaluation;
-      if(!ev?.result){throw new Error('Primero genera una evaluación con “Analizar últimas 4 semanas”.')}
+      if(!ev?.result){throw new Error('Primero genera una evaluación con “Analizar con el Coach”.')}
       stamp=Number(ev.createdAt)||Date.now();
       doc={type:'evaluation',title:'Evaluación Coach 360º',subtitle:'Valoración estructurada de estrategia, nutrición, entrenamiento y recuperación.',headerRight:'Evaluación',consultedAt:coachPdfDateTime(stamp),dataThrough:coachPdfDataDate(ev.dataThrough),profileName:p.nombre||'',declaredGoalLabel:coachGoalLabel(p.objetivoCoach||'coach'),result:ev.result};
     }else{
@@ -8162,6 +8161,7 @@ async function runCoachAnalysis(focus='week'){
 
     const out=data.result||{};
     db.lastCoachEvaluation={createdAt:Date.now(),dataThrough:snapshot.generatedForDate||today(),period:snapshot.period||null,result:out};
+    mh171SavedEvaluation();
     localStorage.setItem(KEY,JSON.stringify(db));
     document.getElementById('coachSituation').innerHTML=safeCoachText(out.situation||'Sin valoración.');
     document.getElementById('coachNutrition').innerHTML=safeCoachText(out.nutrition||'Sin recomendación.');
@@ -21143,7 +21143,7 @@ window.mh23TrainingJump=function(destination){
 #mh25-medication .mh35-subsection[open]>summary{margin-bottom:12px}
 </style>
 <!-- MicroHealth v22.3.167: tomas olvidadas y cierre de avisos -->
-<!-- MicroHealth v22.3.170: peso en dos etapas y sin hábitos en Mi día -->
+<!-- MicroHealth v22.3.171: peso en dos etapas y sin hábitos en Mi día -->
 <script id="mh25-medication-script">
 (function(){
 'use strict';
