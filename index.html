@@ -3812,7 +3812,7 @@ details.active-routine-item.routine-focus-open .routine-validation-actions butto
 #mh91-daily-manage.mh148-daily-collapse>summary:focus-visible{outline:2px solid #267c65;outline-offset:3px;border-radius:6px}
 </style>
 <style id="mh168-weight-stages-style">
-/* v22.3.172 — peso por etapas; hábitos ocultos únicamente en Mi día */
+/* v22.3.173 — peso por etapas; hábitos ocultos únicamente en Mi día */
 #miDia #mh23-day-habits{display:none!important}
 #miDia .mh168-weight-stages{display:grid;gap:5px;margin-top:10px;font-size:11px;line-height:1.4}
 #miDia .mh168-stage-row{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;flex-wrap:wrap}
@@ -6652,23 +6652,11 @@ function coachWorkoutSessionsBetween(start,end){
   return rows;
 }
 function coachMealRowsBetween(start,end){
-  const rows=[];
-  MEALS.forEach(m=>{
-    for(let d=new Date(start+'T12:00:00'),last=new Date(end+'T12:00:00');d<=last;d.setDate(d.getDate()+1)){
-      const iso=d.toISOString().slice(0,10);
-      const meal=getMeal(iso,m.key);
-      if(meal && (String(meal.desc||'').trim() || Number(meal.kcal)>0 || Number(meal.prot)>0)){
-        const free=mealFreeSugarsValue(meal);
-        rows.push({
-          fecha:iso,tipo:m.key,hora:String(meal.hora||''),desc:String(meal.desc||'').slice(0,240),
-          kcal:Number(meal.kcal)||0,prot:Number(meal.prot)||0,carbs:Number(meal.carbs)||0,
-          sugars:Number(meal.sugars)||0,freeSugars:free==null?null:Number(free)||0,
-          fat:Number(meal.fat)||0,fiber:Number(meal.fiber)||0
-        });
-      }
-    }
-  });
-  return rows;
+  return Object.values(db.meals||{}).filter(meal=>meal&&meal.fecha>=start&&meal.fecha<=end&&(String(meal.desc||'').trim()||Number(meal.kcal)>0||Number(meal.prot)>0)).map(meal=>({
+    fecha:meal.fecha,tipo:meal.tipo,hora:String(meal.hora||''),desc:String(meal.desc||'').slice(0,240),
+    kcal:Number(meal.kcal)||0,prot:Number(meal.prot)||0,carbs:Number(meal.carbs)||0,sugars:Number(meal.sugars)||0,
+    freeSugars:mealFreeSugarsValue(meal),fat:Number(meal.fat)||0,fiber:Number(meal.fiber)||0
+  })).sort((a,b)=>(a.fecha+' '+a.hora).localeCompare(b.fecha+' '+b.hora));
 }
 
 function avgNums(arr){
@@ -8694,8 +8682,8 @@ function changeDayReviewDate(delta){
 
 function dayReviewMealRows(dateIso){
   const rows=[];
-  MEALS.forEach(def=>{
-    const m=getMeal(dateIso,def.key);
+  foodMealsForDate(dateIso).forEach(m=>{
+    const def=MEALS.find(x=>x.key===m.tipo)||{key:m.tipo,label:m.tipo,time:''};
     const has=String(m?.desc||'').trim() || Number(m?.kcal)>0 || Number(m?.prot)>0 ||
       (Array.isArray(m?.dishes)&&m.dishes.some(d=>String(d?.text||'').trim()||Number(d?.kcal)>0||Number(d?.prot)>0));
     if(!has)return;
@@ -9720,7 +9708,8 @@ function resetDailyWater(){
   saveDailyWater();
 }
 
-function mealKey(fecha,tipo){return fecha+'__'+tipo}
+function mealKey(fecha,tipo){return (typeof mealEditorState!=='undefined' && mealEditorState.open && mealEditorState.key && mealEditorState.fecha===fecha && mealEditorState.tipo===tipo)?mealEditorState.key:fecha+'__'+tipo}
+function mh173NewMealKey(fecha,tipo){return fecha+'__'+tipo+'__'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10)}
 function getMeal(fecha,tipo){
   const key=mealKey(fecha,tipo);
   return db.meals[key] || {fecha,tipo,hora:(MEALS.find(m=>m.key===tipo)||{}).time||'',desc:'',kcal:0,prot:0};
@@ -11019,7 +11008,7 @@ async function analyzeMealDish(tipo,id,mode='ai'){
     const macroText=`${resultKcal} kcal · ${resultProt} g proteína${mode==='local'?'':` · ${resultCarbs} g hidratos · ${resultSugars} g azúcares totales · ${resultFreeSugars==null?'libres no determinados':resultFreeSugars+' g libres'} · ${resultFat} g grasas · ${resultFiber} g fibra`}`;
     setDishStatus(tipo,id,(mode==='local'?'Calculado en local ✓ · ':'Analizado con IA ✓ · ')+macroText,'ok');
 
-    const vals=MEALS.map(m=>getMeal(fecha,m.key));
+    const vals=foodMealsForDate(fecha);
     const totalKcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
     const totalProt=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
     if(document.getElementById('mealTotalKcal'))mealTotalKcal.textContent=`${Math.round(totalKcal)} / 1.800`;
@@ -11381,7 +11370,7 @@ function startMealRegistration(tipo=null,fecha=today()){
   const now=localMealNow();
   // La propuesta automática solo afecta al botón de registro; el usuario puede cambiarla.
   tipo=tipo||mealTypeForLocalTime(now);
-  mealEditorState={open:true,editing:false,tipo,fecha,hora:now};
+  mealEditorState={open:true,editing:false,tipo,fecha,hora:now,key:mh173NewMealKey(fecha,tipo)};
   const shell=document.getElementById('mealEditorShell');
   if(shell)shell.classList.add('show');
   const editorCard=document.getElementById('foodEditorCard'); if(editorCard)editorCard.style.display='block';
@@ -11407,9 +11396,10 @@ function startMealRegistration(tipo=null,fecha=today()){
   setTimeout(()=>shell?.scrollIntoView({behavior:'smooth',block:'start'}),20);
 }
 
-function editRegisteredMeal(fecha,tipo){
-  const m=getMeal(fecha,tipo);
-  mealEditorState={open:true,editing:true,tipo,fecha,hora:m.hora||defaultMealTime(tipo)};
+function editRegisteredMeal(fecha,tipo,key){
+  key=key||fecha+'__'+tipo;
+  const m=db.meals[key]; if(!m)return;
+  mealEditorState={open:true,editing:true,tipo,fecha,hora:m.hora||defaultMealTime(tipo),key};
   const shell=document.getElementById('mealEditorShell');
   if(shell)shell.classList.add('show');
   const editorCard=document.getElementById('foodEditorCard'); if(editorCard)editorCard.style.display='block';
@@ -11430,48 +11420,19 @@ function closeMealRegistration(){
   const editorCard=document.getElementById('foodEditorCard'); if(editorCard)editorCard.style.display='none';
 }
 
-function mealEditorDateChanged(){
-  const d=isoFromES(document.getElementById('mealEditorDate')?.value)||today();
-  const tipo=document.getElementById('mealEditorType')?.value||'comida';
-  const existing=getMeal(d,tipo);
-  mealEditorState.fecha=d;
-  mealEditorState.tipo=tipo;
-  mealEditorState.hora=existing.hora||defaultMealTime(tipo);
-  const timeEl=document.getElementById('mealEditorTime');
-  if(timeEl)timeEl.value=mealEditorState.hora;
-  renderMealEditor();
+function mh173PreserveMealInputs(){
+  if(!mealEditorState.open)return;
+  const c=document.getElementById('cFecha'); if(c)c.value=fechaES(mealEditorState.fecha);
+  mealFromDishInputs(mealEditorState.tipo,true);
 }
-
-// Si el usuario cambia la hora, actualizamos el tipo propuesto sin modificar las comidas guardadas.
+function mealEditorDateChanged(){mh173PreserveMealInputs();renderMealEditor();}
 function mealEditorTimeChanged(){
-  const timeEl=document.getElementById('mealEditorTime');
-  const typeEl=document.getElementById('mealEditorType');
-  if(!timeEl || !typeEl || !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeEl.value))return;
-  const nuevoTipo=mealTypeForLocalTime(timeEl.value);
-  mealEditorState.hora=timeEl.value;
-  if(typeEl.value!==nuevoTipo){
-    typeEl.value=nuevoTipo;
-    mealEditorState.tipo=nuevoTipo;
-    // Actualiza el encabezado y los campos del nuevo tipo como al cambiarlo manualmente.
-    renderMealEditor();
-  }else{
-    const hiddenHora=document.getElementById('hora_'+nuevoTipo);
-    if(hiddenHora)hiddenHora.value=timeEl.value;
-  }
-}
-
-function mealEditorTypeChanged(){
-  const tipo=document.getElementById('mealEditorType')?.value||'comida';
-  const d=isoFromES(document.getElementById('mealEditorDate')?.value)||today();
-  mealEditorState.tipo=tipo;
-  mealEditorState.fecha=d;
-  const m=getMeal(d,tipo);
-  const t=document.getElementById('mealEditorTime')?.value||m.hora||defaultMealTime(tipo);
+  const t=document.getElementById('mealEditorTime')?.value;
+  if(!t)return;
   mealEditorState.hora=t;
-  const timeEl=document.getElementById('mealEditorTime');
-  if(timeEl)timeEl.value=t;
-  renderMealEditor();
+  const h=document.getElementById('hora_'+mealEditorState.tipo);if(h)h.value=t;
 }
+function mealEditorTypeChanged(){mh173PreserveMealInputs();renderMealEditor();}
 
 function syncMealEditorInputs(tipo){
   const dateEl=document.getElementById('mealEditorDate');
@@ -11490,6 +11451,7 @@ function renderMealEditor(){
   const fecha=isoFromES(document.getElementById('mealEditorDate')?.value)||mealEditorState.fecha||today();
   const time=document.getElementById('mealEditorTime')?.value||defaultMealTime(tipo);
   mealEditorState={...mealEditorState,tipo,fecha,hora:time};
+  const cFecha=document.getElementById('cFecha');if(cFecha)cFecha.value=fechaES(fecha);
 
   const key=mealKey(fecha,tipo);
   let cur=getMeal(fecha,tipo);
@@ -11503,6 +11465,7 @@ function renderMealEditor(){
   const heading=document.getElementById('mealEditorHeading');
   if(heading)heading.textContent=(mealEditorState.editing?'Modificar ':'Registrar ')+((MEALS.find(m=>m.key===tipo)||{}).label||tipo);
 
+  if(mealCards)mealCards.querySelectorAll('input').forEach(el=>{if(['hora_','desc_','kcal_','prot_'].some(prefix=>el.id===prefix+tipo))el.remove();});
   host.innerHTML=`
     <div class="meal-dishes">
       ${dishes.map((d,idx)=>renderMealDishCard(tipo,d,idx,dishes.length)).join('')}
@@ -11551,7 +11514,10 @@ function saveMealEditor(){
   meal.fecha=fecha;
   meal.tipo=tipo;
   meal.hora=time;
-  db.meals[mealKey(fecha,tipo)]=meal;
+  const oldKey=mealEditorState.key;
+  const finalKey=oldKey&&oldKey.startsWith(fecha+'__'+tipo+'__')?oldKey:mh173NewMealKey(fecha,tipo);
+  if(oldKey&&oldKey!==finalKey)delete db.meals[oldKey];
+  db.meals[finalKey]=meal;
   localStorage.setItem(KEY,JSON.stringify(db));
 
   mealEditorState.open=false;
@@ -11564,11 +11530,12 @@ function saveMealEditor(){
   render();
 }
 
-function deleteRegisteredMeal(fecha,tipo){
-  const m=getMeal(fecha,tipo);
+function deleteRegisteredMeal(fecha,tipo,key){
+  key=key||fecha+'__'+tipo;
+  const m=db.meals[key];if(!m)return;
   const label=(MEALS.find(x=>x.key===tipo)||{}).label||tipo;
   if(!confirm(`¿Eliminar ${label.toLowerCase()} del ${fechaES(fecha)}?`))return;
-  delete db.meals[mealKey(fecha,tipo)];
+  delete db.meals[key];
   localStorage.setItem(KEY,JSON.stringify(db));
   renderRegisteredMeals();
   render();
@@ -11595,7 +11562,7 @@ function renderRegisteredMeals(){
       </summary>
       <div class="registered-meal-body">
         ${dishes.map((d,idx)=>`<div class="registered-meal-dish"><div><b class="dish-name">${dishOrdinal(idx+1)} plato</b><div>${escapeMealText(d.text||'')}</div><small>${Math.round(Number(d.prot)||0)} g proteína · ${Math.round(Number(d.carbs)||0)} g hidratos · ${Math.round(Number(d.sugars)||0)} g azúcares totales · ${d.freeSugars==null?'—':Math.round(Number(d.freeSugars)||0)+' g'} libres · ${Math.round(Number(d.fat)||0)} g grasas · ${Math.round(Number(d.fiber)||0)} g fibra</small></div><div class="dish-kcal">${Math.round(Number(d.kcal)||0)} kcal</div></div>`).join('')}
-        <div class="registered-meal-actions"><button type="button" class="primary-small" onclick="editRegisteredMeal('${m.fecha}','${m.tipo}')">Modificar</button><button type="button" class="set-remove" onclick="deleteRegisteredMeal('${m.fecha}','${m.tipo}')">Eliminar</button></div>
+        <div class="registered-meal-actions"><button type="button" class="primary-small" onclick="editRegisteredMeal('${m.fecha}','${m.tipo}','${Object.keys(db.meals).find(k=>db.meals[k]===m)}')">Modificar</button><button type="button" class="set-remove" onclick="deleteRegisteredMeal('${m.fecha}','${m.tipo}','${Object.keys(db.meals).find(k=>db.meals[k]===m)}')">Eliminar</button></div>
       </div>
     </details>`;
   }).join('');
@@ -11606,6 +11573,7 @@ function renderMeals(){
   const fecha=isoFromES(document.getElementById('cFecha')?.value)||today();
   let hidden='';
   MEALS.forEach(m=>{
+    if(mealEditorState.open&&mealEditorState.tipo===m.key)return;
     const x=getMeal(fecha,m.key);
     hidden+=`
       <input id="hora_${m.key}" type="hidden" value="${x.hora||m.time}">
@@ -11616,7 +11584,7 @@ function renderMeals(){
   });
   if(mealCards)mealCards.innerHTML=hidden;
 
-  const vals=MEALS.map(m=>getMeal(fecha,m.key));
+  const vals=foodMealsForDate(fecha);
   const kcal=vals.reduce((s,x)=>s+(Number(x.kcal)||0),0);
   const prot=vals.reduce((s,x)=>s+(Number(x.prot)||0),0);
   if(typeof mealTotalKcal!=='undefined'&&mealTotalKcal)mealTotalKcal.textContent=`${Math.round(kcal)} / ${kcalTarget().toLocaleString('es-ES')}`;
@@ -19276,7 +19244,7 @@ function render(){
 
  db.peso.sort((a,b)=>a.fecha.localeCompare(b.fecha));let last=db.peso.at(-1), firstAug=db.peso.find(x=>x.fecha>='2026-08-01');
  if(last){mPeso.textContent=last.peso.toFixed(1)+' kg';mGrasa.textContent=last.grasa!=null?last.grasa.toFixed(1)+'%':'—';mPesoDif.textContent=`${(last.peso-db.peso[0].peso).toFixed(1)} kg desde el inicio`;mGrasaDif.textContent=last.grasa!=null?`${(last.grasa-db.peso[0].grasa).toFixed(1)} pp desde el inicio`:''}
- let todaysMeals=MEALS.map(m=>getMeal(today(),m.key));
+ let todaysMeals=foodMealsForDate(today());
  let kcal=todaysMeals.reduce((s,x)=>s+(Number(x.kcal)||0),0),prot=todaysMeals.reduce((s,x)=>s+(Number(x.prot)||0),0);
 
  // Algunos bloques antiguos de Inicio ya no existen; solo se actualizan si siguen presentes.
@@ -21156,7 +21124,7 @@ window.mh23TrainingJump=function(destination){
 #mh25-medication .mh35-subsection[open]>summary{margin-bottom:12px}
 </style>
 <!-- MicroHealth v22.3.167: tomas olvidadas y cierre de avisos -->
-<!-- MicroHealth v22.3.172: peso en dos etapas y sin hábitos en Mi día -->
+<!-- MicroHealth v22.3.173: peso en dos etapas y sin hábitos en Mi día -->
 <script id="mh25-medication-script">
 (function(){
 'use strict';
